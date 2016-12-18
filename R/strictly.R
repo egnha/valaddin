@@ -59,9 +59,32 @@ NULL
 #' @name strictly
 NULL
 
-normalize <- function(x) {
+#' Elaborate a one-sided formula
+#'
+#' As an argument validator, a one-sided formula \code{~p} is a shorthand for
+#' submitting each and every argument of a function to a common check. In order
+#' to implement this shorthand, one-side formula must be elaborated as a
+#' two-side formula that actually performs the check on all arguments, and
+#' produces an appropriate message upon failure. \code{elaborate_fml()} performs
+#' this elaboration.
+#'
+#' @param x One-sided formula.
+#' @param n Number of generations of the call stack to ascend (integer);
+#'   \code{-1L} means going up to the call, \code{-2L} means going up to the
+#'   caller's caller, etc.
+#' @return Two-sided formula.
+#' @keywords internal
+elaborate_fml <- function(x, n) {
+  deparse(lazyeval::f_rhs(x))
+  call <- lazyeval::call_standardize(sys.call(n))
+  formals(sys.function(n))
+}
+
+normalize <- function(x, n = -2L) {
   l <- unpack(x)
-  l
+  is_onesided <- purrr::map_lgl(l, ~ is.null(lazyeval::f_lhs(.x)))
+  l_elab <- purrr::map_if(l, is_onesided, elaborate_fml, n = n)
+  l_elab
 }
 
 check_missing <- function(rarg, sep = ", ") {
@@ -108,6 +131,7 @@ is_strict_closure <- function(x) {
 
 strictly_ <- function(.f, ..., .cond = NULL, .chk_missing = FALSE) {
   cond <- .cond %||% identity
+  # Provisional: `unpack` should be replaced by `normalize` (evtl.)
   chks <- unpack(list(...))
 
   body_orig <- body(.f)
