@@ -1,30 +1,6 @@
 #' @include checks.R utils.R
 NULL
 
-check_missing <- function(rarg, sep = ", ") {
-  substitute({
-    "_args" <- names(match.call()[-1L])
-    "_args_missing" <- setdiff(..rarg.., `_args`)
-    if (length(`_args_missing`) > 0L) {
-      "_msg" <- paste(`_args_missing`, collapse = ..sep..)
-      stop("Missing required arguments: ", `_msg`, call. = FALSE)
-    }
-  }, list(..rarg.. = rarg, ..sep.. = sep))
-}
-check_args <- function(chks, cond, sep = "; ") {
-  substitute({
-    "_env" <- as.list(environment(), all.names = TRUE)
-    "_pass" <- purrr::map_lgl(..chks.., lazyeval::f_eval_rhs, data = `_env`)
-    if (!all(`_pass`)) {
-      "_msg" <- paste(
-        purrr::map_chr(..chks..[!`_pass`], lazyeval::f_eval_lhs, data = `_env`),
-        collapse = ..sep..
-      )
-      stop(..cond..(`_msg`))
-    }
-  }, list(..chks.. = chks, ..cond.. = cond, ..sep.. = sep))
-}
-
 #' Add input validation to a function
 #'
 #' A common form of boilerplate code at the top of functions is argument
@@ -83,6 +59,34 @@ check_args <- function(chks, cond, sep = "; ") {
 #' @name strictly
 NULL
 
+normalize <- function(x) {
+  unpack(x)
+}
+
+check_missing <- function(rarg, sep = ", ") {
+  substitute({
+    "_args" <- names(match.call()[-1L])
+    "_args_missing" <- setdiff(..rarg.., `_args`)
+    if (length(`_args_missing`) > 0L) {
+      "_msg" <- paste(`_args_missing`, collapse = ..sep..)
+      stop("Missing required arguments: ", `_msg`, call. = FALSE)
+    }
+  }, list(..rarg.. = rarg, ..sep.. = sep))
+}
+check_args <- function(chks, cond, sep = "; ") {
+  substitute({
+    "_env" <- as.list(environment(), all.names = TRUE)
+    "_pass" <- purrr::map_lgl(..chks.., lazyeval::f_eval_rhs, data = `_env`)
+    if (!all(`_pass`)) {
+      "_msg" <- paste(
+        purrr::map_chr(..chks..[!`_pass`], lazyeval::f_eval_lhs, data = `_env`),
+        collapse = ..sep..
+      )
+      stop(..cond..(`_msg`))
+    }
+  }, list(..chks.. = chks, ..cond.. = cond, ..sep.. = sep))
+}
+
 #' Create an object of class "strict_closure"
 #'
 #' @param x R object.
@@ -93,7 +97,7 @@ strict_closure <- function(x, ...) {
 
 strictly_ <- function(.f, ..., .cond = NULL, .chk_missing = FALSE) {
   cond <- .cond %||% identity
-  chks <- unpack(list(...))
+  chks <- normalize(list(...))
 
   body_orig <- body(.f)
   sig <- formals(.f)

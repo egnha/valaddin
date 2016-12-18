@@ -1,13 +1,23 @@
+#' Is a checklist valid?
+#'
+#' A valid checklist is either a list of formulas or a list thereof. An empty
+#' list is considered valid.
+#'
+#' @details \code{is_valid_checklist()} is used to check the validity of the
+#'   checklist passed to \code{strictly()}.
+#' @param ... R objects.
+#' @return \code{TRUE} or \code{FALSE}, according to whether \code{list(...)} is
+#'   a valid checklist.
 is_valid_checklist <- function(...) {
+  is_fml <- function(x) purrr::map_lgl(x, purrr::is_formula)
   dots <- list(...)
   if (length(dots) == 0L) {
     TRUE
   } else {
-    is_fml_dots <- purrr::map_lgl(dots, purrr::is_formula)
-    is_fml_list <- length(dots) == 1L &&
-      is.list(dots[[1L]]) &&
-      all(purrr::map_lgl(dots[[1L]], purrr::is_formula))
-    is_fml_dots || is_fml_list
+    d1 <- dots[[1L]]
+    is_fml_list <- length(dots) == 1L && is.list(d1) && all(is_fml(d1))
+    is_fml_dots <- all(is_fml(dots))
+    is_fml_list || is_fml_dots
   }
 }
 
