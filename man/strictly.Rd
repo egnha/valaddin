@@ -10,11 +10,11 @@
 \alias{strictly}
 \title{Add input validation to a function}
 \usage{
+is_strict_closure(x)
+
 strictly(.f, ..., .cond = NULL, .chk_missing = FALSE)
 
 nonstrictly(..f)
-
-is_strict_closure(x)
 
 strict_body(..f)
 
@@ -25,6 +25,8 @@ strict_condition(..f)
 strict_reqarg(..f)
 }
 \arguments{
+\item{x}{R object.}
+
 \item{.f}{Interpreted function, i.e., closure, not a special or primitive
 function.}
 
@@ -40,8 +42,6 @@ are missing? Required arguments are those without default values; they need
 not be invoked when \code{.f} is actually executed.}
 
 \item{..f}{Strict function, i.e., function of class \code{"strict_closure"}.}
-
-\item{x}{R object.}
 }
 \description{
 A common form of boilerplate code at the top of functions is argument

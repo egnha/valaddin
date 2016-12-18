@@ -60,7 +60,8 @@ NULL
 NULL
 
 normalize <- function(x) {
-  unpack(x)
+  l <- unpack(x)
+  l
 }
 
 check_missing <- function(rarg, sep = ", ") {
@@ -95,9 +96,19 @@ strict_closure <- function(x, ...) {
   structure(x, class = c("strict_closure", class(x)), ...)
 }
 
+#' @rdname strictly
+#' @param x R object.
+#' @export
+is_strict_closure <- function(x) {
+  attrs <- c("..body..", "..chks..", "..cond..", "..rarg..")
+  purrr::is_function(x) &&
+    inherits(x, "strict_closure") &&
+    all(attrs %in% names(attributes(x)))
+}
+
 strictly_ <- function(.f, ..., .cond = NULL, .chk_missing = FALSE) {
   cond <- .cond %||% identity
-  chks <- normalize(list(...))
+  chks <- unpack(list(...))
 
   body_orig <- body(.f)
   sig <- formals(.f)
@@ -176,31 +187,29 @@ chk_strictly <- list(
 strictly <- strictly_(strictly_, chk_strictly, .chk_missing = TRUE)
 
 nonstrictly_ <- function(..f) {
-  body <- attr(..f, "..body..", exact = TRUE)
-  f <- eval(call("function", formals(..f), body))
-  environment(f) <- list2env(
-    as.list(environment(..f), all.names = TRUE),
-    parent = parent.env(environment(..f))
-  )
-  f
+  ns_class <- class(..f)[class(..f) != "strict_closure"]
+  if (!is_strict_closure(..f)) {
+    class(..f) <- ns_class
+    ..f
+  } else {
+    body <- attr(..f, "..body..", exact = TRUE)
+    f <- eval(call("function", formals(..f), body))
+    environment(f) <- clone_env(environment(..f))
+    attrs <- c("..body..", "..chks..", "..cond..", "..rarg..")
+    attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), attrs)]
+    class(f) <- ns_class
+    f
+  }
 }
-
-chk_strict_closure <- "Not a strict closure: `..f`" ~ is_strict_closure(..f)
 
 #' @rdname strictly
 #' @param ..f Strict function, i.e., function of class \code{"strict_closure"}.
 #' @export
-nonstrictly <- strictly(nonstrictly_, chk_strict_closure, .chk_missing = TRUE)
+nonstrictly <- strictly(nonstrictly_,
+                        "Not a closure: `..f`" ~ purrr::is_function(..f),
+                        .chk_missing = TRUE)
 
-#' @rdname strictly
-#' @param x R object.
-#' @export
-is_strict_closure <- function(x) {
-  attrs <- c("..body..", "..chks..", "..cond..", "..rarg..")
-  purrr::is_function(x) &&
-    inherits(x, "strict_closure") &&
-    all(attrs %in% names(attributes(x)))
-}
+chk_strict_closure <- "Not a strict closure: `..f`" ~ is_strict_closure(..f)
 
 get_strict_prop <- function(prop, chk = chk_strict_closure) {
   force(prop)
@@ -240,12 +249,12 @@ print.strict_closure <- function(x) {
   chks <- strict_check(x)
   cond <- strict_condition(x)
   rarg <- strict_reqarg(x)
-  x_nonstrict <- nonstrictly(x)
-  environment(x_nonstrict) <- environment(x)
+  x_ns <- nonstrictly(x)
+  environment(x_ns) <- environment(x)
 
   cat("<strict closure>\n")
   cat("\n* Body:\n")
-  print(x_nonstrict)
+  print(x_ns)
   cat("\n* Check missing arguments:\n")
   cat(if (length(rarg) == 0L) "<none>" else rarg, "\n")
   cat("\n* Checks:\n")
@@ -253,4 +262,3 @@ print.strict_closure <- function(x) {
   cat("\n* Condition:\n")
   if (identical(cond, identity)) cat("<default error handler>") else print(cond)
 }
-
