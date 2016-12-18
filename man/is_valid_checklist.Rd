@@ -21,4 +21,5 @@ list is considered valid.
 \code{is_valid_checklist()} is used to check the validity of the
   checklist passed to \code{strictly()}.
 }
+\keyword{internal}
 
