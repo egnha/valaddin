@@ -4,7 +4,16 @@ Version: 0.0.0.9999
 Authors@R: person("Eugene", "Ha", , "eha@posteo.de", c("aut", "cre"))
 Description: Validate the inputs of your function, post factum. This package
     provides a set of basic tools to add argument checks in a functional manner.
-License: GPL-3
+License: MIT + file LICENSE
 LazyData: true
-Imports: lazyeval, purrr
-Suggests: testthat
+Imports:
+    lazyeval,
+    purrr
+Suggests:
+    testthat
+Collate:
+    'checks.R'
+    'utils.R'
+    'strictly.R'
+    'valaddin.R'
+RoxygenNote: 5.0.1
