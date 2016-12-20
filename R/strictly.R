@@ -59,32 +59,55 @@ NULL
 #' @name strictly
 NULL
 
+f_message <- function(x, p) {
+  .x <- lazyeval::expr_find(x)
+  .p <- lazyeval::expr_find(p)
+  if (p(x)) {
+    character(0)
+  } else {
+    paste(deparse(substitute(p(x), list(p = .p, x = .x))), "is FALSE")
+  }
+}
+
 #' Elaborate a one-sided formula
 #'
 #' As an argument validator, a one-sided formula \code{~p} is a shorthand for
-#' submitting each and every argument of a function to a common check. In order
-#' to implement this shorthand, one-side formula must be elaborated as a
-#' two-side formula that actually performs the check on all arguments, and
-#' produces an appropriate message upon failure. \code{elaborate_fml()} performs
-#' this elaboration.
+#' submitting each and every (explicit) argument of a function to a common
+#' check. In order to implement this shorthand, a one-side formula must be
+#' elaborated as a two-side formula that can perform the check on all arguments,
+#' and produce an appropriate failure message. \code{f_onesided()} performs this
+#' elaboration.
 #'
-#' @param x One-sided formula.
-#' @param n Number of generations of the call stack to ascend (integer);
-#'   \code{-1L} means going up to the call, \code{-2L} means going up to the
-#'   caller's caller, etc.
+#' @param f One-sided formula.
+#' @param args Promises.
+#' @param sep Separator (string).
 #' @return Two-sided formula.
 #' @keywords internal
-elaborate_fml <- function(x, n) {
-  deparse(lazyeval::f_rhs(x))
-  call <- lazyeval::call_standardize(sys.call(n))
-  formals(sys.function(n))
+f_onesided <- function(f, args, sep = "; ") {
+  p <- lazyeval::f_rhs(f)
+  q <- function(xs) {
+    paste(purrr::map_chr(xs, f_message, p = p), collapse = sep)
+  }
+  q ~ args
 }
+
+# eval(lazyeval::call_new(lazyeval::f_eval_lhs(f), lazyeval::f_eval_rhs(f)),
+#      lazyeval::f_env(f), `_env`)
+
+f_string <- function(f) {
+  string <- lazyeval::f_lhs(f)
+  p <- lazyeval::f_rhs(f)
+  q <- function(x) {
+    if (x) character(0) else string
+  }
+  q ~ p
+}
+
+f_normalize <- function(f) {}
 
 normalize <- function(x, n = -2L) {
   l <- unpack(x)
-  is_onesided <- purrr::map_lgl(l, ~ is.null(lazyeval::f_lhs(.x)))
-  l_elab <- purrr::map_if(l, is_onesided, elaborate_fml, n = n)
-  l_elab
+  l
 }
 
 check_missing <- function(rarg, sep = ", ") {
@@ -197,16 +220,16 @@ chk_strictly <- list(
 #'   \code{c} must be a monotonically increasing sequence of positive numbers. A
 #'   one-sided formula check is simply a handy shorthand for submitting each and
 #'   every argument to a common check.
-#' @param .f Interpreted function, i.e., closure, not a special or primitive
-#'   function.
-#' @param ... Formulae, or a single list thereof, that specify the
-#'   argument checks for \code{.f}.
+#' @param .f Interpreted function (i.e., closure), not a primitive function.
+#' @param ... Formulae, or single list thereof, that specify the argument checks
+#'   for \code{.f}.
 #' @param .cond Condition object (class \code{"condition"}) to be signaled if
 #'   any of the checks fail. If \code{.cond} is \code{NULL}, the default error
 #'   handler is used.
 #' @param .chk_missing Logical. Should we check whether any required arguments
-#'   are missing? Required arguments are those without default values; they need
-#'   not be invoked when \code{.f} is actually executed.
+#'   are missing? ("Required" arguments are explicit arguments without default
+#'   values; since they are promises, they need not be evaluated in the function
+#'   body.)
 #' @export
 strictly <- strictly_(strictly_, chk_strictly, .chk_missing = TRUE)
 
