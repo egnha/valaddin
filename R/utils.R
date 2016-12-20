@@ -1,3 +1,21 @@
+#' magrittr pipe operator
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+NULL
+
+#' lazyeval unquoting operator
+#'
+#' @name unquote
+#' @rdname unquote
+#' @keywords internal
+#' @importFrom lazyeval uq
+#' @usage uq(x, data)
+NULL
+
 #' Clone an environment
 #'
 #' @details Taken from the section
