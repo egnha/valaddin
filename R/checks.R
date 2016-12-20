@@ -33,3 +33,12 @@ is_valid_checklist <- function(...) {
 is_valid_cond <- function(x) {
   is.null(x) || is_condition(x)
 }
+
+is_f_string <- function(x) {
+  purrr::is_scalar_character(lazyeval::f_lhs(x)) &&
+    is.call(lazyeval::f_rhs(x))
+}
+
+is_f_onesided <- function(x) {
+  is.null(lazyeval::f_lhs(x))
+}
