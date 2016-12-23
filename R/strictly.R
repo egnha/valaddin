@@ -76,10 +76,26 @@ f_errmsg <- function(x, p) {
   }
 }
 
-f_message <- function(f) {
-  msg <- lazyeval::f_rhs(f)
-  p <- lazyeval::f_lhs(f)
-  p ~ function(.) if (.) character(0) else msg
+f_fmessage <- function(f) {
+  msg <- lazyeval::f_lhs(f)
+  p <- lazyeval::f_rhs(f)
+  p ~ function(.lhs) if (.lhs) character(0) else msg
+}
+
+# flist: f_list("name" ~ arg, ...) ~ function
+f_flist <- function(f) {
+  args <- lazyeval::f_eval_lhs(f)
+  pred <- lazyeval::f_eval_rhs(f)
+  collate_msgs <- function(.lhs) {
+    is_ok <- purrr::map_lgl(.lhs, ~ pred(lazyeval::f_eval_rhs(.x)))
+    paste(names(.lhs)[!is_ok], collapse = "; ")
+  }
+  args ~ collate_msgs
+}
+
+f_eval_as_call <- function(f, env = parent.frame()) {
+  eval(lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_eval_lhs(f)),
+       lazyeval::f_env(f), env)
 }
 
 #' Elaborate a one-sided formula
