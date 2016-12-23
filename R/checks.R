@@ -50,3 +50,9 @@ is_fonesided <- function(x) {
 is_flist <- function(x) {
   is.list(x) && all(purrr::map_lgl(x, purrr::is_formula))
 }
+
+is_flist_chk <- function(x) {
+  purrr::is_formula(x) &&
+    is_flist(lazyeval::f_eval_lhs(x)) &&
+    is.function(lazyeval::f_eval_rhs(x))
+}
