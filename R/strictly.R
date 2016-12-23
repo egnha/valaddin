@@ -59,30 +59,7 @@ NULL
 #' @name strictly
 NULL
 
-#' Create a failure message for a value, predicate pair
-#'
-#' @param x R object.
-#' @param p Predicate function.
-#' @return String.
-#' @keywords internal
-f_errmsg <- function(x, p) {
-  .x <- lazyeval::expr_find(x)
-  .p <- lazyeval::expr_find(p)
-  if (p(x)) {
-    character(0)
-  } else {
-    # FIX: Might have length greater than 1!
-    paste(deparse(substitute(p(x), list(p = .p, x = .x))), "is FALSE")
-  }
-}
-
-f_fmessage <- function(f) {
-  msg <- lazyeval::f_lhs(f)
-  p <- lazyeval::f_rhs(f)
-  p ~ function(.lhs) if (.lhs) character(0) else msg
-}
-
-# flist: f_list("name" ~ arg, ...) ~ function
+# f: f_list("message" ~ arg, ...) ~ function
 f_flist <- function(f) {
   args <- lazyeval::f_eval_lhs(f)
   sym_pred <- lazyeval::f_rhs(f)
@@ -105,43 +82,11 @@ f_flist <- function(f) {
   args ~ collate_msgs
 }
 
-f_eval_as_call <- function(f, env = parent.frame()) {
-  eval(lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_eval_lhs(f)),
-       lazyeval::f_env(f), env)
-}
-
-#' Elaborate a one-sided formula
-#'
-#' As an argument validator, a one-sided formula \code{~p} is a shorthand for
-#' submitting each and every (explicit) argument of a function to a common
-#' check. In order to implement this shorthand, a one-side formula must be
-#' elaborated as a two-side formula that can perform the check on all arguments,
-#' and produce an appropriate failure message. \code{f_onesided()} performs this
-#' elaboration.
-#'
-#' @param f One-sided formula.
-#' @param args Promises.
-#' @param sep Separator (string).
-#' @return Two-sided formula.
-#' @keywords internal
-f_onesided <- function(f, l_args, sep = "; ") {
-  p <- lazyeval::f_eval_rhs(f)
-  q <- function(xs) {
-    paste(purrr::map_chr(xs, f_errmsg, p = p), collapse = sep)
-  }
-  q ~ l_args  # should these be lazy objects?
-}
-
-# eval(lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_eval_lhs(f)),
-#      lazyeval::f_env(f), `_env`)
-
-f_string <- function(f) {
-  string <- lazyeval::f_lhs(f)
-  p <- lazyeval::f_rhs(f)
-  q <- function(x) {
-    if (x) character(0) else string
-  }
-  q ~ p
+f_eval_as_call <- function(f, env = lazyeval::f_env(f), enc = parent.frame()) {
+  eval(
+    lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_eval_lhs(f)),
+    envir = env, enclos = enc
+  )
 }
 
 normalize <- function(x, n = -2L) {
