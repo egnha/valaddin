@@ -65,7 +65,7 @@ NULL
 #' @param p Predicate function.
 #' @return String.
 #' @keywords internal
-f_message <- function(x, p) {
+f_errmsg <- function(x, p) {
   .x <- lazyeval::expr_find(x)
   .p <- lazyeval::expr_find(p)
   if (p(x)) {
@@ -74,6 +74,12 @@ f_message <- function(x, p) {
     # FIX: Might have length greater than 1!
     paste(deparse(substitute(p(x), list(p = .p, x = .x))), "is FALSE")
   }
+}
+
+f_message <- function(f) {
+  msg <- lazyeval::f_rhs(f)
+  p <- lazyeval::f_lhs(f)
+  p ~ function(.) if (.) character(0) else msg
 }
 
 #' Elaborate a one-sided formula
@@ -93,12 +99,12 @@ f_message <- function(x, p) {
 f_onesided <- function(f, l_args, sep = "; ") {
   p <- lazyeval::f_eval_rhs(f)
   q <- function(xs) {
-    paste(purrr::map_chr(xs, f_message, p = p), collapse = sep)
+    paste(purrr::map_chr(xs, f_errmsg, p = p), collapse = sep)
   }
   q ~ l_args  # should these be lazy objects?
 }
 
-# eval(lazyeval::call_new(lazyeval::f_eval_lhs(f), lazyeval::f_eval_rhs(f)),
+# eval(lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_eval_lhs(f)),
 #      lazyeval::f_env(f), `_env`)
 
 f_string <- function(f) {
