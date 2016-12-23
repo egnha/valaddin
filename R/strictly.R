@@ -85,11 +85,23 @@ f_fmessage <- function(f) {
 # flist: f_list("name" ~ arg, ...) ~ function
 f_flist <- function(f) {
   args <- lazyeval::f_eval_lhs(f)
+  sym_pred <- lazyeval::f_rhs(f)
+  is_empty <- names(args) == ""
+  msg_auto <- purrr::map_chr(args[is_empty], ~ {
+    # Probably want to ensure `val` is a scalar
+    val <- deparse(
+      substitute(p(arg), list(p = sym_pred, arg = lazyeval::f_rhs(.)))
+    )
+    paste0("`", val, "` is FALSE")
+  })
+  names(args)[is_empty] <- msg_auto
+
   pred <- lazyeval::f_eval_rhs(f)
   collate_msgs <- function(.lhs) {
     is_ok <- purrr::map_lgl(.lhs, ~ pred(lazyeval::f_eval_rhs(.x)))
     paste(names(.lhs)[!is_ok], collapse = "; ")
   }
+
   args ~ collate_msgs
 }
 
