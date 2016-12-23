@@ -34,11 +34,19 @@ is_valid_cond <- function(x) {
   is.null(x) || is_condition(x)
 }
 
-is_f_string <- function(x) {
-  purrr::is_scalar_character(lazyeval::f_lhs(x)) &&
-    is.call(lazyeval::f_rhs(x))
+is_f_message <- function(x) {
+  if (!purrr::is_formula(x)) {
+    FALSE
+  } else {
+    is.call(lazyeval::f_lhs(x)) &&
+      purrr::is_scalar_character(lazyeval::f_rhs(x))
+  }
 }
 
 is_f_onesided <- function(x) {
-  is.null(lazyeval::f_lhs(x))
+  purrr::is_formula(x) && is.null(lazyeval::f_lhs(x))
+}
+
+is_flist <- function(x) {
+  is.list(x) && all(purrr::map_lgl(x, purrr::is_formula))
 }
