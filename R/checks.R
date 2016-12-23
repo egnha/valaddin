@@ -38,8 +38,8 @@ is_fmessage <- function(x) {
   if (!purrr::is_formula(x)) {
     FALSE
   } else {
-    is.call(lazyeval::f_lhs(x)) &&
-      purrr::is_scalar_character(lazyeval::f_rhs(x))
+    purrr::is_scalar_character(lazyeval::f_lhs(x)) &&
+      is.function(lazyeval::f_rhs(x))
   }
 }
 
