@@ -34,7 +34,7 @@ is_valid_cond <- function(x) {
   is.null(x) || is_condition(x)
 }
 
-is_f_message <- function(x) {
+is_fmessage <- function(x) {
   if (!purrr::is_formula(x)) {
     FALSE
   } else {
@@ -43,7 +43,7 @@ is_f_message <- function(x) {
   }
 }
 
-is_f_onesided <- function(x) {
+is_fonesided <- function(x) {
   purrr::is_formula(x) && is.null(lazyeval::f_lhs(x))
 }
 
