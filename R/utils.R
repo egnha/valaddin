@@ -7,7 +7,7 @@
 #' @usage lhs \%>\% rhs
 NULL
 
-#' lazyeval unquoting operator
+#' Unquoting operator
 #'
 #' @name unquote
 #' @rdname unquote
@@ -15,6 +15,17 @@ NULL
 #' @importFrom lazyeval uq
 #' @usage uq(x, data)
 NULL
+
+#' Find the data associated with a given object (generic)
+#'
+#' @name find_data
+#' @rdname find_data
+#' @keywords internal
+#' @importFrom lazyeval find_data
+#' @usage find_data(x)
+NULL
+
+find_data.environment <- function(x) x
 
 #' Clone an environment
 #'
