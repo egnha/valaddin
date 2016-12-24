@@ -7,6 +7,30 @@
 #' @usage lhs \%>\% rhs
 NULL
 
+#' Default value for \code{NULL}.
+#'
+#' @details Taken from the section
+#'   \href{http://adv-r.had.co.nz/Functions.html#special-calls}{Special calls}
+#'   of the book \emph{Advanced R}, by Hadley Wickham.
+#' @param x,y R objects.
+#' @name null-default
+#' @keywords internal
+`%||%` <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
+#' Clone an environment
+#'
+#' @details Taken from the section
+#'   \href{http://adv-r.had.co.nz/dsl.html#latex}{LaTeX} of the book
+#'   \emph{Advanced R}, by Hadley Wickham.
+#' @param env,parent Environments.
+#' @return Clone of the environment \code{x}.
+#' @keywords internal
+clone_env <- function(env, parent = parent.env(env)) {
+  list2env(as.list(env, all.names = TRUE), parent = parent)
+}
+
 #' Unquoting operator
 #'
 #' @name unquote
@@ -25,31 +49,8 @@ NULL
 #' @usage find_data(x)
 NULL
 
+#' @export
 find_data.environment <- function(x) x
-
-#' Clone an environment
-#'
-#' @details Taken from the section
-#'   \href{http://adv-r.had.co.nz/dsl.html#latex}{LaTeX} of the book
-#'   \emph{Advanced R}, by Hadley Wickham.
-#' @param env,parent Environments.
-#' @return Clone of the environment \code{x}.
-#' @keywords internal
-clone_env <- function(env, parent = parent.env(env)) {
-  list2env(as.list(env, all.names = TRUE), parent = parent)
-}
-
-#' Default value for \code{NULL}.
-#'
-#' @details Taken from the section
-#'   \href{http://adv-r.had.co.nz/Functions.html#special-calls}{Special calls}
-#'   of the book \emph{Advanced R}, by Hadley Wickham.
-#' @param x,y R objects.
-#' @name null-default
-#' @keywords internal
-`%||%` <- function(x, y) {
-  if (is.null(x)) y else x
-}
 
 #' Create a condition object
 #'
