@@ -31,6 +31,8 @@ clone_env <- function(env, parent = parent.env(env)) {
   list2env(as.list(env, all.names = TRUE), parent = parent)
 }
 
+#' Method for \code{lazyeval::find_data}
+#'
 #' @keywords internal
 #' @export
 find_data.environment <- function(x) x
