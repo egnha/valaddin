@@ -52,7 +52,11 @@ is_flist <- function(x) {
 }
 
 is_flist_chk <- function(x) {
-  purrr::is_formula(x) &&
+  if (!purrr::is_formula(x)) {
+    FALSE
+  } else {
+    rhs <- lazyeval::f_eval_rhs(x)
     is_flist(lazyeval::f_eval_lhs(x)) &&
-    is.function(lazyeval::f_eval_rhs(x))
+      (is.function(rhs) || purrr::is_formula(rhs))
+  }
 }
