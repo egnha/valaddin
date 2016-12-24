@@ -31,24 +31,7 @@ clone_env <- function(env, parent = parent.env(env)) {
   list2env(as.list(env, all.names = TRUE), parent = parent)
 }
 
-#' Unquoting operator
-#'
-#' @name unquote
-#' @rdname unquote
 #' @keywords internal
-#' @importFrom lazyeval uq
-#' @usage uq(x, data)
-NULL
-
-#' Find the data associated with a given object (generic)
-#'
-#' @name find_data
-#' @rdname find_data
-#' @keywords internal
-#' @importFrom lazyeval find_data
-#' @usage find_data(x)
-NULL
-
 #' @export
 find_data.environment <- function(x) x
 
@@ -84,15 +67,6 @@ args_wo_defval <- function(sig) {
   args <- sig[names(sig) != "..."]
   no_defval <- purrr::map_lgl(args, is_symb_void)
   names(args)[no_defval]
-}
-
-#' Unpack a list of a list
-#'
-#' @param x List.
-#' @return \code{x[[1L]]}, if \code{x} is a list of a list, otherwise \code{x}.
-#' @keywords internal
-unpack <- function(x) {
-  if (length(x) == 1L && is.list(x[[1L]])) x[[1L]] else x
 }
 
 print_enumerate <- function(x) {
