@@ -84,7 +84,7 @@ template_check_args <- function(chks, cond) {
       if (any(`_is_not_empty`)) {
         `_call` <- paste0(paste(deparse(match.call()), collapse = ""), ":")
         `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
-        stop(..cond..(paste(`_call`, `_msg`)), call. = FALSE)
+        stop(..cond..(paste(`_call`, `_msg`)))
       }
     },
     list(..chks.. = chks,
