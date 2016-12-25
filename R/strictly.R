@@ -153,7 +153,7 @@ is_strict_closure <- function(x) {
 strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE,
                       .condition = NULL) {
   cond <- .condition %||% identity
-  chks_orig <- c(list(...), .checklist)
+  chks_orig <- c(list(...), .checklist, attr(.f, "..chks..", exact = TRUE))
   chks <- make_checklist(chks_orig)
 
   body_orig <- body(.f)
