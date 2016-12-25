@@ -76,7 +76,7 @@ eval_flist <- function(f, env) {
   paste(names(args)[!is_ok], collapse = "; ")
 }
 
-template_check_args <- function(chks, cond) {
+check_args <- function(chks) {
   substitute(
     {
       `_msgs` <- purrr::map_chr(..chks.., ..eval.., env = environment())
@@ -84,29 +84,11 @@ template_check_args <- function(chks, cond) {
       if (any(`_is_not_empty`)) {
         `_call` <- paste0(paste(deparse(match.call()), collapse = ""), ":")
         `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
-        stop(..cond..(paste(`_call`, `_msg`)))
+        stop(paste(`_call`, `_msg`), call. = FALSE)
       }
     },
-    list(..chks.. = chks,
-         ..cond.. = cond,
-         ..eval.. = quote(valaddin::eval_flist))
+    list(..chks.. = chks, ..eval.. = quote(valaddin::eval_flist))
   )
-}
-
-join_exprs <- function(..., .exprs = list()) {
-  exprs <- c(list(...), .exprs)
-  nms <- paste0("..EXPR..", seq_along(exprs))
-  l <- setNames(exprs, nms)
-  template <- paste0("substitute({", paste(nms, collapse = "; "), "}, l)")
-  eval(parse(text = template))
-}
-
-check_args <- function(x) {
-  check <- dplyr::do_(
-    dplyr::group_by_(x, ~condition_id),
-    template = ~ template_check_args(.$check, .$condition[[1L]])
-  )
-  join_exprs(.exprs = check$template)
 }
 
 check_missing <- function(req_arg) {
@@ -141,16 +123,6 @@ generate_msgs <- function(f) {
   predicate <- purrr::as_function(lazyeval::f_eval_rhs(f))
 
   args ~ predicate
-}
-
-chk_by_cond <- function(chks, cond) {
-  cond <- cond %||% identity
-  cond_id <- digest::digest(cond, algo = "md5")
-  dplyr::data_frame(
-    condition = list(cond),
-    condition_id = cond_id,
-    check = purrr::map(chks, generate_msgs)
-  )
 }
 
 #' Create an object of class "strict_closure"
@@ -198,8 +170,7 @@ strict_check <- get_attribute("..chks..")
 strict_reqarg <- get_attribute("..req_arg..")
 
 #' @export
-strictly_ <- function(.f, ..., .checklist = list(),
-                      .check_missing = FALSE, .condition = NULL) {
+strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE) {
   sig <- formals(.f)
   body_orig <- strict_body(.f) %||% body(.f)
 
@@ -208,18 +179,28 @@ strictly_ <- function(.f, ..., .checklist = list(),
   sub_chk_missing <- length(req_arg_orig) || (.check_missing && length(req_arg))
   chk_missing <- if (sub_chk_missing) check_missing(req_arg) else quote(NULL)
 
-  .chks <- c(list(...), .checklist)
-  .chks_df <- if (length(.chks)) chk_by_cond(.chks, .condition) else NULL
-  chks_df <- dplyr::bind_rows(strict_check(.f), .chks_df)
-  chk_args <- if (nrow(chks_df)) check_args(chks_df) else quote(NULL)
+  chks <- c(
+    strict_check(.f),
+    purrr::map(c(list(...), .checklist), generate_msgs)
+  )
+  chk_args <- if (length(chks)) check_args(chks) else quote(NULL)
 
-  body <- join_exprs(chk_missing, chk_args, body_orig)
+  body <- substitute(
+    {
+      ..chk_missing..
+      ..chk_args..
+      ..body..
+    },
+    list(..chk_missing.. = chk_missing,
+         ..chk_args..    = chk_args,
+         ..body..        = body_orig)
+  )
 
   f <- eval(call("function", sig, as.call(body)))
   environment(f) <- clone_env(environment(.f))
   attributes(f)  <- attributes(.f)
   attr(f, "..body..") <- body_orig
-  attr(f, "..chks..") <- chks_df
+  attr(f, "..chks..") <- chks
   attr(f, "..req_arg..") <- if (sub_chk_missing) req_arg else NULL
 
   if (is_strict_closure(.f)) f else strict_closure(f)
@@ -229,8 +210,6 @@ chk_strictly <- list(
   list("`.f` not a (interpreted) function" ~ .f) ~ purrr::is_function,
   list("`.check_missing` not logical" ~ .check_missing) ~
     purrr::is_scalar_logical,
-  list("`.condition` not `NULL` or a (condition) function" ~ .condition) ~
-    function(.) is.null(.) || is.function(.),
   list("`.checklist` not a list of formula" ~ .checklist) ~ is_flist
   # "Checklist not formulae or list thereof" ~ is_valid_checklist(...),
 )
@@ -305,7 +284,8 @@ nonstrictly_ <- function(..f) {
 #' @export
 nonstrictly <- strictly_(
   nonstrictly_,
-  list("`..f` not a closure" ~ ..f) ~ purrr::is_function, .check_missing = TRUE
+  list("`..f` not a closure" ~ ..f) ~ purrr::is_function,
+  .check_missing = TRUE
 )
 
 #' @export
@@ -321,9 +301,5 @@ print.strict_closure <- function(x) {
   cat("\n* Check missing arguments:\n")
   cat(if (length(req_arg)) req_arg else "<none>", "\n")
   cat("\n* Checks:\n")
-  if (length(chks)) {
-    print(dplyr::select_(chks, ~-condition_id))
-  } else {
-    cat("<none>\n")
-  }
+  if (length(chks)) print_enumerate(chks) else cat("<none>\n")
 }

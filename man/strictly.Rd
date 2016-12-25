@@ -17,8 +17,7 @@ strict_check(x)
 
 strict_reqarg(x)
 
-strictly(.f, ..., .checklist = list(), .check_missing = FALSE,
-  .condition = NULL)
+strictly(.f, ..., .checklist = list(), .check_missing = FALSE)
 
 nonstrictly(..f)
 }
