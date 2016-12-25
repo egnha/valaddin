@@ -78,13 +78,12 @@ generate_msgs <- function(f) {
       ), which = "both"),
       collapse = ""
     )
-    paste(.call, "is FALSE")
+    paste(.call, "is not TRUE")
   })
   names(args)[is_empty] <- msg_auto
   predicate <- purrr::as_function(lazyeval::f_eval_rhs(f))
 
-  f_norm <- args ~ predicate
-  eval(eval(substitute(substitute(x, lazyeval::f_env(f_norm)), list(x = f_norm))))
+  args ~ predicate
 }
 
 #' @export
@@ -92,7 +91,8 @@ eval_flist <- function(f, env) {
   args <- lazyeval::f_eval_lhs(f)
   pred <- lazyeval::f_eval_rhs(f)
   is_ok <- purrr::map_lgl(args, function(.) {
-    pred(lazyeval::f_eval_rhs(., data = env))
+    tryCatch(pred(lazyeval::f_eval_rhs(., data = env)),
+             error = function(e) FALSE)
   })
   paste(names(args)[!is_ok], collapse = "; ")
 }
@@ -101,27 +101,23 @@ make_checklist <- function(x) {
   purrr::map_if(x, is_flist_chk, generate_msgs)
 }
 
-check_missing <- function(rarg) {
-  substitute({
-    `_args` <- names(match.call(expand.dots = FALSE)[-1L])
-    `_msg` <- paste(setdiff(..rarg.., `_args`), collapse = ", ")
-    if (`_msg` != "") {
-      stop("Missing required arguments: ", `_msg`, call. = FALSE)
-    }
-  }, list(..rarg.. = rarg))
-}
+check_missing <- substitute({
+  `_args` <- names(match.call(expand.dots = FALSE)[-1L])
+  `_msg` <- paste(setdiff(..rarg.., `_args`), collapse = ", ")
+  if (`_msg` != "") {
+    stop("Missing required arguments: ", `_msg`, call. = FALSE)
+  }
+})
 
-check_args <- function(chks, cond) {
-  substitute({
-    `_msgs` <- purrr::map_chr(..chks.., valaddin::eval_flist,
-                              env = environment())
-    `_is_not_empty` <- `_msgs` != ""
-    if (any(`_is_not_empty`)) {
-      `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
-      stop(..cond..(`_msg`), call. = FALSE)
-    }
-  }, list(..chks.. = chks, ..cond.. = cond))
-}
+check_args <- substitute({
+  `_msgs` <- purrr::map_chr(..chks.., ..eval_flist.., env = environment())
+  `_is_not_empty` <- `_msgs` != ""
+  if (any(`_is_not_empty`)) {
+    `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
+    stop(..cond..(`_msg`), call. = FALSE)
+  }},
+  list(..eval_flist.. = quote(valaddin::eval_flist))
+)
 
 #' Create an object of class "strict_closure"
 #'
@@ -151,8 +147,8 @@ strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE,
   body_orig <- body(.f)
   sig <- formals(.f)
   rarg <- args_wo_defval(sig)
-  chk_missing_args <- if (.check_missing) check_missing(rarg) else quote(NULL)
-  chk_args <- if (length(chks)) check_args(chks, cond) else quote(NULL)
+  chk_missing_args <- if (.check_missing) check_missing else quote(NULL)
+  chk_args <- if (length(chks)) check_args else quote(NULL)
   body <- substitute({
     ..chk_missing_args..
     ..chk_args..
@@ -163,6 +159,9 @@ strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE,
 
   f <- eval(call("function", sig, as.call(body)))
   environment(f) <- clone_env(environment(.f))
+  environment(f)$..chks.. <- chks
+  environment(f)$..rarg.. <- if (.check_missing) rarg else character(0)
+  environment(f)$..cond.. <- cond
   attributes(f)  <- attributes(.f)
   attr(f, "..body..") <- body_orig
   attr(f, "..chks..") <- chks_orig
