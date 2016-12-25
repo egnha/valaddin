@@ -1,3 +1,6 @@
+#' @include utils.R
+NULL
+
 #' Is a checklist valid?
 #'
 #' A valid checklist is either a list of formulas or a list thereof. An empty
@@ -24,13 +27,13 @@ is_valid_checklist <- function(...) {
 
 #' Is a condition valid?
 #'
-#' @details \code{is_valid_cond()} is used to check the validity of the
+#' @details \code{is_valid_condition()} is used to check the validity of the
 #'   condition argument (\code{.cond}) of \code{strictly()}.
 #' @param x R object.
 #' @return \code{TRUE} or \code{FALSE}, according to whether \code{x} is
 #'   a valid value for \code{.cond} in \code{strictly()}.
 #' @keywords internal
-is_valid_cond <- function(x) {
+is_valid_condition <- function(x) {
   is.null(x) || is_condition(x)
 }
 

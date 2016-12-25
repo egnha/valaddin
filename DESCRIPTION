@@ -11,9 +11,9 @@ Imports:
     purrr
 Suggests:
     testthat
+RoxygenNote: 5.0.1
 Collate:
-    'checks.R'
     'utils.R'
+    'checks.R'
     'strictly.R'
     'valaddin.R'
-RoxygenNote: 5.0.1

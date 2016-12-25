@@ -12,7 +12,8 @@
 \usage{
 is_strict_closure(x)
 
-strictly(.f, ..., .cond = NULL, .chk_missing = FALSE)
+strictly(.f, ..., .checklist = list(), .check_missing = FALSE,
+  .condition = NULL)
 
 nonstrictly(..f)
 
@@ -27,21 +28,21 @@ strict_reqarg(..f)
 \arguments{
 \item{x}{R object.}
 
-\item{.f}{Interpreted function, i.e., closure, not a special or primitive
-function.}
+\item{.f}{Interpreted function (i.e., closure), not a primitive function.}
 
-\item{...}{Formulae, or a single list thereof, that specify the
-argument checks for \code{.f}.}
+\item{...}{Formulae, or single list thereof, that specify the argument checks
+for \code{.f}.}
+
+\item{..f}{Strict function, i.e., function of class \code{"strict_closure"}.}
 
 \item{.cond}{Condition object (class \code{"condition"}) to be signaled if
 any of the checks fail. If \code{.cond} is \code{NULL}, the default error
 handler is used.}
 
 \item{.chk_missing}{Logical. Should we check whether any required arguments
-are missing? Required arguments are those without default values; they need
-not be invoked when \code{.f} is actually executed.}
-
-\item{..f}{Strict function, i.e., function of class \code{"strict_closure"}.}
+are missing? ("Required" arguments are explicit arguments without default
+values; since they are promises, they need not be evaluated in the function
+body.)}
 }
 \description{
 A common form of boilerplate code at the top of functions is argument
