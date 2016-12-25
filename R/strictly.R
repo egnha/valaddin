@@ -1,5 +1,11 @@
-#' @include checks.R utils.R
+#' @include checks.R
 NULL
+
+#' Method for \code{lazyeval::find_data}
+#'
+#' @keywords internal
+#' @export
+find_data.environment <- function(x) x
 
 #' Add input validation to a function
 #'
@@ -59,63 +65,62 @@ NULL
 #' @name strictly
 NULL
 
-# f: f_list("message" ~ arg, ...) ~ function
-f_flist <- function(f) {
-  args <- lazyeval::f_eval_lhs(f)
+# f: list("message" ~ arg, ...) ~ function
+#' @export
+normalize_flist <- function(f) {
+  args <- do.call(lazyeval::f_list, lazyeval::f_eval_lhs(f))
   sym_pred <- lazyeval::f_rhs(f)
   is_empty <- names(args) == ""
-  msg_auto <- purrr::map_chr(args[is_empty], ~ {
-    # Probably want to ensure `val` is a scalar
-    val <- deparse(
-      substitute(p(arg), list(p = sym_pred, arg = lazyeval::f_rhs(.)))
+  msg_auto <- purrr::map_chr(args[is_empty], function(.) {
+    .call <- paste(
+      trimws(deparse(
+        substitute(p(arg), list(p = sym_pred, arg = lazyeval::f_rhs(.)))
+      ), which = "both"),
+      collapse = ""
     )
-    paste0("`", val, "` is FALSE")
+    paste(.call, "is FALSE")
   })
   names(args)[is_empty] <- msg_auto
+  predicate <- purrr::as_function(lazyeval::f_eval_rhs(f))
 
+  f_norm <- args ~ predicate
+  eval(eval(substitute(substitute(x, lazyeval::f_env(f_norm)), list(x = f_norm))))
+}
+
+#' @export
+eval_flist <- function(f, env) {
+  args <- lazyeval::f_eval_lhs(f)
   pred <- lazyeval::f_eval_rhs(f)
-  collate_msgs <- function(.lhs) {
-    is_ok <- purrr::map_lgl(.lhs, ~ pred(lazyeval::f_eval_rhs(.x)))
-    paste(names(.lhs)[!is_ok], collapse = "; ")
-  }
-
-  args ~ collate_msgs
+  is_ok <- purrr::map_lgl(args, function(.) {
+    pred(lazyeval::f_eval_rhs(., data = env))
+  })
+  paste(names(args)[!is_ok], collapse = "; ")
 }
 
-f_eval_as_call <- function(f, env = lazyeval::f_env(f), enc = parent.frame()) {
-  eval(
-    lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_eval_lhs(f)),
-    envir = env, enclos = enc
-  )
+make_checklist <- function(x) {
+  purrr::map_if(x, is_flist_chk, normalize_flist)
 }
 
-normalize <- function(x, n = -2L) {
-  l <- unpack(x)
-  l
-}
-
-check_missing <- function(rarg, sep = ", ") {
+check_missing <- function(rarg) {
   substitute({
-    "_args" <- names(match.call()[-1L])
-    "_args_missing" <- setdiff(..rarg.., `_args`)
-    if (length(`_args_missing`) > 0L) {
-      "_msg" <- paste(`_args_missing`, collapse = ..sep..)
+    `_args` <- names(match.call(expand.dots = FALSE)[-1L])
+    `_msg` <- paste(setdiff(..rarg.., `_args`), collapse = ", ")
+    if (`_msg` != "") {
       stop("Missing required arguments: ", `_msg`, call. = FALSE)
     }
-  }, list(..rarg.. = rarg, ..sep.. = sep))
+  }, list(..rarg.. = rarg))
 }
-check_args <- function(chks, cond, sep = "; ") {
+
+check_args <- function(chks, cond) {
   substitute({
-    "_env" <- as.list(environment(), all.names = TRUE)
-    "_pass" <- purrr::map_lgl(..chks.., lazyeval::f_eval_rhs, data = `_env`)
-    if (!all(`_pass`)) {
-      "_msg" <- paste(
-        purrr::map_chr(..chks..[!`_pass`], lazyeval::f_eval_lhs, data = `_env`),
-        collapse = ..sep..
-      )
-      stop(..cond..(`_msg`))
+    `_msgs` <- purrr::map_chr(..chks.., valaddin::eval_flist,
+                              env = environment())
+    `_is_not_empty` <- `_msgs` != ""
+    if (any(`_is_not_empty`)) {
+      `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
+      stop(..cond..(`_msg`), call. = FALSE)
     }
-  }, list(..chks.. = chks, ..cond.. = cond, ..sep.. = sep))
+  }, list(..chks.. = chks, ..cond.. = cond))
 }
 
 #' Create an object of class "strict_closure"
@@ -136,16 +141,18 @@ is_strict_closure <- function(x) {
     all(attrs %in% names(attributes(x)))
 }
 
-strictly_ <- function(.f, ..., .cond = NULL, .chk_missing = FALSE) {
-  cond <- .cond %||% identity
-  # Provisional: `unpack` should be replaced by `normalize` (evtl.)
-  chks <- unpack(list(...))
+#' @export
+strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE,
+                      .condition = NULL) {
+  cond <- .condition %||% identity
+  chks_orig <- c(list(...), .checklist)
+  chks <- make_checklist(chks_orig)
 
   body_orig <- body(.f)
   sig <- formals(.f)
   rarg <- args_wo_defval(sig)
-  chk_missing_args <- if (.chk_missing) check_missing(rarg) else quote(NULL)
-  chk_args <- if (length(chks) == 0L) quote(NULL) else check_args(chks, cond)
+  chk_missing_args <- if (.check_missing) check_missing(rarg) else quote(NULL)
+  chk_args <- if (length(chks)) check_args(chks, cond) else quote(NULL)
   body <- substitute({
     ..chk_missing_args..
     ..chk_args..
@@ -158,18 +165,21 @@ strictly_ <- function(.f, ..., .cond = NULL, .chk_missing = FALSE) {
   environment(f) <- clone_env(environment(.f))
   attributes(f)  <- attributes(.f)
   attr(f, "..body..") <- body_orig
-  attr(f, "..chks..") <- chks
+  attr(f, "..chks..") <- chks_orig
   attr(f, "..cond..") <- cond
-  attr(f, "..rarg..") <- if (.chk_missing) rarg else character(0)
+  attr(f, "..rarg..") <- if (.check_missing) rarg else character(0)
 
   strict_closure(f)
 }
 
 chk_strictly <- list(
-  "Not an (interpreted) function: `.f`" ~ purrr::is_function(.f),
-  "Checklist not formulae or list thereof" ~ is_valid_checklist(...),
-  "Must be `NULL` or a condition: `.cond`" ~ is_valid_cond(.cond),
-  "Not logical: `.chk_missing`" ~ purrr::is_scalar_logical(.chk_missing)
+  list("`.f` not a (interpreted) function" ~ .f) ~ purrr::is_function,
+  list("`.check_missing` not logical" ~ .check_missing) ~
+    purrr::is_scalar_logical,
+  list("`.condition` not `NULL` or a condition" ~ .condition) ~
+    function(.) is.null(.) || is_condition(.),
+  list("`.checklist` not a list of formula" ~ .checklist) ~ is_flist
+  # "Checklist not formulae or list thereof" ~ is_valid_checklist(...),
 )
 
 #' @rdname strictly
@@ -215,8 +225,12 @@ chk_strictly <- list(
 #'   values; since they are promises, they need not be evaluated in the function
 #'   body.)
 #' @export
-strictly <- strictly_(strictly_, chk_strictly, .chk_missing = TRUE)
+strictly <- strictly_(
+  strictly_,
+  .checklist = chk_strictly, .check_missing = TRUE
+)
 
+#' @export
 nonstrictly_ <- function(..f) {
   ns_class <- class(..f)[class(..f) != "strict_closure"]
   if (!is_strict_closure(..f)) {
@@ -236,18 +250,15 @@ nonstrictly_ <- function(..f) {
 #' @rdname strictly
 #' @param ..f Strict function, i.e., function of class \code{"strict_closure"}.
 #' @export
-nonstrictly <- strictly(nonstrictly_,
-                        "Not a closure: `..f`" ~ purrr::is_function(..f),
-                        .chk_missing = TRUE)
+nonstrictly <- strictly_(
+  nonstrictly_,
+  list("`..f` not a closure" ~ ..f) ~ purrr::is_function, .check_missing = TRUE
+)
 
-chk_strict_closure <- "Not a strict closure: `..f`" ~ is_strict_closure(..f)
-
-get_strict_prop <- function(prop, chk = chk_strict_closure) {
+get_strict_prop <- function(prop) {
   force(prop)
-  force(chk)
-  strictly(function(..f) {
-    attr(..f, prop, exact = TRUE)
-  }, chk)
+  chk <- list("`..f` not a strict closure" ~ ..f) ~ is_strict_closure
+  strictly_(function(..f) attr(..f, prop, exact = TRUE), chk)
 }
 
 #' @rdname strictly
@@ -280,7 +291,7 @@ print.strict_closure <- function(x) {
   chks <- strict_check(x)
   cond <- strict_condition(x)
   rarg <- strict_reqarg(x)
-  x_ns <- nonstrictly(x)
+  x_ns <- nonstrictly_(x)
   environment(x_ns) <- environment(x)
 
   cat("<strict closure>\n")
