@@ -8,7 +8,9 @@ License: MIT + file LICENSE
 LazyData: true
 Imports:
     lazyeval,
-    purrr
+    purrr,
+    dplyr,
+    digest
 Suggests:
     testthat
 RoxygenNote: 5.0.1

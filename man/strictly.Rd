@@ -5,25 +5,22 @@
 \alias{nonstrictly}
 \alias{strict_body}
 \alias{strict_check}
-\alias{strict_condition}
 \alias{strict_reqarg}
 \alias{strictly}
 \title{Add input validation to a function}
 \usage{
 is_strict_closure(x)
 
+strict_body(x)
+
+strict_check(x)
+
+strict_reqarg(x)
+
 strictly(.f, ..., .checklist = list(), .check_missing = FALSE,
   .condition = NULL)
 
 nonstrictly(..f)
-
-strict_body(..f)
-
-strict_check(..f)
-
-strict_condition(..f)
-
-strict_reqarg(..f)
 }
 \arguments{
 \item{x}{R object.}
@@ -54,6 +51,18 @@ with the inconvenience of a security check. The function \code{strictly()}
 alleviates this nuissance by allowing you to enhance an existing function
 with input validation, by using formulas to specify the checks.
 }
+\section{Attributes of a strict closure}{
+
+  A strict closure stores properties of the function it "strictifies" as
+  attributes: the function body, the checks, the condition, and the required
+  arguments (if the strict closure is mandated to check their absence). The
+  functions \code{strict_*()} are helper functions to extract these
+  attributes.
+
+  The predicate function \code{is_strict_closure()} is a reasonably stringent
+  test of whether an object is a value of the function \code{strictly()}.
+}
+
 \section{Specifying argument checks}{
 
   An argument check is specified by a formula whose interpretation depends on
@@ -86,18 +95,6 @@ with input validation, by using formulas to specify the checks.
   \code{c} must be a monotonically increasing sequence of positive numbers. A
   one-sided formula check is simply a handy shorthand for submitting each and
   every argument to a common check.
-}
-
-\section{Attributes of a strict closure}{
-
-  A strict closure stores properties of the function it "strictifies" as
-  attributes: the function body, the checks, the condition, and the required
-  arguments (if the strict closure is mandated to check their absence). The
-  functions \code{strict_*()} are helper functions to extract these
-  attributes.
-
-  The predicate function \code{is_strict_closure()} is a reasonably stringent
-  test of whether an object is a value of the function \code{strictly()}.
 }
 \examples{
 foo <- function(x, y, a = "sum:", ...) paste(a, x + y)

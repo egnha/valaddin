@@ -1,12 +1,6 @@
 #' @include checks.R
 NULL
 
-#' Method for \code{lazyeval::find_data}
-#'
-#' @keywords internal
-#' @export
-find_data.environment <- function(x) x
-
 #' Add input validation to a function
 #'
 #' A common form of boilerplate code at the top of functions is argument
@@ -65,6 +59,69 @@ find_data.environment <- function(x) x
 #' @name strictly
 NULL
 
+#' Method for \code{lazyeval::find_data}
+#'
+#' @keywords internal
+#' @export
+find_data.environment <- function(x) x
+
+#' @export
+eval_flist <- function(f, env) {
+  args <- lazyeval::f_eval_lhs(f)
+  pred <- lazyeval::f_eval_rhs(f)
+  is_ok <- purrr::map_lgl(args, function(.) {
+    tryCatch(pred(lazyeval::f_eval_rhs(., data = env)),
+             error = function(e) FALSE)
+  })
+  paste(names(args)[!is_ok], collapse = "; ")
+}
+
+template_check_args <- function(chks, cond) {
+  substitute(
+    {
+      `_msgs` <- purrr::map_chr(..chks.., ..eval.., env = environment())
+      `_is_not_empty` <- `_msgs` != ""
+      if (any(`_is_not_empty`)) {
+        `_call` <- paste0(paste(deparse(match.call()), collapse = ""), ":")
+        `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
+        stop(..cond..(paste(`_call`, `_msg`)), call. = FALSE)
+      }
+    },
+    list(..chks.. = chks,
+         ..cond.. = cond,
+         ..eval.. = quote(valaddin::eval_flist))
+  )
+}
+
+join_exprs <- function(..., .exprs = list()) {
+  exprs <- c(list(...), .exprs)
+  nms <- paste0("..EXPR..", seq_along(exprs))
+  l <- setNames(exprs, nms)
+  template <- paste0("substitute({", paste(nms, collapse = "; "), "}, l)")
+  eval(parse(text = template))
+}
+
+check_args <- function(x) {
+  check <- dplyr::do_(
+    dplyr::group_by_(x, ~condition_id),
+    template = ~ template_check_args(.$check, .$condition[[1L]])
+  )
+  join_exprs(.exprs = check$template)
+}
+
+check_missing <- function(req_arg) {
+  substitute(
+    {
+      `_args` <- names(match.call(expand.dots = FALSE)[-1L])
+      `_msg` <- paste(setdiff(..req_arg.., `_args`), collapse = ", ")
+      if (`_msg` != "") {
+        stop("Missing required arguments: ", `_msg`, call. = FALSE)
+      }
+    },
+    list(..req_arg.. = req_arg)
+  )
+}
+
 # f: list("message" ~ arg, ...) ~ function
 #' @export
 generate_msgs <- function(f) {
@@ -86,48 +143,13 @@ generate_msgs <- function(f) {
   args ~ predicate
 }
 
-#' @export
-eval_flist <- function(f, env) {
-  args <- lazyeval::f_eval_lhs(f)
-  pred <- lazyeval::f_eval_rhs(f)
-  is_ok <- purrr::map_lgl(args, function(.) {
-    tryCatch(pred(lazyeval::f_eval_rhs(., data = env)),
-             error = function(e) FALSE)
-  })
-  paste(names(args)[!is_ok], collapse = "; ")
-}
-
-make_checklist <- function(x) {
-  purrr::map_if(x, is_flist_chk, generate_msgs)
-}
-
-check_missing <- function(rarg) {
-  substitute(
-    {
-      `_args` <- names(match.call(expand.dots = FALSE)[-1L])
-      `_msg` <- paste(setdiff(..rarg.., `_args`), collapse = ", ")
-      if (`_msg` != "") {
-        stop("Missing required arguments: ", `_msg`, call. = FALSE)
-      }
-    },
-    list(..rarg.. = rarg)
-  )
-}
-
-check_args <- function(chks, cond) {
-  substitute(
-    {
-      `_msgs` <- purrr::map_chr(..chks.., ..eval.., env = environment())
-      `_is_not_empty` <- `_msgs` != ""
-      if (any(`_is_not_empty`)) {
-        `_call` <- paste0(paste(deparse(match.call()), collapse = ""), ":")
-        `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
-        stop(..cond..(paste(`_call`, `_msg`)), call. = FALSE)
-      }
-    },
-    list(..chks.. = chks,
-         ..cond.. = cond,
-         ..eval.. = quote(valaddin::eval_flist))
+chk_by_cond <- function(chks, cond) {
+  cond <- cond %||% identity
+  cond_id <- digest::digest(cond, algo = "md5")
+  dplyr::data_frame(
+    condition = list(cond),
+    condition_id = cond_id,
+    check = purrr::map(chks, generate_msgs)
   )
 }
 
@@ -143,44 +165,64 @@ strict_closure <- function(x, ...) {
 #' @param x R object.
 #' @export
 is_strict_closure <- function(x) {
-  attrs <- c("..body..", "..chks..", "..cond..", "..rarg..")
+  attrs <- c("..body..", "..chks..", "..req_arg..")
   purrr::is_function(x) &&
     inherits(x, "strict_closure") &&
     all(attrs %in% names(attributes(x)))
 }
 
-#' @export
-strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE,
-                      .condition = NULL) {
-  cond <- .condition %||% identity
-  chks_orig <- c(list(...), .checklist, attr(.f, "..chks..", exact = TRUE))
-  chks <- make_checklist(chks_orig)
+get_attribute <- function(.attr) {
+  force(.attr)
+  function(x) attr(x, .attr, exact = TRUE)
+}
 
-  body_orig <- body(.f)
+#' @rdname strictly
+#' @section Attributes of a strict closure:
+#'   A strict closure stores properties of the function it "strictifies" as
+#'   attributes: the function body, the checks, the condition, and the required
+#'   arguments (if the strict closure is mandated to check their absence). The
+#'   functions \code{strict_*()} are helper functions to extract these
+#'   attributes.
+#'
+#'   The predicate function \code{is_strict_closure()} is a reasonably stringent
+#'   test of whether an object is a value of the function \code{strictly()}.
+#' @export
+strict_body <- get_attribute("..body..")
+
+#' @rdname strictly
+#' @export
+strict_check <- get_attribute("..chks..")
+
+#' @rdname strictly
+#' @export
+strict_reqarg <- get_attribute("..req_arg..")
+
+#' @export
+strictly_ <- function(.f, ..., .checklist = list(),
+                      .check_missing = FALSE, .condition = NULL) {
   sig <- formals(.f)
-  rarg <- args_wo_defval(sig)
-  chk_missing_args <- if (.check_missing) check_missing(rarg) else quote(NULL)
-  chk_args <- if (length(chks)) check_args(chks, cond) else quote(NULL)
-  body <- substitute(
-    {
-      ..chk_missing_args..
-      ..chk_args..
-      ..body..
-    },
-    list(..body..             = body_orig,
-         ..chk_missing_args.. = chk_missing_args,
-         ..chk_args..         = chk_args)
-  )
+  body_orig <- strict_body(.f) %||% body(.f)
+
+  req_arg_orig <- strict_reqarg(.f)
+  req_arg <- req_arg_orig %||% args_wo_defval(sig)
+  sub_chk_missing <- length(req_arg_orig) || (.check_missing && length(req_arg))
+  chk_missing <- if (sub_chk_missing) check_missing(req_arg) else quote(NULL)
+
+  .chks <- c(list(...), .checklist)
+  .chks_df <- if (length(.chks)) chk_by_cond(.chks, .condition) else NULL
+  chks_df <- dplyr::bind_rows(strict_check(.f), .chks_df)
+  chk_args <- if (nrow(chks_df)) check_args(chks_df) else quote(NULL)
+
+  body <- join_exprs(chk_missing, chk_args, body_orig)
 
   f <- eval(call("function", sig, as.call(body)))
   environment(f) <- clone_env(environment(.f))
   attributes(f)  <- attributes(.f)
   attr(f, "..body..") <- body_orig
-  attr(f, "..chks..") <- chks_orig
-  attr(f, "..cond..") <- cond
-  attr(f, "..rarg..") <- if (.check_missing) rarg else character(0)
+  attr(f, "..chks..") <- chks_df
+  attr(f, "..req_arg..") <- if (sub_chk_missing) req_arg else character(0)
 
-  strict_closure(f)
+  if (is_strict_closure(.f)) f else strict_closure(f)
 }
 
 chk_strictly <- list(
@@ -251,7 +293,7 @@ nonstrictly_ <- function(..f) {
     body <- attr(..f, "..body..", exact = TRUE)
     f <- eval(call("function", formals(..f), body))
     environment(f) <- clone_env(environment(..f))
-    attrs <- c("..body..", "..chks..", "..cond..", "..rarg..")
+    attrs <- c("..body..", "..chks..", "..req_arg..")
     attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), attrs)]
     class(f) <- ns_class
     f
@@ -266,42 +308,10 @@ nonstrictly <- strictly_(
   list("`..f` not a closure" ~ ..f) ~ purrr::is_function, .check_missing = TRUE
 )
 
-get_strict_prop <- function(prop) {
-  force(prop)
-  chk <- list("`..f` not a strict closure" ~ ..f) ~ is_strict_closure
-  strictly_(function(..f) attr(..f, prop, exact = TRUE), chk)
-}
-
-#' @rdname strictly
-#' @section Attributes of a strict closure:
-#'   A strict closure stores properties of the function it "strictifies" as
-#'   attributes: the function body, the checks, the condition, and the required
-#'   arguments (if the strict closure is mandated to check their absence). The
-#'   functions \code{strict_*()} are helper functions to extract these
-#'   attributes.
-#'
-#'   The predicate function \code{is_strict_closure()} is a reasonably stringent
-#'   test of whether an object is a value of the function \code{strictly()}.
-#' @export
-strict_body <- get_strict_prop("..body..")
-
-#' @rdname strictly
-#' @export
-strict_check <- get_strict_prop("..chks..")
-
-#' @rdname strictly
-#' @export
-strict_condition <- get_strict_prop("..cond..")
-
-#' @rdname strictly
-#' @export
-strict_reqarg <- get_strict_prop("..rarg..")
-
 #' @export
 print.strict_closure <- function(x) {
   chks <- strict_check(x)
-  cond <- strict_condition(x)
-  rarg <- strict_reqarg(x)
+  req_arg <- strict_reqarg(x)
   x_ns <- nonstrictly_(x)
   environment(x_ns) <- environment(x)
 
@@ -309,9 +319,11 @@ print.strict_closure <- function(x) {
   cat("\n* Body:\n")
   print(x_ns)
   cat("\n* Check missing arguments:\n")
-  cat(if (length(rarg) == 0L) "<none>" else rarg, "\n")
+  cat(if (length(req_arg)) req_arg else "<none>", "\n")
   cat("\n* Checks:\n")
-  if (length(chks) == 0L) cat("<none>\n") else print_enumerate(chks)
-  cat("\n* Condition:\n")
-  if (identical(cond, identity)) cat("<default error handler>") else print(cond)
+  if (length(chks)) {
+    print(dplyr::select_(chks, ~-condition_id))
+  } else {
+    cat("<none>\n")
+  }
 }
