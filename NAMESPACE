@@ -3,7 +3,7 @@
 S3method(print,strict_closure)
 export(eval_flist)
 export(find_data.environment)
-export(generate_msgs)
+export(generate_calls)
 export(is_strict_closure)
 export(nonstrictly)
 export(nonstrictly_)

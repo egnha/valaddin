@@ -59,19 +59,13 @@ NULL
 #' @name strictly
 NULL
 
-#' Method for \code{lazyeval::find_data}
-#'
-#' @keywords internal
-#' @export
-find_data.environment <- function(x) x
-
 #' @export
 eval_flist <- function(f, env) {
-  args <- lazyeval::f_eval_lhs(f)
-  pred <- lazyeval::f_eval_rhs(f)
-  is_ok <- purrr::map_lgl(args, function(.) {
-    tryCatch(pred(lazyeval::f_eval_rhs(., data = env)),
-             error = function(e) FALSE)
+  is_ok <- purrr::map_lgl(lazyeval::f_eval_lhs(f), function(.) {
+    tryCatch(
+      eval(lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_rhs(.)), env),
+      error = function(e) FALSE
+    )
   })
   paste(names(args)[!is_ok], collapse = "; ")
 }
@@ -79,15 +73,14 @@ eval_flist <- function(f, env) {
 check_args <- function(chks) {
   substitute(
     {
-      `_msgs` <- purrr::map_chr(..chks.., ..eval.., env = environment())
-      `_is_not_empty` <- `_msgs` != ""
-      if (any(`_is_not_empty`)) {
+      `_is_ok` <- purrr::map_lgl(..chks.., eval, envir = environment())
+      `_msg` <- paste(names(..chks..)[!`_is_ok`], collapse = "; ")
+      if (`_msg` != "") {
         `_call` <- paste0(paste(deparse(match.call()), collapse = ""), ":")
-        `_msg` <- paste(`_msgs`[`_is_not_empty`], collapse = "; ")
         stop(paste(`_call`, `_msg`), call. = FALSE)
       }
     },
-    list(..chks.. = chks, ..eval.. = quote(valaddin::eval_flist))
+    list(..chks.. = chks)
   )
 }
 
@@ -106,7 +99,7 @@ check_missing <- function(req_arg) {
 
 # f: list("message" ~ arg, ...) ~ function
 #' @export
-generate_msgs <- function(f) {
+generate_calls <- function(f) {
   args <- do.call(lazyeval::f_list, lazyeval::f_eval_lhs(f))
   sym_pred <- lazyeval::f_rhs(f)
   is_empty <- names(args) == ""
@@ -122,7 +115,7 @@ generate_msgs <- function(f) {
   names(args)[is_empty] <- msg_auto
   predicate <- purrr::as_function(lazyeval::f_eval_rhs(f))
 
-  args ~ predicate
+  purrr::map(args, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
 }
 
 #' Create an object of class "strict_closure"
@@ -174,15 +167,15 @@ strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE) {
   sig <- formals(.f)
   body_orig <- strict_body(.f) %||% body(.f)
 
-  req_arg_orig <- strict_reqarg(.f)
-  req_arg <- req_arg_orig %||% args_wo_defval(sig)
-  sub_chk_missing <- length(req_arg_orig) || (.check_missing && length(req_arg))
-  chk_missing <- if (sub_chk_missing) check_missing(req_arg) else quote(NULL)
+  rarg_orig <- strict_reqarg(.f)
+  rarg <- rarg_orig %||% args_wo_defval(sig)
+  subst_chk_missing <- length(rarg_orig) || (.check_missing && length(rarg))
+  chk_missing <- if (subst_chk_missing) check_missing(rarg) else quote(NULL)
 
-  chks <- c(
+  chks <- unlist(c(
     strict_check(.f),
-    purrr::map(c(list(...), .checklist), generate_msgs)
-  )
+    purrr::map(c(list(...), .checklist), generate_calls)
+  ))
   chk_args <- if (length(chks)) check_args(chks) else quote(NULL)
 
   body <- substitute(
@@ -201,7 +194,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE) {
   attributes(f)  <- attributes(.f)
   attr(f, "..body..") <- body_orig
   attr(f, "..chks..") <- chks
-  attr(f, "..req_arg..") <- if (sub_chk_missing) req_arg else NULL
+  attr(f, "..req_arg..") <- if (subst_chk_missing) rarg else NULL
 
   if (is_strict_closure(.f)) f else strict_closure(f)
 }
