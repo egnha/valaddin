@@ -67,7 +67,7 @@ NULL
 
 # f: list("message" ~ arg, ...) ~ function
 #' @export
-normalize_flist <- function(f) {
+generate_msgs <- function(f) {
   args <- do.call(lazyeval::f_list, lazyeval::f_eval_lhs(f))
   sym_pred <- lazyeval::f_rhs(f)
   is_empty <- names(args) == ""
@@ -98,7 +98,7 @@ eval_flist <- function(f, env) {
 }
 
 make_checklist <- function(x) {
-  purrr::map_if(x, is_flist_chk, normalize_flist)
+  purrr::map_if(x, is_flist_chk, generate_msgs)
 }
 
 check_missing <- function(rarg) {
