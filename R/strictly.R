@@ -220,7 +220,7 @@ strictly_ <- function(.f, ..., .checklist = list(),
   attributes(f)  <- attributes(.f)
   attr(f, "..body..") <- body_orig
   attr(f, "..chks..") <- chks_df
-  attr(f, "..req_arg..") <- if (sub_chk_missing) req_arg else character(0)
+  attr(f, "..req_arg..") <- if (sub_chk_missing) req_arg else NULL
 
   if (is_strict_closure(.f)) f else strict_closure(f)
 }
@@ -229,8 +229,8 @@ chk_strictly <- list(
   list("`.f` not a (interpreted) function" ~ .f) ~ purrr::is_function,
   list("`.check_missing` not logical" ~ .check_missing) ~
     purrr::is_scalar_logical,
-  list("`.condition` not `NULL` or a condition" ~ .condition) ~
-    function(.) is.null(.) || is_condition(.),
+  list("`.condition` not `NULL` or a (condition) function" ~ .condition) ~
+    function(.) is.null(.) || is.function(.),
   list("`.checklist` not a list of formula" ~ .checklist) ~ is_flist
   # "Checklist not formulae or list thereof" ~ is_valid_checklist(...),
 )
