@@ -1,57 +1,11 @@
-#' magrittr pipe operator
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
 #' @importFrom magrittr %>%
-#' @usage lhs \%>\% rhs
-NULL
+`%>%` <- magrittr::`%>%`
 
-#' Default value for \code{NULL}.
-#'
-#' @details Taken from the section
-#'   \href{http://adv-r.had.co.nz/Functions.html#special-calls}{Special calls}
-#'   of the book \emph{Advanced R}, by Hadley Wickham.
-#' @param x,y R objects.
-#' @name null-default
-#' @keywords internal
-`%||%` <- function(x, y) {
-  if (is.null(x)) y else x
-}
+#' @importFrom purrr %||%
+`%||%` <- purrr::`%||%`
 
-#' Clone an environment
-#'
-#' @details Taken from the section
-#'   \href{http://adv-r.had.co.nz/dsl.html#latex}{LaTeX} of the book
-#'   \emph{Advanced R}, by Hadley Wickham.
-#' @param env,parent Environments.
-#' @return Clone of the environment \code{x}.
-#' @keywords internal
-clone_env <- function(env, parent = parent.env(env)) {
-  list2env(as.list(env, all.names = TRUE), parent = parent)
-}
-
-#' Create a condition object
-#'
-#' @details Taken from the section
-#'   \href{http://adv-r.had.co.nz/Exceptions-Debugging.html#condition-handling}{Condition
-#'    handling} of the book \emph{Advanced R}, by Hadley Wickham.
-#' @param subclass Subclass of \code{"condition"} (string).
-#' @param message Message (string).
-#' @param call Call object.
-#' @param ... Additional arguments to pass to
-#' @return Condition object (class \code{"condition"}).
-#' @keywords internal
-condition <- function(subclass, message, call = sys.call(-1), ...) {
-  structure(
-    list(message = message, call = call),
-    class = c(subclass, "condition"),
-    ...
-  )
-}
-is_condition <- function(x) {
-  inherits(x, "condition")
-}
+# Clone an environment
+clone_env <- lazyeval:::clone_env
 
 #' Determine the names of a pairlist without a default value
 #'
