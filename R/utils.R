@@ -13,6 +13,9 @@ clone_env <- lazyeval:::clone_env
 #' @return Character vector.
 #' @keywords internal
 args_wo_defval <- function(sig) {
+  if (is.null(sig)) {
+    return(character(0))
+  }
   args <- sig[names(sig) != "..."]
   no_defval <- purrr::map_lgl(args, function(.) {
     is.symbol(.) && as.character(.) == ""
