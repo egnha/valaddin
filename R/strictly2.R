@@ -12,7 +12,7 @@ lazy_assign <- function(ldots, env) {
       list(..expr.. = x$expr)
     ))
   }
-  env
+  invisible(env)
 }
 
 # Use warnings to signal missing arguments
