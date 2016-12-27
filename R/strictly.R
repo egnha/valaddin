@@ -244,7 +244,7 @@ print.strict_closure <- function(x) {
 
   cat("\n* Body:\n")
   cat(deparse(args(x))[[1L]], "\n", sep = "")
-  print(as.call(c(as.name("{"), strict_body(x))))
+  print(strict_body(x))
   print(environment(x))
 
   cat("\n* Checks (<predicate>:<error message>):\n")
