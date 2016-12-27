@@ -66,15 +66,15 @@ deparse_collapse <- function(x) {
 # f: list("message" ~ arg, ...) ~ function
 #' @export
 generate_calls <- function(f) {
-  pred <- lazyeval::f_rhs(f)
+  p <- lazyeval::f_rhs(f)
   args <- do.call(lazyeval::f_list, lazyeval::f_eval_lhs(f))
   is_empty <- names(args) == ""
   names(args)[is_empty] <- purrr::map_chr(args[is_empty], function(.) {
-    call_expr <- substitute(f(x), list(f = pred, x = lazyeval::f_rhs(.)))
-    paste(deparse_collapse(call_expr), "is not TRUE")
+    call_expr <- substitute(f(x), list(f = p, x = lazyeval::f_rhs(.)))
+    sprintf("%s is not TRUE", deparse_collapse(call_expr))
   })
-  p <- purrr::as_function(lazyeval::f_eval_rhs(f))
-  lapply(args, function(.) as.call(c(p, lazyeval::f_rhs(.))))
+  predicate <- purrr::as_function(lazyeval::f_eval_rhs(f))
+  lapply(args, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
 }
 
 check_args <- function(chks) {
