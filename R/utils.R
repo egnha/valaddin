@@ -7,10 +7,12 @@
 # Clone an environment
 clone_env <- lazyeval:::clone_env
 
+#' @export
 deparse_collapse <- function(x) {
   paste(trimws(deparse(x), which = "both"), collapse = "")
 }
 
+#' @export
 enumerate_many <- function(x, many = 1L) {
   if (length(x) > many) {
     paste(

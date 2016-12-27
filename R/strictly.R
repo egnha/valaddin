@@ -69,6 +69,7 @@ lazy_assign <- function(lzydots, env) {
   invisible(env)
 }
 
+#' @export
 validate <- function(calls, lazy_args, args, req_args,
                      parent = parent.frame()) {
   if (length(calls)) {
@@ -96,15 +97,15 @@ check_args <- function(calls, dots, req_args) {
   substitute({
     `_lazy_args` <- do.call(lazyeval::lazy_dots, ..dots..)
     `_args` <- names(match.call(expand.dots = FALSE)[-1L])
-    `_certif` <- validate(..calls.., `_lazy_args`, `_args`, ..req_args..)
-    if (length(`_certif`$warning)) {
-      `_missing` <- paste(`_certif`$warning, collapse = ", ")
+    `_res` <- valaddin::validate(..calls.., `_lazy_args`, `_args`, ..req_args..)
+    if (length(`_res`$warning)) {
+      `_missing` <- paste(`_res`$warning, collapse = ", ")
       `_msg` <- sprintf("Missing required argument(s): %s", `_missing`)
       warning(`_msg`, call. = FALSE)
     }
-    if (length(`_certif`$error)) {
-      `_call` <- sprintf("%s\n", deparse_collapse(match.call()))
-      `_msg` <- paste0(`_call`, enumerate_many(`_certif`$error))
+    if (length(`_res`$error)) {
+      `_call` <- sprintf("%s\n", valaddin::deparse_collapse(match.call()))
+      `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_res`$error))
       stop(`_msg`, call. = FALSE)
     }
   }, list(..calls.. = calls, ..dots.. = dots, ..req_args.. = req_args))
