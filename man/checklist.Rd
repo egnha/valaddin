@@ -4,7 +4,7 @@
 \alias{checklist}
 \alias{is_check_formula}
 \alias{is_checklist}
-\title{Is a checklist valid?}
+\title{Is a checklist correctly formed?}
 \usage{
 is_checklist(x)
 
@@ -18,16 +18,27 @@ is_check_formula(x)
   checklist.
 }
 \description{
-A valid checklist is a list of formulae \code{q ~ p}, where \code{p} is a
-function (or a one-sided formulaic shorthand thereof, see
-\code{\link[purrr]{as_function}()}), and \code{q} is a "check item" for
-\code{p}; a check item is either empty, a string, or a list of formulae of
-the form \code{~<expr>} or \code{<string> ~ <expr>}. (\code{p} is to be
-called on \code{<expr>}.)
+A checklist is a list of \emph{check formulae} \code{q ~ p}:
+\itemize{
+  \item \code{p} is a predicate function, or one-sided formulaic shorthand
+    thereof (see \code{purrr::\link[purrr]{as_function}()})
+  \item \code{q} is a \emph{check item} for \code{p}
+}
+A check item is either empty, a string, or a list of formulae of the form
+\code{~<expr>} or \code{<string> ~ <expr>}. (The predicate \code{p} performs
+its check by being called on \code{<expr>}.)
 }
 \details{
 \code{is_checklist()} is used to check the validity of the checks
   passed to \code{\link{strictly}()}, either via \code{...} or the argument
   \code{.checklist}.
+}
+\examples{
+# Valid checklist
+is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ ~{. > 0}))
+
+# Invalid checklists
+is_checklist(list(is.numeric ~ list(~ x)))
+is_checklist(list(list(log ~ x) ~ is.character))
 }
 
