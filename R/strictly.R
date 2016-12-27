@@ -136,9 +136,9 @@ strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE) {
   f <- eval(call("function", sig, as.call(body)))
   environment(f) <- environment(.f)
   attributes(f)  <- attributes(.f)
-  attr(f, "..body..") <- body_orig
-  attr(f, "..chks..") <- chks
-  attr(f, "..req_arg..") <- if (subst_chk_missing) rarg else NULL
+  attr(f, "..sc_body..") <- body_orig
+  attr(f, "..sc_chks..") <- chks
+  attr(f, "..sc_req_args..") <- if (subst_chk_missing) rarg else NULL
 
   if (is_strict_closure(.f)) f else strict_closure(f)
 }
@@ -150,10 +150,10 @@ nonstrictly_ <- function(..f) {
     class(..f) <- ns_class
     ..f
   } else {
-    body <- attr(..f, "..body..", exact = TRUE)
+    body <- attr(..f, "..sc_body..", exact = TRUE)
     f <- eval(call("function", formals(..f), body))
     environment(f) <- clone_env(environment(..f))
-    attrs <- c("..body..", "..chks..", "..req_arg..")
+    attrs <- c("..sc_body..", "..sc_chks..", "..sc_req_args..")
     attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), attrs)]
     class(f) <- ns_class
     f
@@ -172,7 +172,7 @@ strict_closure <- function(x, ...) {
 #' @param x R object.
 #' @export
 is_strict_closure <- function(x) {
-  attrs <- c("..body..", "..chks..", "..req_arg..")
+  attrs <- c("..sc_body..", "..sc_chks..", "..sc_req_args..")
   purrr::is_function(x) &&
     inherits(x, "strict_closure") &&
     all(attrs %in% names(attributes(x)))
@@ -194,15 +194,15 @@ get_attribute <- function(.attr) {
 #'   The predicate function \code{is_strict_closure()} is a reasonably stringent
 #'   test of whether an object is a value of the function \code{strictly()}.
 #' @export
-strict_body <- get_attribute("..body..")
+strict_body <- get_attribute("..sc_body..")
 
 #' @rdname strictly
 #' @export
-strict_check <- get_attribute("..chks..")
+strict_check <- get_attribute("..sc_chks..")
 
 #' @rdname strictly
 #' @export
-strict_reqarg <- get_attribute("..req_arg..")
+strict_reqarg <- get_attribute("..sc_req_args..")
 
 #' @export
 print.strict_closure <- function(x) {
