@@ -16,4 +16,5 @@ Collate:
     'utils.R'
     'checks.R'
     'strictly.R'
+    'strictly2.R'
     'valaddin.R'

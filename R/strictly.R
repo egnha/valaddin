@@ -59,21 +59,30 @@ NULL
 #' @name strictly
 NULL
 
+deparse_collapse <- function(x) {
+  paste(trimws(deparse(x), which = "both"), collapse = "")
+}
+
+# f: list("message" ~ arg, ...) ~ function
 #' @export
-eval_flist <- function(f, env) {
-  is_ok <- purrr::map_lgl(lazyeval::f_eval_lhs(f), function(.) {
-    tryCatch(
-      eval(lazyeval::call_new(lazyeval::f_eval_rhs(f), lazyeval::f_rhs(.)), env),
-      error = function(e) FALSE
-    )
+generate_calls <- function(f) {
+  pred <- lazyeval::f_rhs(f)
+  args <- do.call(lazyeval::f_list, lazyeval::f_eval_lhs(f))
+  is_empty <- names(args) == ""
+  names(args)[is_empty] <- purrr::map_chr(args[is_empty], function(.) {
+    call_expr <- substitute(f(x), list(f = pred, x = lazyeval::f_rhs(.)))
+    paste(deparse_collapse(call_expr), "is not TRUE")
   })
-  paste(names(args)[!is_ok], collapse = "; ")
+  p <- purrr::as_function(lazyeval::f_eval_rhs(f))
+  lapply(args, function(.) as.call(c(p, lazyeval::f_rhs(.))))
 }
 
 check_args <- function(chks) {
   substitute(
     {
-      `_is_ok` <- purrr::map_lgl(..chks.., eval, envir = environment())
+      `_is_ok` <- purrr::map_lgl(..chks.., function(.) {
+        tryCatch(eval(., environment()), error = function(e) FALSE)
+      })
       `_msg` <- paste(names(..chks..)[!`_is_ok`], collapse = "; ")
       if (`_msg` != "") {
         `_call` <- paste0(paste(deparse(match.call()), collapse = ""), ":")
@@ -97,25 +106,58 @@ check_missing <- function(req_arg) {
   )
 }
 
-# f: list("message" ~ arg, ...) ~ function
 #' @export
-generate_calls <- function(f) {
-  args <- do.call(lazyeval::f_list, lazyeval::f_eval_lhs(f))
-  sym_pred <- lazyeval::f_rhs(f)
-  is_empty <- names(args) == ""
-  msg_auto <- purrr::map_chr(args[is_empty], function(.) {
-    .call <- paste(
-      trimws(deparse(
-        substitute(p(arg), list(p = sym_pred, arg = lazyeval::f_rhs(.)))
-      ), which = "both"),
-      collapse = ""
-    )
-    paste(.call, "is not TRUE")
-  })
-  names(args)[is_empty] <- msg_auto
-  predicate <- purrr::as_function(lazyeval::f_eval_rhs(f))
+strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE) {
+  sig <- formals(.f)
+  body_orig <- strict_body(.f) %||% body(.f)
 
-  purrr::map(args, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
+  rarg_orig <- strict_reqarg(.f)
+  rarg <- rarg_orig %||% args_wo_defval(sig)
+  subst_chk_missing <- length(rarg_orig) || (.check_missing && length(rarg))
+  chk_missing <- if (subst_chk_missing) check_missing(rarg) else quote(NULL)
+
+  chks <- unlist(c(
+    strict_check(.f),
+    lapply(c(list(...), .checklist), generate_calls)
+  ))
+  chk_args <- if (length(chks)) check_args(chks) else quote(NULL)
+
+  body <- substitute(
+    {
+      ..chk_missing..
+      ..chk_args..
+      ..body..
+    },
+    list(..chk_missing.. = chk_missing,
+         ..chk_args..    = chk_args,
+         ..body..        = body_orig)
+  )
+
+  f <- eval(call("function", sig, as.call(body)))
+  environment(f) <- environment(.f)
+  attributes(f)  <- attributes(.f)
+  attr(f, "..body..") <- body_orig
+  attr(f, "..chks..") <- chks
+  attr(f, "..req_arg..") <- if (subst_chk_missing) rarg else NULL
+
+  if (is_strict_closure(.f)) f else strict_closure(f)
+}
+
+#' @export
+nonstrictly_ <- function(..f) {
+  ns_class <- class(..f)[class(..f) != "strict_closure"]
+  if (!is_strict_closure(..f)) {
+    class(..f) <- ns_class
+    ..f
+  } else {
+    body <- attr(..f, "..body..", exact = TRUE)
+    f <- eval(call("function", formals(..f), body))
+    environment(f) <- clone_env(environment(..f))
+    attrs <- c("..body..", "..chks..", "..req_arg..")
+    attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), attrs)]
+    class(f) <- ns_class
+    f
+  }
 }
 
 #' Create an object of class "strict_closure"
@@ -163,40 +205,19 @@ strict_check <- get_attribute("..chks..")
 strict_reqarg <- get_attribute("..req_arg..")
 
 #' @export
-strictly_ <- function(.f, ..., .checklist = list(), .check_missing = FALSE) {
-  sig <- formals(.f)
-  body_orig <- strict_body(.f) %||% body(.f)
+print.strict_closure <- function(x) {
+  chks <- strict_check(x)
+  req_arg <- strict_reqarg(x)
+  x_ns <- nonstrictly_(x)
+  environment(x_ns) <- environment(x)
 
-  rarg_orig <- strict_reqarg(.f)
-  rarg <- rarg_orig %||% args_wo_defval(sig)
-  subst_chk_missing <- length(rarg_orig) || (.check_missing && length(rarg))
-  chk_missing <- if (subst_chk_missing) check_missing(rarg) else quote(NULL)
-
-  chks <- unlist(c(
-    strict_check(.f),
-    purrr::map(c(list(...), .checklist), generate_calls)
-  ))
-  chk_args <- if (length(chks)) check_args(chks) else quote(NULL)
-
-  body <- substitute(
-    {
-      ..chk_missing..
-      ..chk_args..
-      ..body..
-    },
-    list(..chk_missing.. = chk_missing,
-         ..chk_args..    = chk_args,
-         ..body..        = body_orig)
-  )
-
-  f <- eval(call("function", sig, as.call(body)))
-  environment(f) <- clone_env(environment(.f))
-  attributes(f)  <- attributes(.f)
-  attr(f, "..body..") <- body_orig
-  attr(f, "..chks..") <- chks
-  attr(f, "..req_arg..") <- if (subst_chk_missing) rarg else NULL
-
-  if (is_strict_closure(.f)) f else strict_closure(f)
+  cat("<strict closure>\n")
+  cat("\n* Body:\n")
+  print(x_ns)
+  cat("\n* Check missing arguments:\n")
+  cat(if (length(req_arg)) req_arg else "<none>", "\n")
+  cat("\n* Checks:\n")
+  if (length(chks)) print_enumerate(chks) else cat("<none>\n")
 }
 
 chk_strictly <- list(
@@ -255,23 +276,6 @@ strictly <- strictly_(
   .checklist = chk_strictly, .check_missing = TRUE
 )
 
-#' @export
-nonstrictly_ <- function(..f) {
-  ns_class <- class(..f)[class(..f) != "strict_closure"]
-  if (!is_strict_closure(..f)) {
-    class(..f) <- ns_class
-    ..f
-  } else {
-    body <- attr(..f, "..body..", exact = TRUE)
-    f <- eval(call("function", formals(..f), body))
-    environment(f) <- clone_env(environment(..f))
-    attrs <- c("..body..", "..chks..", "..req_arg..")
-    attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), attrs)]
-    class(f) <- ns_class
-    f
-  }
-}
-
 #' @rdname strictly
 #' @param ..f Strict function, i.e., function of class \code{"strict_closure"}.
 #' @export
@@ -280,19 +284,3 @@ nonstrictly <- strictly_(
   list("`..f` not a closure" ~ ..f) ~ purrr::is_function,
   .check_missing = TRUE
 )
-
-#' @export
-print.strict_closure <- function(x) {
-  chks <- strict_check(x)
-  req_arg <- strict_reqarg(x)
-  x_ns <- nonstrictly_(x)
-  environment(x_ns) <- environment(x)
-
-  cat("<strict closure>\n")
-  cat("\n* Body:\n")
-  print(x_ns)
-  cat("\n* Check missing arguments:\n")
-  cat(if (length(req_arg)) req_arg else "<none>", "\n")
-  cat("\n* Checks:\n")
-  if (length(chks)) print_enumerate(chks) else cat("<none>\n")
-}
