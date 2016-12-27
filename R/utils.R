@@ -23,10 +23,3 @@ enumerate_many <- function(x, many = 1L) {
     x
   }
 }
-
-print_enumerate <- function(x) {
-  for (i in seq_along(x)) {
-    cat(paste0(i, ") "))
-    print(x[[i]])
-  }
-}
