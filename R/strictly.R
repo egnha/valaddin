@@ -241,18 +241,31 @@ strict_reqarg <- get_attribute("..sc_req_args..")
 
 #' @export
 print.strict_closure <- function(x) {
-  chks <- strict_check(x)
-  req_arg <- strict_reqarg(x)
-  x_ns <- nonstrictly_(x)
-  environment(x_ns) <- environment(x)
+  cat("<strict_closure>\n")
 
-  cat("<strict closure>\n")
   cat("\n* Body:\n")
-  print(x_ns)
+  cat(deparse(args(x))[[1L]], "\n", sep = "")
+  print(as.call(c(as.name("{"), strict_body(x))))
+  print(environment(x))
+
+  cat("\n* Checks (<predicate>:<error message>):\n")
+  chks <- strict_check(x)
+  if (length(chks)) {
+    labels <- purrr::map2_chr(chks, names(chks), function(p, msg) {
+      paste0("`", deparse_collapse(p), "`", " : \"", msg, "\"")
+    })
+    cat(enumerate_many(labels), "\n", sep = "")
+  } else {
+    cat("<none>\n")
+  }
+
   cat("\n* Check missing arguments:\n")
-  cat(if (length(req_arg)) req_arg else "<none>", "\n")
-  cat("\n* Checks:\n")
-  if (length(chks)) print_enumerate(chks) else cat("<none>\n")
+  req_arg <- strict_reqarg(x)
+  if (length(req_arg)) {
+    cat(paste(req_arg, collapse = ", "))
+  } else {
+    cat("<none>\n")
+  }
 }
 
 chk_strictly <- list(
