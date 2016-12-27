@@ -3,63 +3,45 @@ NULL
 
 #' Is a checklist valid?
 #'
-#' A valid checklist is either a list of formulas or a list thereof. An empty
-#' list is considered valid.
+#' A valid checklist is a list of formulae \code{q ~ p}, where \code{p} is a
+#' function (or a one-sided formulaic shorthand thereof, see
+#' \code{\link[purrr]{as_function}()}), and \code{q} is a "check item" for
+#' \code{p}; a check item is either empty, a string, or a list of formulae of
+#' the form \code{~<expr>} or \code{<string> ~ <expr>}. (\code{p} is to be
+#' called on \code{<expr>}.)
 #'
-#' @details \code{is_valid_checklist()} is used to check the validity of the
-#'   checklist passed to \code{strictly()}.
-#' @param ... R objects.
-#' @return \code{TRUE} or \code{FALSE}, according to whether \code{list(...)} is
-#'   a valid checklist.
-#' @keywords internal
-is_valid_checklist <- function(...) {
-  is_fml <- function(x) purrr::map_lgl(x, purrr::is_formula)
-  dots <- list(...)
-  if (length(dots) == 0L) {
-    TRUE
-  } else {
-    d1 <- dots[[1L]]
-    is_fml_list <- length(dots) == 1L && is.list(d1) && all(is_fml(d1))
-    is_fml_dots <- all(is_fml(dots))
-    is_fml_list || is_fml_dots
-  }
-}
-
-#' Is a condition valid?
-#'
-#' @details \code{is_valid_condition()} is used to check the validity of the
-#'   condition argument (\code{.cond}) of \code{strictly()}.
+#' @details \code{is_checklist()} is used to check the validity of the checks
+#'   passed to \code{\link{strictly}()}, either via \code{...} or the argument
+#'   \code{.checklist}.
 #' @param x R object.
-#' @return \code{TRUE} or \code{FALSE}, according to whether \code{x} is
-#'   a valid value for \code{.cond} in \code{strictly()}.
-#' @keywords internal
-is_valid_condition <- function(x) {
-  is.null(x) || is_condition(x)
+#' @return \code{TRUE} or \code{FALSE}, according to whether \code{x} is a valid
+#'   checklist.
+#' @export
+#' @name checklist
+is_checklist <- function(x) {
+  if (is.list(x)) all(purrr::map_lgl(x, is_check_formula)) else FALSE
 }
 
-is_fmessage <- function(x) {
-  if (!purrr::is_formula(x)) {
-    FALSE
-  } else {
-    purrr::is_scalar_character(lazyeval::f_lhs(x)) &&
-      is.function(lazyeval::f_rhs(x))
-  }
+#' @rdname checklist
+#' @export
+is_check_formula <- function(x) {
+  purrr::is_formula(x) && is_rhs_function(x) && is_lhs_checkitem(x)
 }
 
-is_fonesided <- function(x) {
-  purrr::is_formula(x) && is.null(lazyeval::f_lhs(x))
+is_rhs_function <- function(x) {
+  rhs <- lazyeval::f_eval_rhs(x)
+  is.function(rhs) || (purrr::is_formula(rhs) && length(rhs) == 2L)
+}
+
+is_lhs_checkitem <- function(x) {
+  lhs <- lazyeval::f_eval_lhs(x)
+  is.null(lhs) || purrr::is_scalar_character(lhs) || is_flist(lhs)
 }
 
 is_flist <- function(x) {
-  is.list(x) && all(purrr::map_lgl(x, purrr::is_formula))
-}
-
-is_flist_chk <- function(x) {
-  if (!purrr::is_formula(x)) {
-    FALSE
-  } else {
-    rhs <- lazyeval::f_eval_rhs(x)
-    is_flist(lazyeval::f_eval_lhs(x)) &&
-      (is.function(rhs) || purrr::is_formula(rhs))
-  }
+  is.list(x) &&
+    all(purrr::map_lgl(x, function(.) {
+      lhs <- lazyeval::f_eval_lhs(.)
+      purrr::is_formula(.) && (is.null(lhs) || purrr::is_scalar_character(lhs))
+    }))
 }
