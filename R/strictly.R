@@ -183,17 +183,16 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
 
 #' @export
 nonstrictly_ <- function(..f) {
-  ns_class <- class(..f)[class(..f) != "strict_closure"]
+  old_class <- class(..f)[class(..f) != "strict_closure"]
   if (!is_strict_closure(..f)) {
-    class(..f) <- ns_class
+    class(..f) <- old_class
     ..f
   } else {
-    body <- attr(..f, "..sc_body..", exact = TRUE)
-    f <- eval(call("function", formals(..f), body))
-    environment(f) <- clone_env(environment(..f))
-    attrs <- c("..sc_body..", "..sc_chks..", "..sc_req_args..")
-    attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), attrs)]
-    class(f) <- ns_class
+    f <- eval(call("function", formals(..f), strict_body(..f)))
+    environment(f) <- environment(..f)
+    sc_attrs <- c("..sc_body..", "..sc_chks..", "..sc_req_args..")
+    attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), sc_attrs)]
+    class(f) <- old_class
     f
   }
 }
@@ -328,6 +327,6 @@ strictly <- strictly_(
 #' @export
 nonstrictly <- strictly_(
   nonstrictly_,
-  list("`..f` not a closure" ~ ..f) ~ purrr::is_function,
+  list("`..f` not an interpreted function" ~ ..f) ~ purrr::is_function,
   .warn_missing = TRUE
 )
