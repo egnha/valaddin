@@ -7,20 +7,19 @@
 # Clone an environment
 clone_env <- lazyeval:::clone_env
 
-#' Determine the names of a pairlist without a default value
-#'
-#' @param sig Pairlist.
-#' @return Character vector.
-#' @keywords internal
-args_wo_defval <- function(sig) {
-  if (is.null(sig)) {
-    return(character(0))
+deparse_collapse <- function(x) {
+  paste(trimws(deparse(x), which = "both"), collapse = "")
+}
+
+enumerate_many <- function(x, many = 1L) {
+  if (length(x) > many) {
+    paste(
+      purrr::map_chr(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]])),
+      collapse = ""
+    )
+  } else {
+    x
   }
-  args <- sig[names(sig) != "..."]
-  no_defval <- purrr::map_lgl(args, function(.) {
-    is.symbol(.) && as.character(.) == ""
-  })
-  names(args)[no_defval]
 }
 
 print_enumerate <- function(x) {
