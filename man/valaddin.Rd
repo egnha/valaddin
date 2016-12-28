@@ -18,9 +18,9 @@ left-hand side \code{q} is the "check item"—items for \code{p} to check,
 along with (optional) custom failure messages. Additionally, abbreviations
 are provided to express common use cases, such as one-sided formulas to
 specify a uniform check to all arguments. The example below shows how to add
-type validation to all arguments—they must be numeric—while additionally
-enforcing a relation between them—they must be positive and appear in
-increasing order.
+type validation to all arguments (they must be numeric), while additionally
+enforcing a relation between them (they must be positive and appear in
+increasing order).
 \cr\cr
 Using \code{strictly()} to add input validation to your functions improves
 the legibility, reusability, and reliability of your code:
