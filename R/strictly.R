@@ -43,13 +43,23 @@ NULL
 #' foo_strictest(1, 2, NA_real_)  # Not string
 #' foo_strictest(1, a = "foo")    # Error evaluating check, missing argument
 #'
-#' bar <- function(x, y) x - y
-#' bar_strict <- strictly(bar, ~is.numeric, ~{. > 0})
-#' bar_strict(1, 2)        # -1
-#' bar_strict(1, -2)       # FALSE: (purrr::as_function(~{. > 0}))(y)
-#' bar_strict("1", 2)      # FALSE: is.numeric(x)
-#' bar_strict("1", "two")  # FALSE: is.numeric(x), is.numeric(y)
-#' bar_strict("1", -2)     # FALSE: is.numeric(x), (purrr::as_function(~{. > 0}))(y)
+#' g <- function(x, y) x - y
+#' g_sct <- strictly(bar, ~is.numeric, ~{. > 0})
+#' g_sct(1, 2)        # -1
+#' g_sct(1, -2)       # FALSE: (purrr::as_function(~{. > 0}))(y)
+#' g_sct("1", 2)      # FALSE: is.numeric(x)
+#' g_sct("1", "two")  # FALSE: is.numeric(x), is.numeric(y)
+#' g_sct("1", -2)     # FALSE: is.numeric(x), (purrr::as_function(~{. > 0}))(y)
+#'
+#' h <- strictly(
+#'   function(x, y) log(x - y),
+#'   "Not numeric" ~ is.numeric,
+#'   list(~y, "`x` not greater than `y`" ~ x - y) ~ {. > 0}
+#' )
+#' h(4, 2)    # 0.6931472
+#' h(3, 0)    # FALSE: (purrr::as_function(~{. > 0}))(y)
+#' h(3, 3)    # `x` not greater than `y`
+#' h("4", 1)  # Not numeric: `x`, error evaluating check
 #' @name strictly
 NULL
 
