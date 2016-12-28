@@ -1,4 +1,4 @@
-#' @include checks.R
+#' @include checklist.R
 NULL
 
 #' Add input validation to a function
@@ -269,9 +269,7 @@ print.strict_closure <- function(x) {
 
 chk_strictly <- list(
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("`.checklist` invalid; see ?is_checklist" ~ .checklist) ~ is_checklist,
-  list("`.warn_missing` not logical" ~ .warn_missing) ~
-    purrr::is_scalar_logical
+  list("`.warn_missing` not logical" ~ .warn_missing) ~ purrr::is_scalar_logical
 )
 
 #' @rdname strictly

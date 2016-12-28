@@ -14,6 +14,6 @@ Suggests:
 RoxygenNote: 5.0.1
 Collate:
     'utils.R'
-    'checks.R'
+    'checklist.R'
     'strictly.R'
     'valaddin.R'
