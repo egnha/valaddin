@@ -24,7 +24,7 @@ NULL
 #' @export
 #' @examples
 #' # Valid checklist
-#' is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ ~{. > 0}))
+#' is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))
 #'
 #' # Invalid checklists
 #' is_checklist(list(is.numeric ~ list(~ x)))
@@ -41,7 +41,7 @@ is_check_formula <- function(x) {
 }
 
 is_rhs_function <- function(x) {
-  is.function(lazyeval::f_eval_rhs(x)) || is_lambda(lazyeval::f_rhs(x))
+  is_lambda(lazyeval::f_rhs(x)) || is.function(lazyeval::f_eval_rhs(x))
 }
 
 is_lhs_checkitem <- function(x) {

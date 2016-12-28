@@ -90,7 +90,7 @@ validate <- function(calls, lazy_args, args, req_args,
 }
 
 #' @export
-invalid_input <- function(message, call = sys.call(1)) {
+invalid_input <- function(message, call = NULL) {
   structure(
     list(message = message, call = call),
     class = c("invalid_input", "error", "condition")
@@ -115,53 +115,61 @@ check_args <- function(calls, dots, req_args) {
   }, list(..calls.. = calls, ..dots.. = dots, ..req_args.. = req_args))
 }
 
-args_wo_defval <- function(sig) {
+args_wo_defltval <- function(sig) {
   if (is.null(sig)) {
     return(character(0))
   }
-  args <- sig[names(sig) != "..."]
-  no_defval <- purrr::map_lgl(args, function(.) {
+  args <- sig[setdiff(names(sig), "...")]
+  no_defltval <- purrr::map_lgl(args, function(.) {
     is.symbol(.) && as.character(.) == ""
   })
-  names(args)[no_defval]
+  names(args)[no_defltval]
 }
 
 expand_args <- function(lhs, sig, env) {
   arg_name <- setdiff(names(sig), "...")
   arg_symb <- lapply(arg_name, as.symbol)
-  l <- lapply(arg_symb, lazyeval::f_new, env = env)
-  names(l) <- if (!is.null(lhs)) {
+  q <- lapply(arg_symb, lazyeval::f_new, env = env)
+  names(q) <- if (!is.null(lhs)) {
     paste(lhs, encodeString(arg_name, quote = "`"), sep = ": ")
   } else {
-    rep("", length(l))
+    rep("", length(q))
   }
-  l
+  q
 }
 
 # f: list("message" ~ arg, ...) ~ function
-#' @export
-generate_calls <- function(chk, sig) {
+generate_calls <- function(chk, sig, env = lazyeval::f_env(chk)) {
   p <- lazyeval::f_rhs(chk)
-  l <- lazyeval::f_eval_lhs(chk)
-  args <- if (is.list(l)) {
-    do.call(lazyeval::f_list, l)
+  if (is_lambda(p)) {
+    predicate <- lambda(p, env)
+    p_symb <- predicate
   } else {
-    expand_args(l, sig, lazyeval::f_env(chk))
+    predicate <- lazyeval::f_eval_rhs(chk)
+    p_symb <- p
   }
-  is_empty <- names(args) == ""
-  names(args)[is_empty] <- purrr::map_chr(args[is_empty], function(.) {
-    call_expr <- substitute(f(x), list(f = p, x = lazyeval::f_rhs(.)))
-    sprintf("%s is FALSE", deparse_collapse(call_expr))
+
+  lhs <- lazyeval::f_eval_lhs(chk)
+  q <- if (is.list(lhs)) {
+    do.call(lazyeval::f_list, lhs)
+  } else {
+    expand_args(lhs, sig, env)
+  }
+
+  is_empty <- names(q) == ""
+  names(q)[is_empty] <- purrr::map_chr(q[is_empty], function(.) {
+    call_expr <- substitute(f(x), list(f = p_symb, x = lazyeval::f_rhs(.)))
+    sprintf("FALSE: %s", deparse_collapse(call_expr))
   })
-  predicate <- purrr::as_function(lazyeval::f_eval_rhs(chk))
-  lapply(args, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
+
+  lapply(q, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
 }
 
-#' @export
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
+
   if (!is_checklist(chks)) {
-    stop("Invalid argument checks (see '?valaddin::strictly')", call. = FALSE)
+    stop("Invalid argument checks; see '?valaddin::strictly'", call. = FALSE)
   }
 
   if (!length(chks) && is.null(.warn_missing)) {
@@ -178,7 +186,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   req_args <- if (is.null(.warn_missing)) {
     strict_reqarg(.f)
   } else if (.warn_missing) {
-    strict_reqarg(.f) %||% args_wo_defval(sig)
+    strict_reqarg(.f) %||% args_wo_defltval(sig)
   } else {
     NULL
   }
@@ -203,7 +211,6 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   )
 }
 
-#' @export
 nonstrictly_ <- function(..f) {
   if (!inherits(..f, "strict_closure")) {
     ..f
@@ -258,43 +265,6 @@ strict_check <- get_attribute("..sc_chks..")
 #' @export
 strict_reqarg <- get_attribute("..sc_req_args..")
 
-#' @export
-print.strict_closure <- function(x) {
-  cat("<strict_closure>\n")
-
-  cat("\n* Body:\n")
-  cat(deparse(args(x))[[1L]], "\n", sep = "")
-  print(strict_body(x))
-  print(environment(x))
-
-  cat("\n* Checks (<predicate> : <error message>):\n")
-  chks <- strict_check(x)
-  if (length(chks)) {
-    labels <- purrr::map2_chr(chks, names(chks), function(p, msg) {
-      paste0("`", deparse_collapse(p), "`", " : \"", msg, "\"")
-    })
-    cat(enumerate_many(labels))
-  } else {
-    cat("None\n")
-  }
-
-  cat("\n* Check missing:\n")
-  req_arg <- strict_reqarg(x)
-  if (length(req_arg)) {
-    cat(paste(req_arg, collapse = ", "))
-  } else {
-    cat("Not checked\n")
-  }
-}
-
-chk_strictly <- list(
-  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("`.f` has no explicit arguments (just `...`)" ~ .f) ~
-    ~ !identical(names(formals(.)), "..."),
-  list("`.warn_missing` not NULL or (scalar) logical" ~ .warn_missing) ~
-    ~ is.null(.) || purrr::is_scalar_logical(.)
-)
-
 #' @rdname strictly
 #' @section Specifying argument checks:
 #'   An argument check is specified by a formula whose interpretation depends on
@@ -340,7 +310,13 @@ chk_strictly <- list(
 #' @export
 strictly <- strictly_(
   strictly_,
-  .checklist = chk_strictly, .warn_missing = TRUE
+  list("`.f` not an interpreted function" ~ .f) ~
+    purrr::is_function,
+  list("`.f` has no explicit arguments (only '...')" ~ .f) ~
+    {!identical(names(formals(.)), "...")},
+  list("`.warn_missing` not NULL or logical" ~ .warn_missing) ~
+    {is.null(.) || purrr::is_scalar_logical(.)},
+  .warn_missing = TRUE
 )
 
 #' @rdname strictly
@@ -351,3 +327,32 @@ nonstrictly <- strictly_(
   list("`..f` not an interpreted function" ~ ..f) ~ purrr::is_function,
   .warn_missing = TRUE
 )
+
+#' @export
+print.strict_closure <- function(x) {
+  cat("<strict_closure>\n")
+
+  cat("\n* Body:\n")
+  cat(deparse(args(x))[[1L]], "\n", sep = "")
+  print(strict_body(x))
+  print(environment(x))
+
+  cat("\n* Checks (<predicate> : <error message>):\n")
+  chks <- strict_check(x)
+  if (length(chks)) {
+    labels <- purrr::map2_chr(chks, names(chks), function(p, msg) {
+      paste0("`", deparse_collapse(p), "`", " : \"", msg, "\"")
+    })
+    cat(enumerate_many(labels))
+  } else {
+    cat("None\n")
+  }
+
+  cat("\n* Check missing:\n")
+  req_arg <- strict_reqarg(x)
+  if (length(req_arg)) {
+    cat(paste(req_arg, collapse = ", "))
+  } else {
+    cat("Not checked\n")
+  }
+}

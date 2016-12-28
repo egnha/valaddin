@@ -37,7 +37,7 @@ its check by being called on \code{<expr>}.)
 }
 \examples{
 # Valid checklist
-is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ ~{. > 0}))
+is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))
 
 # Invalid checklists
 is_checklist(list(is.numeric ~ list(~ x)))
