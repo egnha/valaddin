@@ -72,7 +72,9 @@ lazy_assign <- function(lzydots, env) {
 #' @export
 validate <- function(calls, lazy_args, args, req_args,
                      parent = parent.frame()) {
-  if (length(calls)) {
+  if (!length(calls)) {
+    err_msgs <- character(0)
+  } else {
     env <- lazy_assign(lazy_args, new.env(parent = parent))
     is_ok <- purrr::map_lgl(seq_along(calls), function(i) {
       tryCatch(
@@ -86,8 +88,6 @@ validate <- function(calls, lazy_args, args, req_args,
       )
     })
     err_msgs  <- names(calls)[!is_ok]
-  } else {
-    err_msgs <- character(0)
   }
   warn_msgs <- setdiff(req_args, args)
   list(error = err_msgs, warning = warn_msgs)
@@ -122,17 +122,32 @@ args_wo_defval <- function(sig) {
   names(args)[no_defval]
 }
 
+expand_args <- function(lhs, sig, env) {
+  arg_name <- setdiff(names(sig), "...")
+  arg_symb <- lapply(arg_name, as.symbol)
+  l <- lapply(arg_symb, lazyeval::f_new, env = env)
+  if (!is.null(lhs)) {
+    names(l) <- paste(lhs, encodeString(arg_name, quote = "`"), sep = ": ")
+  }
+  l
+}
+
 # f: list("message" ~ arg, ...) ~ function
 #' @export
-generate_calls <- function(f) {
-  p <- lazyeval::f_rhs(f)
-  args <- do.call(lazyeval::f_list, lazyeval::f_eval_lhs(f))
+generate_calls <- function(chk, sig) {
+  p <- lazyeval::f_rhs(chk)
+  l <- lazyeval::f_eval_lhs(chk)
+  args <- if (is.list(l)) {
+    do.call(lazyeval::f_list, l)
+  } else {
+    expand_args(l, sig, lazyeval::f_env(chk))
+  }
   is_empty <- names(args) == ""
   names(args)[is_empty] <- purrr::map_chr(args[is_empty], function(.) {
     call_expr <- substitute(f(x), list(f = p, x = lazyeval::f_rhs(.)))
     sprintf("%s is not TRUE", deparse_collapse(call_expr))
   })
-  predicate <- purrr::as_function(lazyeval::f_eval_rhs(f))
+  predicate <- purrr::as_function(lazyeval::f_eval_rhs(chk))
   lapply(args, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
 }
 
@@ -140,7 +155,7 @@ generate_calls <- function(f) {
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   chks <- c(list(...), .checklist)
   if (!is_checklist(chks)) {
-    stop("Invalid argument checks; see ?valaddin::strictly", call. = FALSE)
+    stop("Invalid argument checks (see '?valaddin::strictly')", call. = FALSE)
   }
 
   if (!length(chks) && !.warn_missing) {
@@ -148,7 +163,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   }
 
   sig <- formals(.f)
-  calls <- unlist(c(strict_check(.f), lapply(chks, generate_calls)))
+  calls <- unlist(c(strict_check(.f), lapply(chks, generate_calls, sig = sig)))
   fml_args <- if (length(calls)) {
     lapply(setdiff(names(sig), "..."), as.name)
   } else {
@@ -183,16 +198,14 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
 
 #' @export
 nonstrictly_ <- function(..f) {
-  old_class <- class(..f)[class(..f) != "strict_closure"]
-  if (!is_strict_closure(..f)) {
-    class(..f) <- old_class
+  if (!inherits(..f, "strict_closure")) {
     ..f
   } else {
     f <- eval(call("function", formals(..f), strict_body(..f)))
     environment(f) <- environment(..f)
     sc_attrs <- c("..sc_body..", "..sc_chks..", "..sc_req_args..")
     attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), sc_attrs)]
-    class(f) <- old_class
+    class(f) <- class(..f)[class(..f) != "strict_closure"]
     f
   }
 }
@@ -247,23 +260,23 @@ print.strict_closure <- function(x) {
   print(strict_body(x))
   print(environment(x))
 
-  cat("\n* Checks (<predicate>:<error message>):\n")
+  cat("\n* Checks (<predicate> : <error message>):\n")
   chks <- strict_check(x)
   if (length(chks)) {
     labels <- purrr::map2_chr(chks, names(chks), function(p, msg) {
       paste0("`", deparse_collapse(p), "`", " : \"", msg, "\"")
     })
-    cat(enumerate_many(labels), "\n", sep = "")
+    cat(enumerate_many(labels))
   } else {
-    cat("<none>\n")
+    cat("None\n")
   }
 
-  cat("\n* Check missing arguments:\n")
+  cat("\n* Check missing:\n")
   req_arg <- strict_reqarg(x)
   if (length(req_arg)) {
     cat(paste(req_arg, collapse = ", "))
   } else {
-    cat("<none>\n")
+    cat("Not checked\n")
   }
 }
 
