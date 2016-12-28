@@ -1,11 +1,5 @@
-#' @importFrom magrittr %>%
-`%>%` <- magrittr::`%>%`
-
 #' @importFrom purrr %||%
 `%||%` <- purrr::`%||%`
-
-# Clone an environment
-clone_env <- lazyeval:::clone_env
 
 #' @export
 deparse_collapse <- function(x) {
