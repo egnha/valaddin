@@ -23,31 +23,27 @@ NULL
 #' foo_strict(1, 2, "SUM:")             # "SUM: 3"
 #' foo_strict(1, 2, "SUM:", bogus_obj)  # "SUM: 3"
 #'
-#' # `foo` and `foo_strict` have the same parent environment
-#' identical(parent.env(environment(foo)), parent.env(environment(foo_strict)))
-#' # `environment(foo_strict)` has the bindings of `environment(foo)`, at the
-#' # point where `foo_strict` is defined
-#' e <- setdiff(names(environment(foo)), "foo_strict")
-#' identical(sort(names(environment(foo_strict))), sort(e))
+#' # `foo` and `foo_strict` share the same environment
+#' identical(environment(foo), environment(foo_strict))
 #'
-#' foo_stricter <- strictly(foo_strict,
-#'                          "Not numeric" ~ is.numeric(x) && is.numeric(y))
+#' foo_stricter <- strictly(foo_strict, list(~x, ~y) ~ is.numeric)
 #' foo_stricter(1, 2)                     # "sum: 3"
 #' foo_stricter(1, 2, "SUM:", bogus_obj)  # "SUM: 3"
-#' foo_stricter(1, "2")                   # Error: Not numeric
+#' foo_stricter(1, "2")                   # Error: is.numeric(y) is not TRUE
 #' foo_stricter(1, 2, NA_real_)           # "NA 3"
 #'
-#' foo_strictest <- strictly(foo_stricter,
-#'                           "Not string" ~ purrr::is_scalar_character(a),
-#'                           .chk_missing = TRUE)
+#' foo_strictest <- strictly(
+#'   foo_stricter,
+#'   list("Not string" ~ a) ~ purrr::is_scalar_character,
+#'   .warn_missing = TRUE
+#' )
 #' foo_strictest(1, 2)            # "sum: 3"
-#' foo_strictest(1, "2")          # Error: Not numeric
+#' foo_strictest(1, "2")          # Error: is.numeric(y) is not TRUE
 #' foo_strictest(1, 2, NA_real_)  # Error: Not string
-#' foo_strictest(1, a = "foo")    # Error: Missing required arguments: y
+#' foo_strictest(1, a = "foo")    # Error and warning
 #'
 #' bar <- function(x, y) x - y
-#' is_positive <- function(x) x >= 0
-#' bar_strict <- strictly(bar, ~is.numeric, ~is_positive)
+#' bar_strict <- strictly(bar, ~is.numeric, ~ ~{. >= 0})  # Double '~, indeed'
 #' bar_strict(1, 2)        # -1
 #' bar_strict(1, -2)       # is_positive(.) is FALSE: `y`
 #' bar_strict("1", 2)      # is.numeric(.) is FALSE: `x`
@@ -126,8 +122,10 @@ expand_args <- function(lhs, sig, env) {
   arg_name <- setdiff(names(sig), "...")
   arg_symb <- lapply(arg_name, as.symbol)
   l <- lapply(arg_symb, lazyeval::f_new, env = env)
-  if (!is.null(lhs)) {
-    names(l) <- paste(lhs, encodeString(arg_name, quote = "`"), sep = ": ")
+  names(l) <- if (!is.null(lhs)) {
+    paste(lhs, encodeString(arg_name, quote = "`"), sep = ": ")
+  } else {
+    rep("", length(l))
   }
   l
 }
@@ -283,8 +281,10 @@ print.strict_closure <- function(x) {
 
 chk_strictly <- list(
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("`.f` has no explicit arguments (just `...`)" ~ .f) ~
+    ~ !identical(names(formals(.)), "..."),
   list("`.warn_missing` not NULL or (scalar) logical" ~ .warn_missing) ~
-    ~{is.null(.) || purrr::is_scalar_logical(.)}
+    ~ is.null(.) || purrr::is_scalar_logical(.)
 )
 
 #' @rdname strictly
