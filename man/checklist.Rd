@@ -18,11 +18,13 @@ is_check_formula(x)
   checklist.
 }
 \description{
-A checklist is a list of \emph{check formulae} \code{q ~ p}:
+\code{is_checklist(x)} checks whether \code{x} is a list of
+argument-validation checks, i.e., a \emph{checklist}. A checklist is a list
+of \emph{check formulae} \code{q ~ p}, where
 \itemize{
   \item \code{p} is a predicate function, or one-sided formulaic shorthand
-    thereof (see \code{purrr::\link[purrr]{as_function}()})
-  \item \code{q} is a \emph{check item} for \code{p}
+    thereof (see \code{purrr::\link[purrr]{as_function}()}),
+  \item \code{q} is a \emph{check item} for \code{p}.
 }
 A check item is either empty, a string, or a list of formulae of the form
 \code{~<expr>} or \code{<string> ~ <expr>}. (The predicate \code{p} performs
