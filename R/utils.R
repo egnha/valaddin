@@ -1,4 +1,4 @@
-#' @importFrom purrr %||%
+# Null-default operator
 `%||%` <- purrr::`%||%`
 
 #' @export
