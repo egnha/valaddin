@@ -7,13 +7,13 @@ deparse_collapse <- function(x) {
 }
 
 #' @export
-enumerate_many <- function(x, many = 1L) {
-  if (length(x) > many) {
+enumerate_many <- function(x, many = 2L) {
+  if (length(x) >= many) {
     paste(
       purrr::map_chr(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]])),
       collapse = ""
     )
   } else {
-    x
+    paste0(x, "\n")
   }
 }
