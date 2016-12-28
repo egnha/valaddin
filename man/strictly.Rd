@@ -7,7 +7,7 @@
 \alias{strict_check}
 \alias{strict_reqarg}
 \alias{strictly}
-\title{Add input validation to a function}
+\title{Apply a function strictly}
 \usage{
 is_strict_closure(x)
 

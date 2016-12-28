@@ -1,7 +1,7 @@
 #' @include checklist.R
 NULL
 
-#' Add input validation to a function
+#' Apply a function strictly
 #'
 #' A common form of boilerplate code at the top of functions is argument
 #' checking: You make some checks on the arguments, signal a condition if any

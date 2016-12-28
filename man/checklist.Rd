@@ -18,29 +18,39 @@ is_check_formula(x)
   checklist.
 }
 \description{
-\code{is_checklist(x)} checks whether \code{x} is a list of
-argument-validation checks, i.e., a \emph{checklist}. A checklist is a list
-of \emph{check formulae} \code{q ~ p}, where
-\itemize{
-  \item \code{p} is a predicate function, or one-sided formulaic shorthand
-    thereof (see \code{purrr::\link[purrr]{as_function}()}),
-  \item \code{q} is a \emph{check item} for \code{p}.
-}
-A check item is either empty, a string, or a list of formulae of the form
-\code{~<expr>} or \code{<string> ~ <expr>}. (The predicate \code{p} performs
-its check by being called on \code{<expr>}.)
+\code{is_checklist(x)} checks whether \code{x} is a \emph{checklist}, i.e., a
+list of argument-validation checks. It is handy when you roll your own
+checklists.
 }
 \details{
-\code{is_checklist()} is used to check the validity of the checks
-  passed to \code{\link{strictly}()}, either via \code{...} or the argument
-  \code{.checklist}.
+A checklist is a list of \emph{check
+formulae} \code{q ~ p}, where
+\itemize{
+  \item \code{p} is a predicate function of one argument, which may be
+    specified anonymously as a function body between \code{\{...\}} with
+    \code{.} (or \code{.x}) as the argument (cf.
+    \code{purrr::\link[purrr]{as_function}()}, and the example, below),
+  \item \code{q} is a \emph{check item} for \code{p}.
+}
+A check item is either empty, a string (failure message), or a list of
+formulae of the form \code{~<expr>} (auto-generated failure message) or
+\code{<string> ~ <expr>} (custom failure message). The predicate \code{p}
+performs its check by being called on \code{<expr>}.
+
+\code{is_checklist()} is used to check the validity of the checks passed to
+\code{\link{strictly}()}, either via \code{...} or the argument
+\code{.checklist}.
 }
 \examples{
 # Valid checklist
 is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))
 
 # Invalid checklists
-is_checklist(list(is.numeric ~ list(~ x)))
-is_checklist(list(list(log ~ x) ~ is.character))
+is_checklist(list(is.numeric ~ list(~ x)))        # Backwards
+is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
+}
+\seealso{
+\link{strictly}, for more information on the specificaton and use of
+  check formulae.
 }
 
