@@ -89,6 +89,14 @@ validate <- function(calls, lazy_args, args, req_args,
   list(error = err_msgs, warning = warn_msgs)
 }
 
+#' @export
+invalid_input <- function(message, call = sys.call(1)) {
+  structure(
+    list(message = message, call = call),
+    class = c("invalid_input", "error", "condition")
+  )
+}
+
 check_args <- function(calls, dots, req_args) {
   substitute({
     `_lazy_args` <- do.call(lazyeval::lazy_dots, ..dots..)
@@ -102,7 +110,7 @@ check_args <- function(calls, dots, req_args) {
     if (length(`_res`$error)) {
       `_call` <- sprintf("%s\n", valaddin::deparse_collapse(match.call()))
       `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_res`$error))
-      stop(`_msg`, call. = FALSE)
+      stop(valaddin::invalid_input(`_msg`))
     }
   }, list(..calls.. = calls, ..dots.. = dots, ..req_args.. = req_args))
 }
@@ -143,7 +151,7 @@ generate_calls <- function(chk, sig) {
   is_empty <- names(args) == ""
   names(args)[is_empty] <- purrr::map_chr(args[is_empty], function(.) {
     call_expr <- substitute(f(x), list(f = p, x = lazyeval::f_rhs(.)))
-    sprintf("%s is not TRUE", deparse_collapse(call_expr))
+    sprintf("%s is FALSE", deparse_collapse(call_expr))
   })
   predicate <- purrr::as_function(lazyeval::f_eval_rhs(chk))
   lapply(args, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
