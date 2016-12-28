@@ -152,13 +152,13 @@ generate_calls <- function(chk, sig) {
 }
 
 #' @export
-strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
+strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
   if (!is_checklist(chks)) {
     stop("Invalid argument checks (see '?valaddin::strictly')", call. = FALSE)
   }
 
-  if (!length(chks) && !.warn_missing) {
+  if (!length(chks) && is.null(.warn_missing)) {
     return(.f)
   }
 
@@ -169,9 +169,10 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   } else {
     list()
   }
-  rarg_orig <- strict_reqarg(.f)
-  req_args <- if (.warn_missing || length(rarg_orig)) {
-    rarg_orig %||% args_wo_defval(sig)
+  req_args <- if (is.null(.warn_missing)) {
+    strict_reqarg(.f)
+  } else if (.warn_missing) {
+    strict_reqarg(.f) %||% args_wo_defval(sig)
   } else {
     NULL
   }
@@ -282,7 +283,8 @@ print.strict_closure <- function(x) {
 
 chk_strictly <- list(
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("`.warn_missing` not logical" ~ .warn_missing) ~ purrr::is_scalar_logical
+  list("`.warn_missing` not NULL or (scalar) logical" ~ .warn_missing) ~
+    ~{is.null(.) || purrr::is_scalar_logical(.)}
 )
 
 #' @rdname strictly
