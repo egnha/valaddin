@@ -100,18 +100,19 @@ foo(1, 2, "SUM:")             # "SUM: 3"
 foo(1, 2, "SUM:", bogus_obj)  # "SUM: 3" (arguments are evaluated lazily)
 
 foo_strict <- strictly(foo)
-foo_strict(1, 2)                     # "sum: 3"
-foo_strict(1, 2, "SUM:")             # "SUM: 3"
-foo_strict(1, 2, "SUM:", bogus_obj)  # "SUM: 3"
-
-# `foo` and `foo_strict` share the same environment
-identical(environment(foo), environment(foo_strict))
+identical(foo, foo_strict)
 
 foo_stricter <- strictly(foo_strict, list(~x, ~y) ~ is.numeric)
 foo_stricter(1, 2)                     # "sum: 3"
 foo_stricter(1, 2, "SUM:", bogus_obj)  # "SUM: 3"
-foo_stricter(1, "2")                   # Error: is.numeric(y) is not TRUE
+foo_stricter(1, "2")                   # FALSE: is.numeric(y)
 foo_stricter(1, 2, NA_real_)           # "NA 3"
+
+# `foo` and `foo_stricter` share the same environment
+identical(environment(foo), environment(foo_stricter))
+
+# `foo_stricter` preserves the attributes of `foo`
+all(attributes(foo) \%in\% attributes(foo_stricter))
 
 foo_strictest <- strictly(
   foo_stricter,
@@ -119,19 +120,16 @@ foo_strictest <- strictly(
   .warn_missing = TRUE
 )
 foo_strictest(1, 2)            # "sum: 3"
-foo_strictest(1, "2")          # Error: is.numeric(y) is not TRUE
-foo_strictest(1, 2, NA_real_)  # Error: Not string
-foo_strictest(1, a = "foo")    # Error and warning
+foo_strictest(1, "2")          # FALSE: is.numeric(y)
+foo_strictest(1, 2, NA_real_)  # Not string
+foo_strictest(1, a = "foo")    # Error evaluating check, missing argument
 
 bar <- function(x, y) x - y
-bar_strict <- strictly(bar, ~is.numeric, ~ ~{. >= 0})  # Double '~, indeed'
+bar_strict <- strictly(bar, ~is.numeric, ~{. > 0})
 bar_strict(1, 2)        # -1
-bar_strict(1, -2)       # is_positive(.) is FALSE: `y`
-bar_strict("1", 2)      # is.numeric(.) is FALSE: `x`
-bar_strict("1", "two")  # is.numeric(.) is FALSE: `x`, `y`
-
-# Multiple failures are captured in the error message
-bar_strict("1", -2)
-# is.numeric(.) is FALSE: `x`; is_positive(.) is FALSE: `y`
+bar_strict(1, -2)       # FALSE: (purrr::as_function(~{. > 0}))(y)
+bar_strict("1", 2)      # FALSE: is.numeric(x)
+bar_strict("1", "two")  # FALSE: is.numeric(x), is.numeric(y)
+bar_strict("1", -2)     # FALSE: is.numeric(x), (purrr::as_function(~{. > 0}))(y)
 }
 
