@@ -41,8 +41,7 @@ is_check_formula <- function(x) {
 }
 
 is_rhs_function <- function(x) {
-  rhs <- lazyeval::f_eval_rhs(x)
-  is.function(rhs) || (purrr::is_formula(rhs) && length(rhs) == 2L)
+  is.function(lazyeval::f_eval_rhs(x)) || is_purrr_lambda(lazyeval::f_rhs(x))
 }
 
 is_lhs_checkitem <- function(x) {
@@ -56,4 +55,10 @@ is_flist <- function(x) {
       lhs <- lazyeval::f_eval_lhs(.)
       purrr::is_formula(.) && (is.null(lhs) || purrr::is_scalar_character(lhs))
     }))
+}
+
+# Same as `magrittr:::is_funexpr()`, but used to check whether
+# `purrr::as_function()` is applicable
+is_purrr_lambda <- function(x) {
+  is.call(x) && identical(x[[1L]], as.symbol("{"))
 }
