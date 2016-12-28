@@ -3,6 +3,7 @@
 \name{strictly}
 \alias{is_strict_closure}
 \alias{nonstrictly}
+\alias{remove_check}
 \alias{strict_body}
 \alias{strict_check}
 \alias{strict_reqarg}
@@ -20,14 +21,18 @@ strict_reqarg(x)
 strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
 
 nonstrictly(.f)
+
+remove_check(..f, which)
 }
 \arguments{
 \item{x}{R object.}
 
-\item{.f}{Interpreted function (i.e., closure), not a primitive function.}
-
 \item{...}{Formulae, or single list thereof, that specify the argument checks
 for \code{.f}.}
+
+\item{..f}{Interpreted function (i.e., closure), not a primitive function.}
+
+\item{which}{Logical or numeric vector.}
 
 \item{.cond}{Condition object (class \code{"condition"}) to be signaled if
 any of the checks fail. If \code{.cond} is \code{NULL}, the default error
@@ -37,6 +42,8 @@ handler is used.}
 are missing? ("Required" arguments are explicit arguments without default
 values; since they are promises, they need not be evaluated in the function
 body.)}
+
+\item{..f}{Strict closure, i.e., function of class \code{"strict_closure"}.}
 }
 \description{
 A common form of boilerplate code at the top of functions is argument

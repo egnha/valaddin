@@ -177,6 +177,32 @@ generate_calls <- function(chk, sig, env = lazyeval::f_env(chk)) {
   )
 }
 
+strict_closure <- function(sig, body, env, attr, class, calls, rargs) {
+  fml_args <- if (length(calls)) {
+    lapply(setdiff(names(sig), "..."), as.name)
+  } else {
+    list()
+  }
+  chk_args <- check_args(calls, fml_args, rargs)
+  new_body <- substitute({
+    ..checks..
+    ..body..
+  }, list(..checks.. = chk_args, ..body.. = body))
+
+  f <- eval(call("function", sig, new_body))
+  environment(f) <- env
+  attributes(f) <- attr
+
+  new_class <- if ("strict_closure" %in% class) NULL else "strict_closure"
+  structure(
+    f,
+    ..sc_body..     = body,
+    ..sc_chks..     = calls,
+    ..sc_req_args.. = rargs,
+    class = c(new_class, class)
+  )
+}
+
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
@@ -189,15 +215,11 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   }
 
   sig <- formals(.f)
+  body_orig <- strict_body(.f) %||% body(.f)
   calls <- c(
     strict_check(.f),
     do.call("c", lapply(chks, generate_calls, sig = sig))
   )
-  fml_args <- if (length(calls)) {
-    lapply(setdiff(names(sig), "..."), as.name)
-  } else {
-    list()
-  }
   req_args <- if (is.null(.warn_missing)) {
     strict_reqarg(.f)
   } else if (.warn_missing) {
@@ -205,24 +227,10 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   } else {
     NULL
   }
-  chk_args <- check_args(calls, fml_args, req_args)
-  body_orig <- strict_body(.f) %||% body(.f)
-  body <- substitute({
-    ..checks..
-    ..body..
-  }, list(..checks.. = chk_args, ..body.. = body_orig))
 
-  f <- eval(call("function", sig, body))
-  environment(f) <- environment(.f)
-  attributes(f) <- attributes(.f)
-
-  new_class <- if (inherits(.f, "strict_closure")) NULL else "strict_closure"
-  structure(
-    f,
-    ..sc_body..     = body_orig,
-    ..sc_chks..     = calls,
-    ..sc_req_args.. = req_args,
-    class = c(new_class, class(.f))
+  strict_closure(
+    sig, body_orig, environment(.f), attributes(.f), class(.f),
+    calls, req_args
   )
 }
 
@@ -237,6 +245,24 @@ nonstrictly_ <- function(.f) {
     class(f) <- class(.f)[class(.f) != "strict_closure"]
     f
   }
+}
+
+remove_check_ <- function(..f, which) {
+  calls <- strict_check(..f)
+  calls_new <- if (is.logical(which)) {
+    calls[!which]
+  } else {
+    calls[setdiff(seq_along(calls), as.integer(which))]
+  }
+  strict_closure(
+    sig   = formals(..f),
+    body  = strict_body(..f),
+    env   = environment(..f),
+    attr  = attributes(..f),
+    class = class(..f),
+    calls = calls_new,
+    rargs = strict_reqarg(..f)
+  )
 }
 
 #' @rdname strictly
@@ -304,7 +330,7 @@ strict_reqarg <- get_attribute("..sc_req_args..")
 #'   \code{c} must be a monotonically increasing sequence of positive numbers. A
 #'   one-sided formula check is simply a handy shorthand for submitting each and
 #'   every argument to a common check.
-#' @param .f Interpreted function (i.e., closure), not a primitive function.
+#' @param ..f Interpreted function (i.e., closure), not a primitive function.
 #' @param ... Formulae, or single list thereof, that specify the argument checks
 #'   for \code{.f}.
 #' @param .cond Condition object (class \code{"condition"}) to be signaled if
@@ -331,6 +357,26 @@ strictly <- strictly_(
 nonstrictly <- strictly_(
   nonstrictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  .warn_missing = TRUE
+)
+
+is_compatible_range <- function(l, wh) {
+  (is.logical(wh) && length(wh) == l) ||
+    (is.numeric(wh) && all(wh >= 1 & wh <= l))
+}
+
+#' @rdname strictly
+#' @param ..f Strict closure, i.e., function of class \code{"strict_closure"}.
+#' @param which Logical or numeric vector.
+#' @export
+remove_check <- strictly_(
+  remove_check_,
+  list("`..f` not a strict closure" ~ ..f) ~ is_strict_closure,
+  list("`which` not logical or numeric" ~ which) ~
+    {is.logical(.) || is.numeric(.)},
+  list("Range of `which` not compatible with checks of .f" ~
+         list(length(strict_check(..f)), which)) ~
+    purrr::lift(is_compatible_range),
   .warn_missing = TRUE
 )
 
