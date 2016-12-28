@@ -347,9 +347,9 @@ print.strict_closure <- function(x) {
   cat("\n* Checks (<predicate> : <error message>):\n")
   chks <- strict_check(x)
   if (length(chks)) {
-    labels <- purrr::map2_chr(chks, names(chks), function(x, y) {
-      paste0("`", x$call_chr, "`", " : \"", y, "\"")
-    })
+    labels <- paste0(
+      "`", purrr::map_chr(chks, "call_chr"), "`", " : \"", names(chks), "\""
+    )
     cat(enumerate_many(labels))
   } else {
     cat("None\n")
