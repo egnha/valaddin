@@ -19,8 +19,8 @@ is_check_formula(x)
 }
 \description{
 \code{is_checklist(x)} checks whether \code{x} is a \emph{checklist}, i.e., a
-list of argument-validation checks. It is handy when you roll your own
-checklists.
+list of argument-validation checks. It does \emph{not} verify logical
+consistency.
 }
 \details{
 A checklist is a list of \emph{check
