@@ -74,11 +74,11 @@ validate <- function(calls, lazy_args, args, req_args,
     env <- lazy_assign(lazy_args, new.env(parent = parent))
     is_ok <- purrr::map_lgl(seq_along(calls), function(i) {
       tryCatch(
-        suppressWarnings(eval(calls[[i]], env)),
+        suppressWarnings(eval(calls[[i]]$call, env)),
         error = function(e) {
           names(calls)[[i]] <<-
             sprintf("Error evaluating check `%s`: %s",
-                    deparse_collapse(calls[[i]]), e$message)
+                    calls[[i]]$call_chr, e$message)
           FALSE
         }
       )
@@ -138,12 +138,11 @@ expand_args <- function(lhs, sig, env) {
   q
 }
 
-# f: list("message" ~ arg, ...) ~ function
 generate_calls <- function(chk, sig, env = lazyeval::f_env(chk)) {
   p <- lazyeval::f_rhs(chk)
   if (is_lambda(p)) {
     predicate <- lambda(p, env)
-    p_symb <- predicate
+    p_symb <- substitute(purrr::as_function(~x), list(x = p))
   } else {
     predicate <- lazyeval::f_eval_rhs(chk)
     p_symb <- p
@@ -155,14 +154,19 @@ generate_calls <- function(chk, sig, env = lazyeval::f_env(chk)) {
   } else {
     expand_args(lhs, sig, env)
   }
-
-  is_empty <- names(q) == ""
-  names(q)[is_empty] <- purrr::map_chr(q[is_empty], function(.) {
-    call_expr <- substitute(f(x), list(f = p_symb, x = lazyeval::f_rhs(.)))
-    sprintf("FALSE: %s", deparse_collapse(call_expr))
+  call_chr <- purrr::map_chr(q, function(.) {
+    expr <- substitute(f(x), list(f = p_symb, x = lazyeval::f_rhs(.)))
+    deparse_collapse(expr)
   })
+  is_empty <- names(q) == ""
+  names(q)[is_empty] <- sprintf("FALSE: %s", call_chr[is_empty])
 
-  lapply(q, function(.) as.call(c(predicate, lazyeval::f_rhs(.))))
+  setNames(
+    purrr::map2(q, call_chr, function(x, y) {
+      list(call = as.call(c(predicate, lazyeval::f_rhs(x))), call_chr = y)
+    }),
+    names(q)
+  )
 }
 
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
@@ -177,7 +181,10 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   }
 
   sig <- formals(.f)
-  calls <- unlist(c(strict_check(.f), lapply(chks, generate_calls, sig = sig)))
+  calls <- c(
+    strict_check(.f),
+    do.call("c", lapply(chks, generate_calls, sig = sig))
+  )
   fml_args <- if (length(calls)) {
     lapply(setdiff(names(sig), "..."), as.name)
   } else {
@@ -340,8 +347,8 @@ print.strict_closure <- function(x) {
   cat("\n* Checks (<predicate> : <error message>):\n")
   chks <- strict_check(x)
   if (length(chks)) {
-    labels <- purrr::map2_chr(chks, names(chks), function(p, msg) {
-      paste0("`", deparse_collapse(p), "`", " : \"", msg, "\"")
+    labels <- purrr::map2_chr(chks, names(chks), function(x, y) {
+      paste0("`", x$call_chr, "`", " : \"", y, "\"")
     })
     cat(enumerate_many(labels))
   } else {
