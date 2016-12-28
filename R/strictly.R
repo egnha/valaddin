@@ -218,25 +218,17 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   )
 }
 
-nonstrictly_ <- function(..f) {
-  if (!inherits(..f, "strict_closure")) {
-    ..f
+nonstrictly_ <- function(.f) {
+  if (!inherits(.f, "strict_closure")) {
+    .f
   } else {
-    f <- eval(call("function", formals(..f), strict_body(..f)))
-    environment(f) <- environment(..f)
+    f <- eval(call("function", formals(.f), strict_body(.f)))
+    environment(f) <- environment(.f)
     sc_attrs <- c("..sc_body..", "..sc_chks..", "..sc_req_args..")
-    attributes(f) <- attributes(..f)[setdiff(names(attributes(..f)), sc_attrs)]
-    class(f) <- class(..f)[class(..f) != "strict_closure"]
+    attributes(f) <- attributes(.f)[setdiff(names(attributes(.f)), sc_attrs)]
+    class(f) <- class(.f)[class(.f) != "strict_closure"]
     f
   }
-}
-
-#' Create an object of class "strict_closure"
-#'
-#' @param x R object.
-#' @keywords internal
-strict_closure <- function(x, ...) {
-  structure(x, class = c("strict_closure", class(x)), ...)
 }
 
 #' @rdname strictly
@@ -327,11 +319,10 @@ strictly <- strictly_(
 )
 
 #' @rdname strictly
-#' @param ..f Strict function, i.e., function of class \code{"strict_closure"}.
 #' @export
 nonstrictly <- strictly_(
   nonstrictly_,
-  list("`..f` not an interpreted function" ~ ..f) ~ purrr::is_function,
+  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
   .warn_missing = TRUE
 )
 

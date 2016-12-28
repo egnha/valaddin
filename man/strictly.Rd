@@ -19,7 +19,7 @@ strict_reqarg(x)
 
 strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
 
-nonstrictly(..f)
+nonstrictly(.f)
 }
 \arguments{
 \item{x}{R object.}
@@ -28,8 +28,6 @@ nonstrictly(..f)
 
 \item{...}{Formulae, or single list thereof, that specify the argument checks
 for \code{.f}.}
-
-\item{..f}{Strict function, i.e., function of class \code{"strict_closure"}.}
 
 \item{.cond}{Condition object (class \code{"condition"}) to be signaled if
 any of the checks fail. If \code{.cond} is \code{NULL}, the default error
