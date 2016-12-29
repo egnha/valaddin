@@ -123,15 +123,15 @@ check_args <- function(calls, dots, req_args) {
   }, list(..calls.. = calls, ..dots.. = dots, ..req_args.. = req_args))
 }
 
-args_wo_defltval <- function(sig) {
+args_wo_default <- function(sig) {
   if (is.null(sig)) {
     return(character(0))
   }
   args <- sig[setdiff(names(sig), "...")]
-  no_defltval <- purrr::map_lgl(args, function(.) {
+  wo_defltval <- purrr::map_lgl(args, function(.) {
     is.symbol(.) && as.character(.) == ""
   })
-  names(args)[no_defltval]
+  names(args)[wo_defltval]
 }
 
 expand_args <- function(lhs, sig, env) {
@@ -223,7 +223,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   req_args <- if (is.null(.warn_missing)) {
     strict_reqarg(.f)
   } else if (.warn_missing) {
-    strict_reqarg(.f) %||% args_wo_defltval(sig)
+    strict_reqarg(.f) %||% args_wo_default(sig)
   } else {
     NULL
   }
