@@ -17,5 +17,8 @@ String.
 \description{
 Enumerate a character vector as a string
 }
+\details{
+Used in validation check template, must therefore be exported.
+}
 \keyword{internal}
 

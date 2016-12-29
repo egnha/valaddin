@@ -15,5 +15,8 @@ String.
 \description{
 Deparse a language object as a single string
 }
+\details{
+Used in validation check template, must therefore be exported.
+}
 \keyword{internal}
 
