@@ -360,9 +360,9 @@ nonstrictly <- strictly_(
   .warn_missing = TRUE
 )
 
-is_compatible_range <- function(l, wh) {
-  (is.logical(wh) && length(wh) == l) ||
-    (is.numeric(wh) && all(wh >= 1 & wh <= l))
+is_subset_vector <- function(wh, len) {
+  (is.logical(wh) && length(wh) == len) ||
+    (is.numeric(wh) && all(wh >= 1 & wh <= len))
 }
 
 #' @rdname strictly
@@ -374,9 +374,9 @@ remove_check <- strictly_(
   list("`..f` not a strict closure" ~ ..f) ~ is_strict_closure,
   list("`which` not logical or numeric" ~ which) ~
     {is.logical(.) || is.numeric(.)},
-  list("Range of `which` not compatible with checks of .f" ~
-         list(length(strict_check(..f)), which)) ~
-    purrr::lift(is_compatible_range),
+  list("Range of `which` not compatible with checks of ..f" ~
+         list(which, length(strict_check(..f)))) ~
+    purrr::lift(is_subset_vector),
   .warn_missing = TRUE
 )
 
