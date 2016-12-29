@@ -64,10 +64,10 @@ check_args <- function(calls, dots, req_args) {
       warning(`_msg`, call. = FALSE)
     }
     `_lazy_args` <- do.call(lazyeval::lazy_dots, ..dots..)
-    `_error` <- valaddin::validate(..calls.., `_lazy_args`)
-    if (length(`_error`)) {
+    `_fail` <- valaddin::validate(..calls.., `_lazy_args`)
+    if (length(`_fail`)) {
       `_call` <- sprintf("%s\n", valaddin::deparse_collapse(match.call()))
-      `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_error`))
+      `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_fail`))
       stop(valaddin::invalid_input(`_msg`))
     }
   }, list(..calls.. = calls, ..dots.. = dots, ..req_args.. = req_args))
