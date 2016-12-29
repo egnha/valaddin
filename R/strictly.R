@@ -393,7 +393,7 @@ print.strict_closure <- function(x) {
   chks <- strict_check(x)
   if (length(chks)) {
     labels <- paste0(
-      "`", purrr::map_chr(chks, "call_chr"), "`", " : \"", names(chks), "\""
+      purrr::map_chr(chks, "call_chr"), " :\n    \"", names(chks), "\""
     )
     cat(enumerate_many(labels))
   } else {
