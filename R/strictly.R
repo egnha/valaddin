@@ -54,10 +54,10 @@ invalid_input <- function(message, call = NULL) {
   )
 }
 
-check_args <- function(calls, dots, req_args) {
+template <- function(calls, arg_fml, req_arg) {
   substitute({
     `_args` <- names(match.call(expand.dots = FALSE)[-1L])
-    `_warn` <- setdiff(..req_args.., `_args`)
+    `_warn` <- setdiff(..req_arg.., `_args`)
     if (length(`_warn`)) {
       `_missing` <- paste(`_warn`, collapse = ", ")
       `_msg` <- sprintf("Missing required argument(s): %s", `_missing`)
@@ -70,47 +70,34 @@ check_args <- function(calls, dots, req_args) {
       `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_fail`))
       stop(valaddin::invalid_input(`_msg`))
     }
-  }, list(..calls.. = calls, ..dots.. = dots, ..req_args.. = req_args))
+  }, list(..calls.. = calls, ..dots.. = arg_fml, ..req_arg.. = req_arg))
 }
 
-args_wo_default <- function(sig) {
-  if (is.null(sig)) {
-    return(character(0))
-  }
-  args <- sig[setdiff(names(sig), "...")]
-  wo_defltval <- purrr::map_lgl(args, function(.) {
-    is.symbol(.) && as.character(.) == ""
-  })
-  names(args)[wo_defltval]
-}
-
-expand_args <- function(lhs, sig, env) {
-  arg_name <- setdiff(names(sig), "...")
-  arg_symb <- lapply(arg_name, as.symbol)
+unfurl_args <- function(lhs, arg_nm, arg_symb, env) {
   q <- lapply(arg_symb, lazyeval::f_new, env = env)
-  names(q) <- if (!is.null(lhs)) {
-    paste(lhs, encodeString(arg_name, quote = "`"), sep = ": ")
+  if (!is.null(lhs)) {
+    names(q) <- paste(lhs, encodeString(arg_nm, quote = "`"), sep = ": ")
   } else {
-    rep("", length(q))
+    names(q) <- rep("", length(q))
   }
   q
 }
 
-generate_calls <- function(chk, sig, env = lazyeval::f_env(chk)) {
+generate_calls <- function(chk, arg_nm, arg_symb, env = lazyeval::f_env(chk)) {
   p <- lazyeval::f_rhs(chk)
   if (is_lambda(p)) {
     predicate <- lambda(p, env)
-    p_symb <- substitute(purrr::as_function(~x), list(x = p))
+    p_symb    <- substitute(purrr::as_function(~x), list(x = p))
   } else {
     predicate <- lazyeval::f_eval_rhs(chk)
-    p_symb <- p
+    p_symb    <- p
   }
 
   lhs <- lazyeval::f_eval_lhs(chk)
   q <- if (is.list(lhs)) {
     do.call(lazyeval::f_list, lhs)
   } else {
-    expand_args(lhs, sig, env)
+    unfurl_args(lhs, arg_nm, arg_symb, env)
   }
   call_chr <- purrr::map_chr(q, function(.) {
     expr <- substitute(f(x), list(f = p_symb, x = lazyeval::f_rhs(.)))
@@ -127,30 +114,32 @@ generate_calls <- function(chk, sig, env = lazyeval::f_env(chk)) {
   )
 }
 
-strict_closure <- function(sig, body, env, attr, class, calls, rargs) {
-  fml_args <- if (length(calls)) {
-    lapply(setdiff(names(sig), "..."), as.name)
-  } else {
-    list()
-  }
-  chk_args <- check_args(calls, fml_args, rargs)
+strict_closure <- function(sig, arg_symb, body, env, attr, class,
+                           calls, req_arg) {
+  arg_fml <- if (length(calls)) arg_symb else list()
+  chk_tmpl <- template(calls, arg_fml, req_arg)
   new_body <- substitute({
     ..checks..
     ..body..
-  }, list(..checks.. = chk_args, ..body.. = body))
-
+  }, list(..checks.. = chk_tmpl, ..body.. = body))
   f <- eval(call("function", sig, new_body))
   environment(f) <- env
-  attributes(f) <- attr
+  attributes(f)  <- attr
 
-  new_class <- if ("strict_closure" %in% class) NULL else "strict_closure"
   structure(
     f,
-    ..sc_body..     = body,
-    ..sc_chks..     = calls,
-    ..sc_req_args.. = rargs,
-    class = c(new_class, class)
+    ..sc_body..    = body,
+    ..sc_check..   = calls,
+    ..sc_req_arg.. = req_arg,
+    class = prepend_to_vec("strict_closure", class)
   )
+}
+
+#' @rdname strictly
+#' @param x R object.
+#' @export
+is_strict_closure <- function(x) {
+  purrr::is_function(x) && inherits(x, "strict_closure")
 }
 
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
@@ -165,22 +154,24 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   }
 
   sig <- formals(.f)
+  arg <- repr_args(sig)
   body_orig <- strict_body(.f) %||% body(.f)
   calls <- c(
     strict_check(.f),
-    do.call("c", lapply(chks, generate_calls, sig = sig))
+    do.call("c", lapply(chks, generate_calls, arg_nm   = arg$nm,
+                                              arg_symb = arg$symb))
   )
-  req_args <- if (is.null(.warn_missing)) {
+  req_arg <- if (is.null(.warn_missing)) {
     strict_reqarg(.f)
   } else if (.warn_missing) {
-    strict_reqarg(.f) %||% args_wo_default(sig)
+    strict_reqarg(.f) %||% arg$nm[arg$wo_value]
   } else {
     NULL
   }
 
   strict_closure(
-    sig, body_orig, environment(.f), attributes(.f), class(.f),
-    calls, req_args
+    sig, arg$symb, body_orig, environment(.f), attributes(.f), class(.f),
+    calls, req_arg
   )
 }
 
@@ -190,7 +181,7 @@ nonstrictly_ <- function(.f) {
   } else {
     f <- eval(call("function", formals(.f), strict_body(.f)))
     environment(f) <- environment(.f)
-    sc_attrs <- c("..sc_body..", "..sc_chks..", "..sc_req_args..")
+    sc_attrs <- c("..sc_body..", "..sc_check..", "..sc_req_arg..")
     attributes(f) <- attributes(.f)[setdiff(names(attributes(.f)), sc_attrs)]
     class(f) <- class(.f)[class(.f) != "strict_closure"]
     f
@@ -199,27 +190,22 @@ nonstrictly_ <- function(.f) {
 
 remove_check_ <- function(..f, which) {
   calls <- strict_check(..f)
-  calls_new <- if (is.logical(which)) {
+  new_calls <- if (is.logical(which)) {
     calls[!which]
   } else {
     calls[setdiff(seq_along(calls), as.integer(which))]
   }
+  sig <- formals(..f)
   strict_closure(
-    sig   = formals(..f),
-    body  = strict_body(..f),
-    env   = environment(..f),
-    attr  = attributes(..f),
-    class = class(..f),
-    calls = calls_new,
-    rargs = strict_reqarg(..f)
+    sig        = sig,
+    arg_symb   = repr_args(sig)$symb,
+    body       = strict_body(..f),
+    env        = environment(..f),
+    attr       = attributes(..f),
+    class      = class(..f),
+    calls      = new_calls,
+    req_arg    = strict_reqarg(..f)
   )
-}
-
-#' @rdname strictly
-#' @param x R object.
-#' @export
-is_strict_closure <- function(x) {
-  purrr::is_function(x) && inherits(x, "strict_closure")
 }
 
 get_attribute <- function(.attr) {
@@ -242,11 +228,11 @@ strict_body <- get_attribute("..sc_body..")
 
 #' @rdname strictly
 #' @export
-strict_check <- get_attribute("..sc_chks..")
+strict_check <- get_attribute("..sc_check..")
 
 #' @rdname strictly
 #' @export
-strict_reqarg <- get_attribute("..sc_req_args..")
+strict_reqarg <- get_attribute("..sc_req_arg..")
 
 #' @section Specifying argument checks:
 #'   An argument check is specified by a formula whose interpretation depends on
@@ -358,23 +344,19 @@ nonstrictly <- strictly_(
   .warn_missing = TRUE
 )
 
-is_subset_vector <- function(wh, len) {
-  (is.logical(wh) && length(wh) == len) ||
-    (is.numeric(wh) && all(wh >= 1 & wh <= len))
-}
-
 #' @rdname strictly
 #' @param ..f Strict closure, i.e., function of class \code{"strict_closure"}.
 #' @param which Logical or numeric vector.
 #' @export
 remove_check <- strictly_(
   remove_check_,
-  list("`..f` not a strict closure" ~ ..f) ~ is_strict_closure,
+  list("`..f` not a strict closure" ~ ..f) ~
+    is_strict_closure,
   list("`which` not logical or numeric" ~ which) ~
     {is.logical(.) || is.numeric(.)},
   list("Range of `which` not compatible with checks of ..f" ~
          list(which, length(strict_check(..f)))) ~
-    purrr::lift(is_subset_vector),
+    purrr::lift(is_subset_vec),
   .warn_missing = TRUE
 )
 

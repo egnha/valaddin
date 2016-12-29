@@ -1,19 +1,30 @@
 # Null-default operator
 `%||%` <- purrr::`%||%`
 
+prepend_to_vec <- function(x, vec) {
+  if (x %in% vec) vec else c(x, vec)
+}
+
+is_subset_vec <- function(x, l) {
+  (is.logical(x) && length(x) == l) || (is.numeric(x) && all(x >= 1 & x <= l))
+}
+
+is_void_symb <- function(x) {
+  is.symbol(x) && x == substitute()
+}
+
 #' Represent non-dot arguments by name and symbol
 #'
 #' @param sig Pairlist.
 #' @return List with components \code{"nm"} (character), \code{"symb"} (symbol),
-#'   \code{"has_val"} (logical).
+#'   \code{"wo_value"} (logical).
 #' @keywords internal
-repn_args <- function(sig) {
+repr_args <- function(sig) {
   nm <- setdiff(names(sig), "...") %||% character(0)
   list(
-    nm        = nm,
-    symb      = lapply(nm, as.symbol),
-    has_value = vapply(sig[nm], `!=`, logical(1), substitute(),
-                       USE.NAMES = FALSE)
+    nm       = nm,
+    symb     = lapply(nm, as.symbol),
+    wo_value = vapply(sig[nm], is_void_symb, logical(1), USE.NAMES = FALSE)
   )
 }
 
