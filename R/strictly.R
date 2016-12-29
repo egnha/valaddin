@@ -1,4 +1,4 @@
-#' @include checklist.R
+#' @include attributes.R
 NULL
 
 #' Apply a function strictly
@@ -54,10 +54,10 @@ invalid_input <- function(message, call = NULL) {
   )
 }
 
-template <- function(calls, arg_fml, req_arg) {
+template <- function(calls, arg_fml, arg_req) {
   substitute({
     `_args` <- names(match.call(expand.dots = FALSE)[-1L])
-    `_warn` <- setdiff(..req_arg.., `_args`)
+    `_warn` <- setdiff(..arg_req.., `_args`)
     if (length(`_warn`)) {
       `_missing` <- paste(`_warn`, collapse = ", ")
       `_msg` <- sprintf("Missing required argument(s): %s", `_missing`)
@@ -70,7 +70,7 @@ template <- function(calls, arg_fml, req_arg) {
       `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_fail`))
       stop(valaddin::invalid_input(`_msg`))
     }
-  }, list(..calls.. = calls, ..dots.. = arg_fml, ..req_arg.. = req_arg))
+  }, list(..calls.. = calls, ..dots.. = arg_fml, ..arg_req.. = arg_req))
 }
 
 unfurl_args <- function(lhs, arg_nm, arg_symb, env) {
@@ -115,9 +115,9 @@ generate_calls <- function(chk, arg_nm, arg_symb, env = lazyeval::f_env(chk)) {
 }
 
 strict_closure <- function(sig, arg_symb, body, env, attr, class,
-                           calls, req_arg) {
+                           calls, arg_req) {
   arg_fml <- if (length(calls)) arg_symb else list()
-  chk_tmpl <- template(calls, arg_fml, req_arg)
+  chk_tmpl <- template(calls, arg_fml, arg_req)
   new_body <- substitute({
     ..checks..
     ..body..
@@ -128,18 +128,11 @@ strict_closure <- function(sig, arg_symb, body, env, attr, class,
 
   structure(
     f,
-    ..sc_body..    = body,
+    ..sc_core..    = body,
     ..sc_check..   = calls,
-    ..sc_req_arg.. = req_arg,
+    ..sc_arg_req.. = arg_req,
     class = prepend_to_vec("strict_closure", class)
   )
-}
-
-#' @rdname strictly
-#' @param x R object.
-#' @export
-is_strict_closure <- function(x) {
-  purrr::is_function(x) && inherits(x, "strict_closure")
 }
 
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
@@ -154,24 +147,24 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   }
 
   sig <- formals(.f)
-  arg <- repr_args(sig)
-  body_orig <- strict_body(.f) %||% body(.f)
+  arg <- nomen(sig)
+  body_orig <- sc_core(.f) %||% body(.f)
   calls <- c(
-    strict_check(.f),
+    sc_check(.f),
     do.call("c", lapply(chks, generate_calls, arg_nm   = arg$nm,
                                               arg_symb = arg$symb))
   )
-  req_arg <- if (is.null(.warn_missing)) {
-    strict_reqarg(.f)
+  arg_req <- if (is.null(.warn_missing)) {
+    sc_arg_req(.f)
   } else if (.warn_missing) {
-    strict_reqarg(.f) %||% arg$nm[arg$wo_value]
+    sc_arg_req(.f) %||% arg$nm[arg$wo_value]
   } else {
     NULL
   }
 
   strict_closure(
     sig, arg$symb, body_orig, environment(.f), attributes(.f), class(.f),
-    calls, req_arg
+    calls, arg_req
   )
 }
 
@@ -179,9 +172,9 @@ nonstrictly_ <- function(.f) {
   if (!inherits(.f, "strict_closure")) {
     .f
   } else {
-    f <- eval(call("function", formals(.f), strict_body(.f)))
+    f <- eval(call("function", formals(.f), sc_core(.f)))
     environment(f) <- environment(.f)
-    sc_attrs <- c("..sc_body..", "..sc_check..", "..sc_req_arg..")
+    sc_attrs <- c("..sc_core..", "..sc_check..", "..sc_arg_req..")
     attributes(f) <- attributes(.f)[setdiff(names(attributes(.f)), sc_attrs)]
     class(f) <- class(.f)[class(.f) != "strict_closure"]
     f
@@ -189,7 +182,7 @@ nonstrictly_ <- function(.f) {
 }
 
 remove_check_ <- function(..f, which) {
-  calls <- strict_check(..f)
+  calls <- sc_check(..f)
   new_calls <- if (is.logical(which)) {
     calls[!which]
   } else {
@@ -197,42 +190,16 @@ remove_check_ <- function(..f, which) {
   }
   sig <- formals(..f)
   strict_closure(
-    sig        = sig,
-    arg_symb   = repr_args(sig)$symb,
-    body       = strict_body(..f),
-    env        = environment(..f),
-    attr       = attributes(..f),
-    class      = class(..f),
-    calls      = new_calls,
-    req_arg    = strict_reqarg(..f)
+    sig      = sig,
+    arg_symb = nomen(sig)$symb,
+    body     = sc_core(..f),
+    env      = environment(..f),
+    attr     = attributes(..f),
+    class    = class(..f),
+    calls    = new_calls,
+    arg_req  = sc_arg_req(..f)
   )
 }
-
-get_attribute <- function(.attr) {
-  force(.attr)
-  function(x) attr(x, .attr, exact = TRUE)
-}
-
-#' @rdname strictly
-#' @section Attributes of a strict closure:
-#'   A strict closure stores properties of the function it "strictifies" as
-#'   attributes: the function body, the checks, the condition, and the required
-#'   arguments (if the strict closure is mandated to check their absence). The
-#'   functions \code{strict_*()} are helper functions to extract these
-#'   attributes.
-#'
-#'   The predicate function \code{is_strict_closure()} is a reasonably stringent
-#'   test of whether an object is a value of the function \code{strictly()}.
-#' @export
-strict_body <- get_attribute("..sc_body..")
-
-#' @rdname strictly
-#' @export
-strict_check <- get_attribute("..sc_check..")
-
-#' @rdname strictly
-#' @export
-strict_reqarg <- get_attribute("..sc_req_arg..")
 
 #' @section Specifying argument checks:
 #'   An argument check is specified by a formula whose interpretation depends on
@@ -265,16 +232,12 @@ strict_reqarg <- get_attribute("..sc_req_arg..")
 #'   \code{c} must be a monotonically increasing sequence of positive numbers. A
 #'   one-sided formula check is simply a handy shorthand for submitting each and
 #'   every argument to a common check.
-#' @param ..f Interpreted function (i.e., closure), not a primitive function.
-#' @param ... Formulae, or single list thereof, that specify the argument checks
-#'   for \code{.f}.
-#' @param .cond Condition object (class \code{"condition"}) to be signaled if
-#'   any of the checks fail. If \code{.cond} is \code{NULL}, the default error
-#'   handler is used.
-#' @param .chk_missing Logical. Should we check whether any required arguments
-#'   are missing? ("Required" arguments are explicit arguments without default
-#'   values; since they are promises, they need not be evaluated in the function
-#'   body.)
+#' @param .f Interpreted function, i.e., closure (not a primitive function).
+#' @param ... Check formulae.
+#' @param .checklist List of check formulae.
+#' @param .warn_missing Logical or \code{NULL}. Should the absence of required
+#'   arguments be checked? ("Required" arguments are those without default
+#'   value.) This question is ignored when \code{.warn_missing} is \code{NULL}.
 #' @examples
 #' foo <- function(x, y, a = "sum:", ...) paste(a, x + y)
 #' foo(1, 2)                     # "sum: 3"
@@ -346,7 +309,8 @@ nonstrictly <- strictly_(
 
 #' @rdname strictly
 #' @param ..f Strict closure, i.e., function of class \code{"strict_closure"}.
-#' @param which Logical or numeric vector.
+#' @param which Logical or numeric vector by which to subset
+#'   \code{sc_check(.f)}.
 #' @export
 remove_check <- strictly_(
   remove_check_,
@@ -355,7 +319,7 @@ remove_check <- strictly_(
   list("`which` not logical or numeric" ~ which) ~
     {is.logical(.) || is.numeric(.)},
   list("Range of `which` not compatible with checks of ..f" ~
-         list(which, length(strict_check(..f)))) ~
+         list(which, length(sc_check(..f)))) ~
     purrr::lift(is_subset_vec),
   .warn_missing = TRUE
 )
@@ -364,13 +328,13 @@ remove_check <- strictly_(
 print.strict_closure <- function(x) {
   cat("<strict_closure>\n")
 
-  cat("\n* Body:\n")
+  cat("\n* Core:\n")
   cat(deparse(args(x))[[1L]], "\n", sep = "")
-  print(strict_body(x))
+  print(sc_core(x))
   print(environment(x))
 
   cat("\n* Checks (<predicate> : <error message>):\n")
-  chks <- strict_check(x)
+  chks <- sc_check(x)
   if (length(chks)) {
     labels <- paste0(
       purrr::map_chr(chks, "call_chr"), " :\n    \"", names(chks), "\""
@@ -380,10 +344,10 @@ print.strict_closure <- function(x) {
     cat("None\n")
   }
 
-  cat("\n* Check missing:\n")
-  req_arg <- strict_reqarg(x)
-  if (length(req_arg)) {
-    cat(paste(req_arg, collapse = ", "))
+  cat("\n* Check for missing arguments:\n")
+  arg_req <- sc_arg_req(x)
+  if (length(arg_req)) {
+    cat(paste(arg_req, collapse = ", "))
   } else {
     cat("Not checked\n")
   }

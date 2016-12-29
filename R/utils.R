@@ -19,7 +19,7 @@ is_void_symb <- function(x) {
 #' @return List with components \code{"nm"} (character), \code{"symb"} (symbol),
 #'   \code{"wo_value"} (logical).
 #' @keywords internal
-repr_args <- function(sig) {
+nomen <- function(sig) {
   nm <- setdiff(names(sig), "...") %||% character(0)
   list(
     nm       = nm,

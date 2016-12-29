@@ -15,5 +15,6 @@ RoxygenNote: 5.0.1
 Collate:
     'utils.R'
     'checklist.R'
+    'attributes.R'
     'strictly.R'
     'valaddin.R'
