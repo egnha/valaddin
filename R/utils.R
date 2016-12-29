@@ -3,13 +3,18 @@
 
 #' Represent non-dot arguments by name and symbol
 #'
-#' @param sig Pairlist, typically given as the value of \code{formals()}.
-#' @return List with components \code{"nm"} (character) and \code{"symb"}
-#'   (symbol).
+#' @param sig Pairlist.
+#' @return List with components \code{"nm"} (character), \code{"symb"} (symbol),
+#'   \code{"has_val"} (logical).
 #' @keywords internal
 repn_args <- function(sig) {
-  nm <- setdiff(names(sig), "...")
-  list(nm = nm, symb = lapply(nm, as.name))
+  nm <- setdiff(names(sig), "...") %||% character(0)
+  list(
+    nm        = nm,
+    symb      = lapply(nm, as.name),
+    has_value = vapply(sig[nm], `!=`, logical(1), substitute(),
+                       USE.NAMES = FALSE)
+  )
 }
 
 #' Deparse a language object as a single string
