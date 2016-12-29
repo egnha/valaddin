@@ -8,9 +8,6 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {})
 
 test_that("named checks in checklist formula use custom messages", {})
 
-test_that("lifted predicates can check argument lists", {
-  # named case
-  # unnamed case
-})
+test_that("lifted predicate function can check argument list", {})
 
-test_that("anonymous predicates are correctly interpreted", {})
+test_that("anonymous predicate function is correctly interpreted", {})
