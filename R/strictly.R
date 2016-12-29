@@ -12,54 +12,6 @@ NULL
 #' alleviates this nuissance by allowing you to enhance an existing function
 #' with input validation, by using formulas to specify the checks.
 #'
-#' @examples
-#' foo <- function(x, y, a = "sum:", ...) paste(a, x + y)
-#' foo(1, 2)                     # "sum: 3"
-#' foo(1, 2, "SUM:")             # "SUM: 3"
-#' foo(1, 2, "SUM:", bogus_obj)  # "SUM: 3" (arguments are evaluated lazily)
-#'
-#' foo_strict <- strictly(foo)
-#' identical(foo, foo_strict)
-#'
-#' foo_stricter <- strictly(foo_strict, list(~x, ~y) ~ is.numeric)
-#' foo_stricter(1, 2)                     # "sum: 3"
-#' foo_stricter(1, 2, "SUM:", bogus_obj)  # "SUM: 3"
-#' foo_stricter(1, "2")                   # FALSE: is.numeric(y)
-#' foo_stricter(1, 2, NA_real_)           # "NA 3"
-#'
-#' # `foo` and `foo_stricter` share the same environment
-#' identical(environment(foo), environment(foo_stricter))
-#'
-#' # `foo_stricter` preserves the attributes of `foo`
-#' all(attributes(foo) %in% attributes(foo_stricter))
-#'
-#' foo_strictest <- strictly(
-#'   foo_stricter,
-#'   list("Not string" ~ a) ~ purrr::is_scalar_character,
-#'   .warn_missing = TRUE
-#' )
-#' foo_strictest(1, 2)            # "sum: 3"
-#' foo_strictest(1, "2")          # FALSE: is.numeric(y)
-#' foo_strictest(1, 2, NA_real_)  # Not string
-#' foo_strictest(1, a = "foo")    # Error evaluating check, missing argument
-#'
-#' g <- function(x, y) x - y
-#' g_sct <- strictly(bar, ~is.numeric, ~{. > 0})
-#' g_sct(1, 2)        # -1
-#' g_sct(1, -2)       # FALSE: (purrr::as_function(~{. > 0}))(y)
-#' g_sct("1", 2)      # FALSE: is.numeric(x)
-#' g_sct("1", "two")  # FALSE: is.numeric(x), is.numeric(y)
-#' g_sct("1", -2)     # FALSE: is.numeric(x), (purrr::as_function(~{. > 0}))(y)
-#'
-#' h <- strictly(
-#'   function(x, y) log(x - y),
-#'   "Not numeric" ~ is.numeric,
-#'   list(~y, "`x` not greater than `y`" ~ x - y) ~ {. > 0}
-#' )
-#' h(4, 2)    # 0.6931472
-#' h(3, 0)    # FALSE: (purrr::as_function(~{. > 0}))(y)
-#' h(3, 3)    # `x` not greater than `y`
-#' h("4", 1)  # Not numeric: `x`, error evaluating check
 #' @name strictly
 NULL
 
@@ -298,7 +250,6 @@ strict_check <- get_attribute("..sc_chks..")
 #' @export
 strict_reqarg <- get_attribute("..sc_req_args..")
 
-#' @rdname strictly
 #' @section Specifying argument checks:
 #'   An argument check is specified by a formula whose interpretation depends on
 #'   whether it is one- or two-sided:
@@ -340,6 +291,55 @@ strict_reqarg <- get_attribute("..sc_req_args..")
 #'   are missing? ("Required" arguments are explicit arguments without default
 #'   values; since they are promises, they need not be evaluated in the function
 #'   body.)
+#' @examples
+#' foo <- function(x, y, a = "sum:", ...) paste(a, x + y)
+#' foo(1, 2)                     # "sum: 3"
+#' foo(1, 2, "SUM:")             # "SUM: 3"
+#' foo(1, 2, "SUM:", bogus_obj)  # "SUM: 3" (arguments are evaluated lazily)
+#'
+#' foo_strict <- strictly(foo)
+#' identical(foo, foo_strict)
+#'
+#' foo_stricter <- strictly(foo_strict, list(~x, ~y) ~ is.numeric)
+#' foo_stricter(1, 2)                     # "sum: 3"
+#' foo_stricter(1, 2, "SUM:", bogus_obj)  # "SUM: 3"
+#' foo_stricter(1, "2")                   # FALSE: is.numeric(y)
+#' foo_stricter(1, 2, NA_real_)           # "NA 3"
+#'
+#' # `foo` and `foo_stricter` share the same environment
+#' identical(environment(foo), environment(foo_stricter))
+#'
+#' # `foo_stricter` preserves the attributes of `foo`
+#' all(attributes(foo) %in% attributes(foo_stricter))
+#'
+#' foo_strictest <- strictly(
+#'   foo_stricter,
+#'   list("Not string" ~ a) ~ purrr::is_scalar_character,
+#'   .warn_missing = TRUE
+#' )
+#' foo_strictest(1, 2)            # "sum: 3"
+#' foo_strictest(1, "2")          # FALSE: is.numeric(y)
+#' foo_strictest(1, 2, NA_real_)  # Not string
+#' foo_strictest(1, a = "foo")    # Error evaluating check, missing argument
+#'
+#' g <- function(x, y) x - y
+#' g_sct <- strictly(bar, ~is.numeric, ~{. > 0})
+#' g_sct(1, 2)        # -1
+#' g_sct(1, -2)       # FALSE: (purrr::as_function(~{. > 0}))(y)
+#' g_sct("1", 2)      # FALSE: is.numeric(x)
+#' g_sct("1", "two")  # FALSE: is.numeric(x), is.numeric(y)
+#' g_sct("1", -2)     # FALSE: is.numeric(x), (purrr::as_function(~{. > 0}))(y)
+#'
+#' h <- strictly(
+#'   function(x, y) log(x - y),
+#'   "Not numeric" ~ is.numeric,
+#'   list(~y, "`x` not greater than `y`" ~ x - y) ~ {. > 0}
+#' )
+#' h(4, 2)    # 0.6931472
+#' h(3, 0)    # FALSE: (purrr::as_function(~{. > 0}))(y)
+#' h(3, 3)    # `x` not greater than `y`
+#' h("4", 1)  # Not numeric: `x`, error evaluating check
+#' @rdname strictly
 #' @export
 strictly <- strictly_(
   strictly_,
