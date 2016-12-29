@@ -26,10 +26,9 @@ lazy_assign <- function(lzydots, env) {
 }
 
 #' @export
-validate <- function(calls, lazy_args, args, req_args,
-                     parent = parent.frame()) {
+validate <- function(calls, lazy_args, parent = parent.frame()) {
   if (!length(calls)) {
-    err_msgs <- character(0)
+    character(0)
   } else {
     env <- lazy_assign(lazy_args, new.env(parent = parent))
     is_ok <- purrr::map_lgl(seq_along(calls), function(i) {
@@ -43,10 +42,8 @@ validate <- function(calls, lazy_args, args, req_args,
         }
       )
     })
-    err_msgs  <- names(calls)[!is_ok]
+    names(calls)[!is_ok]
   }
-  warn_msgs <- setdiff(req_args, args)
-  list(error = err_msgs, warning = warn_msgs)
 }
 
 #' @export
@@ -59,17 +56,18 @@ invalid_input <- function(message, call = NULL) {
 
 check_args <- function(calls, dots, req_args) {
   substitute({
-    `_lazy_args` <- do.call(lazyeval::lazy_dots, ..dots..)
     `_args` <- names(match.call(expand.dots = FALSE)[-1L])
-    `_res` <- valaddin::validate(..calls.., `_lazy_args`, `_args`, ..req_args..)
-    if (length(`_res`$warning)) {
-      `_missing` <- paste(`_res`$warning, collapse = ", ")
+    `_warn` <- setdiff(..req_args.., `_args`)
+    if (length(`_warn`)) {
+      `_missing` <- paste(`_warn`, collapse = ", ")
       `_msg` <- sprintf("Missing required argument(s): %s", `_missing`)
       warning(`_msg`, call. = FALSE)
     }
-    if (length(`_res`$error)) {
+    `_lazy_args` <- do.call(lazyeval::lazy_dots, ..dots..)
+    `_error` <- valaddin::validate(..calls.., `_lazy_args`)
+    if (length(`_error`)) {
       `_call` <- sprintf("%s\n", valaddin::deparse_collapse(match.call()))
-      `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_res`$error))
+      `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_error`))
       stop(valaddin::invalid_input(`_msg`))
     }
   }, list(..calls.. = calls, ..dots.. = dots, ..req_args.. = req_args))
