@@ -11,7 +11,7 @@ repn_args <- function(sig) {
   nm <- setdiff(names(sig), "...") %||% character(0)
   list(
     nm        = nm,
-    symb      = lapply(nm, as.name),
+    symb      = lapply(nm, as.symbol),
     has_value = vapply(sig[nm], `!=`, logical(1), substitute(),
                        USE.NAMES = FALSE)
   )
