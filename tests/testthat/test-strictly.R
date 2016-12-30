@@ -73,7 +73,27 @@ test_that("original body, environment, and attributes are preserved", {
   }
 })
 
-test_that("checks in '...' are combined with .checklist", {})
+test_that("checks in '...' are combined with .checklist", {
+  sorted_sc_check <- function(..f) {
+    calls <- sc_check(..f)
+    calls[sort(names(calls))]
+  }
+
+  f <- function(x, y = x, z = 0, ...) NULL
+  chk1 <- list(~x) ~ {. > 0}
+  chk2 <- ~is.numeric
+
+  f_strict <- strictly(f, chk1, chk2)
+  calls <- sc_check(f_strict)
+  # 4 checks: One global check on 3 arguments, plus a check on 1 argument
+  expect_identical(length(calls), 4L)
+
+  f_strict2 <- strictly(f, chk1, .checklist = list(chk2))
+  expect_identical(sorted_sc_check(f_strict2), calls)
+
+  f_strict3 <- strictly(f, .checklist = list(chk1, chk2))
+  expect_identical(sorted_sc_check(f_strict3), calls)
+})
 
 test_that("existing checks are preserved when adding new checks", {})
 
