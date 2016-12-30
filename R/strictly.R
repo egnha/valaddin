@@ -139,12 +139,13 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
     stop("Invalid argument checks; see '?valaddin::strictly'", call. = FALSE)
   }
 
-  if (!length(chks) && is.null(.warn_missing)) {
+  sig <- formals(.f)
+  arg <- nomen(sig)
+
+  if (!length(chks) && is.null(.warn_missing) || !length(arg$nm)) {
     return(.f)
   }
 
-  sig <- formals(.f)
-  arg <- nomen(sig)
   body_orig <- sc_core(.f) %||% body(.f)
   calls <- c(
     sc_check(.f),
@@ -270,8 +271,6 @@ strictly <- strictly_(
   strictly_,
   list("`.f` not an interpreted function" ~ .f) ~
     purrr::is_function,
-  list("`.f` has no explicit arguments (only '...')" ~ .f) ~
-    {!identical(names(formals(.)), "...")},
   list("`.warn_missing` not NULL or logical" ~ .warn_missing) ~
     {is.null(.) || purrr::is_scalar_logical(.)},
   .warn_missing = TRUE

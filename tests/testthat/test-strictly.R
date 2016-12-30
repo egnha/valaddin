@@ -1,14 +1,77 @@
 context("Strictly")
 
-test_that("function is unchanged if no checks given", {})
+make_fn <- function(args, body = quote(NULL), env = parent.frame()) {
+  args <- as.pairlist(args)
+  f <- eval(call("function", args, body))
+  environment(f) <- env
+  f
+}
 
-test_that("argument signature is preserved", {})
+args_list <- list(
+  alist(x = , ... = ),
+  alist(x = , y = ),
+  alist(x = 0, y = 1, z = x + y),
+  alist(x = , y = x, z = 0, ... = ),
+  alist(... = ),
+  alist()
+)
 
-test_that("original body is preserved", {})
+# Tests -------------------------------------------------------------------
 
-test_that("environment is preserved", {})
+test_that("function is unchanged if no checks given", {
+  f <- function(x, y = x, z = 0, ...) NULL
+  g <- function(...) f(...)
+  h <- function() g()
 
-test_that("attributes are preserved", {})
+  expect_identical(strictly(f), f)
+  expect_identical(strictly(g), g)
+  expect_identical(strictly(h), h)
+})
+
+test_that("argument signature is preserved", {
+  for (args in args_list) {
+    expect_identical(formals(strictly(make_fn(args))), as.pairlist(args))
+  }
+})
+
+test_that("original body, environment, and attributes are preserved", {
+  set.seed(1)
+
+  core <- function(f) {
+    if (length(nomen(formals(f))$nm)) sc_core(f) else body(f)
+  }
+  core_attributes <- function(f) {
+    sc_attr <- c("class", "..sc_core..", "..sc_check..", "..sc_arg_req..")
+    attributes(f)[setdiff(names(attributes(f)), sc_attr)]
+  }
+  len <- sample(100L, length(args_list))
+  for (i in seq_along(args_list)) {
+    junk <- paste(sample(letters, len[[i]], replace = TRUE))
+    body <- substitute(quote(x), list(x = junk))
+    attr <- setNames(as.list(sample(LETTERS)), letters)
+    env <- new.env()
+    f <- do.call("structure",
+      c(.Data = make_fn(args_list[[i]], body, env), attr)
+    )
+    f_strict1 <- strictly(f, list(~x) ~ is.numeric)
+    f_strict2 <- strictly(f_strict1, .warn_missing = TRUE)
+
+    expect_identical(core(f_strict1), body(f))
+    expect_identical(core(f_strict2), body(f))
+    expect_identical(environment(f_strict1), environment(f))
+    expect_identical(environment(f_strict2), environment(f))
+    expect_identical(core_attributes(f_strict1), attributes(f))
+    expect_identical(core_attributes(f_strict2), attributes(f))
+    expect_identical(
+      class(f_strict1)[class(f_strict1) != "strict_closure"],
+      class(f)
+    )
+    expect_identical(
+      class(f_strict2)[class(f_strict1) != "strict_closure"],
+      class(f)
+    )
+  }
+})
 
 test_that("checks in '...' are combined with .checklist", {})
 
