@@ -2,15 +2,12 @@
 % Please edit documentation in R/strictly.R
 \name{strictly}
 \alias{nonstrictly}
-\alias{remove_check}
 \alias{strictly}
 \title{Apply a function strictly}
 \usage{
 strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
 
 nonstrictly(.f)
-
-remove_check(..f, which)
 }
 \arguments{
 \item{.f}{Interpreted function, i.e., closure (not a primitive function).}
@@ -22,21 +19,13 @@ remove_check(..f, which)
 \item{.warn_missing}{Logical or \code{NULL}. Should the absence of required
 arguments be checked? ("Required" arguments are those without default
 value.) This question is ignored when \code{.warn_missing} is \code{NULL}.}
-
-\item{..f}{Strict closure, i.e., function of class \code{"strict_closure"}.}
-
-\item{which}{Logical or numeric vector by which to subset
-\code{sc_check(.f)}.}
 }
 \description{
-A common form of boilerplate code at the top of functions is argument
-checking: You make some checks on the arguments, signal a condition if any
-show-stopping checks fail, then move on to the meat of the function if
-everything is good. The problem with this approach is that it can clutter up
-the main work of a function with admin---it spoils the "fun" of a function
-with the inconvenience of a security check. The function \code{strictly()}
-alleviates this nuissance by allowing you to enhance an existing function
-with input validation, by using formulas to specify the checks.
+\code{strictly()} hardens a function with input validation, using formulae to
+specify checks. It modifies a function to respond more consistently to
+errors, and is therefore an adverb, like the purrr functions
+\code{\link[purrr]{safely}()} and \code{\link[purrr]{possibly}()}. The
+process of making a function strict can be undone using \code{nonstrictly()}.
 }
 \section{Specifying argument checks}{
 

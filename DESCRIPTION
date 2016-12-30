@@ -17,4 +17,5 @@ Collate:
     'checklist.R'
     'attributes.R'
     'strictly.R'
+    'remove.R'
     'valaddin.R'

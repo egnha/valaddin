@@ -3,14 +3,11 @@ NULL
 
 #' Apply a function strictly
 #'
-#' A common form of boilerplate code at the top of functions is argument
-#' checking: You make some checks on the arguments, signal a condition if any
-#' show-stopping checks fail, then move on to the meat of the function if
-#' everything is good. The problem with this approach is that it can clutter up
-#' the main work of a function with admin---it spoils the "fun" of a function
-#' with the inconvenience of a security check. The function \code{strictly()}
-#' alleviates this nuissance by allowing you to enhance an existing function
-#' with input validation, by using formulas to specify the checks.
+#' \code{strictly()} hardens a function with input validation, using formulae to
+#' specify checks. It modifies a function to respond more consistently to
+#' errors, and is therefore an adverb, like the purrr functions
+#' \code{\link[purrr]{safely}()} and \code{\link[purrr]{possibly}()}. The
+#' process of making a function strict can be undone using \code{nonstrictly()}.
 #'
 #' @name strictly
 NULL
@@ -181,26 +178,6 @@ nonstrictly_ <- function(.f) {
   }
 }
 
-remove_check_ <- function(..f, which) {
-  calls <- sc_check(..f)
-  new_calls <- if (is.logical(which)) {
-    calls[!which]
-  } else {
-    calls[setdiff(seq_along(calls), as.integer(which))]
-  }
-  sig <- formals(..f)
-  strict_closure(
-    sig      = sig,
-    arg_symb = nomen(sig)$symb,
-    body     = sc_core(..f),
-    env      = environment(..f),
-    attr     = attributes(..f),
-    class    = class(..f),
-    calls    = new_calls,
-    arg_req  = sc_arg_req(..f)
-  )
-}
-
 #' @section Specifying argument checks:
 #'   An argument check is specified by a formula whose interpretation depends on
 #'   whether it is one- or two-sided:
@@ -304,23 +281,6 @@ strictly <- strictly_(
 nonstrictly <- strictly_(
   nonstrictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  .warn_missing = TRUE
-)
-
-#' @rdname strictly
-#' @param ..f Strict closure, i.e., function of class \code{"strict_closure"}.
-#' @param which Logical or numeric vector by which to subset
-#'   \code{sc_check(.f)}.
-#' @export
-remove_check <- strictly_(
-  remove_check_,
-  list("`..f` not a strict closure" ~ ..f) ~
-    is_strict_closure,
-  list("`which` not logical or numeric" ~ which) ~
-    {is.logical(.) || is.numeric(.)},
-  list("Range of `which` not compatible with checks of ..f" ~
-         list(which, length(sc_check(..f)))) ~
-    purrr::lift(is_subset_vec),
   .warn_missing = TRUE
 )
 
