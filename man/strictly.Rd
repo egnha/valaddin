@@ -18,7 +18,8 @@ nonstrictly(.f)
 
 \item{.warn_missing}{Logical or \code{NULL}. Should the absence of required
 arguments be checked? ("Required" arguments are those without default
-value.) This question is ignored when \code{.warn_missing} is \code{NULL}.}
+value.) This question is disregarded when \code{.warn_missing} is
+\code{NULL}.}
 }
 \description{
 \code{strictly()} hardens a function with input validation, using formulae to
