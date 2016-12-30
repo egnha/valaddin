@@ -214,7 +214,8 @@ nonstrictly_ <- function(.f) {
 #' @param .checklist List of check formulae.
 #' @param .warn_missing Logical or \code{NULL}. Should the absence of required
 #'   arguments be checked? ("Required" arguments are those without default
-#'   value.) This question is ignored when \code{.warn_missing} is \code{NULL}.
+#'   value.) This question is disregarded when \code{.warn_missing} is
+#'   \code{NULL}.
 #' @examples
 #' foo <- function(x, y, a = "sum:", ...) paste(a, x + y)
 #' foo(1, 2)                     # "sum: 3"
