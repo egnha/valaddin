@@ -10,14 +10,15 @@ remove_check_ <- function(..f, which) {
   }
   sig <- formals(..f)
   strict_closure(
-    sig      = sig,
-    arg_symb = nomen(sig)$symb,
-    body     = sc_core(..f),
-    env      = environment(..f),
-    attr     = attributes(..f),
-    class    = class(..f),
-    calls    = new_calls,
-    arg_req  = sc_arg_req(..f)
+    sig          = sig,
+    arg_symb     = nomen(sig)$symb,
+    body         = sc_core(..f),
+    env          = environment(..f),
+    attr         = attributes(..f),
+    class        = class(..f),
+    calls        = new_calls,
+    arg_req      = sc_arg_req(..f),
+    logical_void = sc_logical_void(..f)
   )
 }
 

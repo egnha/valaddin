@@ -11,6 +11,9 @@ NULL
 #'   \item \code{sc_check()} gets the checks, as calls to predicate functions.
 #'   \item \code{sc_arg_req()} gets the required arguments, if their absence is
 #'     to be checked.
+#'   \item \code{sc_logical_void()} gets the interpretation of a
+#'     \code{logical(0)} predicate value (which can be either \code{logical(0)},
+#'     \code{TRUE}, or \code{FALSE})
 #' }
 #' \code{is_strict_closure()} checks whether an object is a closure of (S3)
 #' class \code{"strict_closure"}.
@@ -61,3 +64,7 @@ sc_check <- get_sc_attr("..sc_check..")
 #' @rdname sc-attributes
 #' @export
 sc_arg_req <- get_sc_attr("..sc_arg_req..")
+
+#' @rdname sc-attributes
+#' @export
+sc_logical_void <- get_sc_attr("..sc_logical_void..")

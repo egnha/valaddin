@@ -13,6 +13,10 @@ is_void_symb <- function(x) {
   is.symbol(x) && x == substitute()
 }
 
+is_null_or_logical <- function(x) {
+  is.null(x) || purrr::is_scalar_logical(x)
+}
+
 #' Represent non-dot arguments by name and symbol
 #'
 #' @param sig Pairlist.

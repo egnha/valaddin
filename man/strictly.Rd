@@ -5,7 +5,8 @@
 \alias{strictly}
 \title{Apply a function strictly}
 \usage{
-strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
+strictly(.f, ..., .checklist = list(), .warn_missing = NULL,
+  .logical_void_as = NULL)
 
 nonstrictly(.f)
 }
@@ -20,6 +21,15 @@ nonstrictly(.f)
 arguments be checked? ("Required" arguments are those without default
 value.) This question is disregarded when \code{.warn_missing} is
 \code{NULL}.}
+
+\item{.logical_void_as}{\code{logical(0)} / \code{TRUE} / \code{FALSE} or
+\code{NULL}. How should predicate-function values be interpreted if they
+are \code{logical(0)}? This question is disregarded when
+\code{.logical_void_as} is \code{NULL}.
+\cr\cr In general, you should ensure that your predicate functions cannot
+return \code{logical(0)}, unless you are sure you want to interpret
+\code{logical(0)} as being vacuously true, and you can anticipate the
+circumstances that would yield \code{logical(0)}.}
 }
 \description{
 \code{strictly()} hardens a function with input validation, using formulae to
@@ -29,20 +39,16 @@ errors, and is therefore an adverb, like the purrr functions
 process of making a function strict can be undone using \code{nonstrictly()}.
 }
 \section{Specifying argument checks}{
-
-  An argument check is specified by a formula whose interpretation depends on
-  whether it is one- or two-sided:
-  \itemize{
-    \item One-sided formula \code{~p}: reads "For every argument for which
-      \code{p} fails, stop with a message of this failure." For example, the
-      formula \code{~is.numeric} enforces a check for all arguments to be
-      numerical.
-    \item Two-sided formula \code{q ~ p}: reads "Stop with the message
-      \code{q}, if the check \code{p} fails." For example, the "logicalness"
-      of the \code{.chk_missing} argument of \code{strictly}, itself, is
-      enforced by the formula \code{"Not logical: `.chk_missing`" ~
-      purrr::is_scalar_logical(.chk_missing)}.
-  }
+ An argument check is specified by a
+  formula whose interpretation depends on whether it is one- or two-sided:
+  \itemize{ \item One-sided formula \code{~p}: reads "For every argument for
+  which \code{p} fails, stop with a message of this failure." For example,
+  the formula \code{~is.numeric} enforces a check for all arguments to be
+  numerical. \item Two-sided formula \code{q ~ p}: reads "Stop with the
+  message \code{q}, if the check \code{p} fails." For example, the
+  "logicalness" of the \code{.chk_missing} argument of \code{strictly},
+  itself, is enforced by the formula \code{"Not logical: `.chk_missing`" ~
+  purrr::is_scalar_logical(.chk_missing)}. }
 
   More precisely, for a one-sided formula \code{~p}, the expression \code{p}
   is a predicate function which is applied to each argument of \code{.f}; for

@@ -6,6 +6,7 @@
 \alias{sc_arg_req}
 \alias{sc_check}
 \alias{sc_core}
+\alias{sc_logical_void}
 \title{Get attributes of a strict closure}
 \usage{
 is_strict_closure(x)
@@ -15,6 +16,8 @@ sc_core(.f)
 sc_check(.f)
 
 sc_arg_req(.f)
+
+sc_logical_void(.f)
 }
 \arguments{
 \item{x}{R object.}
@@ -37,6 +40,9 @@ extract these attributes:
   \item \code{sc_check()} gets the checks, as calls to predicate functions.
   \item \code{sc_arg_req()} gets the required arguments, if their absence is
     to be checked.
+  \item \code{sc_logical_void()} gets the interpretation of a
+    \code{logical(0)} predicate value (which can be either \code{logical(0)},
+    \code{TRUE}, or \code{FALSE})
 }
 \code{is_strict_closure()} checks whether an object is a closure of (S3)
 class \code{"strict_closure"}.
