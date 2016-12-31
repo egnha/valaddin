@@ -1,23 +1,5 @@
 context("Strictly")
 
-make_fn <- function(args, body = quote(NULL), env = parent.frame()) {
-  args <- as.pairlist(args)
-  f <- eval(call("function", args, body))
-  environment(f) <- env
-  f
-}
-
-args_list <- list(
-  alist(x = , ... = ),
-  alist(x = , y = ),
-  alist(x = 0, y = 1, z = x + y),
-  alist(x = , y = x, z = 0, ... = ),
-  alist(... = ),
-  alist()
-)
-
-# Tests -------------------------------------------------------------------
-
 test_that("function is unchanged if no checks given", {
   f <- function(x, y = x, z = 0, ...) NULL
   g <- function(...) f(...)
@@ -30,7 +12,7 @@ test_that("function is unchanged if no checks given", {
 
 test_that("argument signature is preserved", {
   for (args in args_list) {
-    expect_identical(formals(strictly(make_fn(args))), as.pairlist(args))
+    expect_identical(formals(strictly(make_fnc(args))), as.pairlist(args))
   }
 })
 
@@ -51,7 +33,7 @@ test_that("original body, environment, and attributes are preserved", {
     attr <- setNames(as.list(sample(LETTERS)), letters)
     env <- new.env()
     f <- do.call("structure",
-      c(.Data = make_fn(args_list[[i]], body, env), attr)
+      c(.Data = make_fnc(args_list[[i]], body, env), attr)
     )
     f_strict1 <- strictly(f, list(~x) ~ is.numeric)
     f_strict2 <- strictly(f_strict1, .warn_missing = TRUE)

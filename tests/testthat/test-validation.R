@@ -1,7 +1,7 @@
 context("Input validation")
 
-suppressMessages(library(magrittr))
-library(stringr)
+test_that("function is reproduced when all checks pass", {
+})
 
 test_that("one-sided formula produces global check", {
   f <- function(x, y, z = 0, ..., u = y - z, v) x + y + z + u
