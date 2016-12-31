@@ -104,7 +104,7 @@ test_that("string formula produces global check with message", {
 test_that("function value is reproduced when all checks pass", {
   fs <- lapply(args_list, pass_args)
 
-  chklist <- list(~is.numeric, ~{. > 0})
+  chklist <- list(~is.numeric, ~{. > 0}, "Not TRUE when coerced" ~ as.logical)
 
   for (f in fs) {
     l <- length(formals(f))
