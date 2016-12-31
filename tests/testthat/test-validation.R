@@ -125,13 +125,13 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {})
 test_that("named checks in checklist formula use custom messages", {})
 
 test_that("predicate function of list-argument applies to argument lists", {
-  setup_base <- function(nms, args, fnc) {
+  f <- pass_args(alist(x = , y = , z = , ... = ))
+
+  setup_base <- function(nms, args, fnc = f) {
     new_args <- setNames(args, nms)
     out <- do.call(fnc, new_args)
     list(args = new_args, out = out)
   }
-
-  f <- pass_args(alist(x = , y = , z = , ... = ))
 
   # Check: x, y, z numeric, x < y < z
   not_gt <- function(a, b) sprintf("%s not greater than %s", a, b)
@@ -146,22 +146,22 @@ test_that("predicate function of list-argument applies to argument lists", {
   for (i in 100) {
     args <- as.list(cumsum(runif(3, 0, 1)))
 
-    base <- setup_base(c("x", "y", "z"), args, f)
+    base <- setup_base(c("x", "y", "z"), args)
     expect_identical(do.call(f_strict, base$args), base$out)
 
-    base <- setup_base(c("x", "z", "y"), args, f)
+    base <- setup_base(c("x", "z", "y"), args)
     expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
 
-    base <- setup_base(c("y", "x", "z"), args, f)
+    base <- setup_base(c("y", "x", "z"), args)
     expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
 
-    base <- setup_base(c("z", "x", "y"), args, f)
+    base <- setup_base(c("z", "x", "y"), args)
     expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
 
-    base <- setup_base(c("y", "z", "x"), args, f)
+    base <- setup_base(c("y", "z", "x"), args)
     expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
 
-    base <- setup_base(c("z", "y", "x"), args, f)
+    base <- setup_base(c("z", "y", "x"), args)
     expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
     expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
   }
