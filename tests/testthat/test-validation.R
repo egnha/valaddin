@@ -1,25 +1,9 @@
 context("Input validation")
 
-test_that("function value is reproduced when all checks pass", {
-  fs <- lapply(args_list, pass_args)
-
-  chklist <- list(~is.numeric, ~{. > 0})
-
-  for (f in fs) {
-    l <- length(formals(f))
-    # Arguments as list of positive numbers (if not empty)
-    args <- if (l) as.list(1:l) else list()
-    out <- do.call(f, args)
-    f_strict <- strictly(f, .checklist = chklist)
-
-    expect_identical(do.call(f_strict, args), out)
-  }
-})
-
 test_that("one-sided formula produces global check", {
-  f <- function(x, y, z = 0, ..., u = y - z, v) x + y + z + u
-  f_num <- strictly(f, ~ is.numeric)
-  f_pos <- strictly(f_num, ~ {. > 0})
+  f <- pass_args(alist(x = , y = , z = 0, ... = , u = y - z, v = ))
+  f_num <- strictly(f, ~is.numeric)
+  f_pos <- strictly(f_num, ~{. > 0})
 
   # Pass
   out <- f(1, 2, 3, u = 4, v = 5)
@@ -43,7 +27,7 @@ test_that("one-sided formula produces global check", {
   }
 
   # Error evaluating check because of missing argument
-  expect_equal(f(1, 2), 1 + 2 + 0 + 2 - 0)
+  expect_equivalent(f(1, 2), list(1, 2))
   expect_error(f_num(1, 2), "Error evaluating check.*?argument \"v\" is missing")
   expect_error(f_pos(1, 2), "Error evaluating check.*?argument \"v\" is missing")
 
@@ -67,6 +51,22 @@ test_that("one-sided formula produces global check", {
 })
 
 test_that("string formula produces global check with message", {})
+
+test_that("function value is reproduced when all checks pass", {
+  fs <- lapply(args_list, pass_args)
+
+  chklist <- list(~is.numeric, ~{. > 0})
+
+  for (f in fs) {
+    l <- length(formals(f))
+    # Arguments as list of positive numbers (if not empty)
+    args <- if (l) as.list(1:l) else list()
+    out <- do.call(f, args)
+    f_strict <- strictly(f, .checklist = chklist)
+
+    expect_identical(do.call(f_strict, args), out)
+  }
+})
 
 test_that("unnamed checks in checklist formula use auto-generated messages", {})
 
