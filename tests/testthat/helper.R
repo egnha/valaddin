@@ -1,0 +1,39 @@
+suppressMessages(library(stringr))
+suppressMessages(library(purrr))
+
+args_list <- list(
+  alist(),
+  alist(... = ),
+  alist(x =  ),
+  alist(x = 0),
+  alist(x =  , ... = ),
+  alist(x = 0, ... = ),
+  alist(x =  , y =  ),
+  alist(x =  , y = 1),
+  alist(x = 0, y = 1),
+  alist(x =  , y =  , ... = ),
+  alist(x =  , y = 1, ... = ),
+  alist(x = 0, y = 1, ... = ),
+  alist(x =  , y =  , z = x + y),
+  alist(x = 0, y =  , z = x + y),
+  alist(x = 0, y = 1, z = x + y),
+  alist(x =  , y =  , z = x + y, ... = ),
+  alist(x = 0, y =  , z = x + y, ... = ),
+  alist(x = 0, y = 1, z = x + y, ... = )
+)
+
+make_fnc <- function(args, body = quote(NULL), env = parent.frame()) {
+  args <- as.pairlist(args)
+  f <- eval(call("function", args, body))
+  environment(f) <- env
+  f
+}
+
+pass_args <- function(args) {
+  body <- substitute({
+    call <- match.call()
+    call[[1L]] <- as.name("list")
+    eval(call)
+  })
+  make_fnc(args, body)
+}
