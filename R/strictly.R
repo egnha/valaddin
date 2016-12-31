@@ -69,7 +69,6 @@ validate <- function(calls, lazy_args, logical_void, parent = parent.frame()) {
     env <- lazy_assign(lazy_args, new.env(parent = parent))
     validation <- purrr::map2_df(calls, names(calls), validate_,
                                  env = env, logical_void = logical_void)
-
     validation$errmsg[!validation$is_ok]
   }
 }
@@ -319,9 +318,9 @@ strictly <- strictly_(
   list("`.f` not an interpreted function" ~ .f) ~
     purrr::is_function,
   list("`.warn_missing` not NULL or logical" ~ .warn_missing) ~
-    is_null_or_logical,
-  list("`.logical_void_as` not NULL or logical" ~ .logical_void_as) ~
-    is_null_or_logical,
+    {is.null(.) || purrr::is_scalar_logical(.)},
+  list("`.logical_void_as` not logical(0)/TRUE/FALSE/NULL" ~ .logical_void_as) ~
+    {is.null(.) || (is.logical(.) && (length(.) <= 1))},
   .warn_missing = TRUE
 )
 
