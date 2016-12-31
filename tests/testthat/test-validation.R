@@ -1,5 +1,7 @@
 context("Input validation")
 
+test_that("anonymous predicate function is correctly interpreted", {})
+
 test_that("one-sided formula produces global check", {
   f <- pass_args(alist(x = , y = , z = 0, ... = , u = y - z, v = ))
   f_num <- strictly(f, ~is.numeric)
@@ -121,6 +123,46 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {})
 
 test_that("named checks in checklist formula use custom messages", {})
 
-test_that("lifted predicate function check argument list", {})
+test_that("predicate function of list-argument applies to argument lists", {
+  setup_base <- function(nms, args, fnc) {
+    new_args <- setNames(args, nms)
+    out <- do.call(fnc, new_args)
+    list(args = new_args, out = out)
+  }
 
-test_that("anonymous predicate function is correctly interpreted", {})
+  f <- pass_args(alist(x = , y = , z = , ... = ))
+
+  # Check: x, y, z numeric, x < y < z
+  not_gt <- function(a, b) sprintf("%s not greater than %s", a, b)
+  chklist <- list(
+    ~is.numeric,
+    list(not_gt("y", "x") ~ list(x, y), not_gt("z", "y") ~ list(y, z)) ~
+      purrr::lift(function(a, b) b - a > 0)
+  )
+  f_strict <- strictly(f, .checklist = chklist)
+
+  set.seed(1)
+  for (i in 100) {
+    args <- as.list(cumsum(runif(3, 0, 1)))
+
+    base <- setup_base(c("x", "y", "z"), args, f)
+    expect_identical(do.call(f_strict, base$args), base$out)
+
+    base <- setup_base(c("x", "z", "y"), args, f)
+    expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
+
+    base <- setup_base(c("y", "x", "z"), args, f)
+    expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
+
+    base <- setup_base(c("z", "x", "y"), args, f)
+    expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
+
+    base <- setup_base(c("y", "z", "x"), args, f)
+    expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
+
+    base <- setup_base(c("z", "y", "x"), args, f)
+    expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
+    expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
+  }
+})
+
