@@ -1,13 +1,9 @@
 context("Strictly")
 
 test_that("function is unchanged if no checks given", {
-  f <- function(x, y = x, z = 0, ...) NULL
-  g <- function(...) f(...)
-  h <- function() g()
-
-  expect_identical(strictly(f), f)
-  expect_identical(strictly(g), g)
-  expect_identical(strictly(h), h)
+  for (args in args_list) {
+    pass_args(args) %>% expect_identical(strictly(.), .)
+  }
 })
 
 test_that("argument signature is preserved", {
