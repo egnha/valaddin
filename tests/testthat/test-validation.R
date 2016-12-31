@@ -1,22 +1,28 @@
 context("Input validation")
 
 test_that("anonymous predicate function is correctly interpreted", {
-  predicate <- function(x) {
-    message("side effect")
-    if (purrr::is_scalar_logical(x) && !is.na(x)) x else FALSE
-  }
-
   f <- identity
+
   chk <- list("FALSE" ~ x)
+  predicate <- function(x) if (identical(x, TRUE)) x else FALSE
+
+  # Only allow f to return TRUE
   f_strict <- list(
-    named = chk ~ identity,
-    anond = chk ~ {.},
-    anonx = chk ~ {.x}
+    named = chk ~ predicate,
+    anond = chk ~ {if (identical(., TRUE)) . else FALSE},
+    anonx = chk ~ {if (identical(.x, TRUE)) .x else FALSE}
   ) %>%
     lapply(strictly, .f = f)
 
-  # expect_identical() returns its object (invisibly)
+  # Pass
   Reduce(function(out, f.) expect_identical(out, f.(TRUE)), f_strict, f(TRUE))
+
+  bad_input <- list(FALSE, 1, "A", log, quote({cat("Yo!"); sin(1 + pi)}))
+  for (x in bad_input) {
+    for (f. in f_strict) {
+      expect_error(f.(x), "FALSE")
+    }
+  }
 })
 
 test_that("one-sided formula produces global check", {

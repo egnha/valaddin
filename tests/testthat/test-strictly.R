@@ -79,8 +79,20 @@ test_that(".warn_message = FALSE always removes missing argument check", {})
 
 test_that(".warn_message = TRUE always adds missing argument check", {})
 
-test_that("error is raised if function not a closure", {})
+test_that(".warn_message = NULL preserves missing-argument-check behavior", {})
 
-test_that("error is raised if .warning_message is not NULL or logical", {})
+test_that(".logical_void_as = logical(0) leaves logical(0) as is", {})
 
-test_that("error is raised if checks form invalid checklist", {})
+test_that(".logical_void_as = TRUE coerces logical(0) to TRUE", {})
+
+test_that(".logical_void_as = FALSE coerces logical(0) to FALSE", {})
+
+test_that(".logical_void_as = NULL preserves void-logical behavior", {})
+
+test_that("error raised if function not a closure", {})
+
+test_that("error raised if .warning_message neither NULL nor logical", {})
+
+test_that("error raised if .logical_void_as neither NULL nor logical(0|1)", {})
+
+test_that("error raised if checks form invalid checklist", {})
