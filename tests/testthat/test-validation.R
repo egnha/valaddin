@@ -34,15 +34,16 @@ test_that("one-sided formula produces global check", {
   expect_error(f_pos(1, 2), "Error evaluating check.*?argument \"v\" is missing")
 
   # Error evaluating check because of invalid input types
-  expect_error(f_pos(1, "y", v = 0), "FALSE[^\n]*?is\\.numeric\\(y\\)")
-  expect_error(f_pos(1, "y", v = 0),
-               "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(z\\)")
-  expect_error(f_pos(1, "y", v = 0),
-               "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(v\\)")
-  expect_error(f_pos(1, "y", v = 0),
-               "Error evaluating check.*?is\\.numeric\\(u\\)")
-  expect_error(f_pos(1, "y", v = 0),
-               "Error evaluating check.*?\\(\\~\\{\\. > 0\\}\\)\\)\\(u\\)")
+    expect_error(f_pos(1, "y", v = 0), "FALSE[^\n]*?is\\.numeric\\(y\\)")
+    expect_error(f_pos(1, "y", v = 0),
+                 "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(z\\)")
+    expect_error(f_pos(1, "y", v = 0),
+                 "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(v\\)")
+    expect_error(f_pos(1, "y", v = 0),
+                 "Error evaluating check.*?is\\.numeric\\(u\\)")
+    expect_error(f_pos(1, "y", v = 0),
+                 "Error evaluating check.*?\\(\\~\\{\\. > 0\\}\\)\\)\\(u\\)")
+
   # No other errors
   expect_equal(purrr::safely(f_pos)(1, "y", v = 0) %>% {
     str_count(.$error, "FALSE")
