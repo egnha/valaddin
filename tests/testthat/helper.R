@@ -29,6 +29,7 @@ make_fnc <- function(args, body = quote(NULL), env = parent.frame()) {
   f
 }
 
+# Make a function that simply passes the inputs as a list
 pass_args <- function(args) {
   body <- substitute({
     call <- match.call()

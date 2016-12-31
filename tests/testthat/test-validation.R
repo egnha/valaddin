@@ -1,6 +1,16 @@
 context("Input validation")
 
-test_that("function is reproduced when all checks pass", {
+test_that("function value is reproduced when all checks pass", {
+  fs <- lapply(args_list, pass_args)
+  for (f in fs) {
+    l <- length(formals(f))
+    # Arguments as list of positive numbers (if not empty)
+    args <- if (l) as.list(1:l) else list()
+    out <- do.call(f, args)
+    f_strict <- strictly(f, ~is.numeric, ~{. > 0})
+
+    expect_identical(do.call(f_strict, args), out)
+  }
 })
 
 test_that("one-sided formula produces global check", {
