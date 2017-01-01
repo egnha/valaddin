@@ -190,3 +190,38 @@ test_that("predicate function of list-argument applies to argument lists", {
   }
 })
 
+test_that("invalid predicate value flagged by a precise error of such", {
+  fncmsg <- "pass"
+  errmsg <- "Not numeric"
+  f <- function(x) fncmsg
+  is_long_lgl <- function(x) is.logical(x) && (length(x) >= 2L)
+  is_numeric_faulty <- function(x) {
+    if (is.null(x) || is.na(x) || identical(x, logical(0)) || is_long_lgl(x))
+      x
+    else
+      is.numeric(x)
+  }
+  f_strict <- strictly(f, list(errmsg ~ x) ~ is_numeric_faulty)
+
+  set.seed(1)
+
+  # Pass
+  for (x in runif(10, -1, 1)) expect_identical(f(x), fncmsg)
+
+  # Fail because predicate returns FALSE
+  bad_x <- list(log, identity, "string", TRUE, quote({cat("Ho!")}), TRUE)
+
+  for (x in bad_x) expect_error(f_strict(x), errmsg)
+
+  # Fail because predicate returns invalid value
+  types <- c("NULL", "NA", "logical void", rep("not logical scalar", 2))
+  # Predicate is_numeric_faulty() leaves these values unchanged
+  bad_x <- list(NULL, NA, logical(0), c(TRUE, TRUE), c(TRUE, NA)) %>%
+    setNames(type)
+
+  for (i in seq_along(bad_x)) {
+    x <- bad_x[[i]]
+    type <- types[[i]]
+    expect_error(f_strict(x), sprintf("Predicate value is %s", type))
+  }
+})
