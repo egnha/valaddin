@@ -5,8 +5,7 @@
 \alias{strictly}
 \title{Apply a function strictly}
 \usage{
-strictly(.f, ..., .checklist = list(), .warn_missing = NULL,
-  .logical_void_as = NULL)
+strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
 
 nonstrictly(.f)
 }
@@ -21,15 +20,6 @@ nonstrictly(.f)
 arguments be checked? ("Required" arguments are those without default
 value.) This question is disregarded when \code{.warn_missing} is
 \code{NULL}.}
-
-\item{.logical_void_as}{\code{logical(0)} / \code{TRUE} / \code{FALSE} or
-\code{NULL}. How should predicate-function values be interpreted if they
-are \code{logical(0)}? This question is disregarded when
-\code{.logical_void_as} is \code{NULL}.
-\cr\cr In general, you should ensure that your predicate functions cannot
-return \code{logical(0)}, unless you are sure you want to interpret
-\code{logical(0)} as being vacuously true, and you can anticipate the
-circumstances that would yield \code{logical(0)}.}
 }
 \description{
 \code{strictly()} hardens a function with input validation, using formulae to

@@ -64,7 +64,3 @@ sc_check <- get_sc_attr("..sc_check..")
 #' @rdname sc-attributes
 #' @export
 sc_arg_req <- get_sc_attr("..sc_arg_req..")
-
-#' @rdname sc-attributes
-#' @export
-sc_logical_void <- get_sc_attr("..sc_logical_void..")

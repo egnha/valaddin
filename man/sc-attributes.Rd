@@ -6,7 +6,6 @@
 \alias{sc_arg_req}
 \alias{sc_check}
 \alias{sc_core}
-\alias{sc_logical_void}
 \title{Get attributes of a strict closure}
 \usage{
 is_strict_closure(x)
@@ -16,8 +15,6 @@ sc_core(.f)
 sc_check(.f)
 
 sc_arg_req(.f)
-
-sc_logical_void(.f)
 }
 \arguments{
 \item{x}{R object.}

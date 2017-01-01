@@ -22,7 +22,7 @@ lazy_assign <- function(lzydots, env) {
   invisible(env)
 }
 
-validate_ <- function(call, msg, env, logical_void) {
+validate_ <- function(call, msg, env) {
   res <- tryCatch(
     list(
       errmsg = msg,
@@ -38,16 +38,22 @@ validate_ <- function(call, msg, env, logical_void) {
   )
 
   status <- res$is_ok
-  validation <- if (is.na(status)) {
+  # Is this correct?
+  validation <- if (is.null(status)) {
+    list(
+      errmsg = sprintf("Predicate value is NULL: %s", call$call_chr),
+      is_ok  = FALSE
+    )
+  } else if (is.na(status)) {
     list(
       errmsg = sprintf("Predicate value is NA: %s", call$call_chr),
       is_ok  = FALSE
     )
-  } else if (is.logical(status) && !length(status)) {  # logical(0)
+  } else if (identical(status, logical(0))) {
     list(
       errmsg = sprintf("Predicate value is logical(0), regarded as FALSE: %s",
                        call$call_chr),
-      is_ok  = logical_void %||% logical(0)
+      is_ok  = FALSE
     )
   } else if (!purrr::is_scalar_logical(status)) {
     list(
@@ -62,13 +68,12 @@ validate_ <- function(call, msg, env, logical_void) {
 }
 
 #' @export
-validate <- function(calls, lazy_args, logical_void, parent = parent.frame()) {
+validate <- function(calls, lazy_args, parent = parent.frame()) {
   if (!length(calls)) {
     character(0)
   } else {
     env <- lazy_assign(lazy_args, new.env(parent = parent))
-    validation <- purrr::map2_df(calls, names(calls), validate_,
-                                 env = env, logical_void = logical_void)
+    validation <- purrr::map2_df(calls, names(calls), validate_, env = env)
     validation$errmsg[!validation$is_ok]
   }
 }
@@ -81,7 +86,7 @@ invalid_input <- function(message, call = NULL) {
   )
 }
 
-template <- function(calls, arg_fml, arg_req, logical_void) {
+template <- function(calls, arg_fml, arg_req) {
   substitute({
     `_args` <- names(match.call(expand.dots = FALSE)[-1L])
     `_warn` <- setdiff(..arg_req.., `_args`)
@@ -91,7 +96,7 @@ template <- function(calls, arg_fml, arg_req, logical_void) {
       warning(`_msg`, call. = FALSE)
     }
     `_lazy_args` <- do.call(lazyeval::lazy_dots, ..dots..)
-    `_fail` <- valaddin::validate(..calls.., `_lazy_args`, ..logical_void..)
+    `_fail` <- valaddin::validate(..calls.., `_lazy_args`)
     if (length(`_fail`)) {
       `_call` <- sprintf("%s\n", valaddin::deparse_collapse(match.call()))
       `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_fail`))
@@ -99,8 +104,7 @@ template <- function(calls, arg_fml, arg_req, logical_void) {
     }
   }, list(..calls..        = calls,
           ..dots..         = arg_fml,
-          ..arg_req..      = arg_req,
-          ..logical_void.. = logical_void))
+          ..arg_req..      = arg_req))
 }
 
 unfurl_args <- function(lhs, arg_nm, arg_symb, env) {
@@ -145,9 +149,9 @@ generate_calls <- function(chk, arg_nm, arg_symb, env = lazyeval::f_env(chk)) {
 }
 
 strict_closure <- function(sig, arg_symb, body, env, attr, class,
-                           calls, arg_req, logical_void) {
+                           calls, arg_req) {
   arg_fml <- if (length(calls)) arg_symb else list()
-  chk_tmpl <- template(calls, arg_fml, arg_req, logical_void)
+  chk_tmpl <- template(calls, arg_fml, arg_req)
   new_body <- substitute({
     ..checks..
     ..body..
@@ -161,13 +165,11 @@ strict_closure <- function(sig, arg_symb, body, env, attr, class,
     ..sc_core..         = body,
     ..sc_check..        = calls,
     ..sc_arg_req..      = arg_req,
-    ..sc_logical_void.. = logical_void,
     class = prepend_to_vec("strict_closure", class)
   )
 }
 
-strictly_ <- function(.f, ..., .checklist = list(),
-                      .warn_missing = NULL, .logical_void_as = NULL) {
+strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
   if (!is_checklist(chks)) {
@@ -195,11 +197,9 @@ strictly_ <- function(.f, ..., .checklist = list(),
     NULL
   }
 
-  logical_void <- .logical_void_as %||% sc_logical_void(.f)
-
   strict_closure(
     sig, arg$symb, body_orig, environment(.f), attributes(.f), class(.f),
-    calls, arg_req, logical_void
+    calls, arg_req
   )
 }
 
@@ -209,12 +209,7 @@ nonstrictly_ <- function(.f) {
   } else {
     f <- eval(call("function", formals(.f), sc_core(.f)))
     environment(f) <- environment(.f)
-    sc_attrs <- c(
-      "..sc_core..",
-      "..sc_check..",
-      "..sc_arg_req..",
-      "..sc_logical_void.."
-    )
+    sc_attrs <- c("..sc_core..", "..sc_check..", "..sc_arg_req..")
     attributes(f) <- attributes(.f)[setdiff(names(attributes(.f)), sc_attrs)]
     class(f) <- class(.f)[class(.f) != "strict_closure"]
     f
@@ -255,14 +250,6 @@ nonstrictly_ <- function(.f) {
 #'   arguments be checked? ("Required" arguments are those without default
 #'   value.) This question is disregarded when \code{.warn_missing} is
 #'   \code{NULL}.
-#' @param .logical_void_as \code{logical(0)} / \code{TRUE} / \code{FALSE} or
-#'   \code{NULL}. How should predicate-function values be interpreted if they
-#'   are \code{logical(0)}? This question is disregarded when
-#'   \code{.logical_void_as} is \code{NULL}.
-#'   \cr\cr In general, you should ensure that your predicate functions cannot
-#'   return \code{logical(0)}, unless you are sure you want to interpret
-#'   \code{logical(0)} as being vacuously true, and you can anticipate the
-#'   circumstances that would yield \code{logical(0)}.
 #' @examples
 #' foo <- function(x, y, a = "sum:", ...) paste(a, x + y)
 #' foo(1, 2)                     # "sum: 3"
@@ -317,10 +304,8 @@ strictly <- strictly_(
   strictly_,
   list("`.f` not an interpreted function" ~ .f) ~
     purrr::is_function,
-  list("`.warn_missing` not NULL or logical" ~ .warn_missing) ~
+  list("`.warn_missing` not NULL or length-1 logical vector" ~ .warn_missing) ~
     {is.null(.) || purrr::is_scalar_logical(.)},
-  list("`.logical_void_as` not logical(0)/TRUE/FALSE/NULL" ~ .logical_void_as) ~
-    {is.null(.) || (is.logical(.) && (length(.) <= 1))},
   .warn_missing = TRUE
 )
 

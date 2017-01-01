@@ -17,8 +17,7 @@ remove_check_ <- function(..f, which) {
     attr         = attributes(..f),
     class        = class(..f),
     calls        = new_calls,
-    arg_req      = sc_arg_req(..f),
-    logical_void = sc_logical_void(..f)
+    arg_req      = sc_arg_req(..f)
   )
 }
 
