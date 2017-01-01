@@ -43,7 +43,7 @@ pass_args <- function(args) {
   make_fnc(args, body)
 }
 
-# Expect exactly n errors
+#' Expect exactly n errors matching pattern
 expect_n_errors <- function(n, f, args, pattern) {
   do.call(purrr::safely(f), args) %>% {
     stringr::str_count(.$error, pattern)
