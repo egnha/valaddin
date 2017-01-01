@@ -33,6 +33,7 @@ test_that("'{...}' predicate expression interpreted as lambda function", {
   # Pass
   Reduce(function(out, f.) expect_identical(out, f.(TRUE)), f_strict, f(TRUE))
 
+  # Fail
   bad_input <- list(FALSE, 1, "A", log, quote({cat("Yo!"); sin(1 + pi)}))
   for (x in bad_input) {
     for (f. in f_strict) {
@@ -73,23 +74,20 @@ test_that("one-sided formula produces global check", {
   expect_error(f_pos(1, 2), "Error evaluating check.*?argument \"v\" is missing")
 
   # Error evaluating check because of invalid input types
-    expect_error(f_pos(1, "y", v = 0), "FALSE[^\n]*?is\\.numeric\\(y\\)")
-    expect_error(f_pos(1, "y", v = 0),
-                 "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(z\\)")
-    expect_error(f_pos(1, "y", v = 0),
-                 "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(v\\)")
-    expect_error(f_pos(1, "y", v = 0),
-                 "Error evaluating check.*?is\\.numeric\\(u\\)")
-    expect_error(f_pos(1, "y", v = 0),
-                 "Error evaluating check.*?\\(\\~\\{\\. > 0\\}\\)\\)\\(u\\)")
+  args <- list(1, "y", v = 0)
 
+  expect_error(do.call(f_pos, args), "FALSE[^\n]*?is\\.numeric\\(y\\)")
+  expect_error(do.call(f_pos, args),
+               "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(z\\)")
+  expect_error(do.call(f_pos, args),
+               "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(v\\)")
+  expect_error(do.call(f_pos, args),
+               "Error evaluating check.*?is\\.numeric\\(u\\)")
+  expect_error(do.call(f_pos, args),
+               "Error evaluating check.*?\\(\\~\\{\\. > 0\\}\\)\\)\\(u\\)")
   # No other errors
-  expect_equal(purrr::safely(f_pos)(1, "y", v = 0) %>% {
-    str_count(.$error, "FALSE")
-  }, 3)
-  expect_equal(purrr::safely(f_pos)(1, "y", v = 0) %>% {
-    str_count(.$error, "Error evaluating check")
-  }, 2)
+  expect_n_errors(3, f_pos, args, "FALSE")
+  expect_n_errors(2, f_pos, args, "Error evaluating check")
 })
 
 test_that("string formula produces global check with message", {
@@ -113,9 +111,7 @@ test_that("string formula produces global check with message", {
                    sprintf("Not positive: `%s`", arg))
     }
     # No other errors
-    expect_equal(purrr::lift(purrr::safely(f_pos))(arg_list[[i]]) %>% {
-      str_count(.$error, "Not positive")
-    }, i)
+    expect_n_errors(i, f_pos, arg_list[[i]], "Not positive")
   }
 
   # Error evaluating check because of missing argument
@@ -124,23 +120,19 @@ test_that("string formula produces global check with message", {
   expect_error(f_pos(1, 2), "Error evaluating check.*?argument \"v\" is missing")
 
   # Error evaluating check because of invalid input types
-  expect_error(f_pos(1, "y", v = 0), "Not numeric: `y`")
-  expect_error(f_pos(1, "y", v = 0), "Not positive: `z`")
-  expect_error(f_pos(1, "y", v = 0), "Not positive: `v`")
-  expect_error(f_pos(1, "y", v = 0),
+  args <- list(1, "y", v = 0)
+
+  expect_error(do.call(f_pos, args), "Not numeric: `y`")
+  expect_error(do.call(f_pos, args), "Not positive: `z`")
+  expect_error(do.call(f_pos, args), "Not positive: `v`")
+  expect_error(do.call(f_pos, args),
                "Error evaluating check.*?is\\.numeric\\(u\\)")
-  expect_error(f_pos(1, "y", v = 0),
+  expect_error(do.call(f_pos, args),
                "Error evaluating check.*?\\(\\~\\{\\. > 0\\}\\)\\)\\(u\\)")
   # No other errors
-  expect_equal(purrr::safely(f_pos)(1, "y", v = 0) %>% {
-    str_count(.$error, "Not numeric")
-  }, 1)
-  expect_equal(purrr::safely(f_pos)(1, "y", v = 0) %>% {
-    str_count(.$error, "Not positive")
-  }, 2)
-  expect_equal(purrr::safely(f_pos)(1, "y", v = 0) %>% {
-    str_count(.$error, "Error evaluating check")
-  }, 2)
+  expect_n_errors(1, f_pos, args, "Not numeric")
+  expect_n_errors(2, f_pos, args, "Not positive")
+  expect_n_errors(2, f_pos, args, "Error evaluating check")
 })
 
 test_that("unnamed checks in checklist formula use auto-generated messages", {
@@ -149,10 +141,14 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {
   #
   # chklist <- list(list(~x, "`y` not numeric" ~ y) ~ is.numeric)
   #
+  # non_numeric <- list()
   # for (f in fs) {
-  #   args <- if (l) as.list(1:l) else list()
-  #   out <- do.call(f, args)
   #   f_strict <- strictly(f, .checklist = chklist)
+  #   for (x in non_numeric) {
+  #     expect_error
+  #   }
+  #   args <- list(x = , y = 0)
+  #   out <- do.call(f, args)
   #
   #   expect_identical(TRUE, TRUE)
   # }
@@ -235,6 +231,7 @@ test_that("invalid predicate value flagged by precise error of such", {
   for (i in seq_along(bad_x)) {
     x <- bad_x[[i]]
     type <- types[[i]]
+
     expect_error(f_strict(x), sprintf("Predicate value is %s", type))
   }
 })
@@ -268,10 +265,8 @@ test_that("check-eval error if check-formula variable not function variable", {
                  "Error evaluating check.*?object 'a' not found")
     expect_error(do.call(f_strict, args),
                  "Error evaluating check.*?object 'b' not found")
-
     # No other check-evaluation errors
-    expect_equal(do.call(purrr::safely(f_strict), args) %>% {
-      str_count(.$error, "Error evaluating check")
-    }, 2L + length(missing_args))
+    expect_n_errors(2L + length(missing_args),
+                    f_strict, args, "Error evaluating check")
   }
 })
