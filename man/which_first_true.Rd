@@ -2,23 +2,24 @@
 % Please edit documentation in R/utils.R
 \name{which_first_true}
 \alias{which_first_true}
-\title{Find first predicate to evaluate to \code{TRUE}}
+\title{Find first predicate in a list that returns \code{TRUE}}
 \usage{
 which_first_true(predicates, x, .no_true = NULL)
 }
 \arguments{
 \item{predicates}{List of predicate functions.}
 
-\item{x}{R object to test.}
+\item{x}{R object.}
 
-\item{.no_true}{Value to return}
+\item{.no_true}{Value to return is no predicate returns \code{TRUE} on
+\code{x}.}
 }
 \value{
-Index of first predicate in \code{predicates} to evaluate \code{TRUE}
+Index of first predicate in \code{predicates} to return \code{TRUE}
   on \code{x}, otherwise \code{.no_true}.
 }
 \description{
-Find first predicate to evaluate to \code{TRUE}
+Find first predicate in a list that returns \code{TRUE}
 }
 \examples{
 predicates <- list(is.null, function(.) is.logical(.) && is.na(.))

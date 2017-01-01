@@ -13,12 +13,13 @@ is_void_symb <- function(x) {
   is.symbol(x) && x == substitute()
 }
 
-#' Find first predicate to evaluate to \code{TRUE}
+#' Find first predicate in a list that returns \code{TRUE}
 #'
 #' @param predicates List of predicate functions.
-#' @param x R object to test.
-#' @param .no_true Value to return
-#' @return Index of first predicate in \code{predicates} to evaluate \code{TRUE}
+#' @param x R object.
+#' @param .no_true Value to return is no predicate returns \code{TRUE} on
+#'   \code{x}.
+#' @return Index of first predicate in \code{predicates} to return \code{TRUE}
 #'   on \code{x}, otherwise \code{.no_true}.
 #' @keywords internal
 #' @examples
