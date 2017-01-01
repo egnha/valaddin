@@ -136,22 +136,22 @@ test_that("string formula produces global check with message", {
 })
 
 test_that("unnamed checks in checklist formula use auto-generated messages", {
-  # has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
-  # fs <- lapply(args_list[has_xy], pass_args)
-  #
-  # chklist <- list(list(~x, "`y` not numeric" ~ y) ~ is.numeric)
-  #
-  # non_numeric <- list()
-  # for (f in fs) {
-  #   f_strict <- strictly(f, .checklist = chklist)
-  #   for (x in non_numeric) {
-  #     expect_error
-  #   }
-  #   args <- list(x = , y = 0)
-  #   out <- do.call(f, args)
-  #
-  #   expect_identical(TRUE, TRUE)
-  # }
+  has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
+  fs <- lapply(args_list[has_xy], pass_args)
+
+  chklist <- list(list(~x, "`y` not numeric" ~ y) ~ is.numeric)
+
+  non_numeric <- list(NULL, NA, "string", TRUE, sin, quote({cat("Ho!")}))
+  for (f in fs) {
+    f_strict <- strictly(f, .checklist = chklist)
+    for (x in non_numeric) {
+      args <- list(x = x, y = 0)
+      expect_error(do.call(f_strict, args, quote = TRUE),
+                   "FALSE[^\n]*?is\\.numeric\\(x\\)")
+      expect_n_errors(1, f_strict, args, "FALSE")
+      expect_n_errors(0, f_strict, args, "`y` not numeric")
+    }
+  }
 })
 
 test_that("named checks in checklist formula use custom messages", {})
@@ -270,3 +270,5 @@ test_that("check-eval error if check-formula variable not function variable", {
                     f_strict, args, "Error evaluating check")
   }
 })
+
+test_that("same error response if called with do.call()", {})

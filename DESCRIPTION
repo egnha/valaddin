@@ -18,4 +18,5 @@ Collate:
     'attributes.R'
     'strictly.R'
     'remove.R'
+    'stop.R'
     'valaddin.R'
