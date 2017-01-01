@@ -1,6 +1,22 @@
 context("Input validation")
 
-test_that("anonymous predicate function is correctly interpreted", {
+test_that("function return value exactly reproduced when all checks pass", {
+  fs <- lapply(args_list, pass_args)
+
+  chklist <- list(~is.numeric, ~{. > 0}, "Not TRUE when coerced" ~ as.logical)
+
+  for (f in fs) {
+    l <- length(formals(f))
+    # Arguments as list of positive numbers (if not empty)
+    args <- if (l) as.list(1:l) else list()
+    out <- do.call(f, args)
+    f_strict <- strictly(f, .checklist = chklist)
+
+    expect_identical(do.call(f_strict, args), out)
+  }
+})
+
+test_that("'{...}' predicate expression interpreted as lambda function", {
   f <- identity
 
   chk <- list("FALSE" ~ x)
@@ -127,23 +143,20 @@ test_that("string formula produces global check with message", {
   }, 2)
 })
 
-test_that("function value is reproduced when all checks pass", {
-  fs <- lapply(args_list, pass_args)
-
-  chklist <- list(~is.numeric, ~{. > 0}, "Not TRUE when coerced" ~ as.logical)
-
-  for (f in fs) {
-    l <- length(formals(f))
-    # Arguments as list of positive numbers (if not empty)
-    args <- if (l) as.list(1:l) else list()
-    out <- do.call(f, args)
-    f_strict <- strictly(f, .checklist = chklist)
-
-    expect_identical(do.call(f_strict, args), out)
-  }
+test_that("unnamed checks in checklist formula use auto-generated messages", {
+  # has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
+  # fs <- lapply(args_list[has_xy], pass_args)
+  #
+  # chklist <- list(list(~x, "`y` not numeric" ~ y) ~ is.numeric)
+  #
+  # for (f in fs) {
+  #   args <- if (l) as.list(1:l) else list()
+  #   out <- do.call(f, args)
+  #   f_strict <- strictly(f, .checklist = chklist)
+  #
+  #   expect_identical(TRUE, TRUE)
+  # }
 })
-
-test_that("unnamed checks in checklist formula use auto-generated messages", {})
 
 test_that("named checks in checklist formula use custom messages", {})
 
@@ -190,7 +203,7 @@ test_that("predicate function of list-argument applies to argument lists", {
   }
 })
 
-test_that("invalid predicate value flagged by a precise error of such", {
+test_that("invalid predicate value flagged by precise error of such", {
   fncmsg <- "pass"
   errmsg <- "Not numeric"
   f <- function(x) fncmsg
@@ -217,11 +230,48 @@ test_that("invalid predicate value flagged by a precise error of such", {
   types <- c("NULL", "NA", "logical void", rep("not logical scalar", 2))
   # Predicate is_numeric_faulty() leaves these values unchanged
   bad_x <- list(NULL, NA, logical(0), c(TRUE, TRUE), c(TRUE, NA)) %>%
-    setNames(type)
+    setNames(types)
 
   for (i in seq_along(bad_x)) {
     x <- bad_x[[i]]
     type <- types[[i]]
     expect_error(f_strict(x), sprintf("Predicate value is %s", type))
+  }
+})
+
+test_that("check-eval error if check-formula variable not function variable", {
+  # Functions with non-empty, non-dots-only argument signature
+  fs <- map_lgl(args_list, ~ length(nomen(.)$nm) != 0L) %>% {
+    lapply(args_list[.], pass_args)
+  }
+
+  # a, b are not named arguments of any f() in fs
+  chklist <- list(list(~x, ~y, ~z, ~a, ~x + b) ~ is.numeric)
+  f_strict <- lapply(fs, strictly, .checklist = chklist)
+
+  named_args <- c("x", "y", "z")
+  for (f in fs) {
+    f_strict <- strictly(f, .checklist = chklist)
+
+    sig <- formals(f)
+    l <- length(sig)
+    args <- as.list(1:l)
+    missing_args <- setdiff(named_args, nomen(sig)$nm)
+
+    for (arg in missing_args) {
+      expect_error(
+        do.call(f_strict, args),
+        sprintf("Error evaluating check.*?object '%s' not found", arg)
+      )
+    }
+    expect_error(do.call(f_strict, args),
+                 "Error evaluating check.*?object 'a' not found")
+    expect_error(do.call(f_strict, args),
+                 "Error evaluating check.*?object 'b' not found")
+
+    # No other check-evaluation errors
+    expect_equal(do.call(purrr::safely(f_strict), args) %>% {
+      str_count(.$error, "Error evaluating check")
+    }, 2L + length(missing_args))
   }
 })
