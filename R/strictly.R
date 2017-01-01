@@ -37,10 +37,11 @@ validate_ <- function(call, msg, env) {
     }
   )
 
+  # Names correspond to error message snippets
   predicates <- list(
-    "NULL" = is.null,
-    "NA" = is.na,
-    "logical void" = function(.) identical(., logical(0)),
+    "NULL"               = is.null,
+    "NA"                 = is.na,
+    "logical void"       = function(.) identical(., logical(0)),
     "not logical scalar" = Negate(purrr::is_scalar_logical)
   )
   wh <- which_first_true(predicates, res$is_ok)
