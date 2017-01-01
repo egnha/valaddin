@@ -37,31 +37,21 @@ validate_ <- function(call, msg, env) {
     }
   )
 
-  status <- res$is_ok
-  # Is this correct?
-  validation <- if (is.null(status)) {
-    list(
-      errmsg = sprintf("Predicate value is NULL: %s", call$call_chr),
-      is_ok  = FALSE
-    )
-  } else if (is.na(status)) {
-    list(
-      errmsg = sprintf("Predicate value is NA: %s", call$call_chr),
-      is_ok  = FALSE
-    )
-  } else if (identical(status, logical(0))) {
-    list(
-      errmsg = sprintf("Predicate value is logical(0), regarded as FALSE: %s",
-                       call$call_chr),
-      is_ok  = FALSE
-    )
-  } else if (!purrr::is_scalar_logical(status)) {
-    list(
-      errmsg = sprintf("Predicate value is not logical: %s", call$call_chr),
-      is_ok  = FALSE
-    )
-  } else {
+  predicates <- list(
+    "NULL" = is.null,
+    "NA" = is.na,
+    "logical void" = function(.) identical(., logical(0)),
+    "not logical scalar" = Negate(purrr::is_scalar_logical)
+  )
+  wh <- which_first_true(predicates, res$is_ok)
+  validation <- if (is.null(wh)) {
     res
+  } else {
+    value <- names(predicates)[wh]
+    list(
+      errmsg = sprintf("Predicate value is %s: %s", value, call$call_chr),
+      is_ok  = FALSE
+    )
   }
 
   as.data.frame(validation, stringsAsFactors = FALSE)
@@ -102,9 +92,9 @@ template <- function(calls, arg_fml, arg_req) {
       `_msg` <- paste0(`_call`, valaddin::enumerate_many(`_fail`))
       stop(valaddin::invalid_input(`_msg`))
     }
-  }, list(..calls..        = calls,
-          ..dots..         = arg_fml,
-          ..arg_req..      = arg_req))
+  }, list(..calls..   = calls,
+          ..dots..    = arg_fml,
+          ..arg_req.. = arg_req))
 }
 
 unfurl_args <- function(lhs, arg_nm, arg_symb, env) {
@@ -162,9 +152,9 @@ strict_closure <- function(sig, arg_symb, body, env, attr, class,
 
   structure(
     f,
-    ..sc_core..         = body,
-    ..sc_check..        = calls,
-    ..sc_arg_req..      = arg_req,
+    ..sc_core..    = body,
+    ..sc_check..   = calls,
+    ..sc_arg_req.. = arg_req,
     class = prepend_to_vec("strict_closure", class)
   )
 }

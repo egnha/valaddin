@@ -13,6 +13,27 @@ is_void_symb <- function(x) {
   is.symbol(x) && x == substitute()
 }
 
+#' Find first predicate to evaluate to \code{TRUE}
+#'
+#' @param predicates List of predicate functions.
+#' @param x R object to test.
+#' @param .no_true Value to return
+#' @return Index of first predicate in \code{predicates} to evaluate \code{TRUE}
+#'   on \code{x}, otherwise \code{.no_true}.
+#' @keywords internal
+#' @examples
+#' predicates <- list(is.null, function(.) is.logical(.) && is.na(.))
+#' which_first_true(predicates, NULL)  # 1
+#' which_first_true(predicates, NA)    # 2
+#' which_first_true(predicates, 0)     # NULL
+#' which_first_true(predicates, sin)   # NULL
+which_first_true <- function(predicates, x, .no_true = NULL) {
+  res <- Reduce(function(., p) . || p(x), predicates, FALSE, accumulate = TRUE)
+  wh <- which.max(c(res[-1L], TRUE))
+
+  if (wh == length(res)) .no_true else wh
+}
+
 #' Represent non-dot arguments by name and symbol
 #'
 #' @param sig Pairlist.
