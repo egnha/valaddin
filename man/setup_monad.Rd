@@ -31,5 +31,10 @@ exceptional data:
   \item \code{<type>_unit()}: Unit for monad.
 }
 }
+\examples{
+setup_monad("writer", data = "value", metadata = "log")
+writer(value = 3, log = "Three")
+writer_unit(3)
+}
 \keyword{internal}
 

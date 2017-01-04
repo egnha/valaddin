@@ -142,7 +142,7 @@ bind.writer_monad <- function(m, f) {
   out <- f(m$value)
   m_out <- list(
     value = out$value,
-    log = c(encapsulate(m$log), encapsulate(out$log))
+    log = c(m$log, encapsulate(out$log))
   )
   writer(m_out)
 }
