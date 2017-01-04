@@ -42,12 +42,12 @@ monad_unit <- function(type, data, metadata) {
   }
 }
 
-#' Provide basic ingredients for making a monad
+#' Provide ingredients for making a monad
 #'
-#' A monad of augmented data records ordinary data (e.g., numerical value),
-#' together with metadata (e.g., log message). \code{setup_monad()} sets up the
-#' basic ingredients for making a monad, named \code{<type>} (string), of
-#' exceptional data:
+#' A monad of augmented data records ordinary data (e.g., a numerical value),
+#' together with metadata (e.g., a log message). \code{setup_monad()} sets up
+#' the ingredients for making a monad, named \code{<type>} (string), of
+#' augmented data:
 #' \itemize{
 #'   \item \code{<type>()}: Creates a monadic object from an ordinary one.
 #'   \item \code{<type>_function()}: Designates a function as one with monadic
@@ -56,6 +56,8 @@ monad_unit <- function(type, data, metadata) {
 #'   \item \code{is_<type>_function()}: Does a function have monadic output?
 #'   \item \code{<type>_unit()}: Unit for monad.
 #' }
+#' (To finish monad setup, one needs to provide a "bind" method for the generic
+#' function \code{bind()}.)
 #'
 #' @param type Name of monad type (string).
 #' @param data,metadata Name of data, resp. metadata, fields of monadic object

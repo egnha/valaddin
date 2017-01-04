@@ -2,7 +2,7 @@
 % Please edit documentation in R/monads.R
 \name{setup_monad}
 \alias{setup_monad}
-\title{Provide basic ingredients for making a monad}
+\title{Provide ingredients for making a monad}
 \usage{
 setup_monad(type, data, metadata, env = parent.frame())
 }
@@ -18,10 +18,10 @@ setup_monad(type, data, metadata, env = parent.frame())
 Invisibly returns arguments.
 }
 \description{
-A monad of augmented data records ordinary data (e.g., numerical value),
-together with metadata (e.g., log message). \code{setup_monad()} sets up the
-basic ingredients for making a monad, named \code{<type>} (string), of
-exceptional data:
+A monad of augmented data records ordinary data (e.g., a numerical value),
+together with metadata (e.g., a log message). \code{setup_monad()} sets up
+the ingredients for making a monad, named \code{<type>} (string), of
+augmented data:
 \itemize{
   \item \code{<type>()}: Creates a monadic object from an ordinary one.
   \item \code{<type>_function()}: Designates a function as one with monadic
@@ -30,6 +30,8 @@ exceptional data:
   \item \code{is_<type>_function()}: Does a function have monadic output?
   \item \code{<type>_unit()}: Unit for monad.
 }
+(To finish monad setup, one needs to provide a "bind" method for the generic
+function \code{bind()}.)
 }
 \examples{
 setup_monad("writer", data = "value", metadata = "log")
