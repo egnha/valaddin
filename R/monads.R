@@ -88,14 +88,24 @@ setup_monad <- function(type, data, metadata, env = parent.frame()) {
 
 #' @export
 bind <- function(m, ...) {
-  UseMethod("bind", m)
+  UseMethod("bind")
 }
 
 #' @export
-bind.default <- function(m, ...) {
+join <- function(m, ...) {
+  UseMethod("join")
+}
+
+not_monadic <- function(m, ...) {
   arg <- deparse(substitute(x, list(x = m)), control = "delayPromises")
   stop("Not of monadic type: ", arg, call. = FALSE)
 }
+
+#' @export
+bind.default <- not_monadic
+
+#' @export
+join.default <- not_monadic
 
 fmap <- function(type, env = parent.frame()) {
   monadic <- function(obj) get(nm_typed_obj(type, obj), envir = env)
@@ -133,6 +143,17 @@ bind.error_monad <- function(m, f) {
 
 error_fmap <- fmap("error")
 
+#' @export
+join.error_monad <- function(m) {
+  stopifnot(is.null(m$value) || is_error(m$value))
+
+  if (is.null(m$error)) {
+    error(value = m$value$value, error = m$value$error)
+  } else {
+    error(value = NULL, error = m$error)
+  }
+}
+
 # Writer monad ------------------------------------------------------------
 
 setup_monad("writer", data = "value", metadata = "log")
@@ -146,9 +167,16 @@ bind.writer_monad <- function(m, f) {
   out <- f(m$value)
   m_out <- list(
     value = out$value,
-    log = c(m$log, encapsulate(out$log))
+    log   = c(m$log, encapsulate(out$log))
   )
   writer(m_out)
 }
 
 writer_fmap <- fmap("writer")
+
+#' @export
+join.writer_monad <- function(m) {
+  stopifnot(is.null(m$value) || is_writer(m$value))
+
+  writer(value = m$value$value, log = c(m$log, encapsulate(m$value$log)))
+}
