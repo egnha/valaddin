@@ -27,6 +27,7 @@ monad_function <- function(type, ...) {
 
 is_it <- function(this) {
   force(this)
+
   function(x) inherits(x, this)
 }
 is_monad_type <- function(type, ...) is_it(monad_class(type))
@@ -138,6 +139,7 @@ bind.error_monad <- function(m, f) {
       error = function(e) list(value = NULL, error = e$message)
     )
   }
+
   error(m_out)
 }
 
@@ -169,6 +171,7 @@ bind.writer_monad <- function(m, f) {
     value = out$value,
     log   = c(m$log, encapsulate(out$log))
   )
+
   writer(m_out)
 }
 

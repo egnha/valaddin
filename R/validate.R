@@ -94,6 +94,7 @@ pipeline <- function(.x, .fs, ...) {
 with_sig <- function(.f, sig, env = environment(.f)) {
   f <- eval(call("function", sig, body(.f)))
   environment(f) <- env
+
   f
 }
 
