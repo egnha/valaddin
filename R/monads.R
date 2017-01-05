@@ -106,7 +106,9 @@ fmap <- function(type, env = parent.frame()) {
   function(f) {
     stopifnot(is.function(f))
 
-    function(m) bind(m, monadically(purrr::compose(unit, f)))
+    monadically(
+      function(m) bind(m, monadically(purrr::compose(unit, f)))
+    )
   }
 }
 
