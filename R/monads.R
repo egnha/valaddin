@@ -136,7 +136,7 @@ bind.error_monad <- function(m, f) {
   } else {
     tryCatch(
       f(m$value),
-      error = function(e) list(value = NULL, error = e$message)
+      error = function(e) list(value = NULL, error = e)
     )
   }
 
