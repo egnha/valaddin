@@ -163,18 +163,20 @@ proto_strictly <- function(.f, ..., .checklist, .warn_missing, .process) {
   with_sig(f, sig)
 }
 
-strictly_with <- function(process, fn_type) {
-  force(process); force(fn_type)
+strictly_with <- function(process, fn_type = NULL) {
+  force(process)
+
+  type <- fn_type %||% identity
 
   function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
-    fn_type(
+    type(
       proto_strictly(.f, ..., .checklist = .checklist,
                      .warn_missing = .warn_missing, .process = process)
     )
   }
 }
 
-process_strictly <- function(em) {
+standardize_error <- function(em) {
   if (is.null(em$error)) {
     em$value
   } else {
@@ -189,7 +191,7 @@ process_strictly <- function(em) {
 }
 
 #' @export
-strictly2_ <- strictly_with(process_strictly, identity)
+strictly2_ <- strictly_with(standardize_error)
 
 #' @export
-safely_ <- strictly_with(identity, error_function)
+safely_ <- strictly_with(identity, fn_type = error_function)
