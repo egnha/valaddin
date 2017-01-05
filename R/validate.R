@@ -109,7 +109,7 @@ checker <- function(.expr, .string, .msg) {
   function(.wm) bind.writer_monad(.wm, f)
 }
 
-validate2_ <- function(.wm) {
+validate_checks <- function(.wm) {
   if (is.null(.wm$log)) {
     x <- list(value = .wm$value, error = NULL)
   } else {
@@ -161,7 +161,7 @@ proto_strictly <- function(.f, ..., .checklist, .warn_missing, .process) {
       dplyr::bind_rows()
     purrr::pmap(unname(calls), checker)
   }
-  validate <- c(writer_unit, check_inputs, validate2_)
+  validate <- c(writer_unit, check_inputs, validate_checks)
   call_with <- caller(.f)
   maybe_join <- if (is_error_function(.f)) join.error_monad else identity
   maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
