@@ -9,7 +9,8 @@ LazyData: true
 Imports:
     lazyeval,
     purrr,
-    dplyr
+    dplyr,
+    magrittr
 Suggests:
     testthat
 RoxygenNote: 5.0.1
@@ -21,5 +22,6 @@ Collate:
     'strictly.R'
     'remove.R'
     'stop.R'
-    'valaddin.R'
     'validate.R'
+    'strictly2.R'
+    'valaddin.R'
