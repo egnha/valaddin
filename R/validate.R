@@ -110,38 +110,67 @@ validate2_ <- function(wm) {
   error(x)
 }
 
-call_with <- function(f, call) {
-  call[[1L]] <- f
+call_with <- function(.f, call) {
+  call[[1L]] <- .f
   call
 }
 
-proto_strictly <- function(.f, ..., .checklist, .process) {
+warn_ <- function(ref_args) {
+  force(ref_args)
+
+  function(call) {
+     missing <- setdiff(ref_args, names(call[-1L]))
+
+     if (length(missing)) {
+       msg <- missing %>%
+         paste(collapse = ", ") %>%
+         sprintf("Missing required argument(s): %s", .)
+       warning(msg, call. = FALSE)
+     }
+
+     invisible(call)
+  }
+}
+
+proto_strictly <- function(.f, ..., .checklist, .warn_missing, .process) {
   force(.process)
 
   chks <- c(list(...), .checklist)
-  arg <- nomen(formals(.f))
+  sig <- formals(.f)
+
+  arg <- nomen(sig)
   calls <- chks %>%
     lapply(assemble, nm = arg$nm, symb = arg$symb) %>%
     dplyr::bind_rows()
   check_inputs <- purrr::pmap(calls, checker)
   validate <- c(writer_unit, check_inputs, validate2_)
+  maybe_join <- if (is_error_function(.f)) join.error_monad else identity
+  maybe_warn <- if (.warn_missing) warn_(arg$nm[arg$wo_value]) else invisible
+  call_fn_with <- purrr::partial(call_with, .f = .f)
 
   f <- function(...) {
+    call <- match.call()
+    maybe_warn(call)
+
     env <- do.call(lazyeval::lazy_dots, arg$symb) %>%
       lazy_assign(env = new.env(parent = parent.frame()))
-    call <- call_with(.f, match.call())
-    eval_fn <- function(e) eval(call, e)
+    call_fn <- call_fn_with(call)
+    eval_fn <- function(e) eval(call_fn, e)
 
-    .process(pipeline(env, c(validate, error_fmap(eval_fn))))
+    .process(pipeline(env, c(validate, error_fmap(eval_fn), maybe_join)))
   }
 
-  with_sig(f, sig = formals(.f))
+  with_sig(f, sig)
 }
 
-strictly_with_process <- function(process) {
-  force(process)
-  function(.f, ..., .checklist = list()) {
-    proto_strictly(.f, ..., .checklist = .checklist, .process = process)
+strictly_with <- function(process, fn_type) {
+  force(process); force(fn_type)
+
+  function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
+    fn_type(
+      proto_strictly(.f, ..., .checklist = .checklist,
+                     .warn_missing = .warn_missing, .process = process)
+    )
   }
 }
 
@@ -154,17 +183,13 @@ process_strictly <- function(em) {
     } else {
       em$error
     }
+
     stop(msg, call. = FALSE)
   }
 }
 
-process_safely <- function(em) {
-  class(em) <- NULL
-  em
-}
+#' @export
+strictly2_ <- strictly_with(process_strictly, identity)
 
 #' @export
-strictly2_ <- strictly_with_process(process_strictly)
-
-#' @export
-safely_ <- strictly_with_process(process_safely)
+safely_ <- strictly_with(identity, error_function)
