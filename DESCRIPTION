@@ -24,4 +24,5 @@ Collate:
     'stop.R'
     'validate.R'
     'strictly2.R'
+    'strictly3.R'
     'valaddin.R'
