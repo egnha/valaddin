@@ -67,13 +67,13 @@ proto_strictly2 <- function(.f, ..., .checklist, .warn_missing,
   call_fn <- caller(.wrap_f(.f))
   maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
 
-  f <- if (!length(chks)) {
-    make_warning_closure(call_fn, maybe_warn)
-  } else {
+  f <- if (length(chks)) {
     calls <- dplyr::bind_rows(
       lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
     )
     make_strict_closure(calls, arg$symb, call_fn, maybe_warn, .handle_error)
+  } else {
+    make_warning_closure(call_fn, maybe_warn)
   }
 
   with_sig(f, sig)
@@ -87,7 +87,6 @@ report_error_msg <- function(error) {
   stop(enumerate_many(error$msg), call. = FALSE)
 }
 
-#' @export
 strictly3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   proto_strictly2(
     .f, ..., .checklist = .checklist, .warn_missing = .warn_missing,
@@ -95,10 +94,22 @@ strictly3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   )
 }
 
-#' @export
 safely3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   proto_strictly2(
     .f, ..., .checklist = .checklist, .warn_missing = .warn_missing,
     .wrap_f = purrr::safely, .handle_error = report_error_df
   )
 }
+
+checks <- list(
+  list("`.f` not an interpreted function" ~ .f) ~
+    purrr::is_function,
+  list("`.warn_missing` not a logical scalar" ~ .warn_missing) ~
+  {purrr::is_scalar_logical(.) && !purrr::is_empty(.)}
+)
+
+#' @export
+strictly3 <- strictly3_(strictly3_, .checklist = checks, .warn_missing = TRUE)
+
+#' @export
+safely3 <- strictly3_(safely3_, .checklist = checks, .warn_missing = TRUE)
