@@ -143,7 +143,7 @@ warn <- function(.ref_args) {
   }
 }
 
-proto_strictly <- function(.f, ..., .checklist, .warn_missing, .process) {
+proto_strictly <- function(.f, ..., .checklist = list(), .warn_missing = FALSE, .process) {
   force(.process)
 
   chks <- c(list(...), .checklist)
@@ -166,7 +166,7 @@ proto_strictly <- function(.f, ..., .checklist, .warn_missing, .process) {
   maybe_join <- if (is_error_function(.f)) join.error_monad else identity
   maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
 
-  f <- function(...) {
+  ..f <- function() {
     call <- match.call()
 
     maybe_warn(call)
@@ -179,7 +179,7 @@ proto_strictly <- function(.f, ..., .checklist, .warn_missing, .process) {
     .process(magrittr::freduce(env, pipeline))
   }
 
-  with_sig(f, sig)
+  with_sig(..f, sig)
 }
 
 strictly_with <- function(.process, .fn_type = NULL) {
