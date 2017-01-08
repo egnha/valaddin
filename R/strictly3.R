@@ -29,7 +29,7 @@ make_warning_closure <- function(.call_fn, .warn) {
   }
 }
 
-make_strict_closure <- function(.calls, .args, .call_fn, .warn) {
+make_strict_closure <- function(.calls, .args, .call_fn, .warn, .handle_error) {
   function() {
     call <- match.call()
     .warn(call)
@@ -47,15 +47,15 @@ make_strict_closure <- function(.calls, .args, .call_fn, .warn) {
 
     if (any(is_problematic)) {
       error <- .calls[is_problematic, ]
-      list(result = NULL, error = error)
+      .handle_error(error)
     } else {
       eval(.call_fn(call), parent, parent)
     }
   }
 }
 
-#' @export
-strictly3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
+proto_strictly2 <- function(.f, ..., .checklist, .warn_missing,
+                            .wrap_f, .handle_error) {
   chks <- c(list(...), .checklist)
 
   if (!is_checklist(chks)) {
@@ -64,7 +64,7 @@ strictly3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
 
   sig <- formals(.f)
   arg <- nomen(sig)
-  call_fn <- caller(.f)
+  call_fn <- caller(.wrap_f(.f))
   maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
 
   f <- if (!length(chks)) {
@@ -73,8 +73,32 @@ strictly3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
     calls <- dplyr::bind_rows(
       lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
     )
-    make_strict_closure(calls, arg$symb, call_fn, maybe_warn)
+    make_strict_closure(calls, arg$symb, call_fn, maybe_warn, .handle_error)
   }
 
   with_sig(f, sig)
+}
+
+report_error_df <- function(error) {
+  list(result = NULL, error = error)
+}
+
+report_error_msg <- function(error) {
+  stop(enumerate_many(error$msg), call. = FALSE)
+}
+
+#' @export
+strictly3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
+  proto_strictly2(
+    .f, ..., .checklist = .checklist, .warn_missing = .warn_missing,
+    .wrap_f = identity, .handle_error = report_error_msg
+  )
+}
+
+#' @export
+safely3_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
+  proto_strictly2(
+    .f, ..., .checklist = .checklist, .warn_missing = .warn_missing,
+    .wrap_f = purrr::safely, .handle_error = report_error_df
+  )
 }
