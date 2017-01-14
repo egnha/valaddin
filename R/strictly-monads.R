@@ -125,7 +125,7 @@ proto_strictly_mnd <- function(.f, ..., .checklist = list(),
     maybe_warn(call)
 
     env <- do.call(lazyeval::lazy_dots, arg$symb) %>%
-      lazy_assign(env = new.env(parent = parent.frame()))
+      lazy_assign(.env = new.env(parent = parent.frame()))
     call_fn <- call_with(call)
     pipeline <- c(validate, error_fmap(eval_expr(call_fn)), maybe_join)
 
@@ -163,13 +163,13 @@ project_value <- function(.em) {
 }
 
 strictly_mnd_ <- strictly_with(project_value)
-safely_mnd_    <- strictly_with(identity, .fn_type = error_function)
+safely_mnd_   <- strictly_with(identity, .fn_type = error_function)
 
 checks <- list(
   list("`.f` not an interpreted function" ~ .f) ~
     purrr::is_function,
   list("`.warn_missing` not a logical scalar" ~ .warn_missing) ~
-  {purrr::is_scalar_logical(.) && !purrr::is_empty(.)}
+    {purrr::is_scalar_logical(.) && !purrr::is_empty(.)}
 )
 
 #' @export
