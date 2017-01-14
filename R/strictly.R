@@ -101,6 +101,7 @@ validating_closure <- function(.calls, .args, .call_fn, .warn) {
     parent <- parent.frame()
     env <- lazy_assign(promises, new.env(parent = parent))
 
+    # unlist(Map()) is somewhat faster than purrr::pmap_chr()
     .calls$msg <- unlist(Map(function(e, s, m) report_error(e, s, m, env),
                              .calls$expr, .calls$string, .calls$msg))
     is_problematic <- !is.na(.calls$msg)
