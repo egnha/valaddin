@@ -95,7 +95,7 @@ warn <- function(.ref_args) {
   }
 }
 
-proto_strictly_mnd <- function(.f, ..., .checklist = list(),
+proto_strictly <- function(.f, ..., .checklist = list(),
                               .warn_missing = FALSE, .process) {
   force(.process)
 
@@ -110,9 +110,10 @@ proto_strictly_mnd <- function(.f, ..., .checklist = list(),
   check_inputs <- if (!length(chks)) {
     NULL
   } else {
-    calls <- lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb) %>%
-      dplyr::bind_rows()
-    purrr::pmap(unname(calls), checker)
+    assembled_chks <- dplyr::bind_rows(
+      lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
+    )
+    purrr::pmap(unname(assembled_chks), checker)
   }
   validate <- c(writer_unit, check_inputs, validate_checks)
   call_with <- call_fn(.f)
@@ -142,7 +143,7 @@ strictly_with <- function(.process, .fn_type = NULL) {
 
   function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
     type(
-      proto_strictly_mnd(.f, ..., .checklist = .checklist,
+      proto_strictly(.f, ..., .checklist = .checklist,
                      .warn_missing = .warn_missing, .process = .process)
     )
   }
@@ -162,8 +163,8 @@ project_value <- function(.em) {
   }
 }
 
-strictly_mnd_ <- strictly_with(project_value)
-safely_mnd_   <- strictly_with(identity, .fn_type = error_function)
+strictly_m_ <- strictly_with(project_value)
+safely_m_   <- strictly_with(identity, .fn_type = error_function)
 
 checks <- list(
   list("`.f` not an interpreted function" ~ .f) ~
@@ -173,9 +174,7 @@ checks <- list(
 )
 
 #' @export
-strictly_mnd <- strictly_mnd_(strictly_mnd_, .checklist = checks,
-                              .warn_missing = TRUE)
+strictly_m <- strictly_m_(strictly_m_, .checklist = checks, .warn_missing = TRUE)
 
 #' @export
-safely_mnd <- strictly_mnd_(safely_mnd_, .checklist = checks,
-                            .warn_missing = TRUE)
+safely_m <- strictly_m_(safely_m_, .checklist = checks, .warn_missing = TRUE)
