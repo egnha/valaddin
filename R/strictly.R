@@ -1,18 +1,3 @@
-caller <- function(.f) {
-  force(.f)
-
-  function(.call) {
-    .call[[1L]] <- .f
-    .call
-  }
-}
-
-with_sig <- function(.f, .sig, .env = environment(.f)) {
-  f <- eval(call("function", .sig, body(.f)))
-  environment(f) <- .env
-  f
-}
-
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
   if (is_lambda(p)) {
@@ -45,6 +30,34 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   })
 }
 
+warn <- function(.ref_args) {
+  force(.ref_args)
+
+  function(.call) {
+    missing <- setdiff(.ref_args, names(.call[-1L]))
+
+    if (length(missing)) {
+      msg <- missing %>%
+        paste(collapse = ", ") %>%
+        sprintf("Missing required argument(s): %s", .)
+      warning(msg, call. = FALSE)
+    }
+
+    invisible(.call)
+  }
+}
+
+warning_closure <- function(.fn, .warn) {
+  function() {
+    call <- match.call()
+    parent <- parent.frame()
+
+    .warn(call)
+
+    eval(.fn(call), parent, parent)
+  }
+}
+
 report_error <- function(.expr, .string, .msg, .env) {
   tryCatch(
     {
@@ -63,35 +76,7 @@ report_error <- function(.expr, .string, .msg, .env) {
   )
 }
 
-warn <- function(.ref_args) {
-  force(.ref_args)
-
-  function(.call) {
-    missing <- setdiff(.ref_args, names(.call[-1L]))
-
-    if (length(missing)) {
-      msg <- missing %>%
-        paste(collapse = ", ") %>%
-        sprintf("Missing required argument(s): %s", .)
-      warning(msg, call. = FALSE)
-    }
-
-    invisible(.call)
-  }
-}
-
-warning_closure <- function(.call_fn, .warn) {
-  function() {
-    call <- match.call()
-    parent <- parent.frame()
-
-    .warn(call)
-
-    eval(.call_fn(call), parent, parent)
-  }
-}
-
-validating_closure <- function(.chks, .args, .call_fn, .warn) {
+validating_closure <- function(.chks, .args, .fn, .warn) {
   function() {
     call <- match.call()
 
@@ -110,7 +95,7 @@ validating_closure <- function(.chks, .args, .call_fn, .warn) {
       error <- .chks[is_problematic, ]
       stop(enumerate_many(error$msg), call. = FALSE)
     } else {
-      eval(.call_fn(call), parent, parent)
+      eval(.fn(call), parent, parent)
     }
   }
 }
@@ -129,15 +114,15 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   sig <- formals(.f)
   arg <- nomen(sig)
   maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
-  call_fn <- caller(.f)
+  fn <- call_fn(.f)
 
   f <- if (!length(chks)) {
-    warning_closure(call_fn, maybe_warn)
+    warning_closure(fn, maybe_warn)
   } else {
     assembled_chks <- dplyr::bind_rows(
       lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
     )
-    validating_closure(assembled_chks, arg$symb, call_fn, maybe_warn)
+    validating_closure(assembled_chks, arg$symb, fn, maybe_warn)
   }
 
   strict_closure(with_sig(f, sig))
@@ -155,7 +140,7 @@ strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
 #' @export
 stc_core <- function(..f) {
-  environment(environment(..f)$.call_fn)$.f
+  environment(environment(..f)$.fn)$.f
 }
 
 #' @export

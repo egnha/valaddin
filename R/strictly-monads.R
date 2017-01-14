@@ -115,7 +115,7 @@ proto_strictly_mnd <- function(.f, ..., .checklist = list(),
     purrr::pmap(unname(calls), checker)
   }
   validate <- c(writer_unit, check_inputs, validate_checks)
-  call_with <- caller(.f)
+  call_with <- call_fn(.f)
   maybe_join <- if (is_error_function(.f)) join.error_monad else identity
   maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
 
@@ -126,8 +126,8 @@ proto_strictly_mnd <- function(.f, ..., .checklist = list(),
 
     env <- do.call(lazyeval::lazy_dots, arg$symb) %>%
       lazy_assign(.env = new.env(parent = parent.frame()))
-    call_fn <- call_with(call)
-    pipeline <- c(validate, error_fmap(eval_expr(call_fn)), maybe_join)
+    fn_call <- call_with(call)
+    pipeline <- c(validate, error_fmap(eval_expr(fn_call)), maybe_join)
 
     .process(magrittr::freduce(env, pipeline))
   }
