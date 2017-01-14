@@ -17,6 +17,7 @@ RoxygenNote: 5.0.1
 Collate:
     'utils.R'
     'checklist.R'
+    'functions.R'
     'monads.R'
     'promises.R'
     'stop.R'
