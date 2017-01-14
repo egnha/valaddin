@@ -1,58 +1,10 @@
-#' @include monads.R
+#' @include strictly.R monads.R
 NULL
 
 eval_expr <- function(.expr) {
   force(.expr)
 
   function(.env, ...) suppressWarnings(eval(.expr, envir = .env, ...))
-}
-
-caller <- function(.f) {
-  force(.f)
-
-  function(.call) {
-    .call[[1L]] <- .f
-    .call
-  }
-}
-
-with_sig <- function(.f, .sig, .env = environment(.f)) {
-  f <- eval(call("function", .sig, body(.f)))
-  environment(f) <- .env
-
-  f
-}
-
-assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
-  p <- lazyeval::f_rhs(.chk)
-  if (is_lambda(p)) {
-    predicate <- lambda(p, .env)
-    p_symb    <- substitute(purrr::as_function(~x), list(x = p))
-  } else {
-    predicate <- lazyeval::f_eval_rhs(.chk)
-    p_symb    <- p
-  }
-
-  lhs <- lazyeval::f_eval_lhs(.chk)
-  q <- if (is.list(lhs)) {
-    do.call(lazyeval::f_list, lhs)
-  } else {
-    unfurl_args(lhs, .nm, .symb, .env)
-  }
-  string <- purrr::map_chr(q, function(.) {
-    expr <- substitute(f(x), list(f = p_symb, x = lazyeval::f_rhs(.)))
-    deparse_collapse(expr)
-  })
-  is_empty <- names(q) == ""
-  names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
-
-  purrr::pmap_df(list(q, string, names(q)), function(x, s, m) {
-    dplyr::data_frame(
-      expr   = list(as.call(c(predicate, lazyeval::f_rhs(x)))),
-      string = s,
-      msg    = m
-    )
-  })
 }
 
 pred_vals <- dplyr::data_frame(
@@ -143,7 +95,8 @@ warn <- function(.ref_args) {
   }
 }
 
-proto_strictly <- function(.f, ..., .checklist = list(), .warn_missing = FALSE, .process) {
+proto_strictly_mnd <- function(.f, ..., .checklist = list(),
+                              .warn_missing = FALSE, .process) {
   force(.process)
 
   chks <- c(list(...), .checklist)
@@ -189,8 +142,40 @@ strictly_with <- function(.process, .fn_type = NULL) {
 
   function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
     type(
-      proto_strictly(.f, ..., .checklist = .checklist,
+      proto_strictly_mnd(.f, ..., .checklist = .checklist,
                      .warn_missing = .warn_missing, .process = .process)
     )
   }
 }
+
+project_value <- function(.em) {
+  if (is.null(.em$error)) {
+    .em$value
+  } else {
+    msg <- if (is.data.frame(.em$error)) {
+      enumerate_many(.em$error$msg)
+    } else {
+      .em$error
+    }
+
+    stop(msg, call. = FALSE)
+  }
+}
+
+strictly_mnd_ <- strictly_with(project_value)
+safely_mnd_    <- strictly_with(identity, .fn_type = error_function)
+
+checks <- list(
+  list("`.f` not an interpreted function" ~ .f) ~
+    purrr::is_function,
+  list("`.warn_missing` not a logical scalar" ~ .warn_missing) ~
+  {purrr::is_scalar_logical(.) && !purrr::is_empty(.)}
+)
+
+#' @export
+strictly_mnd <- strictly_mnd_(strictly_mnd_, .checklist = checks,
+                              .warn_missing = TRUE)
+
+#' @export
+safely_mnd <- strictly_mnd_(safely_mnd_, .checklist = checks,
+                            .warn_missing = TRUE)

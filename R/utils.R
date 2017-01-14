@@ -4,13 +4,8 @@
 # Null-default operator
 `%||%` <- purrr::`%||%`
 
-prepend_to_vec <- function(x, vec) {
-  if (x %in% vec) vec else c(x, vec)
-}
-
-is_subset_vec <- function(x, l) {
-  (is.logical(x) && length(x) == l) || (is.numeric(x) && all(x >= 1 & x <= l))
-}
+is_true  <- isTRUE
+is_false <- function(x) identical(FALSE, x)
 
 is_void_symb <- function(x) {
   is.symbol(x) && x == substitute()
