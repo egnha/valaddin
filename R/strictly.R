@@ -45,21 +45,21 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   })
 }
 
-report_error <- function(i, .expr, .string, .msg, .env) {
+report_error <- function(.expr, .string, .msg, .env) {
   tryCatch(
     {
-      val <- suppressWarnings(eval(.expr[[i]], .env, .env))
+      val <- suppressWarnings(eval(.expr, .env, .env))
 
       if (is_true(val))
         NA_character_
       else if (is_false(val))
-        .msg[[i]]
+        .msg
       else
-        sprintf("Predicate value %s is invalid: %s",
-                .string[[i]], deparse_collapse(val))
+        sprintf("Predicate value %s is neither TRUE nor FALSE: %s",
+                .string, deparse_collapse(val))
     },
     error = function(e)
-      sprintf("Error evaluating check %s: %s", .string[[i]], e$message)
+      sprintf("Error evaluating check %s: %s", .string, e$message)
   )
 }
 
@@ -80,7 +80,7 @@ warn <- function(.ref_args) {
   }
 }
 
-make_warning_closure <- function(.call_fn, .warn) {
+warning_closure <- function(.call_fn, .warn) {
   function() {
     call <- match.call()
     parent <- parent.frame()
@@ -91,7 +91,7 @@ make_warning_closure <- function(.call_fn, .warn) {
   }
 }
 
-make_strict_closure <- function(.calls, .args, .call_fn, .warn) {
+validating_closure <- function(.calls, .args, .call_fn, .warn) {
   function() {
     call <- match.call()
 
@@ -101,10 +101,8 @@ make_strict_closure <- function(.calls, .args, .call_fn, .warn) {
     parent <- parent.frame()
     env <- lazy_assign(promises, new.env(parent = parent))
 
-    .calls$msg <- purrr::map_chr(seq_len(nrow(.calls)), report_error,
-                                 .expr   = .calls$expr,
-                                 .string = .calls$string,
-                                 .msg    = .calls$msg, .env = env)
+    .calls$msg <- unlist(Map(function(e, s, m) report_error(e, s, m, env),
+                             .calls$expr, .calls$string, .calls$msg))
     is_problematic <- !is.na(.calls$msg)
 
     if (any(is_problematic)) {
@@ -114,6 +112,10 @@ make_strict_closure <- function(.calls, .args, .call_fn, .warn) {
       eval(.call_fn(call), parent, parent)
     }
   }
+}
+
+strict_closure <- function(.f) {
+  structure(.f, class = c("strict_closure", class(.f)))
 }
 
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
@@ -129,15 +131,15 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   call_fn <- caller(.f)
 
   f <- if (!length(chks)) {
-    make_warning_closure(call_fn, maybe_warn)
+    warning_closure(call_fn, maybe_warn)
   } else {
     calls <- dplyr::bind_rows(
       lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
     )
-    make_strict_closure(calls, arg$symb, call_fn, maybe_warn)
+    validating_closure(calls, arg$symb, call_fn, maybe_warn)
   }
 
-  with_sig(f, sig)
+  strict_closure(with_sig(f, sig))
 }
 
 checks <- list(
@@ -149,3 +151,12 @@ checks <- list(
 
 #' @export
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
+
+#' @export
+nonstrictly <- function(..f) {
+  if (!inherits(..f, "strict_closure")) {
+    stop("Function not a strict closure", call. = FALSE)
+  }
+
+  environment(environment(..f)$.call_fn)$.f
+}

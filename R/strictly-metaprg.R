@@ -197,7 +197,7 @@ prepend_to_vec <- function(x, vec) {
   if (x %in% vec) vec else c(x, vec)
 }
 
-strict_closure <- function(sig, arg_symb, body, env, attr, class,
+strict_closure_mp <- function(sig, arg_symb, body, env, attr, class,
                            calls, arg_req) {
   arg_fml <- if (length(calls)) arg_symb else list()
   chk_tmpl <- template(calls, arg_fml, arg_req)
@@ -246,7 +246,7 @@ strictly_mp_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
     NULL
   }
 
-  strict_closure(
+  strict_closure_mp(
     sig, arg$symb, body_orig, environment(.f), attributes(.f), class(.f),
     calls, arg_req
   )
@@ -406,7 +406,7 @@ remove_check_ <- function(..f, which) {
     calls[setdiff(seq_along(calls), as.integer(which))]
   }
   sig <- formals(..f)
-  strict_closure(
+  strict_closure_mp(
     sig          = sig,
     arg_symb     = nomen(sig)$symb,
     body         = sc_core(..f),
