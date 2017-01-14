@@ -153,10 +153,50 @@ checks <- list(
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
 #' @export
+stc_body <- function(..f) {
+  environment(environment(..f)$.call_fn)$.f
+}
+
+#' @export
+stc_checks <- function(..f) {
+  environment(..f)$.calls
+}
+
+#' @export
+stc_args <- function(..f) {
+  environment(environment(..f)$.warn)$.ref_args
+}
+
+#' @export
 nonstrictly <- function(..f) {
   if (!inherits(..f, "strict_closure")) {
     stop("Function not a strict closure", call. = FALSE)
   }
 
-  environment(environment(..f)$.call_fn)$.f
+  stc_body(..f)
+}
+
+#' @export
+print.strict_closure <- function(x) {
+  cat("<strict_closure>\n")
+
+  cat("\n* Body:\n")
+  print(stc_body(x))
+
+  cat("\n* Checks (<predicate>:<error message>):\n")
+  calls <- stc_checks(x)
+  if (nrow(calls)) {
+    labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
+    cat(enumerate_many(labels))
+  } else {
+    cat("None\n")
+  }
+
+  cat("\n* Check for missing arguments:\n")
+  arg_req <- stc_args(x)
+  if (length(arg_req)) {
+    cat(paste(arg_req, collapse = ", "))
+  } else {
+    cat("Not checked\n")
+  }
 }

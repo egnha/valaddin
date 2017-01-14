@@ -366,38 +366,6 @@ nonstrictly_mp <- strictly_mp_(
   .warn_missing = TRUE
 )
 
-#' @export
-print.strict_closure <- function(x) {
-  cat("<strict_closure>\n")
-
-  cat("\n* Core:\n")
-  cat(deparse(args(x))[[1L]], "\n", sep = "")
-  print(sc_core(x))
-  print(environment(x))
-
-  cat("\n* Checks (<predicate> : <error message>):\n")
-  chks <- sc_check(x)
-  if (length(chks)) {
-    labels <- paste0(
-      purrr::map_chr(chks, "call_chr"), " :\n    \"", names(chks), "\""
-    )
-    cat(enumerate_many(labels))
-  } else {
-    cat("None\n")
-  }
-
-  cat("\n* Check for missing arguments:\n")
-  arg_req <- sc_arg_req(x)
-  if (length(arg_req)) {
-    cat(paste(arg_req, collapse = ", "))
-  } else {
-    cat("Not checked\n")
-  }
-}
-
-#' @include strictly.R
-NULL
-
 remove_check_ <- function(..f, which) {
   calls <- sc_check(..f)
   new_calls <- if (is.logical(which)) {

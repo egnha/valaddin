@@ -20,7 +20,7 @@ Collate:
     'monads.R'
     'promises.R'
     'stop.R'
-    'strictly.R'
     'strictly-metaprg.R'
+    'strictly.R'
     'strictly-monads.R'
     'valaddin.R'
