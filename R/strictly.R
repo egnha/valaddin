@@ -55,7 +55,7 @@ report_error <- function(.expr, .string, .msg, .env) {
       else if (is_false(val))
         .msg
       else
-        sprintf("Predicate value %s is neither TRUE nor FALSE: %s",
+        sprintf("Predicate value %s neither TRUE nor FALSE: %s",
                 .string, deparse_collapse(val))
     },
     error = function(e)
@@ -91,7 +91,7 @@ warning_closure <- function(.call_fn, .warn) {
   }
 }
 
-validating_closure <- function(.calls, .args, .call_fn, .warn) {
+validating_closure <- function(.chks, .args, .call_fn, .warn) {
   function() {
     call <- match.call()
 
@@ -102,12 +102,12 @@ validating_closure <- function(.calls, .args, .call_fn, .warn) {
     env <- lazy_assign(promises, new.env(parent = parent))
 
     # unlist(Map()) is somewhat faster than purrr::pmap_chr()
-    .calls$msg <- unlist(Map(function(e, s, m) report_error(e, s, m, env),
-                             .calls$expr, .calls$string, .calls$msg))
-    is_problematic <- !is.na(.calls$msg)
+    .chks$msg <- unlist(Map(function(e, s, m) report_error(e, s, m, env),
+                            .chks$expr, .chks$string, .chks$msg))
+    is_problematic <- !is.na(.chks$msg)
 
     if (any(is_problematic)) {
-      error <- .calls[is_problematic, ]
+      error <- .chks[is_problematic, ]
       stop(enumerate_many(error$msg), call. = FALSE)
     } else {
       eval(.call_fn(call), parent, parent)
@@ -134,10 +134,10 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   f <- if (!length(chks)) {
     warning_closure(call_fn, maybe_warn)
   } else {
-    calls <- dplyr::bind_rows(
+    assembled_chks <- dplyr::bind_rows(
       lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
     )
-    validating_closure(calls, arg$symb, call_fn, maybe_warn)
+    validating_closure(assembled_chks, arg$symb, call_fn, maybe_warn)
   }
 
   strict_closure(with_sig(f, sig))
@@ -154,13 +154,13 @@ checks <- list(
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
 #' @export
-stc_body <- function(..f) {
+stc_core <- function(..f) {
   environment(environment(..f)$.call_fn)$.f
 }
 
 #' @export
 stc_checks <- function(..f) {
-  environment(..f)$.calls
+  environment(..f)$.chks
 }
 
 #' @export
@@ -174,15 +174,15 @@ nonstrictly <- function(..f) {
     stop("Function not a strict closure", call. = FALSE)
   }
 
-  stc_body(..f)
+  stc_core(..f)
 }
 
 #' @export
 print.strict_closure <- function(x) {
   cat("<strict_closure>\n")
 
-  cat("\n* Body:\n")
-  print(stc_body(x))
+  cat("\n* Core function:\n")
+  print(stc_core(x))
 
   cat("\n* Checks (<predicate>:<error message>):\n")
   calls <- stc_checks(x)
