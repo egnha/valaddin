@@ -185,7 +185,7 @@ print.strict_closure <- function(x) {
 
   cat("\n* Checks (<predicate>:<error message>):\n")
   calls <- stc_checks(x)
-  if (nrow(calls)) {
+  if (!is.null(calls) && nrow(calls)) {
     labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
     cat(enumerate_many(labels))
   } else {
@@ -193,9 +193,9 @@ print.strict_closure <- function(x) {
   }
 
   cat("\n* Check for missing arguments:\n")
-  arg_req <- stc_args(x)
-  if (length(arg_req)) {
-    cat(paste(arg_req, collapse = ", "))
+  args <- stc_args(x)
+  if (!is.null(args) && length(args)) {
+    cat(paste(args, collapse = ", "))
   } else {
     cat("Not checked\n")
   }
