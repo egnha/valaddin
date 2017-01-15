@@ -119,7 +119,7 @@ strict_closure <- function(.f) {
   structure(.f, class = c("strict_closure", class(.f)))
 }
 
-strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
+strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
   if (!is_checklist(chks)) {
@@ -130,30 +130,43 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
   arg <- nomen(sig)
 
   # Nothing to check, nothing to do
-  if (!length(chks) && is_false(.warn_missing) || !length(arg$nm)) {
+  if (!length(chks) && is.null(.warn_missing) || !length(arg$nm)) {
     return(.f)
   }
 
-  maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
-  fn <- call_fn(.f)
+  maybe_warn <- if (is_true(.warn_missing) ||
+                    is.null(.warn_missing) && !is.null(strict_args(.f)))
+    warn(arg$nm[arg$wo_value])
+  else
+    invisible
+  f_core <- if (is_strict_closure(.f)) strict_core(.f) else .f
+  fn <- call_fn(f_core)
+  pre_chks <- strict_checks(.f)
 
-  f <- if (!length(chks)) {
-    warning_closure(fn, maybe_warn)
+  if (!length(chks)) {  # .warn_missing is either TRUE or FALSE
+    if (is.null(pre_chks) && is_false(.warn_missing))
+      return(f_core)
+
+    f <- if (is.null(pre_chks))
+      warning_closure(fn, maybe_warn)
+    else
+      validating_closure(pre_chks, arg$symb, fn, maybe_warn)
   } else {
-    assembled_chks <- dplyr::bind_rows(
-      lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
+    assembled_chks <- dplyr::distinct(
+      dplyr::bind_rows(pre_chks,
+                       lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb))
     )
-    validating_closure(assembled_chks, arg$symb, fn, maybe_warn)
+    f <- validating_closure(assembled_chks, arg$symb, fn, maybe_warn)
   }
 
-  strict_closure(with_sig(f, sig))
+  strict_closure(with_sig(f, sig, .attrs = attributes(.f)))
 }
 
 checks <- list(
   list("`.f` not an interpreted function" ~ .f) ~
     purrr::is_function,
-  list("`.warn_missing` not a logical scalar" ~ .warn_missing) ~
-    {purrr::is_scalar_logical(.) && !purrr::is_empty(.)}
+  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
+    {is.null(.) || purrr::is_scalar_logical(.) && !purrr::is_empty(.)}
 )
 
 #' @export
