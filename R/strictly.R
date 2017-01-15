@@ -139,24 +139,9 @@ checks <- list(
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
 #' @export
-stc_core <- function(..f) {
-  environment(environment(..f)$.fn)$.f
-}
-
-#' @export
-stc_checks <- function(..f) {
-  environment(..f)$.chks
-}
-
-#' @export
-stc_args <- function(..f) {
-  environment(environment(..f)$.warn)$.ref_args
-}
-
-#' @export
 nonstrictly <- function(..f) {
-  if (!inherits(..f, "strict_closure")) {
-    stop("Function not a strict closure", call. = FALSE)
+  if (!is_strict_closure(..f)) {
+    stop("Argument not a strict closure", call. = FALSE)
   }
 
   stc_core(..f)
