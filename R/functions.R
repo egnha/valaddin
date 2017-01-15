@@ -8,9 +8,11 @@ call_fn <- function(.f) {
   }
 }
 
-# Rewrite the argument signature of a function (and preserve environment)
-with_sig <- function(.f, .sig, .env = environment(.f)) {
+# Rewrite the argument signature of a function
+with_sig <- function(.f, .sig, .attrs) {
   f <- eval(call("function", .sig, body(.f)))
-  environment(f) <- .env
+  environment(f) <- environment(.f)
+  attributes(f)  <- .attrs
+
   f
 }
