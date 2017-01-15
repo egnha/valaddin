@@ -128,6 +128,12 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = FALSE) {
 
   sig <- formals(.f)
   arg <- nomen(sig)
+
+  # Nothing to check, nothing to do
+  if (!length(chks) && is_false(.warn_missing) || !length(arg$nm)) {
+    return(.f)
+  }
+
   maybe_warn <- if (.warn_missing) warn(arg$nm[arg$wo_value]) else invisible
   fn <- call_fn(.f)
 
