@@ -1,6 +1,3 @@
-#' @include utils.R
-NULL
-
 #' Is a checklist correctly formed?
 #'
 #' \code{is_checklist(x)} checks whether \code{x} is a \emph{checklist}, i.e., a

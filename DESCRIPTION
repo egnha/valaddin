@@ -15,10 +15,10 @@ Suggests:
     testthat
 RoxygenNote: 5.0.1
 Collate:
-    'utils.R'
     'checklist.R'
     'functions.R'
     'promises.R'
     'properties.R'
+    'utils.R'
     'strictly.R'
     'valaddin.R'
