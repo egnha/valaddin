@@ -3,18 +3,18 @@
 \name{properties}
 \alias{is_strict_closure}
 \alias{properties}
-\alias{stc_args}
-\alias{stc_checks}
-\alias{stc_core}
+\alias{strict_args}
+\alias{strict_checks}
+\alias{strict_core}
 \title{Properties of a strict closure}
 \usage{
 is_strict_closure(x)
 
-stc_core(..f)
+strict_core(..f)
 
-stc_checks(..f)
+strict_checks(..f)
 
-stc_args(..f)
+strict_args(..f)
 }
 \arguments{
 \item{x}{R object.}

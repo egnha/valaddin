@@ -92,8 +92,9 @@ validating_closure <- function(.chks, .args, .fn, .warn) {
     is_problematic <- !is.na(.chks$msg)
 
     if (any(is_problematic)) {
-      error <- .chks[is_problematic, ]
-      stop(enumerate_many(error$msg), call. = FALSE)
+      msg_call  <- sprintf("%s\n", deparse_collapse(call))
+      msg_error <- enumerate_many(.chks[is_problematic, ]$msg)
+      stop(paste0(msg_call, msg_error), call. = FALSE)
     } else {
       eval(.fn(call), parent, parent)
     }
@@ -141,10 +142,10 @@ strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 #' @export
 nonstrictly <- function(..f) {
   if (!is_strict_closure(..f)) {
-    stop("Argument not a strict closure", call. = FALSE)
+    stop("Argument not a strictly applied function", call. = FALSE)
   }
 
-  stc_core(..f)
+  strict_core(..f)
 }
 
 #' @export
@@ -152,10 +153,10 @@ print.strict_closure <- function(x) {
   cat("<strict_closure>\n")
 
   cat("\n* Core function:\n")
-  print(stc_core(x))
+  print(strict_core(x))
 
   cat("\n* Checks (<predicate>:<error message>):\n")
-  calls <- stc_checks(x)
+  calls <- strict_checks(x)
   if (!is.null(calls) && nrow(calls)) {
     labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
     cat(enumerate_many(labels))
@@ -164,7 +165,7 @@ print.strict_closure <- function(x) {
   }
 
   cat("\n* Check for missing arguments:\n")
-  args <- stc_args(x)
+  args <- strict_args(x)
   if (!is.null(args) && length(args)) {
     cat(paste(args, collapse = ", "))
   } else {
