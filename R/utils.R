@@ -11,28 +11,6 @@ is_void_symb <- function(x) {
   is.symbol(x) && x == substitute()
 }
 
-#' Find first predicate in a list that returns \code{TRUE}
-#'
-#' @param predicates List of predicate functions.
-#' @param x R object.
-#' @param .no_true Value to return is no predicate returns \code{TRUE} on
-#'   \code{x}.
-#' @return Index of first predicate in \code{predicates} to return \code{TRUE}
-#'   on \code{x}, otherwise \code{.no_true}.
-#' @keywords internal
-#' @examples
-#' predicates <- list(is.null, function(.) is.logical(.) && is.na(.))
-#' which_first_true(predicates, NULL)  # 1
-#' which_first_true(predicates, NA)    # 2
-#' which_first_true(predicates, 0)     # NULL
-#' which_first_true(predicates, sin)   # NULL
-which_first_true <- function(predicates, x, .no_true = NULL) {
-  res <- Reduce(function(., p) . || p(x), predicates, FALSE, accumulate = TRUE)
-  wh <- which.max(c(res[-1L], TRUE))
-
-  if (wh == length(res)) .no_true else wh
-}
-
 #' Represent non-dot arguments by name and symbol
 #'
 #' @param sig Pairlist.
@@ -54,7 +32,6 @@ nomen <- function(sig) {
 #' @return String.
 #' @details Used in validation check template, must therefore be exported.
 #' @keywords internal
-#' @export
 deparse_collapse <- function(x) {
   paste(trimws(deparse(x), which = "both"), collapse = "")
 }
@@ -66,7 +43,6 @@ deparse_collapse <- function(x) {
 #' @return String.
 #' @details Used in validation check template, must therefore be exported.
 #' @keywords internal
-#' @export
 enumerate_many <- function(x, many = 2L) {
   if (length(x) >= many) {
     paste(
