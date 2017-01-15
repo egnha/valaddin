@@ -1,6 +1,6 @@
 context("Strictly")
 
-test_that("function is unchanged if no checks given", {
+test_that("function is unchanged if no checks given, .warn_missing is NULL", {
   for (args in args_list) {
     pass_args(args) %>% expect_identical(strictly(.), .)
   }
@@ -15,37 +15,49 @@ test_that("argument signature is preserved", {
 test_that("original body, environment, and attributes are preserved", {
   set.seed(1)
 
-  core <- function(f) {
-    if (length(nomen(formals(f))$nm)) strict_core(f) else body(f)
-  }
-  core_attributes <- function(f) {
-    strict_attr <- c("class", "..strict_core..", "..strict_checks..", "..strict_arg_req..")
-    attributes(f)[setdiff(names(attributes(f)), strict_attr)]
-  }
-  len <- sample(100L, length(args_list))
+  len <- sample(length(args_list))
+
   for (i in seq_along(args_list)) {
-    junk <- paste(sample(letters, len[[i]], replace = TRUE))
+    junk <- paste(sample(letters, len[[i]], replace = TRUE), collapse = "")
     body <- substitute(quote(x), list(x = junk))
     attr <- setNames(as.list(sample(LETTERS)), letters)
-    env <- new.env()
+    env <- new.env(parent = baseenv())
     f <- do.call("structure",
       c(.Data = make_fnc(args_list[[i]], body, env), attr)
     )
     f_strict1 <- strictly(f, list(~x) ~ is.numeric)
     f_strict2 <- strictly(f_strict1, .warn_missing = TRUE)
 
-    expect_identical(core(f_strict1), body(f))
-    expect_identical(core(f_strict2), body(f))
-    expect_identical(environment(f_strict1), environment(f))
-    expect_identical(environment(f_strict2), environment(f))
-    expect_identical(core_attributes(f_strict1), attributes(f))
-    expect_identical(core_attributes(f_strict2), attributes(f))
+    # Same body
+    nms <- nomen(args_list[[i]])$nm
+    args <- setNames(as.list(rep(0, length(nms))), nms)
+    expect_identical(do.call(f_strict1, args), junk)
+    expect_identical(do.call(f_strict2, args), junk)
+
+    # Same environment
+    if (is.null(strict_core(f_strict1))) {
+      expect_identical(environment(f_strict1), environment(f))
+      expect_identical(environment(f_strict2), environment(f))
+    } else {
+      expect_identical(environment(strict_core(f_strict1)), environment(f))
+      expect_identical(environment(strict_core(f_strict2)), environment(f))
+    }
+
+    # Same attributes
+    expect_identical(
+      attributes(f_strict1)[names(attributes(f_strict1)) != "class"],
+      attributes(f)
+    )
+    expect_identical(
+      attributes(f_strict2)[names(attributes(f_strict2)) != "class"],
+      attributes(f)
+    )
     expect_identical(
       class(f_strict1)[class(f_strict1) != "strict_closure"],
       class(f)
     )
     expect_identical(
-      class(f_strict2)[class(f_strict1) != "strict_closure"],
+      class(f_strict2)[class(f_strict2) != "strict_closure"],
       class(f)
     )
   }
