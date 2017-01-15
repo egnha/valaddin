@@ -16,11 +16,11 @@ test_that("original body, environment, and attributes are preserved", {
   set.seed(1)
 
   core <- function(f) {
-    if (length(nomen(formals(f))$nm)) sc_core(f) else body(f)
+    if (length(nomen(formals(f))$nm)) strict_core(f) else body(f)
   }
   core_attributes <- function(f) {
-    sc_attr <- c("class", "..sc_core..", "..sc_check..", "..sc_arg_req..")
-    attributes(f)[setdiff(names(attributes(f)), sc_attr)]
+    strict_attr <- c("class", "..strict_core..", "..strict_checks..", "..strict_arg_req..")
+    attributes(f)[setdiff(names(attributes(f)), strict_attr)]
   }
   len <- sample(100L, length(args_list))
   for (i in seq_along(args_list)) {
@@ -52,9 +52,8 @@ test_that("original body, environment, and attributes are preserved", {
 })
 
 test_that("checks in '...' are combined with .checklist", {
-  sorted_sc_check <- function(..f) {
-    calls <- sc_check(..f)
-    calls[sort(names(calls))]
+  sort_checks <- function(..f) {
+    dplyr::arrange_(strict_checks(..f), ~string)
   }
 
   f <- function(x, y = x, z = 0, ...) NULL
@@ -62,15 +61,15 @@ test_that("checks in '...' are combined with .checklist", {
   chk2 <- ~is.numeric
 
   f_strict <- strictly(f, chk1, chk2)
-  calls <- sc_check(f_strict)
+  calls <- dplyr::arrange_(strict_checks(f_strict), ~string)
   # 4 checks: One global check on 3 arguments, plus a check on 1 argument
-  expect_identical(length(calls), 4L)
+  expect_identical(nrow(calls), 4L)
 
   f_strict2 <- strictly(f, chk1, .checklist = list(chk2))
-  expect_identical(sorted_sc_check(f_strict2), calls)
+  expect_identical(sort_checks(f_strict2), calls)
 
   f_strict3 <- strictly(f, .checklist = list(chk1, chk2))
-  expect_identical(sorted_sc_check(f_strict3), calls)
+  expect_identical(sort_checks(f_strict3), calls)
 })
 
 test_that("existing checks are preserved when adding new checks", {})
