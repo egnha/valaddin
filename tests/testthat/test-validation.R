@@ -219,20 +219,12 @@ test_that("invalid predicate value flagged by precise error of such", {
 
   # Fail because predicate returns FALSE
   bad_x <- list(log, identity, "string", TRUE, quote({cat("Ho!")}), TRUE)
-
   for (x in bad_x) expect_error(f_strict(x), errmsg)
 
   # Fail because predicate returns invalid value
-  types <- c("NULL", "NA", "logical void", rep("not logical scalar", 2))
   # Predicate is_numeric_faulty() leaves these values unchanged
-  bad_x <- list(NULL, NA, logical(0), c(TRUE, TRUE), c(TRUE, NA)) %>%
-    setNames(types)
-
-  for (i in seq_along(bad_x)) {
-    x <- bad_x[[i]]
-    type <- types[[i]]
-
-    expect_error(f_strict(x), sprintf("Predicate value is %s", type))
+  for (x in list(NULL, NA, logical(0), c(TRUE, TRUE), c(TRUE, NA))) {
+    expect_error(f_strict(x), "neither TRUE nor FALSE")
   }
 })
 
