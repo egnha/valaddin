@@ -43,12 +43,17 @@ More information can be found in the documentation page,
 \examples{
 library(valaddin)
 
-f <- function(x, y) log(x - y)
-f_strict <- strictly(f, ~is.numeric,
-                     list(~y, "`x` not greater than `y`" ~ x - y) ~ {. > 0})
+secant      <- function(f, x, dx) (f(x + dx) - f(x)) / dx
+secant_stc  <- strictly(secant, list(~f) ~ is.function,
+                                list(~x, ~dx) ~ is.numeric)
+secant_stcr <- strictly(secant_stc, list("`dx` not non-zero" ~ dx) ~
+                                      {abs(.) > .Machine$double.eps^0.5})
 
-f_strict(4, 2)   # 0.6931472
-f_strict(3, 0)   # Error: FALSE: (purrr::as_function(~{. > 0}))(y)
-f_strict("4", 2) # Error: FALSE: is.numeric(x), error evaluating check
+secant_stc(log, 1, .1)        # 0.9531018
+secant_stc("log", 1, .1)      # Error: "FALSE: is.function(f)"
+secant_stc(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
+secant_stc(log, 1, log(1))    # NaN
+secant_stcr(log, 1, log(1))   # Error: "`dx` not non-zero"
+secant_stcr(log, 1, log("1")) # Error: Error evaluating checks
 }
 
