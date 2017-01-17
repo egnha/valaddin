@@ -1,14 +1,30 @@
 context("Strictly")
 
-test_that("function is unchanged if no checks given, .warn_missing is NULL", {
+test_that("function is unchanged if no checks and .warn_missing is NULL", {
   for (args in args_list) {
-    pass_args(args) %>% expect_identical(strictly(.), .)
+    f <-  pass_args(args)
+
+    expect_identical(strictly(f), f)
+  }
+})
+
+test_that("function is unchanged if it has no named arguments", {
+  fns <- list(function() NULL, function(...) NULL)
+  chks <- list(~is.numeric, "Negative" ~ {. >= 0}, list(~dummy) ~ is.function)
+
+  for (f in fns) {
+    expect_identical(strictly(f, .checklist = chks), f)
+    expect_identical(strictly(f, .warn_missing = TRUE), f)
+    expect_identical(strictly(f, .checklist = chks, .warn_missing = TRUE), f)
   }
 })
 
 test_that("argument signature is preserved", {
   for (args in args_list) {
-    expect_identical(formals(strictly(make_fnc(args))), as.pairlist(args))
+    f <- make_fnc(args)
+
+    expect_identical(formals(f), as.pairlist(args))
+    expect_identical(formals(strictly(f)), formals(f))
   }
 })
 
@@ -63,7 +79,7 @@ test_that("original body, environment, and attributes are preserved", {
   }
 })
 
-test_that("checks in '...' are combined with .checklist", {
+test_that("checks in ... are combined with .checklist", {
   sort_checks <- function(..f) {
     dplyr::arrange_(strict_checks(..f), ~string)
   }
@@ -84,26 +100,51 @@ test_that("checks in '...' are combined with .checklist", {
   expect_identical(sort_checks(f_strict3), calls)
 })
 
-test_that("existing checks are preserved when adding new checks", {})
+test_that("existing checks are preserved when adding new checks", {
+  f0 <- function(x, y, ...) NULL
+  chks <- list(
+    "Not numeric" ~ is.numeric,
+    list("y not nonzero" ~ y) ~ {. != 0}
+  )
+  f <- strictly(f0, .checklist = chks)
+  chks_f <- strict_checks(f)
 
-test_that(".warn_message = FALSE always removes missing argument check", {})
+  new_chks <- list(
+    "Not less than one" = list("Not less than one" ~ x) ~ {. < 1},
+    "Not positive" = "Not positive" ~ {. > 0}
+  )
 
-test_that(".warn_message = TRUE always adds missing argument check", {})
+  for (err_msg in names(new_chks)) {
+    chk <- new_chks[[err_msg]]
+
+    g <- strictly(f, chk)
+    chks_g <- strict_checks(g)
+
+    # Checks of f subset of checks of g
+    chks_f_g <- dplyr::distinct(dplyr::bind_rows(chks_g, chks_f))
+    expect_identical(
+      chks_f_g %>% dplyr::arrange_("string"),
+      chks_g %>% dplyr::arrange_("string")
+    )
+
+    # All previous checks checked
+    expect_error(g("1", 1), "Not numeric: `x`")
+    expect_error(g(1, "1"), "Not numeric: `y`")
+    expect_error(g(1, 0), "y not nonzero")
+
+    # New check checked
+    expect_error(g(2, -1), err_msg)
+  }
+})
+
+test_that(".warn_message = TRUE adds missing argument check", {})
+
+test_that(".warn_message = FALSE removes missing argument check", {})
 
 test_that(".warn_message = NULL preserves missing-argument-check behavior", {})
 
-test_that(".logical_void_as = logical(0) leaves logical(0) as is", {})
-
-test_that(".logical_void_as = TRUE coerces logical(0) to TRUE", {})
-
-test_that(".logical_void_as = FALSE coerces logical(0) to FALSE", {})
-
-test_that(".logical_void_as = NULL preserves void-logical behavior", {})
-
 test_that("error raised if function not a closure", {})
 
-test_that("error raised if .warning_message neither NULL nor logical", {})
-
-test_that("error raised if .logical_void_as neither NULL nor logical(0|1)", {})
+test_that("error raised if .warn_missing neither NULL nor logical", {})
 
 test_that("error raised if checks form invalid checklist", {})
