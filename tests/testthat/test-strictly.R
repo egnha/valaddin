@@ -137,11 +137,41 @@ test_that("existing checks are preserved when adding new checks", {
   }
 })
 
-test_that(".warn_message = TRUE adds missing argument check", {})
+test_that(".warn_missing = TRUE adds missing argument check", {
+  f <- function(x, y, z = 0) NULL
+  f_warn  <- strictly(f, .warn_missing = TRUE)
+  f_check <- strictly(f_warn, list("z not numeric" ~ z) ~ is.numeric)
 
-test_that(".warn_message = FALSE removes missing argument check", {})
+  # Check applied
+  expect_error(f_check(1, 1, "1"), "z not numeric")
 
-test_that(".warn_message = NULL preserves missing-argument-check behavior", {})
+  # No warning if all required arguments supplied
+  expect_warning(f_warn(1, 1), NA)
+  expect_warning(f_check(1, 1), NA)
+
+  args <- list(
+    "x, y" = list(),
+    "y"    = list(x = 1),
+    "x"    = list(y = 1)
+  )
+
+  for (nms in names(args)) {
+    arg <- args[[nms]]
+
+    expect_warning(out <- do.call(f_warn, arg),
+                   paste("Missing required argument\\(s\\):", nms))
+    expect_identical(out, do.call(f, arg))
+
+    # Warning behavior persists in presence of checks
+    expect_warning(out <- do.call(f_check, arg),
+                   paste("Missing required argument\\(s\\):", nms))
+    expect_identical(out, do.call(f, arg))
+  }
+})
+
+test_that(".warn_missing = FALSE removes missing argument check", {})
+
+test_that(".warn_missing = NULL preserves missing-argument-check behavior", {})
 
 test_that("error raised if function not a closure", {})
 
