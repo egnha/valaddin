@@ -129,8 +129,10 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   sig <- formals(.f)
   arg <- nomen(sig)
 
-  # Nothing to check, nothing to do
-  if (!length(chks) && is.null(.warn_missing) || !length(arg$nm)) {
+  is_some_check <-
+    length(chks) && length(arg$nm) ||
+    !is.null(.warn_missing) && any(arg$wo_value)
+  if (!is_some_check) {
     return(.f)
   }
 
