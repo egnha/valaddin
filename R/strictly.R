@@ -167,7 +167,7 @@ checks <- list(
   list("`.f` not an interpreted function" ~ .f) ~
     purrr::is_function,
   list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
-    {is.null(.) || purrr::is_scalar_logical(.) && !purrr::is_empty(.)}
+    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)}
 )
 
 #' @export
