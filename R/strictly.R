@@ -136,11 +136,10 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
     return(.f)
   }
 
-  maybe_warn <- if (is_true(.warn_missing) ||
-                    is.null(.warn_missing) && !is.null(strict_args(.f)))
-    warn(arg$nm[arg$wo_value])
-  else
-    invisible
+  is_missing <-
+    is_true(.warn_missing) ||
+    is.null(.warn_missing) && !is.null(strict_args(.f))
+  maybe_warn <- if (is_missing) warn(arg$nm[arg$wo_value]) else invisible
   f_core <- if (is_strict_closure(.f)) strict_core(.f) else .f
   fn <- call_fn(f_core)
   pre_chks <- strict_checks(.f)
