@@ -1,5 +1,32 @@
 context("Strictly")
 
+test_that("strictly() throws error if .f is not a closure", {
+  errmsg <- "`.f` not an interpreted function"
+  bad_fns <- list(NULL, NA, log, 1, "A", quote(ls))
+
+  for (f in bad_fns) {
+    expect_error(strictly(f), errmsg)
+  }
+})
+
+test_that("strictly() throws error if .warn_missing is not NULL/TRUE/FALSE", {
+  f <- function(x) NULL
+
+  # No error if .warn_missing NULL/TRUE/FALSE
+  expect_error(strictly(f, .warn_missing = TRUE), NA)
+  expect_error(strictly(f, .warn_missing = FALSE), NA)
+  expect_error(strictly(f, .warn_missing = NULL), NA)
+
+  # Otherwise, error
+  errmsg <- "`.warn_missing` neither NULL nor logical scalar"
+  bad_val <- list(NA, logical(0), logical(2), 1, 0, "TRUE", "FALSE")
+  for (val in bad_val) {
+    expect_error(strictly(function(x) NULL, .warn_missing = val), errmsg)
+  }
+})
+
+test_that("strictly() throws error if .checklist is not a valid checklist", {})
+
 test_that("function is unchanged if no checks and .warn_missing is NULL", {
   for (args in args_list) {
     f <-  pass_args(args)
@@ -15,7 +42,9 @@ test_that("function is unchanged if it has no named arguments", {
   for (f in fns) {
     expect_identical(strictly(f, .checklist = chks), f)
     expect_identical(strictly(f, .warn_missing = TRUE), f)
+    expect_identical(strictly(f, .warn_missing = FALSE), f)
     expect_identical(strictly(f, .checklist = chks, .warn_missing = TRUE), f)
+    expect_identical(strictly(f, .checklist = chks, .warn_missing = FALSE), f)
   }
 })
 
@@ -28,7 +57,7 @@ test_that("argument signature is preserved", {
   }
 })
 
-test_that("original body, environment, and attributes are preserved", {
+test_that("original function body/environment/attributes are preserved", {
   set.seed(1)
 
   len <- sample(length(args_list))
@@ -137,7 +166,7 @@ test_that("existing checks are preserved when adding new checks", {
   }
 })
 
-test_that(".warn_missing = TRUE adds missing argument check", {
+test_that(".warn_missing = TRUE adds check for args without default value", {
   f <- function(x, y, z = 0) NULL
   f_warn  <- strictly(f, .warn_missing = TRUE)
   f_check <- strictly(f_warn, list("z not numeric" ~ z) ~ is.numeric)
@@ -169,12 +198,93 @@ test_that(".warn_missing = TRUE adds missing argument check", {
   }
 })
 
-test_that(".warn_missing = FALSE removes missing argument check", {})
+test_that(".warn_missing = FALSE removes missing argument check", {
+  f <- function(x, y, z = 1, ...) NULL
 
-test_that(".warn_missing = NULL preserves missing-argument-check behavior", {})
+  # .warn_missing = FALSE no effect if no missing argument checks existant
+  expect_warning(f(1), NA)
+  expect_identical(strictly(f, .warn_missing = FALSE), f)
+  expect_warning(strictly(f, .warn_missing = FALSE)(1), NA)
 
-test_that("error raised if function not a closure", {})
+  f_strict <- strictly(f, .warn_missing = TRUE)
 
-test_that("error raised if .warn_missing neither NULL nor logical", {})
+  # .warn_missing = FALSE removes missing argument check if existing
+  expect_warning(f_strict(1), "Missing required argument\\(s\\): y")
+  expect_identical(strictly(f_strict, .warn_missing = FALSE), f)
+  expect_warning(strictly(f_strict, .warn_missing = FALSE)(1), NA)
+})
 
-test_that("error raised if checks form invalid checklist", {})
+test_that(".warn_missing = NULL preserves missing-argument-check behavior", {
+  f <- function(x, y, z = 1, ...) NULL
+  fns <- list(
+    f,
+    strictly(f, ~is.numeric),
+    strictly(f, ~is.numeric, .warn_missing = TRUE)
+  )
+
+  for (g in fns) {
+    expect_identical(strictly(g, .warn_missing = NULL), g)
+  }
+})
+
+test_that(".warn_missing is ignored if every named arg has default value", {
+  f <- function(x = 1, ...) NULL
+  f_strict <- strictly(f, ~is.numeric)
+
+  expect_identical(strictly(f, .warn_missing = TRUE), f)
+  expect_identical(strictly(f, .warn_missing = FALSE), f)
+  expect_identical(strictly(f, .warn_missing = NULL), f)
+  expect_identical(strictly(f_strict, .warn_missing = TRUE), f_strict)
+  expect_identical(strictly(f_strict, .warn_missing = FALSE), f_strict)
+  expect_identical(strictly(f_strict, .warn_missing = NULL), f_strict)
+})
+
+test_that(".warn_missing value does not change checks", {
+  f0 <- function(x, y, z = 1, ...) x + y + z
+  f1 <- strictly(f0,
+                 list("x not numeric" ~ x, "y not numeric" ~ y) ~ is.numeric)
+
+  # .warn_missing = FALSE doesn't change checks
+  f1_warn_false <- strictly(f1, .warn_missing = FALSE)
+
+  set.seed(1)
+  args <- lapply(1:10, function(.) runif(2))
+  for (arg in args) {
+    out <- f0(arg[[1L]], arg[[2L]])
+    # Function evaluated normally if checks pass
+    expect_equal(f1(arg[[1L]], arg[[2L]]), out)
+    expect_equal(f1_warn_false(arg[[1L]], arg[[2L]]), out)
+  }
+
+  nonnumeric <- list(NULL, "A", log, ls, mtcars, quote(ls), TRUE, FALSE, NA)
+  for (val in nonnumeric) {
+    # Checks performed
+    expect_error(f1(x = val, y = 1), "x not numeric")
+    expect_error(f1_warn_false(x = val, y = 1), "x not numeric")
+    expect_error(f1(y = val, x = 1), "y not numeric")
+    expect_error(f1_warn_false(y = val, x = 1), "y not numeric")
+  }
+
+  # .warn_missing = TRUE doesn't change checks
+  f1_warn_true <- strictly(f1, .warn_missing = TRUE)
+
+  set.seed(1)
+  args <- lapply(1:10, function(.) runif(2))
+  for (arg in args) {
+    out <- f0(arg[[1L]], arg[[2L]])
+
+    expect_equal(f1_warn_true(arg[[1L]], arg[[2L]]), out)
+  }
+
+  for (val in nonnumeric) {
+    # Checks performed
+    expect_error(f1_warn_true(x = val, y = 1), "x not numeric")
+    expect_error(f1_warn_true(y = val, x = 1), "y not numeric")
+  }
+
+  # Check for missing arguments performed
+  expect_warning(purrr::safely(f1_warn_true)(x = 1),
+                 "Missing required argument\\(s\\): y")
+  expect_warning(purrr::safely(f1_warn_true)(y = 1),
+                 "Missing required argument\\(s\\): x")
+})
