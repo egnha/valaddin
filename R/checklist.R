@@ -58,6 +58,7 @@ is_lhs_checkitem <- function(x) {
 
 is_flist <- function(x) {
   is.list(x) &&
+    length(x) &&
     all(purrr::map_lgl(x, function(.) {
       lhs <- lazyeval::f_eval_lhs(.)
       purrr::is_formula(.) && (is.null(lhs) || purrr::is_scalar_character(lhs))
