@@ -51,17 +51,25 @@ is_rhs_function <- function(x) {
   is_lambda(lazyeval::f_rhs(x)) || is.function(lazyeval::f_eval_rhs(x))
 }
 
+# To check that a formula is onesided, it is not enough to check
+# is.null(lazyeval::f_eval_lhs(x)), for both NULL ~ x and ~x have NULL lhs.
+is_onesided <- function(x) {
+  length(x) == 2L
+}
+
 is_lhs_checkitem <- function(x) {
   lhs <- lazyeval::f_eval_lhs(x)
-  is.null(lhs) || purrr::is_scalar_character(lhs) || is_flist(lhs)
+  is_onesided(x) || purrr::is_scalar_character(lhs) || is_flist(lhs)
 }
 
 is_flist <- function(x) {
   is.list(x) &&
     length(x) &&
     all(purrr::map_lgl(x, function(.) {
-      lhs <- lazyeval::f_eval_lhs(.)
-      purrr::is_formula(.) && (is.null(lhs) || purrr::is_scalar_character(lhs))
+      purrr::is_formula(.) && {
+        lhs <- lazyeval::f_eval_lhs(.)
+        is_onesided(.) || purrr::is_scalar_character(lhs)
+      }
     }))
 }
 
