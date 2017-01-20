@@ -38,6 +38,10 @@
 #' is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
 #' @name checklist
 is_checklist <- function(x) {
+  tryCatch(is_checklist_(x), error = function(e) FALSE)
+}
+
+is_checklist_ <- function(x) {
   if (is.list(x)) all(purrr::map_lgl(x, is_check_formula)) else FALSE
 }
 
