@@ -6,7 +6,7 @@ unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
   if (!is.null(.lhs)) {
     names(q) <- paste(.lhs, encodeString(.arg_nm, quote = "`"), sep = ": ")
   } else {
-    names(q) <- rep("", length(q))
+    names(q) <- character(length(q))
   }
 
   q
