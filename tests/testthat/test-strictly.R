@@ -1,6 +1,6 @@
 context("Strictly")
 
-test_that("strictly() throws error if .f is not a closure", {
+test_that("error raised if .f is not a closure", {
   errmsg <- "`.f` not an interpreted function"
   bad_fns <- list(NULL, NA, log, 1, "A", quote(ls))
 
@@ -9,7 +9,7 @@ test_that("strictly() throws error if .f is not a closure", {
   }
 })
 
-test_that("strictly() throws error if .warn_missing is not NULL/TRUE/FALSE", {
+test_that("error raised if .warn_missing is not NULL/TRUE/FALSE", {
   f <- function(x) NULL
 
   # No error if .warn_missing NULL/TRUE/FALSE
@@ -25,7 +25,45 @@ test_that("strictly() throws error if .warn_missing is not NULL/TRUE/FALSE", {
   }
 })
 
-test_that("strictly() throws error if .checklist is not a valid checklist", {})
+test_that("error raised if .checklist is an invalid checklist", {
+  f <- function(x, y = 1, ...) NULL
+
+  errmsg <- "Invalid argument checks"
+  bad_chk <- list(
+    NULL ~ is.numeric,
+    x ~ is.numeric,
+    log ~ is.numeric,
+    log(x) ~ is.numeric,
+    log(1) ~ is.numeric,
+    {~x} ~ is.numeric,
+    as.name("not_a_string") ~ is.numeric,
+    list() ~ is.numeric,
+    list(x) ~ is.numeric,
+    list(x, ~y) ~ is.numeric,
+    list(1 ~ x) ~ is.numeric,
+    list(log ~ x) ~ is.numeric,
+    list(NULL ~ x) ~ is.numeric,
+    list(NA ~ x) ~ is.numeric,
+    list(as.name("not_a_string") ~ x) ~ is.numeric,
+    list(list(~x)) ~ is.numeric,
+    list(list("x not numeric" ~ x)) ~ is.numeric,
+    ~ "not_a_function",
+    ~ as.name("not_a_function"),
+    ~ NULL,
+    ~ NA,
+    ~ ~{.},
+    is.numeric ~ x,
+    list(~is.numeric) ~ x,
+    ~ is.numeric(x)
+  )
+  for (chk in bad_chk) {
+    expect_error(strictly(f, chk), errmsg)
+    expect_error(strictly(f, .checklist = list(chk)), errmsg)
+    expect_error(strictly(f, ~{. > 0}, .checklist = list(chk)), errmsg)
+    expect_error(strictly(f, chk, .checklist = list(~{. > 0})), errmsg)
+    expect_error(strictly(f, .checklist = list(~{. > 0}, chk)), errmsg)
+  }
+})
 
 test_that("function is unchanged if no checks and .warn_missing is NULL", {
   for (args in args_list) {
