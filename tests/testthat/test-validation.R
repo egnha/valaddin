@@ -154,7 +154,24 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {
   }
 })
 
-test_that("named checks in checklist formula use custom messages", {})
+test_that("named checks in checklist formula use custom messages", {
+  has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
+  fs <- lapply(args_list[has_xy], pass_args)
+
+  errmsg <- "`y` not numeric"
+  chklist <- list(list(~x, errmsg ~ y) ~ is.numeric)
+
+  non_numeric <- list(NULL, NA, "string", TRUE, sin, quote({cat("Ho!")}))
+  for (f in fs) {
+    f_strict <- strictly(f, .checklist = chklist)
+    for (y in non_numeric) {
+      args <- list(x = 0, y = y)
+      expect_error(do.call(f_strict, args, quote = TRUE), errmsg)
+      expect_n_errors(0, f_strict, args, "FALSE")
+      expect_n_errors(1, f_strict, args, errmsg)
+    }
+  }
+})
 
 test_that("predicate function of list-argument applies to argument lists", {
   f <- pass_args(alist(x = , y = , z = , ... = ))
