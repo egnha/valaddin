@@ -277,5 +277,3 @@ test_that("check-eval error if check-formula variable not function variable", {
                     f_strict, args, "Error evaluating check")
   }
 })
-
-test_that("same error response if called with do.call()", {})
