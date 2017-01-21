@@ -26,16 +26,6 @@ nomen <- function(sig) {
   )
 }
 
-#' Deparse a language object as a single string
-#'
-#' @param x Language object.
-#' @return String.
-#' @details Used in validation check template, must therefore be exported.
-#' @keywords internal
-deparse_collapse <- function(x) {
-  paste(trimws(deparse(x), which = "both"), collapse = "")
-}
-
 #' Enumerate a character vector as a string
 #'
 #' @param x Character vector.
@@ -46,7 +36,7 @@ deparse_collapse <- function(x) {
 enumerate_many <- function(x, many = 2L) {
   if (length(x) >= many) {
     paste(
-      purrr::map_chr(seq_along(x), function(i) sprintf("[%d] %s\n", i, x[[i]])),
+      purrr::map_chr(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]])),
       collapse = ""
     )
   } else {

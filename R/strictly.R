@@ -12,11 +12,15 @@ unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
   q
 }
 
+expr_lambda <- function(body) {
+  call("function", pairlist(. = substitute()), body)
+}
+
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
   if (is_lambda(p)) {
     predicate <- lambda(p, .env)
-    p_symb    <- substitute(purrr::as_function(~x), list(x = p))
+    p_symb    <- expr_lambda(p)
   } else {
     predicate <- lazyeval::f_eval_rhs(.chk)
     p_symb    <- p
@@ -28,10 +32,9 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   } else {
     unfurl_args(lhs, .nm, .symb, .env)
   }
-  string <- purrr::map_chr(q, function(.) {
-    expr <- substitute(f(x), list(f = p_symb, x = lazyeval::f_rhs(.)))
-    deparse_collapse(expr)
-  })
+  string <- purrr::map_chr(q, function(.)
+    sprintf(string_funexpr(p_symb), deparse_collapse(lazyeval::f_rhs(.)))
+  )
   is_empty <- names(q) == ""
   names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
 
