@@ -76,15 +76,13 @@ test_that("one-sided formula produces global check", {
   # Error evaluating check because of invalid input types
   args <- list(1, "y", v = 0)
 
-  expect_error(do.call(f_pos, args), "FALSE[^\n]*?is\\.numeric\\(y\\)")
-  expect_error(do.call(f_pos, args),
-               "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(z\\)")
-  expect_error(do.call(f_pos, args),
-               "FALSE[^\n]*?\\(\\~\\{\\. > 0\\}\\)\\)\\(v\\)")
-  expect_error(do.call(f_pos, args),
-               "Error evaluating check.*?is\\.numeric\\(u\\)")
-  expect_error(do.call(f_pos, args),
-               "Error evaluating check.*?\\(\\~\\{\\. > 0\\}\\)\\)\\(u\\)")
+  expect_error(do.call("f_pos", args), "FALSE[^\n]*?is\\.numeric\\(y\\)")
+  expect_error(do.call("f_pos", args),
+               "FALSE[^\n]*?function\\(.\\) \\{\\. > 0\\}\\)\\(z\\)")
+  expect_error(do.call("f_pos", args),
+               "FALSE[^\n]*?function\\(.\\) \\{\\. > 0\\}\\)\\(v\\)")
+  expect_error(do.call("f_pos", args),
+               "Error evaluating check.*?\\{\\. > 0\\}\\)\\(u\\)")
   # No other errors
   expect_n_errors(3, f_pos, args, "FALSE")
   expect_n_errors(2, f_pos, args, "Error evaluating check")
@@ -122,13 +120,13 @@ test_that("string formula produces global check with message", {
   # Error evaluating check because of invalid input types
   args <- list(1, "y", v = 0)
 
-  expect_error(do.call(f_pos, args), "Not numeric: `y`")
-  expect_error(do.call(f_pos, args), "Not positive: `z`")
-  expect_error(do.call(f_pos, args), "Not positive: `v`")
-  expect_error(do.call(f_pos, args),
+  expect_error(do.call("f_pos", args), "Not numeric: `y`")
+  expect_error(do.call("f_pos", args), "Not positive: `z`")
+  expect_error(do.call("f_pos", args), "Not positive: `v`")
+  expect_error(do.call("f_pos", args),
                "Error evaluating check.*?is\\.numeric\\(u\\)")
-  expect_error(do.call(f_pos, args),
-               "Error evaluating check.*?\\(\\~\\{\\. > 0\\}\\)\\)\\(u\\)")
+  expect_error(do.call("f_pos", args),
+               "Error evaluating check.*?function\\(\\.\\) \\{\\. > 0\\}\\)\\(u\\)")
   # No other errors
   expect_n_errors(1, f_pos, args, "Not numeric")
   expect_n_errors(2, f_pos, args, "Not positive")
