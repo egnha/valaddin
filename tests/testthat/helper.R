@@ -1,5 +1,33 @@
-suppressMessages(library(stringr))
-suppressMessages(library(purrr))
+library(stringr, warn.conflicts = FALSE)
+library(purrr, warn.conflicts = FALSE)
+
+bad_checks <- list(
+  NULL ~ is.numeric,
+  x ~ is.numeric,
+  log ~ is.numeric,
+  log(x) ~ is.numeric,
+  log(1) ~ is.numeric,
+  {~x} ~ is.numeric,
+  as.name("not_a_string") ~ is.numeric,
+  list() ~ is.numeric,
+  list(x) ~ is.numeric,
+  list(x, ~y) ~ is.numeric,
+  list(1 ~ x) ~ is.numeric,
+  list(log ~ x) ~ is.numeric,
+  list(NULL ~ x) ~ is.numeric,
+  list(NA ~ x) ~ is.numeric,
+  list(as.name("not_a_string") ~ x) ~ is.numeric,
+  list(list(~x)) ~ is.numeric,
+  list(list("x not numeric" ~ x)) ~ is.numeric,
+  ~ "not_a_function",
+  ~ as.name("not_a_function"),
+  ~ NULL,
+  ~ NA,
+  ~ ~{.},
+  is.numeric ~ x,
+  list(~is.numeric) ~ x,
+  ~ is.numeric(x)
+)
 
 args_list <- list(
   alist(),

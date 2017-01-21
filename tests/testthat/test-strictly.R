@@ -29,34 +29,8 @@ test_that("error raised if .checklist is an invalid checklist", {
   f <- function(x, y = 1, ...) NULL
 
   errmsg <- "Invalid argument checks"
-  bad_chk <- list(
-    NULL ~ is.numeric,
-    x ~ is.numeric,
-    log ~ is.numeric,
-    log(x) ~ is.numeric,
-    log(1) ~ is.numeric,
-    {~x} ~ is.numeric,
-    as.name("not_a_string") ~ is.numeric,
-    list() ~ is.numeric,
-    list(x) ~ is.numeric,
-    list(x, ~y) ~ is.numeric,
-    list(1 ~ x) ~ is.numeric,
-    list(log ~ x) ~ is.numeric,
-    list(NULL ~ x) ~ is.numeric,
-    list(NA ~ x) ~ is.numeric,
-    list(as.name("not_a_string") ~ x) ~ is.numeric,
-    list(list(~x)) ~ is.numeric,
-    list(list("x not numeric" ~ x)) ~ is.numeric,
-    ~ "not_a_function",
-    ~ as.name("not_a_function"),
-    ~ NULL,
-    ~ NA,
-    ~ ~{.},
-    is.numeric ~ x,
-    list(~is.numeric) ~ x,
-    ~ is.numeric(x)
-  )
-  for (chk in bad_chk) {
+
+  for (chk in bad_checks) {
     expect_error(strictly(f, chk), errmsg)
     expect_error(strictly(f, .checklist = list(chk)), errmsg)
     expect_error(strictly(f, ~{. > 0}, .checklist = list(chk)), errmsg)
