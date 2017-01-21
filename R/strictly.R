@@ -12,6 +12,10 @@ unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
   q
 }
 
+lambda <- function(p, env) {
+  purrr::as_function(lazyeval::f_new(p, env = env))
+}
+
 expr_lambda <- function(body) {
   call("function", pairlist(. = substitute()), body)
 }

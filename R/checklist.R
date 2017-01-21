@@ -55,6 +55,11 @@ is_rhs_function <- function(x) {
   is_lambda(lazyeval::f_rhs(x)) || is.function(lazyeval::f_eval_rhs(x))
 }
 
+# Like magrittr, capture '{...}' as anonymous function
+is_lambda <- function(x) {
+  is.call(x) && identical(x[[1L]], as.symbol("{"))
+}
+
 # To check that a formula is onesided, it is not enough to check
 # is.null(lazyeval::f_eval_lhs(x)), for both NULL ~ x and ~x have NULL lhs.
 is_onesided <- function(x) {
@@ -75,13 +80,4 @@ is_flist <- function(x) {
         is_onesided(.) || purrr::is_scalar_character(lhs)
       }
     }))
-}
-
-# Like magrittr, capture '{...}' as anonymous function
-is_lambda <- function(x) {
-  is.call(x) && identical(x[[1L]], as.symbol("{"))
-}
-
-lambda <- function(p, env) {
-  purrr::as_function(lazyeval::f_new(p, env = env))
 }
