@@ -181,12 +181,17 @@ checks <- list(
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
 #' @export
-nonstrictly <- function(..f) {
-  if (!is_strict_closure(..f)) {
-    stop("Argument not a strictly applied function", call. = FALSE)
-  }
+nonstrictly <- function(..f, quiet = FALSE) {
+  if (!purrr::is_function(..f)) {
+    stop("Argument not an interpreted function", call. = FALSE)
+  } else if (is_strict_closure(..f)) {
+    strict_core(..f)
+  } else {
+    if (!quiet)
+      warning("Argument not a strictly applied function", call. = FALSE)
 
-  strict_core(..f)
+    ..f
+  }
 }
 
 #' @export
