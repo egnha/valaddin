@@ -1,4 +1,4 @@
-#' valaddin — Functional Input Validation
+#' valaddin: Validate Function Arguments
 #'
 #' The valaddin package provides a functional operator, \code{strictly()}, that
 #' augments functions with input validation. You supply a function \code{f}
