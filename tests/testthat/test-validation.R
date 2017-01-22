@@ -279,9 +279,9 @@ test_that("check-eval error if check-formula variable not function variable", {
 })
 
 test_that("error raised if check references non-existent argument", {
-  f <- function(x, ...)
+  f <- function(x, ...) NULL
   f_strict <- strictly(f, list(~ x, ~ y) ~ is.numeric)
 
   expect_error(f_strict(x = 1),
-               "Error evaluating check[^\n]*?argument \"y\" is missing")
+               "Error evaluating check[^\n]*?object \'y\' not found")
 })
