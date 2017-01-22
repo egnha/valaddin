@@ -8,7 +8,7 @@
 #' @return \code{is_check_formula(x)}, resp. \code{is_checklist(x)}, returns
 #'   \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
 #'   check formula, resp. checklist.
-#' @seealso \link{strictly()}, for information on the specificaton and use of
+#' @seealso \code{\link{strictly}}, for information on the specificaton and use of
 #'   check formulae.
 #' @examples
 #' # Valid checklist

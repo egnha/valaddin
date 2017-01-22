@@ -126,4 +126,7 @@ secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
 all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 secant_right2(log, 1, .9)  # Error (as before)
 }
+\seealso{
+\code{\link{checklist}}, \code{\link{components}}
+}
 

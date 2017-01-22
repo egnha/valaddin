@@ -209,6 +209,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
 #'   signature, environment, and attributes of \code{.f} are preserved.
 #'   \cr\cr
 #'   \code{nonstrictly()} returns the original function without checks.
+#' @seealso \code{\link{checklist}}, \code{\link{components}}
 #' @name strictly
 NULL
 

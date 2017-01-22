@@ -27,28 +27,28 @@
 #' strict_checks(f_stc)                                # 4 x 3 data frame
 #' strict_args(f_stc)                                  # NULL
 #' strict_args(strictly(f_stc, .warn_missing = TRUE))  # "x" "y"
-#' @name properties
+#' @name components
 NULL
 
-#' @rdname properties
+#' @rdname components
 #' @export
 is_strict_closure <- function(x) {
   purrr::is_function(x) && inherits(x, "strict_closure")
 }
 
-#' @rdname properties
+#' @rdname components
 #' @export
 strict_core <- function(x) {
   environment(environment(x)$.fn)$.f
 }
 
-#' @rdname properties
+#' @rdname components
 #' @export
 strict_checks <- function(x) {
   environment(x)$.chks
 }
 
-#' @rdname properties
+#' @rdname components
 #' @export
 strict_args <- function(x) {
   environment(environment(x)$.warn)$.ref_args
