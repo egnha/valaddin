@@ -1,9 +1,9 @@
 Package: valaddin
-Title: Functional Argument Validation
-Version: 0.0.0.9999
+Title: Validate function arguments
+Version: 0.1.0.9999
 Authors@R: person("Eugene", "Ha", , email = "eha@posteo.de", c("aut", "cre"))
-Description: Validate the inputs of your function, post factum. This package
-    provides a set of basic tools to add argument checks in a functional manner.
+Description: This package provides a set of basic tools to transform functions 
+    to functions with input validation checks.
 License: MIT + file LICENSE
 LazyData: true
 Imports:
