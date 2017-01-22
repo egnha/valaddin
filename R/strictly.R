@@ -145,6 +145,13 @@ strict_closure <- function(.f) {
   structure(.f, class = c("strict_closure", class(.f)))
 }
 
+checks <- list(
+  list("`.f` not an interpreted function" ~ .f) ~
+    purrr::is_function,
+  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
+  {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)}
+)
+
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
@@ -189,29 +196,95 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   strict_closure(with_sig(f, sig, .attrs = attributes(.f)))
 }
 
-checks <- list(
-  list("`.f` not an interpreted function" ~ .f) ~
-    purrr::is_function,
-  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
-    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)}
-)
+#' Apply a function strictly
+#'
+#' \code{strictly()} transforms a function to a function with input validation
+#' checks. \code{nonstrictly()} undoes the application of \code{strictly()}, by
+#' returning the original function, without checks.
+#'
+#' @return \code{strictly()} returns the function \code{.f} unchanged, if
+#'   neither \code{.warn_missing} nor the check formula(e) are applicable to
+#'   \code{.f}; otherwise, a function of class \code{"strict_closure"} is
+#'   returned. The argument signature, environment, and attributes of \code{.f}
+#'   are preserved.\cr\cr
+#'   \code{nonstrictly()} returns the original function without checks.
+#' @name strictly
+NULL
 
+#' @rdname strictly
 #' @export
+#' @param .f Interpreted function, i.e., function of type \code{"closure"}.
+#' @param ... Check formula(e); see "Details".
+#' @param .checklist List of check formulae.
+#' @param .warn_missing \code{TRUE} or \code{FALSE}: Should the absence of
+#'   required arguments be checked? (A "required argument" is a (named) argument
+#'   without default value.) This question is disregarded if
+#'   \code{.warn_missing} is \code{NULL}.
+#' @details Input validation checks are specified by formulae conforming to one
+#'   of two types:
+#'   \itemize{
+#'     \item \strong{Global check formulae}:\cr
+#'       \code{~ <predicate>} (onesided),\cr
+#'       \code{<string> ~ <predicate>}
+#'     \item \strong{Local check formulae}:\cr
+#'       \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
+#'   }
+#'   where \code{<predicate>} is a predicate function of a single argument,
+#'   i.e., a function that returns either \code{TRUE} or \code{FALSE}.
+#'   \cr\cr
+#'   A \emph{global check formula} asserts that the evaluation of
+#'   \code{<predicate>} is \code{TRUE} for each (named) argument of \code{.f}.
+#'   Each argument for which the \code{<predicate>} fails (i.e., evaluates to
+#'   \code{FALSE}) produces an error message, which is auto-generated unless a
+#'   custom error message is supplied by specifying the string \code{<string>}.
+#'   \cr\cr
+#'   Example: the assertion that all (named) arguments of a function must be
+#'   numerical can be enforced by the check formula \code{~ is.numeric}, or
+#'   \code{"Not numeric" ~ is.numeric}, if the custom error message \code{"Not
+#'   numeric"} is to be used.
+#'   \cr\cr
+#'   A \emph{local check formula} makes argument-specific assertions. Each
+#'   "check item" \code{<check_item>} is a formula of the form \code{~
+#'   <expression>} (onesided) or \code{<string> ~ <expression>}; it makes the
+#'   assertion that the \code{<predicate>} evaluates to \code{TRUE} for the
+#'   expression \code{<expression>}. As for global check formulae, each check
+#'   item for which the \code{<predicate>} fails produces an error message,
+#'   which is auto-generated unless a custom error message is supplied by a
+#'   string as part of the left-hand side of the check item (formula).
+#'   \cr\cr
+#'   Example: the assertion that \code{x} and \code{y} must differ for the
+#'   function \code{function(x, y) 1 / (x - y)} can be enforced by the local
+#'   check formula \code{list(~ x - y) ~ function(.) abs(.) > 0}, or
+#'   \code{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}, if the
+#'   custom error message \code{"x, y must differ"} is to be used.
+#'   \cr\cr
+#'   Check formulae that are specified individually as part of the \code{...}
+#'   argument of \code{strictly()} are combined with check formulae of the
+#'   list-argument \code{.checklist}.
+#' @examples
+#'
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
-#' @export
-nonstrictly <- function(..f, quiet = FALSE) {
-  if (!purrr::is_function(..f)) {
-    stop("Argument not an interpreted function", call. = FALSE)
-  } else if (is_strict_closure(..f)) {
-    strict_core(..f)
+nonstrictly_ <- function(.f, .quiet = FALSE) {
+  if (is_strict_closure(.f)) {
+    strict_core(.f)
   } else {
-    if (!quiet)
+    if (!.quiet) {
       warning("Argument not a strictly applied function", call. = FALSE)
-
-    ..f
+    }
+    .f
   }
 }
+
+#' @rdname strictly
+#' @export
+#' @param quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
+#'   \code{.f} is not a strictly applied function?
+nonstrictly <- strictly_(
+  nonstrictly_,
+  list("Argument not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("`.quiet` is not TRUE/FALSE" ~ .quiet) ~ {is_true(.) || is_false(.)}
+)
 
 #' @export
 print.strict_closure <- function(x) {
