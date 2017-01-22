@@ -204,33 +204,36 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
 #'
 #' @return \code{strictly()} returns the function \code{.f} unchanged, if
 #'   neither \code{.warn_missing} nor the check formula(e) are applicable to
-#'   \code{.f}; otherwise, a function of class \code{"strict_closure"} is
-#'   returned. The argument signature, environment, and attributes of \code{.f}
-#'   are preserved.\cr\cr
+#'   \code{.f} (for example, if \code{.f} has no named arguments); otherwise, a
+#'   function of class \code{"strict_closure"} is returned. The argument
+#'   signature, environment, and attributes of \code{.f} are preserved.
+#'   \cr\cr
 #'   \code{nonstrictly()} returns the original function without checks.
 #' @name strictly
 NULL
 
 #' @rdname strictly
 #' @export
-#' @param .f Interpreted function, i.e., function of type \code{"closure"}.
+#' @param .f Interpreted function, i.e., function of type \code{"closure"}, not
+#'   a primitive function.
 #' @param ... Check formula(e); see "Details".
 #' @param .checklist List of check formulae.
 #' @param .warn_missing \code{TRUE} or \code{FALSE}: Should the absence of
 #'   required arguments be checked? (A "required argument" is a (named) argument
 #'   without default value.) This question is disregarded if
 #'   \code{.warn_missing} is \code{NULL}.
-#' @details Input validation checks are specified by formulae conforming to one
-#'   of two types:
+#' @details
+#'   \strong{Check formulae} — Input validation checks are specified by formulae
+#'   conforming to one of two types:
 #'   \itemize{
 #'     \item \strong{Global check formulae}:\cr
-#'       \code{~ <predicate>} (onesided),\cr
+#'       \code{~ <predicate>} (one-sided),\cr
 #'       \code{<string> ~ <predicate>}
 #'     \item \strong{Local check formulae}:\cr
 #'       \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
 #'   }
-#'   where \code{<predicate>} is a predicate function of a single argument,
-#'   i.e., a function that returns either \code{TRUE} or \code{FALSE}.
+#'   where \code{<predicate>} is a predicate function, i.e., a unary function
+#'   that returns either \code{TRUE} or \code{FALSE}.
 #'   \cr\cr
 #'   A \emph{global check formula} asserts that the evaluation of
 #'   \code{<predicate>} is \code{TRUE} for each (named) argument of \code{.f}.
@@ -245,7 +248,7 @@ NULL
 #'   \cr\cr
 #'   A \emph{local check formula} makes argument-specific assertions. Each
 #'   "check item" \code{<check_item>} is a formula of the form \code{~
-#'   <expression>} (onesided) or \code{<string> ~ <expression>}; it makes the
+#'   <expression>} (one-sided) or \code{<string> ~ <expression>}; it makes the
 #'   assertion that the \code{<predicate>} evaluates to \code{TRUE} for the
 #'   expression \code{<expression>}. As for global check formulae, each check
 #'   item for which the \code{<predicate>} fails produces an error message,
@@ -261,8 +264,49 @@ NULL
 #'   Check formulae that are specified individually as part of the \code{...}
 #'   argument of \code{strictly()} are combined with check formulae of the
 #'   list-argument \code{.checklist}.
+#'   \cr\cr
+#'   \strong{Anonymous predicate functions} — Following the
+#'   \link[magrittr]{magrittr} package, an anonymous (predicate) function of a
+#'   single argument \code{.} can be specified by placing the body of such a
+#'   function within curly braces \code{\{ \dots \}}.
+#'   \cr\cr
+#'   Example: the (onsided, global) check formula \code{~function(.) {. > 0}} is
+#'   equivalent to the check formula \code{~{. > 0}}.
 #' @examples
+#' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 #'
+#' # Ensure that `f` is a function
+#' secant_stc <- strictly(secant, list("`f` not a function" ~ f) ~ is.function)
+#' secant_stc(log, 1, .1)    # 0.9531018
+#' secant_stc("log", 1, .1)  # Error: "`f` not a function"
+#'
+#' # Ensure that `x` and `dx` are numerical (possibly vectors)
+#' secant_vec <- strictly(secant_stc, list(~x, ~dx) ~ is.numeric)
+#' secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
+#' secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
+#' secant_vec(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
+#' secant_vec("log", "1", .1)    # Two errors
+#'
+#' # Ensure that `dx` is a numerical scalar
+#' secant_scalar <- strictly(secant_stc, list(~dx) ~ purrr::is_scalar_numeric)
+#' secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
+#' secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
+#' secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
+#'
+#' # nonstrictly() recovers the underlying function
+#' identical(nonstrictly(secant_vec), secant)
+#'
+#' # Use purrr::lift() for predicate functions with multi-argument dependencies
+#' f <- function(f, l, r) secant(f, l, dx = r - l)
+#' is_monotone <- function(x, y) y - x > 0
+#' secant_right <- strictly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
+#' secant_right(log, 1, 1.1)  # 0.9531018
+#' secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
+#'
+#' # Alternatively, secant_right() can be implement with a unary check
+#' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
+#' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
+#' secant_right2(log, 1, .9)  # Error (as before)
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
 nonstrictly_ <- function(.f, .quiet = FALSE) {
@@ -279,7 +323,7 @@ nonstrictly_ <- function(.f, .quiet = FALSE) {
 #' @rdname strictly
 #' @export
 #' @param quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
-#'   \code{.f} is not a strictly applied function?
+#'   \code{.f} is not a function created by \code{strictly()}?
 nonstrictly <- strictly_(
   nonstrictly_,
   list("Argument not an interpreted function" ~ .f) ~ purrr::is_function,
