@@ -16,10 +16,10 @@ Suggests:
 RoxygenNote: 5.0.1
 Collate:
     'checklist.R'
+    'components.R'
     'deparse.R'
     'functions.R'
     'promises.R'
-    'properties.R'
     'utils.R'
     'strictly.R'
     'valaddin.R'

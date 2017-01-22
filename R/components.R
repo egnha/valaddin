@@ -1,7 +1,12 @@
-#' Properties of a strict closure
+#' Components of a strict closure
+#'
+#' Helper functions are provided to extract
+#'
 #'
 #' @param ..f Strict closure, i.e., interpreted function of class
-#'   \code{"strict_closure"}.
+#'   \code{"strict_closure"}
+#' @examples
+#'
 #' @name properties
 NULL
 

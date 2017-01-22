@@ -1,4 +1,4 @@
-context("Properties of strict closures")
+context("Components")
 
 fs <- lapply(args_list, pass_args)
 has_args <- purrr::map_lgl(args_list, ~ length(nomen(.)$nm) > 0L)
