@@ -112,7 +112,7 @@ secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)
 secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
 
 # nonstrictly() recovers the underlying function
-identical(nonstrictly(secant_vec), secant)
+identical(nonstrictly(secant_vec), secant)  # TRUE
 
 # Use purrr::lift() for predicate functions with multi-argument dependencies
 f <- function(f, l, r) secant(f, l, dx = r - l)
