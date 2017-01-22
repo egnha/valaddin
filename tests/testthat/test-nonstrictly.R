@@ -1,10 +1,8 @@
 context("Nonstrictly")
 
 fs <- lapply(args_list, pass_args)
-has_args <- purrr::map_lgl(args_list, ~ length(nomen(.)$nm) > 0L)
-fs_with_args <- fs[has_args]
 
-test_that("nonstrictly() fails if function is not a strict closure", {
+test_that("nonstrictly() raised warning if function not a strict closure", {
   for (f in fs) {
     expect_warning(nonstrictly(f, quiet = FALSE),
                    "Argument not a strictly applied function")
