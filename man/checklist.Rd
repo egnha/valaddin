@@ -4,7 +4,7 @@
 \alias{checklist}
 \alias{is_check_formula}
 \alias{is_checklist}
-\title{Is a checklist correctly formed?}
+\title{Is a formula a check formula?}
 \usage{
 is_checklist(x)
 
@@ -14,32 +14,19 @@ is_check_formula(x)
 \item{x}{R object.}
 }
 \value{
-\code{TRUE} or \code{FALSE}, according to whether \code{x} is a valid
-  checklist.
+\code{is_check_formula(x)}, resp. \code{is_checklist(x)}, returns
+  \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
+  check formula, resp. checklist.
 }
 \description{
+\code{is_check_formula(x)} checks whether \code{x} is a check formula, while
 \code{is_checklist(x)} checks whether \code{x} is a \emph{checklist}, i.e., a
-list of argument-validation checks. It does not verify logical consistency of
-the checks.
+list of check formulae. Neither function verifies logical consistency.
 }
 \details{
-A checklist is a list of \emph{check
-formulae} \code{q ~ p}, where
-\itemize{
-  \item \code{p} is a predicate function of one argument, which may be
-    specified anonymously as a function body between \code{\{...\}} with
-    \code{.} (or \code{.x}) as the argument (cf.
-    \code{purrr::\link[purrr]{as_function}()}, and the example, below),
-  \item \code{q} is a \emph{check item} for \code{p}.
-}
-A check item is either empty, a string (failure message), or a list of
-formulae of the form \code{~<expr>} (auto-generated failure message) or
-\code{<string> ~ <expr>} (custom failure message). The predicate \code{p}
-performs its check by being called on \code{<expr>}.
-
-\code{is_checklist()} is used to check the validity of the checks passed to
-\code{\link{strictly}()}, either via \code{...} or the argument
-\code{.checklist}.
+If \code{is_check_formula()} cannot be evaluated on one of the
+  components of a list \code{x}, then \code{is_checklist(x)} returns
+  \code{FALSE}.
 }
 \examples{
 # Valid checklist
@@ -50,7 +37,7 @@ is_checklist(list(is.numeric ~ list(~ x)))        # Backwards
 is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
 }
 \seealso{
-\link{strictly}, for more information on the specificaton and use of
+\link{strictly()}, for information on the specificaton and use of
   check formulae.
 }
 
