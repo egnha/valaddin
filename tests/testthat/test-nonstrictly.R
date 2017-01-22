@@ -2,7 +2,7 @@ context("Nonstrictly")
 
 fs <- lapply(args_list, pass_args)
 
-test_that("nonstrictly() raised warning if function not a strict closure", {
+test_that("nonstrictly() raises warning if function not a strict closure", {
   for (f in fs) {
     expect_warning(nonstrictly(f, quiet = FALSE),
                    "Argument not a strictly applied function")
