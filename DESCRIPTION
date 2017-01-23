@@ -1,5 +1,5 @@
 Package: valaddin
-Title: Validate function arguments
+Title: Validate Function Arguments
 Version: 0.1.0.9999
 Authors@R: person("Eugene", "Ha", , email = "eha@posteo.de", c("aut", "cre"))
 Description: This package provides a set of basic tools to transform functions
