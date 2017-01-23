@@ -2,7 +2,7 @@ Package: valaddin
 Title: Validate function arguments
 Version: 0.1.0.9999
 Authors@R: person("Eugene", "Ha", , email = "eha@posteo.de", c("aut", "cre"))
-Description: This package provides a set of basic tools to transform functions 
+Description: This package provides a set of basic tools to transform functions
     to functions with input validation checks.
 License: MIT + file LICENSE
 LazyData: true
@@ -17,9 +17,9 @@ RoxygenNote: 5.0.1
 Collate:
     'checklist.R'
     'components.R'
+    'utils.R'
     'deparse.R'
     'functions.R'
     'promises.R'
-    'utils.R'
     'strictly.R'
     'valaddin.R'

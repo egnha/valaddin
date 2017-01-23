@@ -1,3 +1,6 @@
+#' @include utils.R
+NULL
+
 #' Deparse a language object as a single string
 #'
 #' @param x Language object.
