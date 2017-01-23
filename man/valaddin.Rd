@@ -4,7 +4,7 @@
 \name{valaddin}
 \alias{valaddin}
 \alias{valaddin-package}
-\title{valaddin — Validate Function Arguments}
+\title{valaddin — Validate Function Inputs}
 \description{
 The valaddin package provides a functional operator, \code{strictly()}, that
 augments functions with input validation. You supply a function \code{f}
