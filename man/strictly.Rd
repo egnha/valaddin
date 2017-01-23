@@ -63,7 +63,7 @@ without default value.) This question is disregarded if
   checks.
 }
 \description{
-\code{strictly()} transforms a function to a function with input validation
+\code{strictly()} transforms a function into a function with input validation
 checks. \code{nonstrictly()} undoes the application of \code{strictly()}, by
 returning the original function, without checks.
 }
