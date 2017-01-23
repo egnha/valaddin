@@ -26,13 +26,41 @@ without default value.) This question is disregarded if
 \code{.f} is not a function created by \code{strictly()}?}
 }
 \value{
-\code{strictly()} returns the function \code{.f} unchanged, if
-  neither \code{.warn_missing} nor the check formula(e) are applicable to
-  \code{.f} (for example, if \code{.f} has no named arguments); otherwise, a
-  function of class \code{"strict_closure"} is returned. The argument
-  signature, environment, and attributes of \code{.f} are preserved.
-  \cr\cr
-  \code{nonstrictly()} returns the original function without checks.
+\strong{\code{strictly()}} — If neither the check formulae nor the
+  switch \code{.warn_missing} are applicable to \code{.f}, then
+  \code{strictly()} simply returns \code{.f}. This is the case when \code{.f}
+  has no named arguments, i.e., \code{.f} has argument signature
+  \code{function()} or \code{function(...)}.
+
+  Otherwise, \code{strictly()} returns a function of class
+  \code{"strict_closure"}. This function behaves \emph{identically} to
+  \code{.f}, with the exception that it does input validation, as follows:
+  \itemize{
+    \item 1. Validation: Before \code{.f} is called, every check-formula
+    predicate is evaluated: for each named argument, in the case of a global
+    check formula, and for each check-item expression, in the case of a local
+    check formula. Every resulting value of \code{FALSE}, or failure to
+    evalute the predicate itself, is tabulated; these are the
+    \emph{validation errors}.
+
+    \item 2. Error reporting: If there are any validation errors, an error is
+    signaled listing them. Execution halts.
+
+    \item 3. Checks passed: If there are no validation errors, \code{.f} is
+    called on the supplied arguments.
+  }
+
+  \code{strictly()} preserves the argument signature of \code{.f}, along with
+  all its attributes (with the execption that the resulting class is
+  \code{"strict_closure"}, which inherits from the class of \code{.f}).
+
+  \emph{Technical note}: \code{strictly()} parsimoniously preserves the lazy
+  nature of function arguments, when possible. In particular, if all checks
+  pass, then any argument that is not involved in a check is passed to
+  \code{.f} as an unevaluated promise.
+
+\strong{\code{nonstrictly()}} — Returns the original function without
+  checks.
 }
 \description{
 \code{strictly()} transforms a function to a function with input validation
@@ -44,25 +72,25 @@ returning the original function, without checks.
   conforming to one of two types:
   \itemize{
     \item \strong{Global check formulae}:\cr
-      \code{~ <predicate>} (one-sided),\cr
-      \code{<string> ~ <predicate>}
+    \code{~ <predicate>} (one-sided),\cr
+    \code{<string> ~ <predicate>}
+
     \item \strong{Local check formulae}:\cr
-      \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
+    \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
   }
   where \code{<predicate>} is a predicate function, i.e., a unary function
   that returns either \code{TRUE} or \code{FALSE}.
-  \cr\cr
+
   A \emph{global check formula} asserts that the evaluation of
   \code{<predicate>} is \code{TRUE} for each (named) argument of \code{.f}.
   Each argument for which the \code{<predicate>} fails (i.e., evaluates to
   \code{FALSE}) produces an error message, which is auto-generated unless a
   custom error message is supplied by specifying the string \code{<string>}.
-  \cr\cr
-  Example: the assertion that all (named) arguments of a function must be
+  For example, the assertion that all (named) arguments of a function must be
   numerical can be enforced by the check formula \code{~ is.numeric}, or
   \code{"Not numeric" ~ is.numeric}, if the custom error message \code{"Not
   numeric"} is to be used.
-  \cr\cr
+
   A \emph{local check formula} makes argument-specific assertions. Each
   "check item" \code{<check_item>} is a formula of the form \code{~
   <expression>} (one-sided) or \code{<string> ~ <expression>}; it makes the
@@ -70,25 +98,23 @@ returning the original function, without checks.
   expression \code{<expression>}. As for global check formulae, each check
   item for which the \code{<predicate>} fails produces an error message,
   which is auto-generated unless a custom error message is supplied by a
-  string as part of the left-hand side of the check item (formula).
-  \cr\cr
-  Example: the assertion that \code{x} and \code{y} must differ for the
+  string as part of the left-hand side of the check item (formula). For
+  example, the assertion that \code{x} and \code{y} must differ for the
   function \code{function(x, y) 1 / (x - y)} can be enforced by the local
   check formula \code{list(~ x - y) ~ function(.) abs(.) > 0}, or
   \code{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}, if the
   custom error message \code{"x, y must differ"} is to be used.
-  \cr\cr
-  Check formulae that are specified individually as part of the \code{...}
-  argument of \code{strictly()} are combined with check formulae of the
+
+  Check formulae that are individually specified via the \code{...} argument
+  of \code{strictly()} are combined with check formulae provided via the
   list-argument \code{.checklist}.
-  \cr\cr
+
   \strong{Anonymous predicate functions} — Following the
   \link[magrittr]{magrittr} package, an anonymous (predicate) function of a
   single argument \code{.} can be specified by placing the body of such a
-  function within curly braces \code{\{ \dots \}}.
-  \cr\cr
-  Example: the (onsided, global) check formula \code{~function(.) {. > 0}} is
-  equivalent to the check formula \code{~{. > 0}}.
+  function within curly braces \code{\{ \dots \}}. For example, the (onsided,
+  global) check formula \code{~function(.) {. > 0}} is equivalent to the
+  check formula \code{~{. > 0}}.
 }
 \examples{
 secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
@@ -111,9 +137,6 @@ secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
 secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
 secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
 
-# nonstrictly() recovers the underlying function
-identical(nonstrictly(secant_vec), secant)  # TRUE
-
 # Use purrr::lift() for predicate functions with multi-argument dependencies
 f <- function(f, l, r) secant(f, l, dx = r - l)
 is_monotone <- function(x, y) y - x > 0
@@ -125,6 +148,9 @@ secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))
 secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
 all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 secant_right2(log, 1, .9)  # Error (as before)
+
+# nonstrictly() recovers the underlying function
+identical(nonstrictly(secant_vec), secant)  # TRUE
 }
 \seealso{
 \code{\link{checklist}}, \code{\link{components}}
