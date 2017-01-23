@@ -1,6 +1,6 @@
 # Valaddin
 
-*Valaddin* is a simple R package that provides a function, `strictly()`, that 
+*Valaddin* is a simple R package that provides a function `strictly()` that 
 enables you to transform a function into a function with input validation 
 checks.
 
@@ -11,8 +11,8 @@ This approach, while straightforward, can clutter up the main work of a function
 with admin; it spoils the fun in "function"" with the inconvenience of a
 security check.
 
-This package provides a set of basic tools to add argument checks in a
-functional manner.
+This package provides a set of basic tools to add argument checks in an 
+alternative functional manner that is handy for interactive use.
 
 ## Installation
 
@@ -121,12 +121,12 @@ see the package documentation `?valaddin::strictly`.
 ## Related packages
 
 * The [argufy](https://github.com/gaborcsardi/argufy) package takes a different 
-approach to input validation that uses 
+approach to input validation, using
 [roxygen](https://github.com/klutometis/roxygen) comments to specify checks.
 
 * The [ensurer](https://github.com/smbache/ensurer) package provides a means of 
 validating function _values_, along with a replacement for `function()` to build
-functions with type-validated arguments; valaddin complements ensurer.
+functions with type-validated arguments. valaddin complements ensurer.
 
 * [Types for R](https://github.com/jimhester/types) is a package that provides 
 type annotations for function arguments.
