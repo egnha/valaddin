@@ -12,7 +12,7 @@ with admin; it spoils the fun in "function" with the inconvenience of a
 security check.
 
 This package provides a set of basic tools to add argument checks in an 
-alternative functional manner that is handy for interactive use.
+alternative functional manner, which is especially handy for interactive use.
 
 ## Installation
 
