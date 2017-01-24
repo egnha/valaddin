@@ -16,6 +16,7 @@ Suggests:
     testthat,
     stringr,
     covr
+URL: https://github.com/egnha/valaddin
 RoxygenNote: 5.0.1
 Collate:
     'checklist.R'
