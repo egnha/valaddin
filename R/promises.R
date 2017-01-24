@@ -14,6 +14,7 @@
 #' @return The environment \code{env}, invisibly.
 #' @keywords internal
 #' @examples
+#' \dontrun{
 #' e0 <- new.env(parent = emptyenv())
 #' e0$x <- pi
 #' ls.str(e0)
@@ -28,6 +29,7 @@
 #'
 #' # But notice that `x + 1` was indeed bound as a promise, not a value
 #' ls.str(e)  # Error: could not find function "+"
+#' }
 lazy_assign <- function(.ll, .env) {
   for (x in .ll) {
     eval(substitute(

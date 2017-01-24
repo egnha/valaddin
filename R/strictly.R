@@ -299,6 +299,7 @@ NULL
 #'   check formula \code{~{. > 0}}.
 #'
 #' @examples
+#' \dontrun{
 #' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 #'
 #' # Ensure that `f` is a function
@@ -330,6 +331,10 @@ NULL
 #' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
 #' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 #' secant_right2(log, 1, .9)  # Error (as before)
+#'
+#' #' # nonstrictly() recovers the underlying function
+#' identical(nonstrictly(secant_vec), secant)  # TRUE
+#' }
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
 
 nonstrictly_ <- function(.f, .quiet = FALSE) {
@@ -346,16 +351,11 @@ nonstrictly_ <- function(.f, .quiet = FALSE) {
 #' @rdname strictly
 #' @export
 #'
-#' @param quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
+#' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
 #'   \code{.f} is not a function created by \code{strictly()}?
 #'
 #' @return \strong{\code{nonstrictly()}} — Returns the original function without
 #'   checks.
-#'
-#' @examples
-#'
-#' # nonstrictly() recovers the underlying function
-#' identical(nonstrictly(secant_vec), secant)  # TRUE
 nonstrictly <- strictly_(
   nonstrictly_,
   list("Argument not an interpreted function" ~ .f) ~ purrr::is_function,
@@ -363,7 +363,7 @@ nonstrictly <- strictly_(
 )
 
 #' @export
-print.strict_closure <- function(x) {
+print.strict_closure <- function(x, ...) {
   cat("<strict_closure>\n")
 
   cat("\n* Core function:\n")

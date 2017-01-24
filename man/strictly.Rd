@@ -22,7 +22,7 @@ required arguments be checked? (A "required argument" is a (named) argument
 without default value.) This question is disregarded if
 \code{.warn_missing} is \code{NULL}.}
 
-\item{quiet}{\code{TRUE} or \code{FALSE}: Should a warning be signaled if
+\item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning be signaled if
 \code{.f} is not a function created by \code{strictly()}?}
 }
 \value{
@@ -117,6 +117,7 @@ returning the original function, without checks.
   check formula \code{~{. > 0}}.
 }
 \examples{
+\dontrun{
 secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 
 # Ensure that `f` is a function
@@ -149,8 +150,9 @@ secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
 all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 secant_right2(log, 1, .9)  # Error (as before)
 
-# nonstrictly() recovers the underlying function
+#' # nonstrictly() recovers the underlying function
 identical(nonstrictly(secant_vec), secant)  # TRUE
+}
 }
 \seealso{
 \code{\link{checklist}}, \code{\link{components}}

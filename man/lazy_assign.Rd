@@ -27,6 +27,7 @@ The expression of each object should be a symbol, i.e., of type
   \code{"symbol"} not \code{"language"}.
 }
 \examples{
+\dontrun{
 e0 <- new.env(parent = emptyenv())
 e0$x <- pi
 ls.str(e0)
@@ -41,6 +42,7 @@ lapply(lapply(ls(e), as.symbol), function(symb)
 
 # But notice that `x + 1` was indeed bound as a promise, not a value
 ls.str(e)  # Error: could not find function "+"
+}
 }
 \keyword{internal}
 

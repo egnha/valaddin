@@ -7,6 +7,9 @@
 is_true  <- isTRUE
 is_false <- function(x) identical(FALSE, x)
 
+#' @importFrom utils head tail
+NULL
+
 #' Enumerate a character vector as a string
 #'
 #' @param x Character vector.
