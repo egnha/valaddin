@@ -118,8 +118,8 @@ barycentric_coord(.5, .6)
 The *purpose* of the positivity check on `x`, `y`, `1 - x - y` is to check 
 whether the point (x, y) lies in the triangle. This can be expressed more 
 directly with the use of a custom error message and a multi-argument checking
-function, facilitated by the `lift()` function from the
-[purrr](https://github.com/hadley/purrr) package (which enables a function to
+function, facilitated by the `lift()` function from the 
+[purrr](https://github.com/hadley/purrr) package (which enables a function to 
 accept its arguments as an argument list).
 
 ```R
@@ -127,8 +127,16 @@ library(purrr)
 
 is_inside <- function(x, y) {x >= 0 && y >= 0 && 1 - x - y >= 0}
 barycentric_coord <- bc %>%
-  strictly(~ is_number,
+  strictly("Not a number" ~ is_number,
            list("Point (x, y) not in triangle" ~ list(x, y)) ~ lift(is_inside))
+
+barycentric_coord(.5, .2)
+#> [1] 0.5 0.2 0.3
+
+barycentric_coord(.5, ". 2")
+#> Error: barycentric_coord(x = 0.5, y = ".2")
+#> 1) Not a number: `y`
+#> 2) Point (x, y) not in triangle
 
 barycentric_coord(.5, .6)
 #> Error: barycentric_coord(x = 0.5, y = 0.6)
