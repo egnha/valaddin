@@ -4,18 +4,8 @@
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
 
 *Valaddin* is a simple R package that provides a function `strictly()` that 
-enables you to transform a function into a function with input validation 
-checks.
-
-A common form of boilerplate code at the top of functions is argument checking:
-You make some checks on the arguments, signal a condition if any show-stopping
-checks fail, then move on to the meat of the function if everything is good.
-This approach, while straightforward, can clutter up the main work of a function
-with admin; it spoils the fun in "function" with the inconvenience of a
-security check.
-
-This package provides a set of basic tools to add argument checks in an 
-alternative functional manner, which is especially handy for interactive use.
+enables you to enhance a function with input validation checks, in a manner that
+is suitable for both interactive sessions and programmatic use.
 
 ## Installation
 
@@ -29,21 +19,20 @@ devtools::install_github("egnha/valaddin")
 
 ## Examples
 
-The following simple example shows how to use `strictly()` to "harden" a 
-function through the addition of input validation checks.
+The following simple example shows the use of `strictly()` to "harden" a 
+function through the (successive) addition of input validation checks.
 
-Consider the function `bc()` that computes the [barycentric 
+Consider the following function `bc()`, which computes the [barycentric 
 coordinates](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) of a 
-point (x, y) in the plane (with respect to the triangle with vertices (0, 0), 
-(0, 1), (1, 0)):
+point (x, y) in the plane, with respect to the triangle with vertices (0, 0), 
+(0, 1), (1, 0):
 
 ```R
 bc <- function(x, y) c(x, y, 1 - x - y)
 ```
 
 This function returns a triple for "good values" of `x` and `y`, but can yield 
-unexpected or ambiguous results in other situations, for example when `x` is not
-a scalar.
+unexpected or ambiguous results when `x` is not a scalar.
 
 ```R
 bc(1, 2)
@@ -53,9 +42,9 @@ bc(c(1, 2), 3)
 #> [1]  1  2  3 -3 -4
 ```
 
-Implicitly, the arguments of `bc()` should be scalars. We can make this 
-assumption *explicit* by augmenting `bc()` with checks that verify that the
-arguments are indeed numerical scalars. This can be done using `strictly()`:
+The arguments of `bc()` are *assumed* to be scalars. We can make this assumption
+explicit by augmenting `bc()` with checks that verify that the arguments are 
+indeed numerical scalars. That's where `strictly()` comes in.
 
 ```R
 library(valaddin)
@@ -70,14 +59,14 @@ bc_num(c(1, 2), 3)
 #> Error: bc_num(x = c(1, 2), y = 3)
 #> FALSE: is_number(x)
 ```
-The formula `~ is_number` succinctly articulates a global argument check, which 
-asserts that each of `is_number(x)`, `is_number(y)` is `TRUE`. The transformed 
-function `bc_num()` behaves exactly like `bc()`, only more "strictly" so.
+The formula `~ is_number` expresses a global argument check---the assertion that
+each of `is_number(x)`, `is_number(y)` is `TRUE`. The transformed function
+`bc_num()` behaves exactly like `bc()`, only more strictly so.
 
 Likewise, the implicit assumption that `x`, `y` are the coordinates of a point 
 inside the triangle with vertices (0, 0), (0, 1), (1, 0) can be enforced by an 
 additional check of the positivity of each of `x`, `y`, `1 - x - y`. (Following
-the package [magrittr](https://github.com/tidyverse/magrittr), anonymous
+the [magrittr](https://github.com/tidyverse/magrittr) package, anonymous
 functions of a `.` argument can be expressed via enclosure by curly braces
 `{ ... }`.)
 
@@ -97,8 +86,8 @@ barycentric_coord(.5, "2")
 #> 2) Error evaluating check (function(.) {. >= 0})(1 - x - y): non-numeric argument to binary operator
 ```
 
-Alternatively, input validation checks can be added in stages using the
-[magrittr](https://github.com/tidyverse/magrittr) pipe operator, `%>%`.
+Alternatively, input validation checks can be added in stages, on-the-fly, using
+the [magrittr](https://github.com/tidyverse/magrittr) pipe operator, `%>%`.
 
 ```R
 library(magrittr)
@@ -115,20 +104,19 @@ barycentric_coord(.5, .6)
 #> FALSE: (function(.) {. >= 0})(1 - x - y)
 ```
 
-The *purpose* of the positivity check on `x`, `y`, `1 - x - y` is to check 
-whether the point (x, y) lies in the triangle. This can be expressed more 
-directly with the use of a custom error message and a multi-argument checking
-function, facilitated by the `lift()` function from the 
-[purrr](https://github.com/hadley/purrr) package (which enables a function to 
-accept its arguments as an argument list).
+The *purpose* of the positivity check on `x`, `y`, `1 - x - y` is to determine 
+whether the point (x, y) lies in the triangle. To express this more directly, we
+can use a custom error message and a multi-argument checking function, 
+facilitated by the `lift()` function from the 
+[purrr](https://github.com/hadley/purrr) package.
 
 ```R
 library(purrr)
 
-is_inside <- function(x, y) {x >= 0 && y >= 0 && 1 - x - y >= 0}
+in_triangle <- function(x, y) x >= 0 && y >= 0 && 1 - x - y >= 0
 barycentric_coord <- bc %>%
   strictly("Not a number" ~ is_number,
-           list("Point (x, y) not in triangle" ~ list(x, y)) ~ lift(is_inside))
+           list("Point (x, y) not in triangle" ~ list(x, y)) ~ lift(in_triangle))
 
 barycentric_coord(.5, .2)
 #> [1] 0.5 0.2 0.3
@@ -143,8 +131,8 @@ barycentric_coord(.5, .6)
 #> Point (x, y) not in triangle
 ```
 
-For more information on the use of `strictly()`, and its companion functions,
-see the package documentation `?valaddin::strictly`.
+See the package documentation `?valaddin::strictly` for more information on the 
+use of `strictly()`, and its companion functions.
 
 ## Related packages
 
@@ -153,12 +141,16 @@ approach to input validation, using
 [roxygen](https://github.com/klutometis/roxygen) comments to specify checks.
 
 * The [ensurer](https://github.com/smbache/ensurer) package provides a means of 
-validating function _values_, along with a replacement for `function()` to build
-functions with type-validated arguments. valaddin complements ensurer.
+validating function values, along with a replacement for `function()` to build 
+functions with type-validated arguments.
 
-* [Types for R](https://github.com/jimhester/types) is a package that provides 
-type annotations for function arguments.
+* The [typeCheck](https://github.com/jimhester/typeCheck) package, together with
+[Types for R](https://github.com/jimhester/types), enables the creation of 
+functions with type-validated arguments by means of special type annotations.
+This approach is "dual" to that of Valaddin: whereas Valaddin specifies input
+checks as _predicate functions with scope_, typeCheck specifies input checks as
+_arguments with type_.
 
 ## License
 
-MIT Copyright © 2017, [Eugene Ha](https://github.com/egnha)
+MIT Copyright © 2017 [Eugene Ha](https://github.com/egnha)
