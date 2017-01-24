@@ -79,19 +79,19 @@ functions of a `.` argument can be expressed via enclosure by curly braces
 `{ ... }`.)
 
 ```R
-barycentric_coord <- strictly(bc_num, list(~ x, ~ y, ~ 1 - x - y) ~ {. > 0})
+barycentric_coord <- strictly(bc_num, list(~ x, ~ y, ~ 1 - x - y) ~ {. >= 0})
 
 barycentric_coord(.5, .2)
 #> [1] 0.5 0.2 0.3
 
 barycentric_coord(1, .2)
 #> Error: barycentric_coord(x = 1, y = 0.2)
-#> FALSE: (function(.) {. > 0})(1 - x - y)
+#> FALSE: (function(.) {. >= 0})(1 - x - y)
 
 barycentric_coord(.5, "2")
 #> Error: barycentric_coord(x = 0.5, y = "2")
-#> 1) FALSE: is.numeric(y)
-#> 2) Error evaluating check (function(.) {. > 0})(1 - x - y): non-numeric argument to binary operator
+#> 1) FALSE: is_number(y)
+#> 2) Error evaluating check (function(.) {. >= 0})(1 - x - y): non-numeric argument to binary operator
 ```
 
 Alternatively, input validation checks can be added in stages using the
@@ -101,18 +101,35 @@ Alternatively, input validation checks can be added in stages using the
 library(magrittr)
 
 barycentric_coord <- bc %>%
-  strictly(~ is_number, list(~ x, ~ y, ~ 1 - x - y) ~ {. > 0})
-  
-barycentric_coord <- bc %>%
   strictly(~ is_number) %>%
-  strictly(list(~ x, ~ y, ~ 1 - x - y) ~ {. > 0})
+  strictly(list(~ x, ~ y, ~ 1 - x - y) ~ {. >= 0})
   
 barycentric_coord(.5, .2)
 #> [1] 0.5 0.2 0.3
 
-barycentric_coord(1, .2)
+barycentric_coord(.5, .6)
 #> Error: barycentric_coord(x = 1, y = 0.2)
-#> FALSE: (function(.) {. > 0})(1 - x - y)
+#> FALSE: (function(.) {. >= 0})(1 - x - y)
+```
+
+The *purpose* of the positivity check on `x`, `y`, `1 - x - y` is to check 
+whether the point (x, y) lies in the triangle. This can be expressed more 
+directly with the use of a custom error message and a multi-argument checking
+function, facilitated by the `lift()` function from the
+[purrr](https://github.com/hadley/purrr) package (which enables a function to
+accept its arguments as an argument list).
+
+```R
+library(purrr)
+
+is_inside <- function(x, y) {x >= 0 && y >= 0 && 1 - x - y >= 0}
+barycentric_coord <- bc %>%
+  strictly(~ is_number,
+           list("Point (x, y) not in triangle" ~ list(x, y)) ~ lift(is_inside))
+
+barycentric_coord(.5, .6)
+#> Error: barycentric_coord(x = 0.5, y = 0.6)
+#> Point (x, y) not in triangle
 ```
 
 For more information on the use of `strictly()`, and its companion functions,
