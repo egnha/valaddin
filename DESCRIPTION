@@ -2,8 +2,8 @@ Package: valaddin
 Title: Validate Function Inputs
 Version: 0.1.0.9999
 Authors@R: person("Eugene", "Ha", , email = "eha@posteo.de", c("aut", "cre"))
-Description: This package provides a set of basic tools to transform functions
-    to functions with input validation checks.
+Description: A set of basic tools to transform functions into functions with
+    input validation checks, post factum.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
