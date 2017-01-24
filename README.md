@@ -59,7 +59,7 @@ bc_num(c(1, 2), 3)
 #> Error: bc_num(x = c(1, 2), y = 3)
 #> FALSE: is_number(x)
 ```
-The formula `~ is_number` expresses a global argument check---the assertion that
+The formula `~ is_number` expresses a global argument check—the assertion that
 each of `is_number(x)`, `is_number(y)` is `TRUE`. The transformed function
 `bc_num()` behaves exactly like `bc()`, only more strictly so.
 
