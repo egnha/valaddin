@@ -55,9 +55,8 @@ warn <- function(.ref_args) {
     missing <- setdiff(.ref_args, names(.call[-1L]))
 
     if (length(missing)) {
-      msg <- missing %>%
-        paste(collapse = ", ") %>%
-        sprintf("Missing required argument(s): %s", .)
+      msg <- "Missing required argument(s):" %>%
+        paste(paste(missing, collapse = ", "))
       warning(msg, call. = FALSE)
     }
 
