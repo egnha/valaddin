@@ -20,7 +20,9 @@ devtools::install_github("egnha/valaddin")
 ## Examples
 
 The following simple example shows the use of `strictly()` to "harden" a 
-function through the (successive) addition of input validation checks.
+function through the (successive) addition of input validation checks. Though
+the example is somewhat artificial, the problem of dealing with invalid function
+inputs is pervasive in R, given its weakly typed nature.
 
 Consider the following function `bc()`, which computes the [barycentric 
 coordinates](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) of a 
