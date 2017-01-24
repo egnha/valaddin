@@ -13,7 +13,8 @@ Imports:
     dplyr,
     magrittr
 Suggests:
-    testthat
+    testthat,
+    stringr
 RoxygenNote: 5.0.1
 Collate:
     'checklist.R'
