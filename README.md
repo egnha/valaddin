@@ -1,5 +1,7 @@
 # Valaddin
 
+[![Travis-CI Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=master)](https://travis-ci.org/egnha/valaddin)
+
 *Valaddin* is a simple R package that provides a function `strictly()` that 
 enables you to transform a function into a function with input validation 
 checks.
