@@ -14,7 +14,8 @@ Imports:
     magrittr
 Suggests:
     testthat,
-    stringr
+    stringr,
+    covr
 RoxygenNote: 5.0.1
 Collate:
     'checklist.R'
