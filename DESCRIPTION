@@ -5,6 +5,7 @@ Authors@R: person("Eugene", "Ha", , email = "eha@posteo.de", c("aut", "cre"))
 Description: This package provides a set of basic tools to transform functions
     to functions with input validation checks.
 License: MIT + file LICENSE
+Encoding: UTF-8
 LazyData: true
 Imports:
     lazyeval,
