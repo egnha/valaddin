@@ -3,9 +3,10 @@
 [![Travis-CI Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=master)](https://travis-ci.org/egnha/valaddin)
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
 
-*Valaddin* is a simple R package that provides a function `strictly()` that 
-enables you to enhance a function with input validation checks, in a manner that
-is suitable for both interactive sessions and programmatic use.
+Dealing with invalid function inputs is a pervasive problem in R, given R's 
+weakly typed nature. _Valaddin_ is a simple R package that provides a function
+`strictly()` that enables you to enhance a function with input validation
+checks, in a manner suitable for both programmatic use and interactive sessions.
 
 ## Installation
 
@@ -19,10 +20,8 @@ devtools::install_github("egnha/valaddin")
 
 ## Examples
 
-The following simple example shows the use of `strictly()` to "harden" a 
-function through the (successive) addition of input validation checks. Though
-the example is somewhat artificial, the problem of dealing with invalid function
-inputs is pervasive in R, given its weakly typed nature.
+The following example illustrates the use of `strictly()` to "harden" a function
+through the (successive) addition of input validation checks.
 
 Consider the following function `bc()`, which computes the [barycentric 
 coordinates](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) of a 
@@ -44,9 +43,9 @@ bc(c(1, 2), 3)
 #> [1]  1  2  3 -3 -4
 ```
 
-The arguments of `bc()` are *assumed* to be scalars. We can make this assumption
+The arguments of `bc()` are _assumed_ to be scalars. We can make this assumption
 explicit by augmenting `bc()` with checks that verify that the arguments are 
-indeed numerical scalars. That's where `strictly()` comes in.
+indeed numerical scalars. This is where `strictly()` comes in.
 
 ```R
 library(valaddin)
@@ -65,12 +64,11 @@ The formula `~ is_number` expresses a global argument check—the assertion that
 each of `is_number(x)`, `is_number(y)` is `TRUE`. The transformed function
 `bc_num()` behaves exactly like `bc()`, only more strictly so.
 
-Likewise, the implicit assumption that `x`, `y` are the coordinates of a point 
-inside the triangle with vertices (0, 0), (0, 1), (1, 0) can be enforced by an 
-additional check of the positivity of each of `x`, `y`, `1 - x - y`. (Following
-the [magrittr](https://github.com/tidyverse/magrittr) package, anonymous
-functions of a `.` argument can be expressed via enclosure by curly braces
-`{ ... }`.)
+Likewise, the implicit assumption that `x`, `y` are the coordinates of a point
+inside the triangle with vertices (0, 0), (0, 1), (1, 0) can be enforced by an
+additional check of the positivity of each of `x`, `y`, `1 - x - y`. Following
+the [magrittr](https://github.com/tidyverse/magrittr) package, an anonymous
+function of a single argument `.` can be written inside curly braces `{ }`.
 
 ```R
 barycentric_coord <- strictly(bc_num, list(~ x, ~ y, ~ 1 - x - y) ~ {. >= 0})
@@ -89,7 +87,7 @@ barycentric_coord(.5, "2")
 ```
 
 Alternatively, input validation checks can be added in stages, on-the-fly, using
-the [magrittr](https://github.com/tidyverse/magrittr) pipe operator, `%>%`.
+the [magrittr](https://github.com/tidyverse/magrittr) pipe operator `%>%`.
 
 ```R
 library(magrittr)
@@ -106,7 +104,7 @@ barycentric_coord(.5, .6)
 #> FALSE: (function(.) {. >= 0})(1 - x - y)
 ```
 
-The *purpose* of the positivity check on `x`, `y`, `1 - x - y` is to determine 
+The _purpose_ of the positivity check on `x`, `y`, `1 - x - y` is to determine 
 whether the point (x, y) lies in the triangle. To express this more directly, we
 can use a custom error message and a multi-argument checking function, 
 facilitated by the `lift()` function from the 
@@ -133,8 +131,20 @@ barycentric_coord(.5, .6)
 #> Point (x, y) not in triangle
 ```
 
-See the package documentation `?valaddin::strictly` for more information on the 
-use of `strictly()`, and its companion functions.
+It is safe to reassign a function to its "strictification," because the 
+underlying "nonstrict" function—in this case, `bc()`—is recoverable with 
+`nonstrictly()`.
+
+```R
+nonstrictly(barycentric_coord)
+#> function(x, y) c(x, y, 1 - x - y)
+
+identical(bc, nonstrictly(barycentric_coord))
+#> [1] TRUE
+```
+
+The package documentation `?valaddin::strictly`, `help(p = valaddin)` has more
+information on the use of `strictly()`, and its companion functions.
 
 ## Related packages
 
