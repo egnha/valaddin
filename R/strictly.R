@@ -326,7 +326,7 @@ NULL
 #' secant_stc(log, 1, .1)    # 0.9531018
 #' secant_stc("log", 1, .1)  # Error: "`f` not a function"
 #'
-#' # Ensure that `x` and `dx` are numerical (possibly vectors)
+#' # Ensure that `x` and `dx` are numerical (possibly non-scalars)
 #' secant_vec <- strictly(secant_stc, list(~x, ~dx) ~ is.numeric)
 #' secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
 #' secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
@@ -346,7 +346,7 @@ NULL
 #' secant_right(log, 1, 1.1)  # 0.9531018
 #' secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
 #'
-#' # Alternatively, secant_right() can be implement with a unary check
+#' # Alternatively, secant_right() can be implemented with a unary check
 #' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
 #' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 #' secant_right2(log, 1, .9)  # Error (as before)
