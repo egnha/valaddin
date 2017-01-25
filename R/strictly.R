@@ -201,7 +201,9 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
 #' @param .f Interpreted function, i.e., function of type \code{"closure"}, not
 #'   a primitive function.
 #'
-#' @seealso \code{\link{checklist}}, \code{\link{components}}
+#' @seealso \code{\link{checklist}}: predicate functions for verifying the
+#'   syntactic validity of checklists; \code{\link{components}}: functions for
+#'   extracting components of a strictly applied function.
 #'
 #' @name strictly
 NULL
@@ -209,18 +211,20 @@ NULL
 #' @rdname strictly
 #' @export
 #'
-#' @param ... Check formula(e); see "Details".
-#' @param .checklist List of check formulae.
+#' @param ... Check formula(e); see the section \dQuote{Check formulae.}
+#' @param .checklist List of check formulae. Check formulae in \code{.checklist}
+#'   are combined with check formulae provided via the \code{...} argument.
 #' @param .warn_missing \code{TRUE} or \code{FALSE}: Should the absence of
-#'   required arguments be checked? (A "required argument" is a (named) argument
-#'   without default value.) This question is disregarded if
+#'   required arguments be checked? (A \dQuote{required argument} is a (named)
+#'   argument without default value.) This question is disregarded if
 #'   \code{.warn_missing} is \code{NULL}.
 #'
-#' @return \strong{\code{strictly()}} — If neither the check formulae nor the
-#'   switch \code{.warn_missing} are applicable to \code{.f}, then
-#'   \code{strictly()} simply returns \code{.f}. This is the case when \code{.f}
-#'   has no named arguments, i.e., \code{.f} has argument signature
-#'   \code{function()} or \code{function(...)}.
+#' @return
+#'   \subsection{\code{strictly()}}{
+#'   If neither the check formulae nor the switch \code{.warn_missing} are
+#'   applicable to \code{.f}, then \code{strictly()} simply returns \code{.f}.
+#'   This is the case when \code{.f} has no named arguments, i.e., \code{.f} has
+#'   argument signature \code{function()} or \code{function(...)}.
 #'
 #'   Otherwise, \code{strictly()} returns a function of class
 #'   \code{"strict_closure"}. This function behaves \emph{identically} to
@@ -239,64 +243,80 @@ NULL
 #'     \item 3. Checks passed: If there are no validation errors, \code{.f} is
 #'     called on the supplied arguments.
 #'   }
-#'
 #'   \code{strictly()} preserves the argument signature of \code{.f}, along with
 #'   all its attributes (with the execption that the resulting class is
 #'   \code{"strict_closure"}, which inherits from the class of \code{.f}).
 #'
-#'   \emph{Technical note}: \code{strictly()} parsimoniously preserves the lazy
-#'   nature of function arguments, when possible. In particular, if all checks
-#'   pass, then any argument that is not involved in a check is passed to
-#'   \code{.f} as an unevaluated promise.
-#' @details
-#'   \strong{Check formulae} — Input validation checks are specified by formulae
-#'   conforming to one of two types:
-#'   \itemize{
-#'     \item \strong{Global check formulae}:\cr
-#'     \code{~ <predicate>} (one-sided),\cr
-#'     \code{<string> ~ <predicate>}
+#'   Technical note: \code{strictly()} parsimoniously preserves the lazy nature
+#'   of function arguments, when possible. In particular, if all checks pass,
+#'   then any argument that is not involved in a check is passed to \code{.f} as
+#'   an unevaluated promise.}
 #'
-#'     \item \strong{Local check formulae}:\cr
+#' @section Check formulae:
+#'   An input validation check is specified by a \link[stats]{formula}, where
+#'   the right-hand side expresses \emph{what} to check, and the left-hand side
+#'   expresses \emph{where} to check it:
+#'   \preformatted{
+#'   <scope> ~ <predicate>}
+#'   \code{<predicate>} is a predicate function, i.e, a one-variable function
+#'   that returns \code{TRUE} or \code{FALSE}. \code{<scope>} is an expression
+#'   specifying whether the scope of \code{<predicate>} is \emph{global}—applies
+#'   to all (named) arguments of \code{.f}—or \emph{local}—applies to certain
+#'   arguments, either individually or in combination. Thus, with respect to
+#'   \code{<scope>}, there are two classes of check formulae:
+#'   \itemize{
+#'     \item \strong{Check formulae with global scope}:\cr
+#'     \code{~ <predicate>} (onsided) or \code{<string> ~ <predicate>}
+#'
+#'     \item \strong{Check formulae with local scope}:\cr
 #'     \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
 #'   }
-#'   where \code{<predicate>} is a predicate function, i.e., a unary function
-#'   that returns either \code{TRUE} or \code{FALSE}.
-#'
+#'   \subsection{Check formulae with global scope}{
 #'   A \emph{global check formula} asserts that the evaluation of
 #'   \code{<predicate>} is \code{TRUE} for each (named) argument of \code{.f}.
 #'   Each argument for which the \code{<predicate>} fails (i.e., evaluates to
 #'   \code{FALSE}) produces an error message, which is auto-generated unless a
 #'   custom error message is supplied by specifying the string \code{<string>}.
-#'   For example, the assertion that all (named) arguments of a function must be
-#'   numerical can be enforced by the check formula \code{~ is.numeric}, or
-#'   \code{"Not numeric" ~ is.numeric}, if the custom error message \code{"Not
-#'   numeric"} is to be used.
+#'   \cr\cr
+#'   Example: the assertion that all (named) arguments of a function must be
+#'   numerical can be enforced by the check formula
+#'   \preformatted{
+#'   ~ is.numeric}
+#'   or
+#'   \preformatted{
+#'   "Not numeric" ~ is.numeric}
+#'   if the custom error message \code{"Not numeric"} is to be used.}
 #'
+#'   \subsection{Check formulae with local scope}{
 #'   A \emph{local check formula} makes argument-specific assertions. Each
-#'   "check item" \code{<check_item>} is a formula of the form \code{~
+#'   \dQuote{check item} \code{<check_item>} is a formula of the form \code{~
 #'   <expression>} (one-sided) or \code{<string> ~ <expression>}; it makes the
 #'   assertion that the \code{<predicate>} evaluates to \code{TRUE} for the
 #'   expression \code{<expression>}. As for global check formulae, each check
 #'   item for which the \code{<predicate>} fails produces an error message,
 #'   which is auto-generated unless a custom error message is supplied by a
-#'   string as part of the left-hand side of the check item (formula). For
-#'   example, the assertion that \code{x} and \code{y} must differ for the
-#'   function \code{function(x, y) 1 / (x - y)} can be enforced by the local
-#'   check formula \code{list(~ x - y) ~ function(.) abs(.) > 0}, or
-#'   \code{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}, if the
-#'   custom error message \code{"x, y must differ"} is to be used.
+#'   string as part of the left-hand side of the check item (formula).
+#'   \cr\cr
+#'   Example: the assertion that \code{x} and \code{y} must differ for the
+#'   function \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
+#'   check formulae
+#'   \preformatted{
+#'   list(~ x - y) ~ function(.) abs(.) > 0}
+#'   or
+#'   \preformatted{
+#'   list("`x`, `y` must differ" ~ x - y) ~ function(.) abs(.) > 0}
+#'   if the custom error message \code{"`x`, `y` must differ"} is to be used
+#'   (in lieu of an auto-generated error message).}
 #'
-#'   Check formulae that are individually specified via the \code{...} argument
-#'   of \code{strictly()} are combined with check formulae provided via the
-#'   list-argument \code{.checklist}.
-#'
-#'   \strong{Anonymous predicate functions} — Following the
-#'   \link[magrittr]{magrittr} package, an anonymous (predicate) function of a
-#'   single argument \code{.} can be specified by placing the body of such a
-#'   function within curly braces \code{\{ \dots \}}. For example, the (onsided,
-#'   global) check formula \code{~function(.) {. > 0}} is equivalent to the
-#'   check formula \code{~{. > 0}}.
-#'
+#' @section Anonymous predicate functions:
+#'   Following the \link[magrittr]{magrittr} package, an anonymous (predicate)
+#'   function of a single argument \code{.} can be specified by placing the body
+#'   of such a function within curly braces \code{\{ \ldots \}}.
+#'   \cr\cr
+#'   For example, the (onsided, global) check formula
+#'   \preformatted{
+#'   ~ function(.) {. > 0}}
+#'   is equivalent to the check formula \code{~ {. > 0}}.
 #' @examples
 #' \dontrun{
 #' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
@@ -331,7 +351,11 @@ NULL
 #' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 #' secant_right2(log, 1, .9)  # Error (as before)
 #'
-#' #' # nonstrictly() recovers the underlying function
+#' # strictly() won't force any argument not involved in a check
+#' g <- strictly(function(x, y) "Pass", list(~x) ~ is.character)
+#' g(c("a", "b"), stop("Not signaled"))  # "Pass"
+#'
+#' # nonstrictly() recovers the underlying function
 #' identical(nonstrictly(secant_vec), secant)  # TRUE
 #' }
 strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
@@ -353,8 +377,9 @@ nonstrictly_ <- function(.f, .quiet = FALSE) {
 #' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
 #'   \code{.f} is not a function created by \code{strictly()}?
 #'
-#' @return \strong{\code{nonstrictly()}} — Returns the original function without
-#'   checks.
+#' @return \subsection{\code{nonstrictly()}}{
+#'   Returns the original function without checks. (This works even if the
+#'   original function has been removed.)}
 nonstrictly <- strictly_(
   nonstrictly_,
   list("Argument not an interpreted function" ~ .f) ~ purrr::is_function,
