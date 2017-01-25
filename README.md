@@ -3,10 +3,11 @@
 [![Travis-CI Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=master)](https://travis-ci.org/egnha/valaddin)
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
 
-Dealing with invalid function inputs is a pervasive problem in R, given R's 
-weakly typed nature. _Valaddin_ is a simple R package that provides a function
-`strictly()` that enables you to enhance a function with input validation
-checks, in a manner suitable for both programmatic use and interactive sessions.
+Dealing with invalid function inputs is a chronic pain for R users, given R's 
+weakly typed nature. _Valaddin_ provides pain relief: it is a simple R package
+that provides a function `strictly()` that enables you to enhance a function
+with input validation checks—with minimal fuss—in a manner suitable for both
+programmatic use and interactive sessions.
 
 ## Installation
 
@@ -65,7 +66,7 @@ each of `is_number(x)`, `is_number(y)` is `TRUE`. The transformed function
 `bc_num()` behaves exactly like `bc()`, only more strictly so.
 
 Likewise, the implicit assumption that `x`, `y` are the coordinates of a point
-inside the triangle with vertices (0, 0), (0, 1), (1, 0) can be enforced by an
+inside the triangle with vertices (1, 0), (0, 1), (0, 0) can be enforced by an
 additional check of the positivity of each of `x`, `y`, `1 - x - y`. Following
 the [magrittr](https://github.com/tidyverse/magrittr) package, an anonymous
 function of a single argument `.` can be written inside curly braces `{ }`.
@@ -105,9 +106,9 @@ barycentric_coord(.5, .6)
 ```
 
 The _purpose_ of the positivity check on `x`, `y`, `1 - x - y` is to determine 
-whether the point (x, y) lies in the triangle. To express this more directly, we
-can use a custom error message and a multi-argument checking function, 
-facilitated by the `lift()` function from the 
+whether the point (x, y) lies in a certain triangle. To express this more
+directly, we can use a custom error message and a multi-argument checking
+function, facilitated by the `lift()` function from the 
 [purrr](https://github.com/hadley/purrr) package.
 
 ```R
