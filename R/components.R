@@ -3,7 +3,8 @@
 #' Helper functions are provided to extract the components of a strictly applied
 #' function:
 #' \itemize{
-#'   \item \code{strict_core()}: extracts the underlying "nonstrict" function
+#'   \item \code{strict_core()}: extracts the underlying \dQuote{nonstrict}
+#'     function
 #'   \item \code{strict_checks()}: extracts the checks
 #'   \item \code{strict_args()}: extracts the names of arguments whose presence
 #'     is to be checked

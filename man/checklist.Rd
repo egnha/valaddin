@@ -37,7 +37,7 @@ is_checklist(list(is.numeric ~ list(~ x)))        # Backwards
 is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
 }
 \seealso{
-\code{\link{strictly}}, for information on the specificaton and use of
-  check formulae.
+\code{\link{strictly}}, for information on the specificaton and use
+  of check formulae.
 }
 

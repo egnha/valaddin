@@ -8,8 +8,8 @@
 #' @return \code{is_check_formula(x)}, resp. \code{is_checklist(x)}, returns
 #'   \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
 #'   check formula, resp. checklist.
-#' @seealso \code{\link{strictly}}, for information on the specificaton and use of
-#'   check formulae.
+#' @seealso \code{\link{strictly}}, for information on the specificaton and use
+#'   of check formulae.
 #' @examples
 #' # Valid checklist
 #' is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))
