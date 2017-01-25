@@ -132,8 +132,7 @@ barycentric_coord(.5, .6)
 ```
 
 It is safe to reassign a function to its "strictification," because the 
-underlying "nonstrict" function—in this case, `bc()`—is recoverable with 
-`nonstrictly()`.
+underlying function is recoverable with `nonstrictly()`.
 
 ```R
 nonstrictly(barycentric_coord)
