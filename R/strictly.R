@@ -141,13 +141,6 @@ strict_closure <- function(.f) {
   structure(.f, class = c("strict_closure", class(.f)))
 }
 
-checks <- list(
-  list("`.f` not an interpreted function" ~ .f) ~
-    purrr::is_function,
-  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
-  {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)}
-)
-
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
@@ -358,7 +351,13 @@ NULL
 #' # nonstrictly() recovers the underlying function
 #' identical(nonstrictly(secant_vec), secant)  # TRUE
 #' }
-strictly <- strictly_(strictly_, .checklist = checks, .warn_missing = TRUE)
+strictly <- strictly_(
+  strictly_,
+  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
+    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)},
+  .warn_missing = TRUE
+)
 
 nonstrictly_ <- function(.f, .quiet = FALSE) {
   if (is_strict_closure(.f)) {
