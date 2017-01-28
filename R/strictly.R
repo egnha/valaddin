@@ -381,8 +381,8 @@ nonstrictly_ <- function(.f, .quiet = FALSE) {
 #'   original function has been removed.)}
 nonstrictly <- strictly_(
   nonstrictly_,
-  list("Argument not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("`.quiet` is not TRUE/FALSE" ~ .quiet) ~ {is_true(.) || is_false(.)}
+  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("`.quiet` not TRUE/FALSE" ~ .quiet) ~ {is_true(.) || is_false(.)}
 )
 
 #' @export
