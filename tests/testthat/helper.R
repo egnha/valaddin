@@ -81,3 +81,10 @@ expect_n_errors <- function(n, f, args, pattern) {
 
 # Escape string for Perl-style regex
 esc_perl <- function(x) str_replace_all(x, "(\\W)", "\\\\\\1")
+
+# Adapt an expectation function to use Perl-style regex
+perlize <- function(f) {
+  function(object, regexp, ...) {
+    f(object, esc_perl(regexp), perl = TRUE, ...)
+  }
+}
