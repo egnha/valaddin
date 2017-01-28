@@ -404,7 +404,7 @@ print.strict_closure <- function(x, ...) {
   cat("\n* Check for missing arguments:\n")
   args <- strict_args(x)
   if (!is.null(args) && length(args)) {
-    cat(paste(args, collapse = ", "))
+    cat(paste(args, collapse = ", "), "\n")
   } else {
     cat("Not checked\n")
   }
