@@ -6,6 +6,8 @@ test_that("nonstrictly() raises warning if function not a strict closure", {
   for (f in fs) {
     expect_warning(nonstrictly(f, .quiet = FALSE),
                    "Argument not a strictly applied function")
+    expect_warning(nonstrictly_(f, .quiet = FALSE),
+                   "Argument not a strictly applied function")
   }
 })
 
