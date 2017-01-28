@@ -239,7 +239,7 @@ test_that("invalid predicate value flagged by precise error of such", {
   # Fail because predicate returns invalid value
   # Predicate is_numeric_faulty() leaves these values unchanged
   for (x in list(NULL, NA, logical(0), c(TRUE, TRUE), c(TRUE, NA))) {
-    expect_error(f_strict(x), "neither TRUE nor FALSE")
+    expect_error(f_strict(x), "not TRUE/FALSE")
   }
 })
 

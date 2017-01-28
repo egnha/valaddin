@@ -85,7 +85,7 @@ report_error <- function(.expr, .string, .msg, .env) {
       else if (is_false(val))
         .msg
       else
-        sprintf("Predicate value %s neither TRUE nor FALSE: %s",
+        sprintf("Predicate value %s not TRUE/FALSE: %s",
                 .string, deparse_collapse(val))
     },
     error = function(e)
