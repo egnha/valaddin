@@ -25,7 +25,7 @@ test_that("checks are displayed", {
   }
 })
 
-test_that("missing arguments checked are displayed shown", {
+test_that("arguments whose absence is checked are displayed", {
   for (f in fs_strict) {
     arg <- nomen(formals(f))
     missing <- arg$nm[arg$wo_value] %>% paste(collapse = ", ")
