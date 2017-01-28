@@ -71,10 +71,13 @@ pass_args <- function(args) {
   make_fnc(args, body)
 }
 
-#' Expect exactly n errors matching pattern
+# Expect exactly n errors matching pattern
 expect_n_errors <- function(n, f, args, pattern) {
   do.call(purrr::safely(f), args, quote = TRUE) %>% {
     stringr::str_count(.$error, pattern)
   } %>%
     expect_equal(n)
 }
+
+# Escape string for Perl-style regex
+esc_perl <- function(x) str_replace_all(x, "(\\W)", "\\\\\\1")
