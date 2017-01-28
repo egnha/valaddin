@@ -13,6 +13,7 @@ test_that("nonstrictly() restores original function", {
   for (f in fs) {
     f_strict <- strictly(f, ~ is.numeric)
     expect_identical(nonstrictly(f_strict, .quiet = TRUE), f)
+    expect_identical(nonstrictly_(f_strict, .quiet = TRUE), f)
 
     if (any(nomen(formals(f))$wo_value)) {
       f_warn     <- strictly(f, .warn_missing = TRUE)
@@ -20,6 +21,8 @@ test_that("nonstrictly() restores original function", {
 
       expect_identical(nonstrictly(f_warn, .quiet = TRUE), f)
       expect_identical(nonstrictly(f_stricter, .quiet = TRUE), f)
+      expect_identical(nonstrictly_(f_warn, .quiet = TRUE), f)
+      expect_identical(nonstrictly_(f_stricter, .quiet = TRUE), f)
     }
   }
 })
@@ -28,6 +31,8 @@ test_that("nonstrictly() restores original function environment", {
   for (f in fs) {
     f_strict <- strictly(f, ~ is.numeric)
     expect_identical(environment(nonstrictly(f_strict, .quiet = TRUE)),
+                     environment(f))
+    expect_identical(environment(nonstrictly_(f_strict, .quiet = TRUE)),
                      environment(f))
   }
 })
@@ -41,6 +46,8 @@ test_that("nonstrictly() restores original function attributes", {
     f_strict <- strictly(f, ~ is.numeric)
 
     expect_identical(attributes(nonstrictly(f_strict, .quiet = TRUE)),
+                     attributes(f))
+    expect_identical(attributes(nonstrictly_(f_strict, .quiet = TRUE)),
                      attributes(f))
   }
 })
