@@ -1,10 +1,10 @@
-# Valaddin
+# valaddin
 
 [![Travis-CI Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=master)](https://travis-ci.org/egnha/valaddin)
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
 
 Dealing with invalid function inputs is a chronic pain for R users, given R's 
-weakly typed nature. _Valaddin_ provides pain relief: it is a simple R package
+weakly typed nature. _valaddin_ provides pain relief: it is a simple R package
 that provides a function `strictly()` that enables you to enhance a function
 with input validation checks—with minimal fuss—in a manner suitable for both
 programmatic use and interactive sessions.
@@ -159,7 +159,7 @@ functions with type-validated arguments.
 * The [typeCheck](https://github.com/jimhester/typeCheck) package, together with
 [Types for R](https://github.com/jimhester/types), enables the creation of 
 functions with type-validated arguments by means of special type annotations.
-This approach is "dual" to that of Valaddin: whereas Valaddin specifies input
+This approach is "dual" to that of valaddin: whereas valaddin specifies input
 checks as _predicate functions with scope_, typeCheck specifies input checks as
 _arguments with type_.
 
