@@ -4,10 +4,107 @@
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
 
 Dealing with invalid function inputs is a chronic pain for R users, given R's 
-weakly typed nature. _valaddin_ provides pain relief: it is a simple R package
-that provides a function `strictly()` that enables you to enhance a function
-with input validation checks—with minimal fuss—in a manner suitable for both
-programmatic use and interactive sessions.
+weakly typed nature. _valaddin_ provides pain relief: it is a simple R package 
+that enables you to transform an existing function into a function with input
+validation checks—with minimal fuss—in a manner suitable for both programmatic
+use and interactive sessions.
+
+## Why use valaddin
+
+### Defensive programming is good practice
+
+Validating the inputs of your functions is [good programming
+practice](http://adv-r.had.co.nz/Exceptions-Debugging.html#defensive-programming).
+Say you have a function `secant()` declared as follows:
+
+```R
+secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
+```
+
+If you want to make sure that `secant()` only accepts numerical inputs for `x`
+and `dx`, you'd normally rewrite `secant()` to check this condition, and stop
+if it's violated:
+
+```R
+secant_numeric <- function(f, x, dx) {
+  stopifnot(is.numeric(x), is.numeric(dx))
+  secant(f, x, dx)
+}
+
+secant_numeric(log, 1, .1)
+#> [1] 0.9531018
+
+secant_numeric(log, "1", ".1")
+#> Error: is.numeric(x) is not TRUE
+```
+
+### But the standard approach is problematic
+
+While this works, it's not ideal, even in this simple situation, because
+
+* you have to declare a new function, and give it a new name, or copy-paste the
+original function body
+
+* it doesn't catch all errors, only the first that occurs among the checks.
+
+Moreover, if you later realize you need additional checks, for example, that `x`
+and `dx` should be numbers not vectors, you're back to square one:
+
+```R
+secant_scalar <- function(f, x, dx) {
+  stopifnot(is.numeric(x), is.numeric(dx), length(x) == 1L, length(dx) == 1L)
+  secant(f, x, dx)
+}
+
+secant_scalar(log, 1, c(.1, .01))
+#> Error: length(dx) == 1L is not TRUE
+
+secant_scalar(log, "1", c(.1, .01))  # Two problems, but only one is reported
+#> Error: is.numeric(x) is not TRUE
+```
+
+### valaddin overcomes these problems
+
+valaddin provides a function `strictly()` that takes care of input validation by
+*transforming* the existing function, instead of forcing you to write a new one.
+It also helps you by reporting *every* failing check.
+
+```R
+library(valaddin)
+
+secant <- strictly(secant, list(~x, ~dx) ~ is.numeric)
+
+secant(log, 1, .1)
+#> [1] 0.9531018
+
+secant(log, "1", ".1")
+#> Error: secant(f = log, x = "1", dx = ".1")
+#> 1) FALSE: is.numeric(x)
+#> 2) FALSE: isi.numeric(dx)
+```
+
+And to add additional checks, just apply the same procedure again:
+
+```R
+secant <- strictly(secant, list(~x, ~dx) ~ {length(.) == 1L})
+
+secant(log, "1", c(.1, .01))
+#> Error: secant(f = log, x = "1", dx = c(0.1, 0.01))
+#> 1) FALSE: is.numeric(x)
+#> 2) FALSE: (function(.) {length(.) == 1L})(dx)
+```
+
+Or, alternatively, all in one go:
+
+```R
+secant <- nonstrictly(secant)  # Get back the original function
+secant <- strictly(secant, list(~x, ~dx) ~ {is.numeric(.) && length(.) == 1L})
+
+secant(log, "1", c(.1, .01))
+#> Error: secant(f = log, x = "1", dx = c(0.1, 0.01))
+#> 1) FALSE: (function(.) {is.numeric(.) && length(.) == 1L})(x)
+#> 2) FALSE: (function(.) {is.numeric(.) && length(.) == 1L})(dx)
+```
 
 ## Installation
 
@@ -19,132 +116,7 @@ package:
 devtools::install_github("egnha/valaddin")
 ```
 
-## Examples
-
-The following example illustrates the use of `strictly()` to "harden" a function
-through the (successive) addition of input validation checks.
-
-Consider the following function `bc()`, which computes the [barycentric 
-coordinates](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) of a 
-point (x, y) in the plane, with respect to the triangle with vertices (0, 0), 
-(0, 1), (1, 0):
-
-```R
-bc <- function(x, y) c(x, y, 1 - x - y)
-```
-
-This function returns a triple for "good values" of `x` and `y`, but can yield 
-unexpected or ambiguous results when `x` is not a scalar.
-
-```R
-bc(1, 2)
-#> [1]  1  2 -2
-
-bc(c(1, 2), 3)
-#> [1]  1  2  3 -3 -4
-```
-
-The arguments of `bc()` are _assumed_ to be scalars. We can make this assumption
-explicit by augmenting `bc()` with checks that verify that the arguments are 
-indeed numerical scalars. This is where `strictly()` comes in.
-
-```R
-library(valaddin)
-
-is_number <- function(x) is.numeric(x) && length(x) == 1L && !is.na(x)
-bc_num <- strictly(bc, ~ is_number)
-
-bc_num(1, 2)
-#> [1]  1  2 -2
-
-bc_num(c(1, 2), 3)
-#> Error: bc_num(x = c(1, 2), y = 3)
-#> FALSE: is_number(x)
-```
-The formula `~ is_number` expresses a global argument check—the assertion that
-each of `is_number(x)`, `is_number(y)` is `TRUE`. The transformed function
-`bc_num()` behaves exactly like `bc()`, only more strictly so.
-
-Likewise, the implicit assumption that `x`, `y` are the coordinates of a point
-inside the triangle with vertices (1, 0), (0, 1), (0, 0) can be enforced by an
-additional check of the positivity of each of `x`, `y`, `1 - x - y`. Following
-the [magrittr](https://github.com/tidyverse/magrittr) package, an anonymous
-function of a single argument `.` can be written inside curly braces `{ }`.
-
-```R
-barycentric_coord <- strictly(bc_num, list(~ x, ~ y, ~ 1 - x - y) ~ {. >= 0})
-
-barycentric_coord(.5, .2)
-#> [1] 0.5 0.2 0.3
-
-barycentric_coord(1, .2)
-#> Error: barycentric_coord(x = 1, y = 0.2)
-#> FALSE: (function(.) {. >= 0})(1 - x - y)
-
-barycentric_coord(.5, "2")
-#> Error: barycentric_coord(x = 0.5, y = "2")
-#> 1) FALSE: is_number(y)
-#> 2) Error evaluating check (function(.) {. >= 0})(1 - x - y): non-numeric argument to binary operator
-```
-
-Alternatively, input validation checks can be added in stages, on-the-fly, using
-the [magrittr](https://github.com/tidyverse/magrittr) pipe operator `%>%`.
-
-```R
-library(magrittr)
-
-barycentric_coord <- bc %>%
-  strictly(~ is_number) %>%
-  strictly(list(~ x, ~ y, ~ 1 - x - y) ~ {. >= 0})
-  
-barycentric_coord(.5, .2)
-#> [1] 0.5 0.2 0.3
-
-barycentric_coord(.5, .6)
-#> Error: barycentric_coord(x = 1, y = 0.2)
-#> FALSE: (function(.) {. >= 0})(1 - x - y)
-```
-
-The _purpose_ of the positivity check on `x`, `y`, `1 - x - y` is to determine 
-whether the point (x, y) lies in a certain triangle. To express this more
-directly, we can use a custom error message and a multi-argument checking
-function, facilitated by the `lift()` function from the 
-[purrr](https://github.com/hadley/purrr) package.
-
-```R
-library(purrr)
-
-in_triangle <- function(x, y) x >= 0 && y >= 0 && 1 - x - y >= 0
-barycentric_coord <- bc %>%
-  strictly("Not a number" ~ is_number,
-           list("Point (x, y) not in triangle" ~ list(x, y)) ~ lift(in_triangle))
-
-barycentric_coord(.5, .2)
-#> [1] 0.5 0.2 0.3
-
-barycentric_coord(.5, ". 2")
-#> Error: barycentric_coord(x = 0.5, y = ".2")
-#> 1) Not a number: `y`
-#> 2) Point (x, y) not in triangle
-
-barycentric_coord(.5, .6)
-#> Error: barycentric_coord(x = 0.5, y = 0.6)
-#> Point (x, y) not in triangle
-```
-
-It is safe to reassign a function to its "strictification," because the 
-underlying function is recoverable with `nonstrictly()`.
-
-```R
-nonstrictly(barycentric_coord)
-#> function(x, y) c(x, y, 1 - x - y)
-
-identical(bc, nonstrictly(barycentric_coord))
-#> [1] TRUE
-```
-
-The package documentation `?valaddin::strictly`, `help(p = valaddin)` has more
-information on the use of `strictly()`, and its companion functions.
+See the package documentation `?strictly`, `help(p = valaddin)` for detailed information about `strictly()` and its companion functions.
 
 ## Related packages
 
@@ -162,6 +134,9 @@ functions with type-validated arguments by means of special type annotations.
 This approach is "dual" to that of valaddin: whereas valaddin specifies input
 checks as _predicate functions with scope_, typeCheck specifies input checks as
 _arguments with type_.
+
+* The [assertthat](https://github.com/hadley/assertthat) package provides a 
+handy collection of predicate functions that you can use with `strictly()`.
 
 ## License
 
