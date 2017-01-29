@@ -21,9 +21,9 @@ Say you have a function `secant()` declared as follows:
 secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 ```
 
-If you want to make sure that `secant()` only accepts numerical inputs for `x`
-and `dx`, you'd normally rewrite `secant()` to check this condition, and stop
-if it's violated:
+If you want to ensure that `secant()` only accepts numerical inputs for `x` and
+`dx`, you'd normally rewrite `secant()` to check this condition, and stop if
+it's violated:
 
 ```R
 secant_numeric <- function(f, x, dx) {
@@ -116,7 +116,9 @@ package:
 devtools::install_github("egnha/valaddin")
 ```
 
-See the package documentation `?strictly`, `help(p = valaddin)` for detailed information about `strictly()` and its companion functions.
+See the package documentation `?strictly`, `help(p = valaddin)` for detailed 
+information about `strictly()` (and its companion functions), such as the use of
+**custom error messages** and **multi-argument checks**.
 
 ## Related packages
 
