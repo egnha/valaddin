@@ -122,6 +122,9 @@ information about `strictly()` (and its companion functions), such as the use of
 
 ## Related packages
 
+* The [assertthat](https://github.com/hadley/assertthat) package provides a 
+handy collection of predicate functions that you can use with `strictly()`.
+
 * The [argufy](https://github.com/gaborcsardi/argufy) package takes a different 
 approach to input validation, using
 [roxygen](https://github.com/klutometis/roxygen) comments to specify checks.
@@ -136,9 +139,6 @@ functions with type-validated arguments by means of special type annotations.
 This approach is "dual" to that of valaddin: whereas valaddin specifies input
 checks as _predicate functions with scope_, typeCheck specifies input checks as
 _arguments with type_.
-
-* The [assertthat](https://github.com/hadley/assertthat) package provides a 
-handy collection of predicate functions that you can use with `strictly()`.
 
 ## License
 
