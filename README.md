@@ -100,6 +100,9 @@ Or, alternatively, all in one go:
 secant <- nonstrictly(secant)  # Get back the original function
 secant <- strictly(secant, list(~x, ~dx) ~ {is.numeric(.) && length(.) == 1L})
 
+secant(log, 1, .1)
+#> [1] 0.9531018
+
 secant(log, "1", c(.1, .01))
 #> Error: secant(f = log, x = "1", dx = c(0.1, 0.01))
 #> 1) FALSE: (function(.) {is.numeric(.) && length(.) == 1L})(x)
