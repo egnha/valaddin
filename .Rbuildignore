@@ -3,3 +3,4 @@
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^codecov\.yml$
+^.*\.org$
