@@ -38,7 +38,7 @@ secant_numeric(log, "1", ".1")
 #> Error: is.numeric(x) is not TRUE
 ```
 
-### But the standard approach is problematic
+### But the standard approach in R is problematic
 
 While this works, it's not ideal, even in this simple situation, because
 
