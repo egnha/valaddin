@@ -186,7 +186,7 @@ bc_tri(.5, .6)
 
 #### Layer checks using the magrittr pipe `%>%`
 
-"Turn on" checks in stages using the
+Activate checks in stages using the
 [magrittr](https://github.com/tidyverse/magrittr) pipe `%>%`:
 
 ```R
