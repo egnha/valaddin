@@ -154,7 +154,7 @@ bc_num(".5", ".2")
 #> 2) FALSE: is.numeric(y)
 ```
 
-Or do so with a custom error message:
+Or fill in a custom error message:
 
 ```R
 bc_num <- strictly(bc, "Not numeric" ~ is.numeric)
