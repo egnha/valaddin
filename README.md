@@ -2,6 +2,7 @@
 
 [![Travis-CI Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=master)](https://travis-ci.org/egnha/valaddin)
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Dealing with invalid function inputs is a chronic pain for R users, given R's 
 weakly typed nature. _valaddin_ provides pain relief: it is a simple R package 
