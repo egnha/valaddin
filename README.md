@@ -66,12 +66,13 @@ secant_scalar(log, "1", c(.1, .01))  # Two problems, but only one is reported
 ### valaddin overcomes these problems
 
 valaddin provides a function `strictly()` that takes care of input validation by
-*transforming* the existing function, instead of forcing you to write a new one.
-It also helps you by reporting *every* failing check.
+_transforming_ the existing function, instead of forcing you to write a new one.
+It also helps you by reporting _every_ failing check.
 
 ```R
 library(valaddin)
 
+# Check that `x` and `dx` are numeric
 secant <- strictly(secant, list(~x, ~dx) ~ is.numeric)
 
 secant(log, 1, .1)
@@ -80,10 +81,10 @@ secant(log, 1, .1)
 secant(log, "1", ".1")
 #> Error: secant(f = log, x = "1", dx = ".1")
 #> 1) FALSE: is.numeric(x)
-#> 2) FALSE: isi.numeric(dx)
+#> 2) FALSE: is.numeric(dx)
 ```
 
-And to add additional checks, just apply the same procedure again:
+To add additional checks, just apply the same procedure again:
 
 ```R
 secant <- strictly(secant, list(~x, ~dx) ~ {length(.) == 1L})
@@ -109,6 +110,105 @@ secant(log, "1", c(.1, .01))
 #> 2) FALSE: (function(.) {is.numeric(.) && length(.) == 1L})(dx)
 ```
 
+### Check anything using a simple, consistent syntax
+
+`strictly()` uses a simple formula syntax to specify arbitrary checks—not
+just type checks. Every check is a formula of the form `<where to check> ~ <what
+to check>`.
+
+To make checks for `strictly()` informative and easy to specify, valaddin
+provides a number of conveniences.
+
+#### Use custom error messages
+
+To clarify the _purpose_ of a check, use a custom error message:
+
+```R
+bc <- function(x, y) c(x, y, 1 - x - y)
+
+# Check that `y` is positive
+bc_uhp <- strictly(bc, list("(x, y) not in upper half-plane" ~ y) ~ {. > 0})
+
+bc_uhp(.5, .2)
+#> [1] 0.5 0.2 0.3
+
+bc_uhp(.5, -.2)
+#> Error: bc_uhp(x = 0.5, y = -0.2)
+#> (x, y) not in upper half-plane
+```
+
+#### Easily apply a check to all arguments
+
+Leave the left-hand side of a check formula blank to apply it to all arguments:
+
+```R
+bc_num <- strictly(bc, ~ is.numeric)
+
+bc_num(.5, ".2")
+#> Error: bc_num(x = 0.5, y = ".2")
+#> FALSE: is.numeric(y)
+
+bc_num(".5", ".2")
+#> Error: bc_num(x = ".5", y = ".2")
+#> 1) FALSE: is.numeric(x)
+#> 2) FALSE: is.numeric(y)
+```
+
+Or do so with a custom error message:
+
+```R
+bc_num <- strictly(bc, "Not numeric" ~ is.numeric)
+
+bc_num(.5, ".2")
+#> Error: bc_num(x = 0.5, y = ".2")
+#> Not numeric: `y`
+```
+
+#### Check conditions with multi-argument dependencies
+
+Use the `lift()` function from the [purrr](https://github.com/hadley/purrr)
+package to specify checks depending on multiple arguments:
+
+```R
+library(purrr)
+
+in_triangle <- function(x, y) x >= 0 && y >= 0 && 1 - x - y >= 0
+in_triangle <- purrr::lift(in_triangle)
+bc_tri <- strictly(bc, list("(x, y) not in triangle" ~ list(x, y)) ~ in_triangle)
+
+bc_tri(.5, .2)
+#> [1] 0.5 0.2 0.3
+
+bc_tri(.5, .6)
+#> Error: bc_tri(x = 0.5, y = 0.6)
+#> (x, y) not in triangle
+```
+
+#### Layer checks using the magrittr pipe `%>%`
+
+"Turn on" checks in stages using the
+[magrittr](https://github.com/tidyverse/magrittr) pipe `%>%`:
+
+```R
+library(magrittr)
+
+bc_stc <- bc %>%
+  strictly("Not numeric" ~ is.numeric, "Not scalar" ~ {length(.) == 1L}) %>%
+  strictly(list("(x, y) not in triangle" ~ list(x, y)) ~ in_triangle)
+                   
+bc_stc(.5, .2)
+#> [1] 0.5 0.2 0.3
+
+bc_stc(.5, c(.2, .1))
+#> Error: bc_stc(x = 0.5, y = c(0.2, 0.1))
+#> Not scalar: `y`
+
+bc_stc(".5", 1)
+#> Error: bc_stc(x = ".5", y = 1)
+#> 1) Not numeric: `x`
+#> 2) (x, y) not in triangle
+```
+
 ## Installation
 
 Install from GitHub using the [devtools](https://github.com/hadley/devtools)
@@ -120,8 +220,7 @@ devtools::install_github("egnha/valaddin")
 ```
 
 See the package documentation `?strictly`, `help(p = valaddin)` for detailed 
-information about `strictly()` (and its companion functions), such as the use of
-**custom error messages** and **multi-argument checks**.
+information about `strictly()` and its companion functions.
 
 ## Related packages
 
