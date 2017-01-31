@@ -9,8 +9,8 @@
 #'   \item \code{strict_args()}: extracts the names of arguments whose presence
 #'     is to be checked
 #' }
-#' \code{is_strict_closure()} is a predicate function that checks whether a
-#' function is a strictly applied function with checks or missing-argument
+#' \code{is_strict_closure()} is a predicate function that checks whether an
+#' object is a strictly applied function with checks or missing-argument
 #' warning, i.e., a function of class \code{"strict_closure"}.
 #'
 #' @param x R object.
