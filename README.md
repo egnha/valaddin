@@ -116,8 +116,8 @@ secant(log, "1", c(.1, .01))
 `strictly()` uses a simple formula syntax to specify arbitrary checks—not just 
 type checks. Every check is a formula of the form `<where to check> ~ <what to 
 check>`. The "what" part on the right is a _function_ that does a check, while
-the (form of the) "where" part on the left indicates _where_ to apply the
-check—at which arguments or expressions thereof.
+the (form of the) "where" part on the left indicates where to apply the
+check—at which _arguments_ or _expressions_ thereof.
 
 valaddin provides a number of conveniences to make checks for `strictly()`
 informative and easy to specify.
