@@ -1,9 +1,11 @@
 Package: valaddin
 Title: Validate Function Inputs
 Version: 0.1.0.9999
-Authors@R: person("Eugene", "Ha", , email = "eha@posteo.de", c("aut", "cre"))
+Authors@R: person("Eugene", "Ha",
+                  email = "eha@posteo.de", role = c("aut", "cre"))
 Description: A set of basic tools to transform functions into functions with
-    input validation checks, post factum.
+    input validation checks, in a manner suitable for both programmatic use and
+    interactive sessions.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -17,6 +19,7 @@ Suggests:
     stringr,
     covr
 URL: https://github.com/egnha/valaddin
+BugReports: https://github.com/egnha/valaddin/issues
 RoxygenNote: 5.0.1
 Collate:
     'checklist.R'
