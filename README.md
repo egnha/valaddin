@@ -43,8 +43,8 @@ secant_numeric(log, "1", ".1")
 
 While this works, it's not ideal, even in this simple situation, because
 
-* it's inconvenient for interactive use—you have to declare a new function, and
-give it a new name (or copy-paste the original function body)
+* it's inconvenient for interactive use at the console: you have to declare a
+new function, and give it a new name (or copy-paste the original function body)
 
 * it doesn't catch all errors, only the first that occurs among the checks.
 
