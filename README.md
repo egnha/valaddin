@@ -49,7 +49,8 @@ new function, and give it a new name (or copy-paste the original function body)
 * it doesn't catch all errors, only the first that occurs among the checks.
 
 Moreover, if you later realize you need additional checks, for example, that `x`
-and `dx` should be numbers not vectors, you're back to square one:
+and `dx` should be numbers not vectors, or want to skip them altogether, you're
+back to square one:
 
 ```R
 secant_scalar <- function(f, x, dx) {
