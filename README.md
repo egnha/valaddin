@@ -113,12 +113,14 @@ secant(log, "1", c(.1, .01))
 
 ### Check anything using a simple, consistent syntax
 
-`strictly()` uses a simple formula syntax to specify arbitrary checks—not
-just type checks. Every check is a formula of the form `<where to check> ~ <what
-to check>`.
+`strictly()` uses a simple formula syntax to specify arbitrary checks—not just 
+type checks. Every check is a formula of the form `<where to check> ~ <what to 
+check>`. The "what" part on the right is a function that does a check, while the
+(form of the) "where" part on the left indicates where to apply the check—at
+which arguments or expressions thereof.
 
-To make checks for `strictly()` informative and easy to specify, valaddin
-provides a number of conveniences.
+valaddin provides a number of conveniences to make checks for `strictly()`
+informative and easy to specify.
 
 #### Use custom error messages
 
@@ -193,19 +195,19 @@ Activate checks in stages using the
 ```R
 library(magrittr)
 
-bc_stc <- bc %>%
+bc <- bc %>%
   strictly("Not numeric" ~ is.numeric, "Not scalar" ~ {length(.) == 1L}) %>%
   strictly(list("(x, y) not in triangle" ~ list(x, y)) ~ in_triangle)
                    
-bc_stc(.5, .2)
+bc(.5, .2)
 #> [1] 0.5 0.2 0.3
 
-bc_stc(.5, c(.2, .1))
-#> Error: bc_stc(x = 0.5, y = c(0.2, 0.1))
+bc(.5, c(.2, .1))
+#> Error: bc(x = 0.5, y = c(0.2, 0.1))
 #> Not scalar: `y`
 
-bc_stc(".5", 1)
-#> Error: bc_stc(x = ".5", y = 1)
+bc(".5", 1)
+#> Error: bc(x = ".5", y = 1)
 #> 1) Not numeric: `x`
 #> 2) (x, y) not in triangle
 ```
