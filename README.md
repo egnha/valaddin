@@ -115,16 +115,16 @@ secant(log, "1", c(.1, .01))
 
 `strictly()` uses a simple formula syntax to specify arbitrary checks—not just 
 type checks. Every check is a formula of the form `<where to check> ~ <what to 
-check>`. The "what" part on the right is a function that does a check, while the
-(form of the) "where" part on the left indicates where to apply the check—at
-which arguments or expressions thereof.
+check>`. The "what" part on the right is a _function_ that does a check, while
+the (form of the) "where" part on the left indicates _where_ to apply the
+check—at which arguments or expressions thereof.
 
 valaddin provides a number of conveniences to make checks for `strictly()`
 informative and easy to specify.
 
 #### Use custom error messages
 
-To clarify the _purpose_ of a check, use a custom error message:
+Use a custom error message to clarify the _purpose_ of a check:
 
 ```R
 bc <- function(x, y) c(x, y, 1 - x - y)
