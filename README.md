@@ -227,23 +227,23 @@ information about `strictly()` and its companion functions.
 
 ## Related packages
 
-* The [assertthat](https://github.com/hadley/assertthat) package provides a 
-handy collection of predicate functions that you can use with `strictly()`.
+* [assertthat](https://github.com/hadley/assertthat) provides a handy collection
+of predicate functions that you can use with `strictly()`.
 
-* The [argufy](https://github.com/gaborcsardi/argufy) package takes a different 
-approach to input validation, using
-[roxygen](https://github.com/klutometis/roxygen) comments to specify checks.
+* [argufy](https://github.com/gaborcsardi/argufy) takes a different approach to
+input validation, using [roxygen](https://github.com/klutometis/roxygen)
+comments to specify checks.
 
-* The [ensurer](https://github.com/smbache/ensurer) package provides a means of 
-validating function values, along with a replacement for `function()` to build 
-functions with type-validated arguments.
+* [ensurer](https://github.com/smbache/ensurer) provides a means of validating
+function values, along with a replacement for `function()` to build functions
+with type-validated arguments.
 
-* The [typeCheck](https://github.com/jimhester/typeCheck) package, together with
-[Types for R](https://github.com/jimhester/types), enables the creation of 
-functions with type-validated arguments by means of special type annotations.
-This approach is "dual" to that of valaddin: whereas valaddin specifies input
-checks as _predicate functions with scope_, typeCheck specifies input checks as
-_arguments with type_.
+* [typeCheck](https://github.com/jimhester/typeCheck), together with [Types for
+R](https://github.com/jimhester/types), enables the creation of functions with
+type-validated arguments by means of special type annotations. This approach is
+"dual" to that of valaddin: whereas valaddin specifies input checks as
+_predicate functions with scope_, typeCheck specifies input checks as _arguments
+with type_.
 
 ## License
 
