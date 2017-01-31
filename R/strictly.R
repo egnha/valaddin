@@ -222,18 +222,18 @@ NULL
 #'   Otherwise, \code{strictly()} returns a function of class
 #'   \code{"strict_closure"}. This function behaves \emph{identically} to
 #'   \code{.f}, with the exception that it does input validation, as follows:
-#'   \itemize{
-#'     \item 1. Validation: Before \code{.f} is called, every check-formula
+#'   \enumerate{
+#'     \item Validation: Before \code{.f} is called, every check-formula
 #'     predicate is evaluated: for each named argument, in the case of a global
 #'     check formula, and for each check-item expression, in the case of a local
 #'     check formula. Every resulting value of \code{FALSE}, or failure to
 #'     evalute the predicate itself, is tabulated; these are the
 #'     \emph{validation errors}.
 #'
-#'     \item 2. Error reporting: If there are any validation errors, an error is
+#'     \item Error reporting: If there are any validation errors, an error is
 #'     signaled listing them. Execution halts.
 #'
-#'     \item 3. Checks passed: If there are no validation errors, \code{.f} is
+#'     \item Checks passed: If there are no validation errors, \code{.f} is
 #'     called on the supplied arguments.
 #'   }
 #'   \code{strictly()} preserves the argument signature of \code{.f}, along with
