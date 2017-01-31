@@ -65,7 +65,7 @@ secant_scalar(log, "1", c(.1, .01))  # Two problems, but only one is reported
 #> Error: is.numeric(x) is not TRUE
 ```
 
-### valaddin overcomes these problems
+### `strictly()` rectifies these shortcomings
 
 valaddin provides a function `strictly()` that takes care of input validation by
 _transforming_ the existing function, instead of forcing you to write a new one.
