@@ -105,7 +105,8 @@ validating_closure <- function(.chks, .args, .fn, .warn) {
 
     # unlist(Map()) is somewhat faster than purrr::pmap_chr()
     .chks$msg <- unlist(Map(function(e, s, m) report_error(e, s, m, env),
-                            .chks$expr, .chks$string, .chks$msg))
+                            .chks$expr, .chks$string, .chks$msg),
+                        use.names = FALSE)
     is_problematic <- !is.na(.chks$msg)
 
     if (any(is_problematic)) {
