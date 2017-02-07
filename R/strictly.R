@@ -34,7 +34,8 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
     unfurl_args(lhs, .nm, .symb, .env)
   }
   string <- vapply(q, function(.) {
-    sprintf(string_funexpr(p_symb), deparse_collapse(lazyeval::f_rhs(.)))
+    paste0(string_funexpr(p_symb),
+           "(", deparse_collapse(lazyeval::f_rhs(.)), ")")
     }, character(1))
   is_empty <- names(q) == ""
   names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
@@ -335,6 +336,8 @@ NULL
 strictly <- strictly_(
   strictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("Can't apply strictly() if `.f` has an argument named `_chks__`" ~ .f) ~
+    {!"_chks__" %in% names(formals(.))},
   list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
     {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)},
   .warn_missing = TRUE

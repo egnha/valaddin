@@ -22,5 +22,5 @@ string_funexpr <- function(expr) {
     ch_fun <- deparse_collapse(expr)
   }
 
-  paste0(ch_fun, "(%s)")
+  ch_fun
 }
