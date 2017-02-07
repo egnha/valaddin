@@ -4,23 +4,23 @@
 # Null-default operator
 `%||%` <- purrr::`%||%`
 
-is_true  <- isTRUE
+skip <- function(...) {}
+
+# Aliases consistent with our style convention
+is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
 
-#' @importFrom utils head tail
-NULL
-
-#' Enumerate a character vector as a string
+#' Collapse a character vector into an enumerated string
 #'
 #' @param x Character vector.
 #' @param many Integer. How many is too many?
 #' @return String.
-#' @details Used in validation check template, must therefore be exported.
 #' @keywords internal
 enumerate_many <- function(x, many = 2L) {
   if (length(x) >= many) {
     paste(
-      purrr::map_chr(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]])),
+      vapply(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]]),
+             character(1)),
       collapse = ""
     )
   } else {
