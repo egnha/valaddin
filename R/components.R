@@ -46,7 +46,7 @@ strict_core <- function(x) {
 #' @rdname components
 #' @export
 strict_checks <- function(x) {
-  environment(x)$.chks
+  environment(x)$`_chks__`
 }
 
 #' @rdname components

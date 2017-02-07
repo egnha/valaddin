@@ -87,14 +87,14 @@ problems <- function(chks, verdict) {
   }, character(1))
 }
 
-validating_closure <- function(.chks, .args, .fn, .warn) {
+validating_closure <- function(`_chks__`, .args, .fn, .warn) {
   function() {
+    verdict <- lapply(`_chks__`$expr, eval,
+                      envir = environment(), enclos = parent.frame())
+    pass <- vapply(verdict, is_true, logical(1))
+
     call <- match.call()
     .warn(call)
-
-    env <- environment()
-    verdict <- lapply(.chks$expr, eval, envir = env, enclos = env)
-    pass <- vapply(verdict, is_true, logical(1))
 
     if (all(pass)) {
       parent <- parent.frame()
@@ -102,7 +102,7 @@ validating_closure <- function(.chks, .args, .fn, .warn) {
     } else {
       fail <- !pass
       msg_call  <- sprintf("%s\n", deparse_collapse(call))
-      msg_error <- enumerate_many(problems(.chks[fail, ], verdict[fail]))
+      msg_error <- enumerate_many(problems(`_chks__`[fail, ], verdict[fail]))
       stop(paste0(msg_call, msg_error), call. = FALSE)
     }
   }
