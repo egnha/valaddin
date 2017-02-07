@@ -30,7 +30,7 @@ is_checklist <- function(x) {
 }
 
 is_checklist_ <- function(x) {
-  if (is.list(x)) all(purrr::map_lgl(x, is_check_formula)) else FALSE
+  if (is.list(x)) all(vapply(x, is_check_formula, logical(1))) else FALSE
 }
 
 #' @rdname checklist
@@ -62,10 +62,10 @@ is_lhs_checkitem <- function(x) {
 is_flist <- function(x) {
   is.list(x) &&
     length(x) &&
-    all(purrr::map_lgl(x, function(.) {
+    all(vapply(x, function(.) {
       purrr::is_formula(.) && {
         lhs <- lazyeval::f_eval_lhs(.)
         is_onesided(.) || purrr::is_scalar_character(lhs)
       }
-    }))
+    }, logical(1)))
 }
