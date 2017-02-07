@@ -48,22 +48,8 @@ new function, and give it a new name (or copy-paste the original function body)
 
 * it doesn't catch all errors, only the first that occurs among the checks.
 
-Moreover, if you later realize you need additional checks, for example, that `x`
-and `dx` should be numbers not vectors, or want to skip them altogether, you're
-back to square one:
-
-```R
-secant_scalar <- function(f, x, dx) {
-  stopifnot(is.numeric(x), is.numeric(dx), length(x) == 1L, length(dx) == 1L)
-  secant(f, x, dx)
-}
-
-secant_scalar(log, 1, c(.1, .01))
-#> Error: length(dx) == 1L is not TRUE
-
-secant_scalar(log, "1", c(.1, .01))  # Two problems, but only one is reported
-#> Error: is.numeric(x) is not TRUE
-```
+Moreover, if you later realize you need additional checks, or want to skip them
+altogether, you're back to square one.
 
 ### `strictly()` rectifies these shortcomings
 
