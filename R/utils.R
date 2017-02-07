@@ -1,6 +1,3 @@
-# Pipe operator
-`%>%` <- magrittr::`%>%`
-
 # Null-default operator
 `%||%` <- purrr::`%||%`
 

@@ -1,19 +1,18 @@
 Package: valaddin
 Title: Validate Function Inputs
-Version: 0.1.0.9999
+Version: 0.0.0.9999
 Authors@R: person("Eugene", "Ha",
                   email = "eha@posteo.de", role = c("aut", "cre"))
 Description: A set of basic tools to transform functions into functions with
-    input validation checks, in a manner suitable for both programmatic use and
-    interactive sessions.
+    input validation checks, in a manner suitable for both programmatic and
+    interactive use.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
     lazyeval,
     purrr,
-    dplyr,
-    magrittr
+    dplyr
 Suggests:
     testthat,
     stringr,

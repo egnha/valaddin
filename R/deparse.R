@@ -1,12 +1,7 @@
 #' @include utils.R
 NULL
 
-#' Deparse a language object as a single string
-#'
-#' @param x Language object.
-#' @return String.
-#' @details Used in validation check template, must therefore be exported.
-#' @keywords internal
+# Deparse a language object as a single string
 deparse_collapse <- function(x) {
   paste(trimws(deparse(x), which = "both"), collapse = "")
 }
@@ -17,14 +12,15 @@ is_anon_function <- function(x) {
 
 string_funexpr <- function(expr) {
   if (is_anon_function(expr)) {
-    chr <- deparse(expr)
-    chr_body <- head(chr[-1L], -1L) %>%
-      trimws(which = "both") %>%
-      paste(collapse = "; ")
-    chr_fun <- paste0("(", chr[[1L]], chr_body, tail(chr, 1L), ")")
+    ch <- deparse(expr)
+    ch_body <- paste(
+      trimws(utils::head(ch[-1L], -1L), which = "both"),
+      collapse = "; "
+    )
+    ch_fun <- paste0("(", ch[[1L]], ch_body, utils::tail(ch, 1L), ")")
   } else {
-    chr_fun <- deparse_collapse(expr)
+    ch_fun <- deparse_collapse(expr)
   }
 
-  paste0(chr_fun, "(%s)")
+  paste0(ch_fun, "(%s)")
 }
