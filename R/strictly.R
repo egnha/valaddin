@@ -33,18 +33,18 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   } else {
     unfurl_args(lhs, .nm, .symb, .env)
   }
-  string <- purrr::map_chr(q, function(.)
+  string <- vapply(q, function(.) {
     sprintf(string_funexpr(p_symb), deparse_collapse(lazyeval::f_rhs(.)))
-  )
+    }, character(1))
   is_empty <- names(q) == ""
   names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
 
   purrr::pmap_df(list(q, string, names(q)), function(x, s, m) {
-    dplyr::data_frame(
-      expr   = list(as.call(c(predicate, lazyeval::f_rhs(x)))),
-      string = s,
-      msg    = m
+    expr <- substitute(
+      tryCatch(suppressWarnings(call), error = identity),
+      list(call = as.call(c(predicate, lazyeval::f_rhs(x))))
     )
+    dplyr::data_frame(expr = list(expr), string = s, msg = m)
   })
 }
 
@@ -55,8 +55,8 @@ warn <- function(.ref_args) {
     missing <- setdiff(.ref_args, names(.call[-1L]))
 
     if (length(missing)) {
-      msg <- "Missing required argument(s):" %>%
-        paste(paste(missing, collapse = ", "))
+      msg <- paste("Missing required argument(s):",
+                   paste(missing, collapse = ", "))
       warning(msg, call. = FALSE)
     }
 
@@ -67,54 +67,43 @@ warn <- function(.ref_args) {
 warning_closure <- function(.fn, .warn) {
   function() {
     call <- match.call()
-    parent <- parent.frame()
-
     .warn(call)
 
+    parent <- parent.frame()
     eval(.fn(call), parent, parent)
   }
 }
 
-report_error <- function(.expr, .string, .msg, .env) {
-  tryCatch(
-    {
-      val <- suppressWarnings(eval(.expr, .env, .env))
-
-      if (is_true(val))
-        NA_character_
-      else if (is_false(val))
-        .msg
-      else
-        sprintf("Predicate value %s not TRUE/FALSE: %s",
-                .string, deparse_collapse(val))
-    },
-    error = function(e)
-      sprintf("Error evaluating check %s: %s", .string, e$message)
-  )
+problems <- function(chks, verdict) {
+  vapply(seq_along(verdict), function(i) {
+    x <- verdict[[i]]
+    if (is_false(x))
+      chks$msg[[i]]
+    else if (is_error(x))
+      sprintf("Error evaluating check %s: %s", chks$string[[i]], x$message)
+    else
+      sprintf("Predicate value %s not TRUE/FALSE: %s",
+              chks$string[[i]], deparse_collapse(x))
+  }, character(1))
 }
 
 validating_closure <- function(.chks, .args, .fn, .warn) {
   function() {
     call <- match.call()
-
     .warn(call)
 
-    promises <- do.call(lazyeval::lazy_dots, .args)
-    parent <- parent.frame()
-    env <- lazy_assign(promises, new.env(parent = parent))
+    env <- environment()
+    verdict <- lapply(.chks$expr, eval, envir = env, enclos = env)
+    pass <- vapply(verdict, is_true, logical(1))
 
-    # unlist(Map()) is somewhat faster than purrr::pmap_chr()
-    .chks$msg <- unlist(Map(function(e, s, m) report_error(e, s, m, env),
-                            .chks$expr, .chks$string, .chks$msg),
-                        use.names = FALSE)
-    is_problematic <- !is.na(.chks$msg)
-
-    if (any(is_problematic)) {
-      msg_call  <- sprintf("%s\n", deparse_collapse(call))
-      msg_error <- enumerate_many(.chks[is_problematic, ]$msg)
-      stop(paste0(msg_call, msg_error), call. = FALSE)
-    } else {
+    if (all(pass)) {
+      parent <- parent.frame()
       eval(.fn(call), parent, parent)
+    } else {
+      fail <- !pass
+      msg_call  <- sprintf("%s\n", deparse_collapse(call))
+      msg_error <- enumerate_many(problems(.chks[fail, ], verdict[fail]))
+      stop(paste0(msg_call, msg_error), call. = FALSE)
     }
   }
 }
@@ -123,12 +112,7 @@ is_void_symb <- function(x) {
   is.symbol(x) && x == substitute()
 }
 
-#' Represent non-dot arguments by name and symbol
-#'
-#' @param sig Pairlist.
-#' @return List with components \code{"nm"} (character), \code{"symb"} (symbol),
-#'   \code{"wo_value"} (logical).
-#' @keywords internal
+# Represent non-dot arguments by name and symbol (sig: pairlist)
 nomen <- function(sig) {
   nm <- setdiff(names(sig), "...") %||% character(0)
   list(
@@ -162,7 +146,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   is_missing <-
     is_true(.warn_missing) ||
     is.null(.warn_missing) && !is.null(strict_args(.f))
-  maybe_warn <- if (is_missing) warn(arg$nm[arg$wo_value]) else invisible
+  maybe_warn <- if (is_missing) warn(arg$nm[arg$wo_value]) else skip
   f_core <- if (is_strict_closure(.f)) strict_core(.f) else .f
   fn <- call_fn(f_core)
   pre_chks <- strict_checks(.f)
@@ -240,11 +224,7 @@ NULL
 #'   \code{strictly()} preserves the argument signature of \code{.f}, along with
 #'   all its attributes (with the execption that the resulting class is
 #'   \code{"strict_closure"}, which inherits from the class of \code{.f}).
-#'
-#'   Technical note: \code{strictly()} parsimoniously preserves the lazy nature
-#'   of function arguments, when possible. In particular, if all checks pass,
-#'   then any argument that is not involved in a check is passed to \code{.f} as
-#'   an unevaluated promise.}
+#'   }
 #'
 #' @section Check formulae:
 #'   An input validation check is specified by a \link[stats]{formula}, where

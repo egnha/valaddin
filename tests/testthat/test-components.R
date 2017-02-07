@@ -26,10 +26,18 @@ test_that("strict_checks() gets checks", {
   expect_equal(nrow(chks_df), 4L)
 
   exprs <- list(
-    "FALSE: is_numeric(x)"  = substitute(f(x), list(f = is_numeric)),
-    "FALSE: is_numeric(y)"  = substitute(f(y), list(f = is_numeric)),
-    "FALSE: is_positive(x)" = substitute(f(x), list(f = is_positive)),
-    "y not greater than x"  = substitute(f(y-x), list(f = is_positive))
+    "FALSE: is_numeric(x)" = substitute(
+      tryCatch(suppressWarnings(f(x)), error = identity), list(f = is_numeric)
+    ),
+    "FALSE: is_numeric(y)" = substitute(
+      tryCatch(suppressWarnings(f(y)), error = identity), list(f = is_numeric)
+    ),
+    "FALSE: is_positive(x)" = substitute(
+      tryCatch(suppressWarnings(f(x)), error = identity), list(f = is_positive)
+    ),
+    "y not greater than x" = substitute(
+      tryCatch(suppressWarnings(f(y-x)), error = identity), list(f = is_positive)
+    )
   )
 
   # Checks in chks are correctly encoded in chks_df

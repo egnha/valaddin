@@ -53,11 +53,7 @@ argument without default value.) This question is disregarded if
   \code{strictly()} preserves the argument signature of \code{.f}, along with
   all its attributes (with the execption that the resulting class is
   \code{"strict_closure"}, which inherits from the class of \code{.f}).
-
-  Technical note: \code{strictly()} parsimoniously preserves the lazy nature
-  of function arguments, when possible. In particular, if all checks pass,
-  then any argument that is not involved in a check is passed to \code{.f} as
-  an unevaluated promise.}
+  }
 
 \subsection{\code{nonstrictly()}}{
   Returns the original function without checks. (This works even if the
