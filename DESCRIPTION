@@ -1,6 +1,6 @@
 Package: valaddin
 Title: Validate Function Inputs
-Version: 0.0.0.9999
+Version: 0.0.0.9000
 Authors@R: person("Eugene", "Ha",
                   email = "eha@posteo.de", role = c("aut", "cre"))
 Description: A set of basic tools to transform functions into functions with
@@ -26,6 +26,5 @@ Collate:
     'utils.R'
     'deparse.R'
     'functions.R'
-    'promises.R'
     'strictly.R'
     'valaddin.R'
