@@ -336,7 +336,7 @@ NULL
 strictly <- strictly_(
   strictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("Can't apply strictly() if `.f` has an argument named `_chks__`" ~ .f) ~
+  list("Can't apply strictly() when `.f` has an argument named `_chks__`" ~ .f) ~
     {!"_chks__" %in% names(formals(.))},
   list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
     {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)},

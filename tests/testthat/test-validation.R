@@ -313,7 +313,7 @@ test_that("invalid predicate value flagged by precise error of such", {
   }
 })
 
-test_that("check-eval error if check-formula variable not function variable", {
+test_that("check-eval error when check-formula variable not function variable", {
   # Functions with non-empty, non-dots-only argument signature
   fs <- map_lgl(args_list, ~ length(nomen(.)$nm) != 0L) %>% {
     lapply(args_list[.], pass_args)

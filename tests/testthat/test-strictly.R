@@ -1,6 +1,6 @@
 context("Strictly")
 
-test_that("error raised if .f is not a closure", {
+test_that("error raised when .f is not a closure", {
   errmsg <- "`.f` not an interpreted function"
   bad_fns <- list(NULL, NA, log, 1, "A", quote(ls))
 
@@ -9,8 +9,8 @@ test_that("error raised if .f is not a closure", {
   }
 })
 
-test_that("error raised if .f has an argument named _chks__", {
-  errmsg <- "Can't apply strictly\\(\\) if `.f` has an argument named `_chks__`"
+test_that("error raised when .f has an argument named _chks__", {
+  errmsg <- "Can't apply strictly\\(\\) when `.f` has an argument named `_chks__`"
   f <- function(`_chks__`, ...) NULL
 
   expect_error(strictly(f, .warn_missing = TRUE), errmsg)
@@ -18,7 +18,7 @@ test_that("error raised if .f has an argument named _chks__", {
   expect_error(strictly(f, ~ is.numeric, .warn_missing = TRUE), errmsg)
 })
 
-test_that("error raised if .warn_missing is not NULL/TRUE/FALSE", {
+test_that("error raised when .warn_missing is not NULL/TRUE/FALSE", {
   f <- function(x) NULL
 
   # No error if .warn_missing NULL/TRUE/FALSE
@@ -34,7 +34,7 @@ test_that("error raised if .warn_missing is not NULL/TRUE/FALSE", {
   }
 })
 
-test_that("error raised if .checklist is an invalid checklist", {
+test_that("error raised when .checklist is an invalid checklist", {
   f <- function(x, y = 1, ...) NULL
 
   errmsg <- "Invalid argument checks"
@@ -54,7 +54,7 @@ test_that("error raised if .checklist is an invalid checklist", {
   }
 })
 
-test_that("function is unchanged if no checks and .warn_missing is NULL", {
+test_that("function is unchanged when no checks and .warn_missing is NULL", {
   for (args in args_list) {
     f <-  pass_args(args)
 
@@ -63,7 +63,7 @@ test_that("function is unchanged if no checks and .warn_missing is NULL", {
   }
 })
 
-test_that("function is unchanged if it has no named arguments", {
+test_that("function is unchanged when it has no named arguments", {
   fns <- list(function() NULL, function(...) NULL)
   chks <- list(~is.numeric, "Negative" ~ {. >= 0}, list(~dummy) ~ is.function)
 
@@ -334,7 +334,7 @@ test_that(".warn_missing = NULL preserves missing-argument-check behavior", {
   }
 })
 
-test_that(".warn_missing is ignored if every named arg has default value", {
+test_that(".warn_missing is ignored when every named arg has default value", {
   f <- function(x = 1, ...) NULL
   f_strict <- strictly(f, ~is.numeric)
   f_strict_ <- strictly_(f, ~is.numeric)

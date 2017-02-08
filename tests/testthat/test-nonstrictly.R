@@ -2,7 +2,7 @@ context("Nonstrictly")
 
 fs <- lapply(args_list, pass_args)
 
-test_that("nonstrictly() raises error if .f not a closure", {
+test_that("error raised when .f not a closure", {
   errmsg <- "`.f` not an interpreted function"
   bad_fns <- list(NULL, NA, log, 1, "A", quote(ls))
 
@@ -11,7 +11,7 @@ test_that("nonstrictly() raises error if .f not a closure", {
   }
 })
 
-test_that("nonstrictly() raises error if .quiet not TRUE/FALSE", {
+test_that("error raised when .quiet not TRUE/FALSE", {
   f <- function(x) NULL
 
   # No error if .quiet TRUE/FALSE or not supplied
@@ -27,7 +27,7 @@ test_that("nonstrictly() raises error if .quiet not TRUE/FALSE", {
   }
 })
 
-test_that("nonstrictly() warns if not strict closure unless .quiet = TRUE", {
+test_that("warning when not strict closure, unless .quiet = TRUE", {
   for (f in fs) {
     expect_warning(nonstrictly(f, .quiet = FALSE),
                    "Argument not a strictly applied function")
@@ -42,7 +42,7 @@ test_that("nonstrictly() warns if not strict closure unless .quiet = TRUE", {
   }
 })
 
-test_that("nonstrictly() restores original function", {
+test_that("original function is restored", {
   for (f in fs) {
     f_strict <- strictly(f, ~ is.numeric)
     expect_identical(nonstrictly(f_strict, .quiet = TRUE), f)
@@ -60,7 +60,7 @@ test_that("nonstrictly() restores original function", {
   }
 })
 
-test_that("nonstrictly() restores original function environment", {
+test_that("original function environment is restored", {
   for (f in fs) {
     f_strict <- strictly(f, ~ is.numeric)
     expect_identical(environment(nonstrictly(f_strict, .quiet = TRUE)),
@@ -70,7 +70,7 @@ test_that("nonstrictly() restores original function environment", {
   }
 })
 
-test_that("nonstrictly() restores original function attributes", {
+test_that("original function attributes are restored", {
   set.seed(1)
 
   for (f in fs) {
