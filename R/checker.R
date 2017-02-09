@@ -35,13 +35,14 @@ make_check_ <- function(msg, p) {
 #' @param p Predicate function or lambda expression.
 #' @param msg String.
 #' @return Formula
-#' @export
 #' @examples
 #' \dontrun{
 #' is_number <- make_check(purrr::is_scalar_numeric, "Not a number")
 #' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 #' secant <- strictly(secant, is_number(x, dx))
 #' }
+#' @export
+#' @name make_check
 make_check <- strictly_(make_check_, .checklist = chk_mc, .warn_missing = TRUE)
 
 # make_assertthat_check()
