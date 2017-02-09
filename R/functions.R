@@ -1,3 +1,6 @@
+#' @include deparse.R
+NULL
+
 #' Call a function against a given call signature
 #'
 #' @param .f Function.

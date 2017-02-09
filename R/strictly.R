@@ -1,3 +1,6 @@
+#' @include components.R
+NULL
+
 unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
   q <- lapply(.arg_symb, lazyeval::f_new, env = .env)
   if (!is.null(.lhs)) {
