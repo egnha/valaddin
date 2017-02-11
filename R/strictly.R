@@ -12,13 +12,10 @@ unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
   q
 }
 
-lambda <- function(p, env) {
-  eval(call("function", as.pairlist(alist(. = )), p), env)
-}
-
 expr_lambda <- function(body) {
-  call("function", pairlist(. = substitute()), body)
+  call("function", as.pairlist(alist(. = )), body)
 }
+lambda <- function(p, env) eval(expr_lambda(p), env)
 
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
