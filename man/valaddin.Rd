@@ -2,7 +2,6 @@
 % Please edit documentation in R/valaddin.R
 \docType{package}
 \name{valaddin}
-\alias{valaddin}
 \alias{valaddin-package}
 \title{valaddin — Validate Function Inputs}
 \description{
@@ -42,6 +41,7 @@ More information can be found in the documentation page \link{strictly}.
 }
 \examples{
 \dontrun{
+
 library(valaddin)
 
 secant      <- function(f, x, dx) (f(x + dx) - f(x)) / dx
@@ -57,5 +57,6 @@ secant_stc(log, 1, log(1))    # NaN
 secant_stcr(log, 1, log(1))   # Error: "`dx` not non-zero"
 secant_stcr(log, 1, log("1")) # Error: Error evaluating checks
 }
+
 }
 
