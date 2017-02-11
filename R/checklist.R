@@ -11,8 +11,8 @@ NULL
 #' @return \code{is_check_formula(x)}, resp. \code{is_checklist(x)}, returns
 #'   \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
 #'   check formula, resp. checklist.
-#' @seealso \code{\link{strictly}}, for information on the specificaton and use
-#'   of check formulae.
+#' @seealso \link{strictly}, for information on the specificaton and use of
+#'   check formulae.
 #' @examples
 #' # Valid checklist
 #' is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))
@@ -20,6 +20,7 @@ NULL
 #' # Invalid checklists
 #' is_checklist(list(is.numeric ~ list(~ x)))        # Backwards
 #' is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
+#'
 #' @name checklist
 NULL
 
@@ -40,6 +41,12 @@ is_checklist_ <- function(x) {
 #' @export
 is_check_formula <- function(x) {
   purrr::is_formula(x) && is_rhs_function(x) && is_lhs_checkitem(x)
+}
+
+is_gbl_check_formula <- function(x) {
+  purrr::is_formula(x) &&
+    is_rhs_function(x) &&
+    purrr::is_scalar_character(lazyeval::f_eval_lhs(x))
 }
 
 is_rhs_function <- function(x) {
