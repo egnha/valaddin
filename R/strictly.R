@@ -48,7 +48,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
       tryCatch(suppressWarnings(call), error = identity),
       list(call = as.call(c(predicate, lazyeval::f_rhs(x))))
     )
-    dplyr::data_frame(expr = list(expr), string = s, msg = m)
+    dplyr::data_frame(expr = list(expr), env = list(.env), string = s, msg = m)
   })
 }
 
@@ -91,10 +91,15 @@ problems <- function(chks, verdict) {
   }, character(1))
 }
 
-validating_closure <- function(`_chks__`, .args, .fn, .warn) {
+validating_closure <- function(.chks, .args, .fn, .warn) {
   function() {
-    verdict <- lapply(`_chks__`$expr, eval,
-                      envir = environment(), enclos = parent.frame())
+    # verdict <- lapply(seq_len(nrow(`_chks__`)), function(i)
+    #   eval(`_chks__`$expr[[i]], enclos = `_chks__`$env[[i]])
+    # )
+    verdict <- lapply(parent.env(environment())$.chks$expr, function(expr) {
+      env <- parent.env(environment())
+      eval(expr, env, env)
+    })
     pass <- vapply(verdict, is_true, logical(1))
 
     call <- match.call()
@@ -104,9 +109,10 @@ validating_closure <- function(`_chks__`, .args, .fn, .warn) {
       parent <- parent.frame()
       eval(.fn(call), parent, parent)
     } else {
+      chks <- parent.env(environment())$.chks
       fail <- !pass
       msg_call  <- sprintf("%s\n", deparse_collapse(call))
-      msg_error <- enumerate_many(problems(`_chks__`[fail, ], verdict[fail]))
+      msg_error <- enumerate_many(problems(chks[fail, ], verdict[fail]))
       stop(paste0(msg_call, msg_error), call. = FALSE)
     }
   }
@@ -339,8 +345,6 @@ NULL
 strictly <- strictly_(
   strictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("Can't apply strictly() when `.f` has an argument named `_chks__`" ~ .f) ~
-    {!"_chks__" %in% names(formals(.))},
   list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
     {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)},
   .warn_missing = TRUE

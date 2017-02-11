@@ -9,15 +9,6 @@ test_that("error raised when .f is not a closure", {
   }
 })
 
-test_that("error raised when .f has an argument named _chks__", {
-  errmsg <- "Can't apply strictly\\(\\) when `.f` has an argument named `_chks__`"
-  f <- function(`_chks__`, ...) NULL
-
-  expect_error(strictly(f, .warn_missing = TRUE), errmsg)
-  expect_error(strictly(f, ~ is.numeric), errmsg)
-  expect_error(strictly(f, ~ is.numeric, .warn_missing = TRUE), errmsg)
-})
-
 test_that("error raised when .warn_missing is not NULL/TRUE/FALSE", {
   f <- function(x) NULL
 
