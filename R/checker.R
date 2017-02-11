@@ -37,12 +37,15 @@ globalize_check_ <- function(chkr) {
 #'
 #' @seealso \link{strictly} explains the notion of "scope" for check formulae.
 #' @examples
+#' \dontrun{
+#'
 #' is_positive <- localize_check("Not positive" ~ {. > 0})
 #' is_positive(x, x - y)
 #' #> list("Not positive: `x`" ~ x, "Not positive: `x - y`" ~ x - y) ~ {. > 0}
 #'
 #' globalize_check(is_positive)
 #' #> "Not positive" ~ {. > 0}
+#' }
 #'
 #' @name scope
 NULL

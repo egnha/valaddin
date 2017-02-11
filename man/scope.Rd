@@ -24,12 +24,15 @@ function that generates a check formulae of local scope;
 check formula (of global scope). These operations are mutually invertible.
 }
 \examples{
+\dontrun{
+
 is_positive <- localize_check("Not positive" ~ {. > 0})
 is_positive(x, x - y)
 #> list("Not positive: `x`" ~ x, "Not positive: `x - y`" ~ x - y) ~ {. > 0}
 
 globalize_check(is_positive)
 #> "Not positive" ~ {. > 0}
+}
 
 }
 \seealso{
