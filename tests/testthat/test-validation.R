@@ -27,8 +27,7 @@ test_that("'{...}' predicate expression interpreted as lambda function", {
   # Only allow f to return TRUE
   chks <- list(
     named = chk ~ predicate,
-    anond = chk ~ {if (identical(., TRUE)) . else FALSE},
-    anonx = chk ~ {if (identical(.x, TRUE)) .x else FALSE}
+    anond = chk ~ {if (identical(., TRUE)) . else FALSE}
   )
   f_strict <- lapply(chks, strictly, .f = f)
   f_strict_ <- lapply(chks, strictly_, .f = f)

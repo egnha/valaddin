@@ -13,7 +13,7 @@ unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
 }
 
 lambda <- function(p, env) {
-  purrr::as_function(lazyeval::f_new(p, env = env))
+  eval(call("function", as.pairlist(alist(. = )), p), env)
 }
 
 expr_lambda <- function(body) {
@@ -25,7 +25,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   if (is_lambda(p)) {
     predicate <- lambda(p, .env)
     p_symb    <- expr_lambda(p)
-  } else {
+  } else {  # p: evaluates to function
     predicate <- lazyeval::f_eval_rhs(.chk)
     p_symb    <- p
   }
@@ -33,7 +33,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   lhs <- lazyeval::f_eval_lhs(.chk)
   q <- if (is.list(lhs)) {
     do.call(lazyeval::f_list, lhs)
-  } else {
+  } else {  # lhs: string or NULL
     unfurl_args(lhs, .nm, .symb, .env)
   }
   string <- vapply(q, function(.) {
