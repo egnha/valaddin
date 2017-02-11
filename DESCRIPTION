@@ -28,4 +28,5 @@ Collate:
     'components.R'
     'strictly.R'
     'checker.R'
+    'promises.R'
     'valaddin.R'
