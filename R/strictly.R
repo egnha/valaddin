@@ -44,11 +44,12 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
 
   purrr::pmap_df(list(q, string, names(q)), function(x, s, m) {
-    expr <- substitute(
-      tryCatch(suppressWarnings(call), error = identity),
-      list(call = as.call(c(predicate, lazyeval::f_rhs(x))))
+    dplyr::data_frame(
+      expr   = list(as.call(c(predicate, lazyeval::f_rhs(x)))),
+      env    = list(.env),
+      string = s,
+      msg    = m
     )
-    dplyr::data_frame(expr = list(expr), env = list(.env), string = s, msg = m)
   })
 }
 
@@ -93,26 +94,31 @@ problems <- function(chks, verdict) {
 
 validating_closure <- function(.chks, .args, .fn, .warn) {
   function() {
-    # verdict <- lapply(seq_len(nrow(`_chks__`)), function(i)
-    #   eval(`_chks__`$expr[[i]], enclos = `_chks__`$env[[i]])
-    # )
-    verdict <- lapply(parent.env(environment())$.chks$expr, function(expr) {
-      env <- parent.env(environment())
-      eval(expr, env, env)
-    })
-    pass <- vapply(verdict, is_true, logical(1))
-
     call <- match.call()
     .warn(call)
+
+    env <- environment()
+    encl <- parent.env(env)
+    env_args <- lazy_assign(encl$.args, env, new.env(parent = emptyenv()))
+    verdict <- Map(
+      function(expr, env_chk) {
+        parent.env(env_args) <- env_chk
+        tryCatch(
+          suppressWarnings(eval(expr, env_args, env_args)),
+          error = identity
+        )
+      },
+      encl$.chks$expr, encl$.chks$env
+    )
+    pass <- vapply(verdict, is_true, logical(1))
 
     if (all(pass)) {
       parent <- parent.frame()
       eval(.fn(call), parent, parent)
     } else {
-      chks <- parent.env(environment())$.chks
       fail <- !pass
       msg_call  <- sprintf("%s\n", deparse_collapse(call))
-      msg_error <- enumerate_many(problems(chks[fail, ], verdict[fail]))
+      msg_error <- enumerate_many(problems(encl$.chks[fail, ], verdict[fail]))
       stop(paste0(msg_call, msg_error), call. = FALSE)
     }
   }
@@ -189,9 +195,53 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
 #' @param .f Interpreted function, i.e., function of type \code{"closure"}, not
 #'   a primitive function.
 #'
-#' @seealso \code{\link{checklist}}: predicate functions for verifying the
-#'   syntactic validity of checklists; \code{\link{components}}: functions for
-#'   extracting components of a strictly applied function.
+#' @seealso \link{checklist} — predicate functions for verifying the syntactic
+#'   validity of checklists; \link{scope} — functions for converting the scope
+#'   of check formulae; \link{components} — functions for extracting components
+#'   of a strictly applied function.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
+#'
+#' # Ensure that `f` is a function
+#' secant_stc <- strictly(secant, list("`f` not a function" ~ f) ~ is.function)
+#' secant_stc(log, 1, .1)    # 0.9531018
+#' secant_stc("log", 1, .1)  # Error: "`f` not a function"
+#'
+#' # Ensure that `x` and `dx` are numerical (possibly non-scalars)
+#' secant_vec <- strictly(secant_stc, list(~x, ~dx) ~ is.numeric)
+#' secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
+#' secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
+#' secant_vec(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
+#' secant_vec("log", "1", .1)    # Two errors
+#'
+#' # Ensure that `dx` is a numerical scalar
+#' secant_scalar <- strictly(secant_stc, list(~dx) ~ purrr::is_scalar_numeric)
+#' secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
+#' secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
+#' secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
+#'
+#' # Use purrr::lift() for predicate functions with multi-argument dependencies
+#' f <- function(f, l, r) secant(f, l, dx = r - l)
+#' is_monotone <- function(x, y) y - x > 0
+#' secant_right <- strictly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
+#' secant_right(log, 1, 1.1)  # 0.9531018
+#' secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
+#'
+#' # Alternatively, secant_right() can be implemented with a unary check
+#' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
+#' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
+#' secant_right2(log, 1, .9)  # Error (as before)
+#'
+#' # strictly() won't force any argument not involved in a check
+#' g <- strictly(function(x, y) "Pass", list(~x) ~ is.character)
+#' g(c("a", "b"), stop("Not signaled"))  # "Pass"
+#'
+#' # nonstrictly() recovers the underlying function
+#' identical(nonstrictly(secant_vec), secant)  # TRUE
+#' }
 #'
 #' @name strictly
 NULL
@@ -301,47 +351,6 @@ NULL
 #'   \preformatted{
 #'   ~ function(.) {. > 0}}
 #'   is equivalent to the check formula \code{~ {. > 0}}.
-#' @examples
-#' \dontrun{
-#' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
-#'
-#' # Ensure that `f` is a function
-#' secant_stc <- strictly(secant, list("`f` not a function" ~ f) ~ is.function)
-#' secant_stc(log, 1, .1)    # 0.9531018
-#' secant_stc("log", 1, .1)  # Error: "`f` not a function"
-#'
-#' # Ensure that `x` and `dx` are numerical (possibly non-scalars)
-#' secant_vec <- strictly(secant_stc, list(~x, ~dx) ~ is.numeric)
-#' secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
-#' secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
-#' secant_vec(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
-#' secant_vec("log", "1", .1)    # Two errors
-#'
-#' # Ensure that `dx` is a numerical scalar
-#' secant_scalar <- strictly(secant_stc, list(~dx) ~ purrr::is_scalar_numeric)
-#' secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
-#' secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
-#' secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
-#'
-#' # Use purrr::lift() for predicate functions with multi-argument dependencies
-#' f <- function(f, l, r) secant(f, l, dx = r - l)
-#' is_monotone <- function(x, y) y - x > 0
-#' secant_right <- strictly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
-#' secant_right(log, 1, 1.1)  # 0.9531018
-#' secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
-#'
-#' # Alternatively, secant_right() can be implemented with a unary check
-#' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
-#' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
-#' secant_right2(log, 1, .9)  # Error (as before)
-#'
-#' # strictly() won't force any argument not involved in a check
-#' g <- strictly(function(x, y) "Pass", list(~x) ~ is.character)
-#' g(c("a", "b"), stop("Not signaled"))  # "Pass"
-#'
-#' # nonstrictly() recovers the underlying function
-#' identical(nonstrictly(secant_vec), secant)  # TRUE
-#' }
 strictly <- strictly_(
   strictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,

@@ -135,6 +135,7 @@ returning the original function, without checks.
 }
 \examples{
 \dontrun{
+
 secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 
 # Ensure that `f` is a function
@@ -174,10 +175,12 @@ g(c("a", "b"), stop("Not signaled"))  # "Pass"
 # nonstrictly() recovers the underlying function
 identical(nonstrictly(secant_vec), secant)  # TRUE
 }
+
 }
 \seealso{
-\code{\link{checklist}}: predicate functions for verifying the
-  syntactic validity of checklists; \code{\link{components}}: functions for
-  extracting components of a strictly applied function.
+\link{checklist} — predicate functions for verifying the syntactic
+  validity of checklists; \link{scope} — functions for converting the scope
+  of check formulae; \link{components} — functions for extracting components
+  of a strictly applied function.
 }
 

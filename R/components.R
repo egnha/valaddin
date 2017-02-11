@@ -28,9 +28,10 @@ NULL
 #' f_stc <- strictly(f, ~ is.numeric, list(~x, ~ y - x) ~ {. > 0})
 #'
 #' identical(strict_core(f_stc), f)                    # TRUE
-#' strict_checks(f_stc)                                # 4 x 3 data frame
+#' strict_checks(f_stc)                                # 4 x 4 data frame
 #' strict_args(f_stc)                                  # NULL
 #' strict_args(strictly(f_stc, .warn_missing = TRUE))  # "x" "y"
+#'
 #' @name components
 NULL
 
