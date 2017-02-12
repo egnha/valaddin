@@ -415,7 +415,6 @@ test_that("names in checking procedure don't override function arguments", {
     # Make invalid argument list (i.e., non-numeric)
     subset <- t(subsets[i, ])
     args <- as.list(setNames(nm = nms[subset]))
-    args[] <- "text"
 
     expect_n_errors(n = length(args), f_strict, args, "Not numeric")
   }
