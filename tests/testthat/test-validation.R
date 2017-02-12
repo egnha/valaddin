@@ -356,3 +356,42 @@ test_that("check-eval error when check-formula variable not function variable", 
                     f_strict_, args, "Error evaluating check")
   }
 })
+
+test_that("predicate is evaluated in its ambient formula environment", {
+  has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
+  fs <- lapply(args_list[has_xy], pass_args)
+
+  predicate <- function(x) identical(x, "external")
+  chk <- list("Not external" ~ x) ~ predicate
+
+  for (f in fs) {
+    f_ext <- strictly(f, list("Not external" ~ x) ~ predicate)
+    g <- (function() {
+      parent <- parent.frame()
+      predicate <- function(x) identical(x, "internal")
+      list(
+        int  = strictly(f, list("Not internal" ~ x) ~ predicate),
+        # Evaluate in enclosure
+        ext1 = eval(quote(strictly(f, list("Not external" ~ x) ~ predicate)),
+                    parent),
+        # Evaluate locally but evaluate check in enclosure
+        ext2 = strictly(f, eval(quote(list("Not external" ~ x) ~ predicate),
+                                parent)),
+        # Evaluate locally but reference check in enclosure
+        ext3 = strictly(f, chk)
+      )
+    })()
+
+    expect_error(f_ext(x = "external"), NA)
+    expect_error(g$ext1(x = "external"), NA)
+    expect_error(g$ext2(x = "external"), NA)
+    expect_error(g$ext3(x = "external"), NA)
+    expect_error(g$int(x = "internal"), NA)
+
+    expect_error(f_ext(x = "internal"), "Not external")
+    expect_error(g$ext1(x = "internal"), "Not external")
+    expect_error(g$ext2(x = "internal"), "Not external")
+    expect_error(g$ext3(x = "internal"), "Not external")
+    expect_error(g$int(x = "external"), "Not internal")
+  }
+})
