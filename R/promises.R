@@ -1,17 +1,19 @@
-#' Assign symbols to an environment as promises
+#' Capture function-call arguments as promises
 #'
-#' @param symbs List of symbols.
-#' @param env_eval Common environment in which \code{symbs} are to be evaluated.
-#' @param env_asgn Environment to which \code{symbs} are to be bound.
-#' @return The environment \code{env_asgn}, invisibly.
+#' @param .call Function call (language).
+#' @param .sig Function argument signature (pairlist).
+#' @param .env Environment in which the function-call arguments are to be
+#'   (lazily) evaluated.
+#'
+#' @return Environment in which the function-call arguments (and no other
+#'   expressions) are bound as promises.
+#'
+#' @details This is essentially equivalent to using
+#'   \code{\link[base]{delayedAssign}()} in a for-loop to bind promises, but at
+#'   roughly twice the speed and half the code.
+#'
 #' @keywords internal
-lazy_assign <- function(symbs, env_eval, env_asgn) {
-  for (x in symbs) {
-    eval(substitute(
-      delayedAssign(deparse(x), ..expr.., env_eval, env_asgn),
-      list(..expr.. = x)
-    ))
-  }
-
-  invisible(env_asgn)
+promises <- function(.call, .sig, .env) {
+  .call[[1L]] <- eval(call("function", .sig, quote(environment())))
+  eval(.call, .env)
 }

@@ -89,19 +89,21 @@ problems <- function(chks, verdict) {
   }, character(1))
 }
 
-validating_closure <- function(.chks, .args, .fn, .warn) {
+validating_closure <- function(.chks, .sig, .fn, .warn) {
   function() {
     call <- match.call()
+
+    # Warn about missing required arguments (if requested)
     .warn(call)
 
-    env <- environment()
-    encl <- parent.env(env)
-    env_args <- lazy_assign(encl$.args, env, new.env(parent = emptyenv()))
+    parent <- parent.frame()
+    encl <- parent.env(environment())
+    env <- promises(call, encl$.sig, parent)
     verdict <- Map(
       function(expr, env_chk) {
-        parent.env(env_args) <- env_chk
+        parent.env(env) <- env_chk
         tryCatch(
-          suppressWarnings(eval(expr, env_args, env_args)),
+          suppressWarnings(eval(expr, env, env)),
           error = identity
         )
       },
@@ -110,7 +112,6 @@ validating_closure <- function(.chks, .args, .fn, .warn) {
     pass <- vapply(verdict, is_true, logical(1))
 
     if (all(pass)) {
-      parent <- parent.frame()
       eval(.fn(call), parent, parent)
     } else {
       fail <- !pass
@@ -171,13 +172,13 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
     f <- if (is.null(pre_chks))
       warning_closure(fn, maybe_warn)
     else
-      validating_closure(pre_chks, arg$symb, fn, maybe_warn)
+      validating_closure(pre_chks, sig, fn, maybe_warn)
   } else {
     assembled_chks <- dplyr::distinct(
       dplyr::bind_rows(pre_chks,
                        lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb))
     )
-    f <- validating_closure(assembled_chks, arg$symb, fn, maybe_warn)
+    f <- validating_closure(assembled_chks, sig, fn, maybe_warn)
   }
 
   strict_closure(with_sig(f, sig, .attrs = attributes(.f)))
