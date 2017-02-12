@@ -395,3 +395,28 @@ test_that("predicate is evaluated in its ambient formula environment", {
     expect_error(g$int(x = "external"), "Not internal")
   }
 })
+
+test_that("names in checking procedure don't override function arguments", {
+  # Names in execution environment of validating_closure()
+  nms <- c("call", "parent", "encl", "env", "verdict", "pass", "fail",
+           "msg_call", "msg_error", ".chks", ".sig", ".fn", ".warn")
+  def_args <- setNames(seq_along(nms), nms)
+  f <- eval(call("function", as.pairlist(def_args), quote("Pass")))
+  f_strict <- strictly(f, "Not numeric" ~ is.numeric)
+
+  # Check that f, f_strict are correctly defined
+  expect_error(f_strict(), NA)
+  expect_identical(f_strict(), f())
+
+  # ~ 10k possible combinations of arguments, so randomly sample them instead
+  subsets <- expand.grid(rep(list(c(TRUE, FALSE)), length(nms)))
+  rows <- {set.seed(1); sample.int(nrow(subsets), 100L)}
+  for (i in rows) {
+    # Make invalid argument list (i.e., non-numeric)
+    subset <- t(subsets[i, ])
+    args <- as.list(setNames(nm = nms[subset]))
+    args[] <- "text"
+
+    expect_n_errors(n = length(args), f_strict, args, "Not numeric")
+  }
+})
