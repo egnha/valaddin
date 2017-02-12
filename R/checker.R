@@ -11,7 +11,7 @@ localize_check_ <- function(chk) {
     parent <- parent.frame()
     lhs <- lapply(args, function(arg) {
       nm <- deparse_collapse(arg)
-      err <- paste(msg, encodeString(nm, quote = "`"), sep = ": ")
+      err <- paste(msg, nm, sep = ": ")
       lazyeval::f_new(arg, err, parent)
     })
 
