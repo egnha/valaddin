@@ -23,10 +23,7 @@ localize_check_ <- function(chk) {
 
 is_local_checker <- function(x) inherits(x, "local_checker")
 
-globalize_check_ <- function(chkr) {
-  env <- environment(chkr)
-  lazyeval::f_new(env$rhs, env$msg, env$env)
-}
+globalize_check_ <- function(chkr) environment(chkr)$chk
 
 #' Convert the scope of a check formula
 #'
@@ -54,7 +51,7 @@ NULL
 #' @export
 #' @param chk Check formula of global scope with a custom error message, i.e., a
 #'   formula of the form \code{<string> ~ <predicate>}, cf. \link{strictly}.
-localize_check <- strictly_(
+localize_check <- strictly(
   localize_check_,
   list("`chk` must be a formula of the form <string> ~ <predicate>" ~ chk) ~
     is_gbl_check_formula,
@@ -65,9 +62,9 @@ localize_check <- strictly_(
 #' @export
 #' @param chkr Function of class \code{"local_checker"}, i.e., a function
 #'   created by \code{localize_check()}.
-globalize_check <- strictly_(
+globalize_check <- strictly(
   globalize_check_,
-  list("`chkr` local checker function, see ?localize_check" ~ chkr) ~
+  list("`chkr` must be a local checker function, see ?localize_check" ~ chkr) ~
     is_local_checker,
   .warn_missing = TRUE
 )
