@@ -21,13 +21,12 @@ URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
 RoxygenNote: 5.0.1
 Collate:
+    'checklist.R'
+    'components.R'
     'utils.R'
     'deparse.R'
-    'checklist.R'
-    'promises.R'
-    'components.R'
     'functions.R'
+    'promises.R'
     'strictly.R'
     'scope.R'
-    'checkers.R'
     'valaddin.R'
