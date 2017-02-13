@@ -1,6 +1,3 @@
-#' @include functions.R
-NULL
-
 #' Is a formula a check formula?
 #'
 #' \code{is_check_formula(x)} checks whether \code{x} is a check formula, while

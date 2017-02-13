@@ -1,4 +1,4 @@
-#' @include components.R
+#' @include functions.R components.R promises.R checklist.R deparse.R
 NULL
 
 unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
@@ -377,7 +377,7 @@ nonstrictly_ <- function(.f, .quiet = FALSE) {
 #' @return \subsection{\code{nonstrictly()}}{
 #'   Returns the original function without checks. (This works even if the
 #'   original function has been removed.)}
-nonstrictly <- strictly_(
+nonstrictly <- strictly(
   nonstrictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
   list("`.quiet` not TRUE/FALSE" ~ .quiet) ~ {is_true(.) || is_false(.)}

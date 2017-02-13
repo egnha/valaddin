@@ -1,6 +1,3 @@
-#' @include checklist.R
-NULL
-
 #' Components of a strictly applied function
 #'
 #' Helper functions are provided to extract the components of a strictly applied
