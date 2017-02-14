@@ -39,11 +39,11 @@ localize_check_ <- function(chk) {
     lazyeval::f_new(.rhs, lhs, .env)
   }
 
-  structure(chkr, class = c("local_checker", class(chkr)))
+  structure(chkr, class = c("check_maker", class(chkr)))
 }
 
-is_local_checker <- function(x) {
-  purrr::is_function(x) && inherits(x, "local_checker")
+is_check_maker <- function(x) {
+  purrr::is_function(x) && inherits(x, "check_maker")
 }
 
 globalize_check_ <- function(chkr) environment(chkr)$chk
@@ -61,21 +61,21 @@ localize_check <- strictly(
 
 #' @rdname scope
 #' @export
-#' @param chkr Function of class \code{"local_checker"}, i.e., created by
+#' @param chkr Function of class \code{"check_maker"}, i.e., created by
 #'   \code{localize_check()}.
 globalize_check <- strictly(
   globalize_check_,
   list("`chkr` must be a local checker function, see ?localize_check" ~ chkr) ~
-    is_local_checker,
+    is_check_maker,
   .warn_missing = TRUE
 )
 
 #' @export
-print.local_checker <- function(x, ...) {
+print.check_maker <- function(x, ...) {
   env <- environment(x)
   p <- env$.rhs
 
-  cat("<local_checker>\n")
+  cat("<check_maker>\n")
 
   cat("\n* Predicate function:\n")
   p <- if (is_lambda(p)) expr_lambda(p) else p
