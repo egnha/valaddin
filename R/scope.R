@@ -1,30 +1,6 @@
 #' @include strictly.R
 NULL
 
-localize_check_ <- function(chk) {
-  msg <- lazyeval::f_eval_lhs(chk)
-  rhs <- lazyeval::f_rhs(chk)
-  env <- lazyeval::f_env(chk)
-
-  chkr <- function(...) {
-    args <- eval(substitute(alist(...)))
-    parent <- parent.frame()
-    lhs <- lapply(args, function(arg) {
-      nm <- deparse_collapse(arg)
-      err <- paste(msg, nm, sep = ": ")
-      lazyeval::f_new(arg, err, parent)
-    })
-
-    lazyeval::f_new(rhs, lhs, env)
-  }
-
-  structure(chkr, class = c("local_checker", class(chkr)))
-}
-
-is_local_checker <- function(x) inherits(x, "local_checker")
-
-globalize_check_ <- function(chkr) environment(chkr)$chk
-
 #' Convert the scope of a check formula
 #'
 #' \code{localize_check()} converts a check formula of global scope into a
@@ -47,6 +23,31 @@ globalize_check_ <- function(chkr) environment(chkr)$chk
 #' @name scope
 NULL
 
+localize_check_ <- function(chk) {
+  .msg <- lazyeval::f_eval_lhs(chk)
+  .rhs <- lazyeval::f_rhs(chk)
+  .env <- lazyeval::f_env(chk)
+
+  chkr <- function(...) {
+    args <- eval(substitute(alist(...)))
+    parent <- parent.frame()
+    lhs <- lapply(args, function(arg) {
+      errmsg <- paste(.msg, deparse_collapse(arg), sep = ": ")
+      lazyeval::f_new(arg, errmsg, parent)
+    })
+
+    lazyeval::f_new(.rhs, lhs, .env)
+  }
+
+  structure(chkr, class = c("local_checker", class(chkr)))
+}
+
+is_local_checker <- function(x) {
+  purrr::is_function(x) && inherits(x, "local_checker")
+}
+
+globalize_check_ <- function(chkr) environment(chkr)$chk
+
 #' @rdname scope
 #' @export
 #' @param chk Check formula of global scope with a custom error message, i.e., a
@@ -60,8 +61,8 @@ localize_check <- strictly(
 
 #' @rdname scope
 #' @export
-#' @param chkr Function of class \code{"local_checker"}, i.e., a function
-#'   created by \code{localize_check()}.
+#' @param chkr Function of class \code{"local_checker"}, i.e., created by
+#'   \code{localize_check()}.
 globalize_check <- strictly(
   globalize_check_,
   list("`chkr` must be a local checker function, see ?localize_check" ~ chkr) ~
