@@ -19,7 +19,7 @@ Suggests:
     covr
 URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Collate:
     'checklist.R'
     'components.R'
