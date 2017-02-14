@@ -2,8 +2,8 @@
 % Please edit documentation in R/checklist.R
 \name{checklist}
 \alias{checklist}
-\alias{is_check_formula}
 \alias{is_checklist}
+\alias{is_check_formula}
 \title{Is a formula a check formula?}
 \usage{
 is_checklist(x)
@@ -41,4 +41,3 @@ is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
 \link{strictly}, for information on the specificaton and use of
   check formulae.
 }
-

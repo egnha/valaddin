@@ -16,4 +16,3 @@ Function of a call (as a language object).
 Call a function against a given call signature
 }
 \keyword{internal}
-

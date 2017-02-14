@@ -27,4 +27,3 @@ This is essentially equivalent to using
   roughly twice the speed and half the code.
 }
 \keyword{internal}
-

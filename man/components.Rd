@@ -3,9 +3,9 @@
 \name{components}
 \alias{components}
 \alias{is_strict_closure}
-\alias{strict_args}
-\alias{strict_checks}
 \alias{strict_core}
+\alias{strict_checks}
+\alias{strict_args}
 \title{Components of a strictly applied function}
 \usage{
 is_strict_closure(x)
@@ -51,4 +51,3 @@ strict_args(f_stc)                                  # NULL
 strict_args(strictly(f_stc, .warn_missing = TRUE))  # "x" "y"
 
 }
-

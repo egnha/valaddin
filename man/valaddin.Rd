@@ -59,4 +59,3 @@ secant_stcr(log, 1, log("1")) # Error: Error evaluating checks
 }
 
 }
-

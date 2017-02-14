@@ -20,4 +20,3 @@ Function.
 Rewrite the argument signature of a function
 }
 \keyword{internal}
-
