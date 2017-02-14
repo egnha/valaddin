@@ -73,7 +73,7 @@ globalize_check <- strictly(
 #' @export
 print.local_checker <- function(x, ...) {
   env <- environment(x)
-  p <- env$rhs
+  p <- env$.rhs
 
   cat("<local_checker>\n")
 
@@ -82,5 +82,5 @@ print.local_checker <- function(x, ...) {
   cat(deparse_collapse(p), "\n")
 
   cat("\n* Error message:\n")
-  cat(encodeString(env$msg, quote = "\""), "\n")
+  cat(encodeString(env$.msg, quote = "\""), "\n")
 }
