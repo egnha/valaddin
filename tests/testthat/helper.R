@@ -84,6 +84,8 @@ esc_perl <- function(x) str_replace_all(x, "(\\W)", "\\\\\\1")
 
 # Adapt an expectation function to use Perl-style regex
 perlize <- function(f) {
+  force(f)
+
   function(object, regexp, ...) {
     f(object, esc_perl(regexp), perl = TRUE, ...)
   }
