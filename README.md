@@ -23,9 +23,9 @@ Suppose you have a function `secant()`
 secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 ```
 
-and you want to ensure that the user (or some code) supplies numerical inputs
-for `x` and `dx`. Typically, you'd rewrite `secant()` to check this condition,
-and stop if it's violated:
+and you want to ensure that the user (or some code) supplies numerical inputs 
+for `x` and `dx`. Typically, you'd rewrite `secant()` so that it stops if this
+condition is violated:
 
 ```R
 secant_numeric <- function(f, x, dx) {
