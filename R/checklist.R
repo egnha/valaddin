@@ -40,6 +40,7 @@ is_check_formula <- function(x) {
   purrr::is_formula(x) && is_rhs_function(x) && is_lhs_checkitem(x)
 }
 
+# Same as purrr::is_scalar_character() but with check against NA
 is_string <- function(x) {
   typeof(x) == "character" && length(x) == 1L && !is.na(x)
 }
@@ -66,17 +67,17 @@ is_onesided <- function(x) {
 }
 
 is_lhs_checkitem <- function(x) {
-  lhs <- lazyeval::f_eval_lhs(x)
-  is_onesided(x) || purrr::is_scalar_character(lhs) || is_flist(lhs)
+  is_onesided(x) || {
+    lhs <- lazyeval::f_eval_lhs(x)
+    is_string(lhs) || is_flist(lhs)
+  }
 }
 
 is_flist <- function(x) {
   is.list(x) &&
-    length(x) &&
+    length(x) != 0L &&
     all(vapply(x, function(.) {
-      purrr::is_formula(.) && {
-        lhs <- lazyeval::f_eval_lhs(.)
-        is_onesided(.) || purrr::is_scalar_character(lhs)
-      }
+      purrr::is_formula(.) &&
+        is_onesided(.) || is_string(lazyeval::f_eval_lhs(.))
     }, logical(1)))
 }
