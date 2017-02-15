@@ -31,7 +31,7 @@ is_checklist <- function(x) {
 }
 
 is_checklist_ <- function(x) {
-  if (is.list(x)) all(vapply(x, is_check_formula, logical(1))) else FALSE
+  is.list(x) && all(vapply(x, is_check_formula, logical(1)))
 }
 
 #' @rdname checklist
