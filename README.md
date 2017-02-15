@@ -4,27 +4,29 @@
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Dealing with invalid function inputs is a chronic pain for R users, given R's 
-weakly typed nature. _valaddin_ provides pain relief: it is a simple R package 
+Dealing with invalid function inputs is a chronic pain for R users, given R's
+weakly typed nature. _valaddin_ provides pain relief—a lightweight R package
 that enables you to transform an existing function into a function with input
-validation checks—with minimal fuss—in a manner suitable for both programmatic
+validation checks, with minimal fuss, in a manner suitable for both programmatic
 use and interactive sessions.
 
 ## Why use valaddin
 
-### Defensive programming is good practice
+### Immediately find out where and why your function trips
 
-Validating the inputs of your functions is [good programming
+Validating the inputs of your functions is good [defensive programming 
 practice](http://adv-r.had.co.nz/Exceptions-Debugging.html#defensive-programming).
-Say you have a function `secant()` declared as follows:
+Save time and confusion—fail fast.
+
+Suppose you have a function `secant()`
 
 ```R
 secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 ```
 
-If you want to ensure that `secant()` only accepts numerical inputs for `x` and
-`dx`, you'd normally rewrite `secant()` to check this condition, and stop if
-it's violated:
+and you want to ensure that the user (or some code) supplies numerical inputs
+for `x` and `dx`. Typically, you'd rewrite `secant()` to check this condition,
+and stop if it's violated:
 
 ```R
 secant_numeric <- function(f, x, dx) {
@@ -39,17 +41,16 @@ secant_numeric(log, "1", ".1")
 #> Error: is.numeric(x) is not TRUE
 ```
 
-### But the standard approach in R is problematic
+### The standard approach in R is problematic
 
 While this works, it's not ideal, even in this simple situation, because
 
 * it's inconvenient for interactive use at the console: you have to declare a 
 new function, and give it a new name (or copy-paste the original function body)
 
-* it doesn't catch all errors, only the first that occurs among the checks.
+* it doesn't catch all errors, only the first that occurs among the checks
 
-Moreover, if you later realize you need additional checks, or want to skip them
-altogether, you're back to square one.
+* you're back to square one, if you later realize you need additional checks, or want to skip them altogether.
 
 ### `strictly()` rectifies these shortcomings
 
