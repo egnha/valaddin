@@ -40,10 +40,14 @@ is_check_formula <- function(x) {
   purrr::is_formula(x) && is_rhs_function(x) && is_lhs_checkitem(x)
 }
 
+is_string <- function(x) {
+  typeof(x) == "character" && length(x) == 1L && !is.na(x)
+}
+
 is_gbl_check_formula <- function(x) {
   purrr::is_formula(x) &&
     is_rhs_function(x) &&
-    purrr::is_scalar_character(lazyeval::f_eval_lhs(x))
+    is_string(lazyeval::f_eval_lhs(x))
 }
 
 is_rhs_function <- function(x) {
