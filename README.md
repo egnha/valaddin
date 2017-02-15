@@ -12,7 +12,7 @@ use and interactive sessions.
 
 ## Why use valaddin
 
-### Save time and confusion—fail fast
+### Save time, spare confusion—fail fast
 
 Validating the inputs of your functions is good [defensive programming 
 practice](http://adv-r.had.co.nz/Exceptions-Debugging.html#defensive-programming).
