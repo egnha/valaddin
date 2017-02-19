@@ -1,6 +1,3 @@
-#' @include utils.R
-NULL
-
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
   paste(trimws(deparse(x), which = "both"), collapse = "")
