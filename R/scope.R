@@ -78,8 +78,10 @@ print.check_maker <- function(x, ...) {
   cat("<check_maker>\n")
 
   cat("\n* Predicate function:\n")
-  p <- if (is_lambda(p)) expr_lambda(p) else p
-  cat(deparse_collapse(p), "\n")
+  if (is_lambda(p))
+    cat(deparse_collapse(expr_lambda(p)), "\n")
+  else
+    print(p)
 
   cat("\n* Error message:\n")
   cat(encodeString(env$.msg, quote = "\""), "\n")
