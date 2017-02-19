@@ -9,9 +9,11 @@ Description: A set of basic tools to transform functions into functions with
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Depends:
+    R (>= 3.1.0)
 Imports:
     lazyeval (>= 0.2.0),
-    purrr,
+    purrr (>= 0.2.2),
     dplyr
 Suggests:
     testthat,
