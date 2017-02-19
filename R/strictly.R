@@ -1,4 +1,4 @@
-#' @include functions.R components.R promises.R checklist.R deparse.R
+#' @include checklist.R components.R deparse.R functions.R promises.R
 NULL
 
 unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {

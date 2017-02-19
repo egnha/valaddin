@@ -20,10 +20,10 @@ Suggests:
 URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
 RoxygenNote: 6.0.1
-Collate:
+Collate: 
+    'utils.R'
     'checklist.R'
     'components.R'
-    'utils.R'
     'deparse.R'
     'functions.R'
     'promises.R'
