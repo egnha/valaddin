@@ -31,4 +31,5 @@ Collate:
     'promises.R'
     'strictly.R'
     'scope.R'
+    'checkers.R'
     'valaddin.R'
