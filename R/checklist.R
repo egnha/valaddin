@@ -27,12 +27,13 @@ NULL
 #'   components of a list \code{x}, then \code{is_checklist(x)} returns
 #'   \code{FALSE}.
 is_checklist <- function(x) {
-  tryCatch(is_checklist_(x), error = function(e) FALSE)
+  is.list(x) && all(vapply(x, is_check_formula, logical(1)))
+  # tryCatch(is_checklist_(x), error = function(e) FALSE)
 }
 
-is_checklist_ <- function(x) {
-  is.list(x) && all(vapply(x, is_check_formula, logical(1)))
-}
+# is_checklist_ <- function(x) {
+#   is.list(x) && all(vapply(x, is_check_formula, logical(1)))
+# }
 
 #' @rdname checklist
 #' @export
@@ -78,6 +79,6 @@ is_flist <- function(x) {
     length(x) != 0L &&
     all(vapply(x, function(.) {
       purrr::is_formula(.) &&
-        is_onesided(.) || is_string(lazyeval::f_eval_lhs(.))
+        (is_onesided(.) || is_string(lazyeval::f_eval_lhs(.)))
     }, logical(1)))
 }
