@@ -1,14 +1,15 @@
 context("Checklists")
 
 test_that("is_check_formula() yields FALSE for invalid check formulas", {
-  for (chk in bad_checks) {
+  for (chk in invalid_checks) {
     expect_false(is_checklist(list(chk)))
-
-    out <- tryCatch(is_check_formula(chk), error = function(e) NA)
-    if (!is.na(out))
-      expect_false(is_check_formula(chk))
   }
+})
 
+test_that("is_check_formula() raises error for non-evaluable check formulas", {
+  for (chk in noneval_checks) {
+    expect_error(is_checklist(list(chk)))
+  }
 })
 
 test_that("is_check_formula() yields TRUE for valid check formulas", {

@@ -1,17 +1,24 @@
 library(stringr, warn.conflicts = FALSE)
 library(purrr, warn.conflicts = FALSE)
 
-bad_checks <- list(
-  NULL ~ is.numeric,
+
+noneval_checks <- list(
   x ~ is.numeric,
-  log ~ is.numeric,
   log(x) ~ is.numeric,
+  list(x) ~ is.numeric,
+  list(x, ~y) ~ is.numeric,
+  is.numeric ~ x,
+  list(~is.numeric) ~ x,
+  ~ is.numeric(x)
+)
+
+invalid_checks <- list(
+  NULL ~ is.numeric,
+  log ~ is.numeric,
   log(1) ~ is.numeric,
   {~x} ~ is.numeric,
   as.name("not_a_string") ~ is.numeric,
   list() ~ is.numeric,
-  list(x) ~ is.numeric,
-  list(x, ~y) ~ is.numeric,
   list(1 ~ x) ~ is.numeric,
   list(log ~ x) ~ is.numeric,
   list(NULL ~ x) ~ is.numeric,
@@ -23,10 +30,7 @@ bad_checks <- list(
   ~ as.name("not_a_function"),
   ~ NULL,
   ~ NA,
-  ~ ~{.},
-  is.numeric ~ x,
-  list(~is.numeric) ~ x,
-  ~ is.numeric(x)
+  ~ ~{.}
 )
 
 args_list <- list(

@@ -23,11 +23,6 @@ is_check_formula(x)
 \code{is_checklist(x)} checks whether \code{x} is a \emph{checklist}, i.e., a
 list of check formulae. Neither function verifies logical consistency.
 }
-\details{
-If \code{is_check_formula()} cannot be evaluated on one of the
-  components of a list \code{x}, then \code{is_checklist(x)} returns
-  \code{FALSE}.
-}
 \examples{
 # Valid checklist
 is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))

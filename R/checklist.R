@@ -23,17 +23,9 @@ NULL
 
 #' @rdname checklist
 #' @export
-#' @details If \code{is_check_formula()} cannot be evaluated on one of the
-#'   components of a list \code{x}, then \code{is_checklist(x)} returns
-#'   \code{FALSE}.
 is_checklist <- function(x) {
   is.list(x) && all(vapply(x, is_check_formula, logical(1)))
-  # tryCatch(is_checklist_(x), error = function(e) FALSE)
 }
-
-# is_checklist_ <- function(x) {
-#   is.list(x) && all(vapply(x, is_check_formula, logical(1)))
-# }
 
 #' @rdname checklist
 #' @export

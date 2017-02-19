@@ -30,7 +30,7 @@ test_that("error raised when .checklist is an invalid checklist", {
 
   errmsg <- "Invalid argument checks"
 
-  for (chk in bad_checks) {
+  for (chk in invalid_checks) {
     expect_error(strictly(f, chk), errmsg)
     expect_error(strictly(f, .checklist = list(chk)), errmsg)
     expect_error(strictly(f, ~{. > 0}, .checklist = list(chk)), errmsg)
@@ -42,6 +42,24 @@ test_that("error raised when .checklist is an invalid checklist", {
     expect_error(strictly_(f, ~{. > 0}, .checklist = list(chk)), errmsg)
     expect_error(strictly_(f, chk, .checklist = list(~{. > 0})), errmsg)
     expect_error(strictly_(f, .checklist = list(~{. > 0}, chk)), errmsg)
+  }
+})
+
+test_that("error raised when .checklist is an non-evaluable checklist", {
+  f <- function(x, y = 1, ...) NULL
+
+  for (chk in invalid_checks) {
+    expect_error(strictly(f, chk))
+    expect_error(strictly(f, .checklist = list(chk)))
+    expect_error(strictly(f, ~{. > 0}, .checklist = list(chk)))
+    expect_error(strictly(f, chk, .checklist = list(~{. > 0})))
+    expect_error(strictly(f, .checklist = list(~{. > 0}, chk)))
+
+    expect_error(strictly_(f, chk))
+    expect_error(strictly_(f, .checklist = list(chk)))
+    expect_error(strictly_(f, ~{. > 0}, .checklist = list(chk)))
+    expect_error(strictly_(f, chk, .checklist = list(~{. > 0})))
+    expect_error(strictly_(f, .checklist = list(~{. > 0}, chk)))
   }
 })
 
