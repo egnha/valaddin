@@ -33,10 +33,10 @@ localize_check_ <- function(chk) {
     parent <- parent.frame()
     lhs <- lapply(args, function(arg) {
       errmsg <- paste(.msg, deparse_collapse(arg), sep = ": ")
-      lazyeval::f_new(arg, errmsg, parent)
+      f_new(arg, errmsg, parent)
     })
 
-    lazyeval::f_new(.rhs, lhs, .env)
+    f_new(.rhs, lhs, .env)
   }
 
   structure(chkr, class = c("check_maker", class(chkr)))

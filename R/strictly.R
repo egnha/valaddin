@@ -2,7 +2,7 @@
 NULL
 
 unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
-  q <- lapply(.arg_symb, lazyeval::f_new, env = .env)
+  q <- lapply(.arg_symb, f_new, env = .env)
   if (!is.null(.lhs)) {
     names(q) <- paste(.lhs, encodeString(.arg_nm, quote = "`"), sep = ": ")
   } else {

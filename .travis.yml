@@ -3,8 +3,5 @@
 language: R
 cache: packages
 
-r_github_packages:
-- hadley/lazyeval
-
 after_success:
 - Rscript -e 'covr::codecov()'
