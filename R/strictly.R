@@ -15,17 +15,11 @@ unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
 expr_lambda <- function(body) {
   call("function", as.pairlist(alist(. = )), body)
 }
-lambda <- function(p, env) eval(expr_lambda(p), env)
 
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
-  if (is_lambda(p)) {
-    predicate <- lambda(p, .env)
-    p_symb    <- expr_lambda(p)
-  } else {  # p: evaluates to function
-    predicate <- lazyeval::f_eval_rhs(.chk)
-    p_symb    <- p
-  }
+  p_symb <- if (is_lambda(p)) expr_lambda(p) else p
+  predicate <- eval(p_symb, .env)
 
   lhs <- lazyeval::f_eval_lhs(.chk)
   q <- if (is.list(lhs)) {
