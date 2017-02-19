@@ -1,6 +1,7 @@
-^private$
+^demo$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^codecov\.yml$
 ^.*\.org$
+^LICENSE\.md$

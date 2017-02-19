@@ -3,6 +3,6 @@
 .Rhistory
 .RData
 .Ruserdata
-private/
+demo/
 *.html
 *.org
