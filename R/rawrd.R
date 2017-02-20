@@ -14,12 +14,12 @@ call_chr <- function(nms, ...) {
 }
 
 # Convert a string-valued function into a vectorized function that joins strings
-vectorize_chr <- function(f_chr, join = "\n") {
-  force(f_chr)
+vectorize_strjoin <- function(f_str, join = "\n") {
+  force(f_str)
   force(join)
 
   function(x)
-    paste(vapply(x, f_chr, character(1)), collapse = join)
+    paste(vapply(x, f_str, character(1)), collapse = join)
 }
 
 # Make a function that makes raw Rd tags
@@ -53,4 +53,4 @@ rd_usage <- purrr::compose(rd_tag("usage", join = "\n\n", sep = "\n"), call_chr)
 #' @noRd
 #' @examples
 #' rd_alias(c("strictly", "nonstrictly"))
-rd_alias <- vectorize_chr(rd_tag("alias", join = "", sep = ""))
+rd_alias <- vectorize_strjoin(rd_tag("alias", join = "", sep = ""))
