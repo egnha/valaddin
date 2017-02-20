@@ -12,7 +12,7 @@ use and interactive sessions.
 
 ## Why use valaddin
 
-### Save time, spare confusion—fail fast
+### Fail fast—save time, spare confusion
 
 Validating the inputs of your functions is good [defensive programming 
 practice](http://adv-r.had.co.nz/Exceptions-Debugging.html#defensive-programming).
@@ -51,7 +51,7 @@ new function, and give it a new name (or copy-paste the original function body)
 
 * you're back to square one, if you later realize you need additional checks, or want to skip them altogether.
 
-### `strictly()` rectifies these shortcomings
+### valaddin rectifies these shortcomings
 
 valaddin provides a function `strictly()` that takes care of input validation by
 _transforming_ the existing function, instead of forcing you to write a new one.
