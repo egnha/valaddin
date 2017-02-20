@@ -27,9 +27,6 @@ chkrs_purrr <- make_vld_chkrs("purrr", pattern = "^is_", sep = "_")
 for (nm in names(chkrs_purrr))
   assign(nm, chkrs_purrr[[nm]])
 
-#' @rawNamespace exportPattern("^vld_.*$")
-NULL
-
 #' Make local check formulae
 #'
 #' Check makers derived from purrr predicate functions.
@@ -38,5 +35,7 @@ NULL
 #' @evalRd rd_usage(c(names(chkrs_purrr)))
 #' @param ... Expressions of function arguments to check.
 #' @return Check formula.
+#'
+#' @rawNamespace exportPattern("^vld_.*$")
 #' @name checkers
 NULL
