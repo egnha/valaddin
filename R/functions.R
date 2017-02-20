@@ -2,7 +2,7 @@
 #'
 #' @param .f Function.
 #' @return Function of a call (as a language object).
-#' @keywords internal
+#' @noRd
 call_fn <- function(.f) {
   force(.f)
 
