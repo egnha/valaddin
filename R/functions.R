@@ -18,7 +18,7 @@ call_fn <- function(.f) {
 #' @param .sig Pairlist.
 #' @param .attrs Named list (of attributes).
 #' @return Function.
-#' @keywords internal
+#' @noRd
 with_sig <- function(.f, .sig, .attrs) {
   f <- eval(call("function", .sig, body(.f)))
   environment(f) <- environment(.f)
