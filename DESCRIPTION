@@ -24,6 +24,7 @@ BugReports: https://github.com/egnha/valaddin/issues
 RoxygenNote: 6.0.1
 Collate: 
     'utils.R'
+    'rawrd.R'
     'checklist.R'
     'components.R'
     'deparse.R'

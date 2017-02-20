@@ -40,58 +40,60 @@ Check makers derived from purrr predicate functions.
 \alias{vld_bare_logical}
 \alias{vld_scalar_character}
 \alias{vld_scalar_integer}
-\usage{vld_atomic(...)
-
-vld_bare_atomic(...)
-
-vld_bare_character(...)
-
-vld_bare_double(...)
+\usage{
+vld_scalar_vector(...)
 
 vld_bare_integer(...)
 
-vld_bare_list(...)
-
-vld_bare_logical(...)
-
-vld_bare_numeric(...)
-
 vld_bare_vector(...)
 
-vld_character(...)
-
-vld_double(...)
+vld_bare_atomic(...)
 
 vld_empty(...)
 
 vld_formula(...)
 
-vld_function(...)
+vld_bare_character(...)
 
-vld_integer(...)
+vld_character(...)
 
-vld_list(...)
-
-vld_logical(...)
-
-vld_null(...)
+vld_bare_numeric(...)
 
 vld_numeric(...)
 
-vld_scalar_atomic(...)
-
-vld_scalar_character(...)
-
-vld_scalar_double(...)
-
-vld_scalar_integer(...)
-
-vld_scalar_list(...)
-
-vld_scalar_logical(...)
+vld_logical(...)
 
 vld_scalar_numeric(...)
 
-vld_scalar_vector(...)
+vld_integer(...)
 
-vld_vector(...)}
+vld_vector(...)
+
+vld_scalar_logical(...)
+
+vld_atomic(...)
+
+vld_function(...)
+
+vld_bare_list(...)
+
+vld_scalar_double(...)
+
+vld_list(...)
+
+vld_bare_double(...)
+
+vld_null(...)
+
+vld_scalar_list(...)
+
+vld_double(...)
+
+vld_scalar_atomic(...)
+
+vld_bare_logical(...)
+
+vld_scalar_character(...)
+
+vld_scalar_integer(...)
+}

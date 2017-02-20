@@ -1,4 +1,4 @@
-#' @include utils.R
+#' @include rawrd.R utils.R
 NULL
 
 #' Is a formula a check formula?

@@ -30,21 +30,12 @@ for (nm in names(chkrs_purrr))
 #' @rawNamespace exportPattern("^vld_.*$")
 NULL
 
-aliases <- paste(
-  paste0("\\alias{", names(chkrs_purrr), "}"),
-  collapse = "\n"
-)
-usage <- paste0(
-  "\\usage{",
-  paste(sprintf("%s(...)", sort(names(chkrs_purrr))), collapse = "\n\n"),
-  "}"
-)
 #' Make local check formulae
 #'
 #' Check makers derived from purrr predicate functions.
 #'
-#' @evalRd aliases
-#' @evalRd usage
+#' @evalRd rd_alias(names(chkrs_purrr))
+#' @evalRd rd_usage(c(names(chkrs_purrr)))
 #' @param ... Expressions of function arguments to check.
 #' @return Check formula.
 #' @name checkers
