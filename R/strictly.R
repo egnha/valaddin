@@ -1,4 +1,4 @@
-#' @include promises.R functions.R deparse.R components.R checklist.R
+#' @include promises.R functions.R components.R checklist.R
 NULL
 
 unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
@@ -16,10 +16,15 @@ expr_lambda <- function(body) {
   call("function", as.pairlist(alist(. = )), body)
 }
 
+call_str <- function(chk_item, fn_expr) {
+  call <- substitute(f(x), list(f = fn_expr, x = lazyeval::f_rhs(chk_item)))
+  deparse_collapse(call)
+}
+
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
-  p_symb <- if (is_lambda(p)) expr_lambda(p) else p
-  predicate <- eval(p_symb, .env)
+  p_expr <- if (is_lambda(p)) expr_lambda(p) else p
+  predicate <- eval(p_expr, .env)
 
   lhs <- lazyeval::f_eval_lhs(.chk)
   q <- if (is.list(lhs)) {
@@ -27,10 +32,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   } else {  # lhs: string or NULL
     unfurl_args(lhs, .nm, .symb, .env)
   }
-  string <- vapply(q, function(.) {
-    paste0(string_funexpr(p_symb),
-           "(", deparse_collapse(lazyeval::f_rhs(.)), ")")
-    }, character(1))
+  string <- vapply(q, call_str, FUN.VALUE = character(1), fn_expr = p_expr)
   is_empty <- names(q) == ""
   names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
 
