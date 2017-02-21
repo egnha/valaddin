@@ -25,6 +25,7 @@ RoxygenNote: 6.0.1
 Collate: 
     'utils.R'
     'rawrd.R'
+    'future.R'
     'checklist.R'
     'components.R'
     'functions.R'
