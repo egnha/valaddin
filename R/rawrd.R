@@ -3,7 +3,7 @@ call_chr <- function(nms, ...) {
   stopifnot(is.character(nms))
 
   call_chr_ <- function(nm) {
-    f <- get(nm, ...)
+    f <- get(nm, mode = "function", ...)
     sig_raw <- deparse(call("function", formals(f), quote(expr = )))
     sig <- paste(trimws(sig_raw, which = "left"), collapse = "")
 
