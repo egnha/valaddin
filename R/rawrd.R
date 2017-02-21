@@ -1,8 +1,8 @@
-# Usage signature of a function (specified by name)
-call_chr <- function(nms, ...) {
-  stopifnot(is.character(nms))
+# Call signature of a function (specified by name)
+call_sig <- function(x, ...) {
+  stopifnot(is.character(x))
 
-  call_chr_ <- function(nm) {
+  call_sig_ <- function(nm) {
     f <- get(nm, mode = "function", ...)
     sig_raw <- deparse(call("function", formals(f), quote(expr = )))
     sig <- paste(trimws(sig_raw, which = "left"), collapse = "")
@@ -10,11 +10,11 @@ call_chr <- function(nms, ...) {
     sub("^function", nm, trimws(sig, which = "both"))
   }
 
-  vapply(nms, call_chr_, FUN.VALUE = character(1), USE.NAMES = FALSE)
+  vapply(x, call_sig_, FUN.VALUE = character(1), USE.NAMES = FALSE)
 }
 
 # Convert a string-valued function into a vectorized function that joins strings
-vectorize_strjoin <- function(f_str, join = "\n") {
+vec_strjoin <- function(f_str, join = "\n") {
   force(f_str)
   force(join)
 
@@ -23,34 +23,34 @@ vectorize_strjoin <- function(f_str, join = "\n") {
 }
 
 # Make a function that makes raw Rd tags
-rd_tag <- function(tag, join, sep) {
+rd_markup <- function(cmd, join = "", sep = "") {
   force(join)
   force(sep)
-  tag_esc <- paste0("\\", tag, "{")
+  cmd_opening <- paste0("\\", cmd, "{")
 
   function(x) {
     stopifnot(is.character(x))
-    paste(tag_esc, paste(x, collapse = join), "}", sep = sep)
+    paste(cmd_opening, paste(x, collapse = join), "}", sep = sep)
   }
 }
 
-#' Make a raw Rd tag
+#' Make a raw Rd markup
 #'
 #' @param x Character vector of object names.
+#' @name rd_markup
 #' @noRd
-#' @name rd_tag
 NULL
 
-#' @rdname rd_tag
-#' @noRd
+#' @rdname rd_markup
 #' @param ... Arguments to pass to \code{\link[base]{get}}.
 #' @examples
 #' rd_usage("ls")
 #' rd_usage(c("strictly", "nonstrictly"), pos = "package:valaddin")
-rd_usage <- purrr::compose(rd_tag("usage", join = "\n\n", sep = "\n"), call_chr)
-
-#' @rdname rd_tag
 #' @noRd
+rd_usage <- purrr::compose(rd_markup("usage", join = "\n\n", sep = "\n"), call_sig)
+
+#' @rdname rd_markup
 #' @examples
 #' rd_alias(c("strictly", "nonstrictly"))
-rd_alias <- vectorize_strjoin(rd_tag("alias", join = "", sep = ""))
+#' @noRd
+rd_alias <- vec_strjoin(rd_markup("alias"))
