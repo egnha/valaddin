@@ -12,7 +12,7 @@
 #'   \code{\link[base]{delayedAssign}()} in a for-loop to bind promises, but at
 #'   roughly twice the speed and half the code.
 #'
-#' @keywords internal
+#' @noRd
 promises <- function(.call, .sig, .env) {
   .call[[1L]] <- eval(call("function", .sig, quote(environment())))
   eval(.call, .env)
