@@ -8,16 +8,16 @@ localize_nm <- function(nm, what_is, ns, env) {
   localize_check(f_new(p, msg, env = env))
 }
 
-scrub <- function(ptrn_rm, ptrn_sep) {
-  force(ptrn_rm)
-  force(ptrn_sep)
+scrub <- function(pttn_rm, pttn_sep) {
+  force(pttn_rm)
+  force(pttn_sep)
 
-  function(x) gsub(ptrn_sep, " ", gsub(ptrn_rm, "", x))
+  function(x) gsub(pttn_sep, " ", gsub(pttn_rm, "", x))
 }
 
 make_vld_chkrs <- function(ns, pattern, sep, env = parent.frame()) {
   nms <- grep(pattern, getNamespaceExports(ns), value = TRUE)
-  what_is <- scrub(ptrn_rm = pattern, ptrn_sep = sep)
+  what_is <- scrub(pttn_rm = pattern, pttn_sep = sep)
   chkrs <- lapply(nms, localize_nm, ns = ns, what_is = what_is, env = env)
   names(chkrs) <- paste("vld", gsub(pattern, "", nms), sep = "_")
 
