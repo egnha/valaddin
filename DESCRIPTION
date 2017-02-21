@@ -27,7 +27,6 @@ Collate:
     'rawrd.R'
     'checklist.R'
     'components.R'
-    'deparse.R'
     'functions.R'
     'promises.R'
     'strictly.R'
