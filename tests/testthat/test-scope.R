@@ -2,6 +2,8 @@ context("Scope conversion")
 
 expect_error_p <- perlize(expect_error)
 
+is_positive <- function(x) x > 0
+
 chks_gbl <- list(
   "Not numeric" ~ is.numeric,
   "Not positive" ~ is_positive,
@@ -9,7 +11,6 @@ chks_gbl <- list(
   "Not positive" ~ {. > 0}
 )
 
-is_positive <- function(x) x > 0
 chks_nongbl <- list(
   log,
   NULL,
