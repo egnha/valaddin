@@ -1,6 +1,6 @@
 context("Checkers")
 
-test_that("localized purrr checkers implement corresponding purrr predicates", {
+test_that("localized purrr checkers use corresponding purrr predicates", {
   prefix <- "^vld_"
   nms_valaddin <- grep(prefix, getNamespaceExports("valaddin"), value = TRUE)
   nms_purrr <- sub(prefix, "is_", nms_valaddin)
