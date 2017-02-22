@@ -1,16 +1,11 @@
 # Null-default operator
 `%||%` <- purrr::`%||%`
 
-# Aliases consistent with our style convention
 is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
+is_error <- function(x) inherits(x, "error")
 
 skip <- function(...) {}
-
-is_error <- function(x) {
-  wh <- inherits(x, c("error", "condition"), which = TRUE)
-  wh[1L] > 0L && wh[2L] > wh[1L]
-}
 
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
