@@ -98,21 +98,15 @@ test_that("local checker evaluates predicate in global formula environment", {
 })
 
 test_that("globalize() inverts localize()", {
-  for (chk in chks_gbl) {
-    chk %>%
-      expect_identical(globalize(localize(chk))) %>%
-      expect_identical(globalize_(localize(chk)))
-  }
+  for (chk in chks_gbl)
+    expect_identical(chk, globalize(localize(chk)))
 })
 
 test_that("localize() inverts globalize()", {
   lcl_chkrs <- lapply(chks_gbl, localize)
 
-  for (chkr in lcl_chkrs) {
-    chkr %>%
-      expect_equal(localize(globalize(chkr))) %>%
-      expect_equal(localize_(globalize(chkr)))
-  }
+  for (chkr in lcl_chkrs)
+    expect_equal(chkr, localize(globalize(chkr)))
 })
 
 test_that("globalize(x) raises error when x not local checker", {
