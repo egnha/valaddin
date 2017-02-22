@@ -2,35 +2,35 @@
 % Please edit documentation in R/scope.R
 \name{scope}
 \alias{scope}
-\alias{localize_check}
-\alias{globalize_check}
+\alias{localize}
+\alias{globalize}
 \title{Convert the scope of a check formula}
 \usage{
-localize_check(chk)
+localize(chk)
 
-globalize_check(chkr)
+globalize(chkr)
 }
 \arguments{
 \item{chk}{Check formula of global scope with a custom error message, i.e., a
 formula of the form \code{<string> ~ <predicate>}, cf. \link{strictly}.}
 
 \item{chkr}{Function of class \code{"check_maker"}, i.e., created by
-\code{localize_check()}.}
+\code{localize()}.}
 }
 \description{
-\code{localize_check()} converts a check formula of global scope into a
+\code{localize()} converts a check formula of global scope into a
 function that generates a check formulae of local scope;
-\code{globalize_check()} takes such a function and returns the underlying
+\code{globalize()} takes such a function and returns the underlying
 check formula (of global scope). These operations are mutually invertible.
 }
 \examples{
 \dontrun{
 
-is_positive <- localize_check("Not positive" ~ {. > 0})
+is_positive <- localize("Not positive" ~ {. > 0})
 is_positive(x, x - y)
 #> list("Not positive: `x`" ~ x, "Not positive: `x - y`" ~ x - y) ~ {. > 0}
 
-globalize_check(is_positive)
+globalize(is_positive)
 #> "Not positive" ~ {. > 0}
 }
 

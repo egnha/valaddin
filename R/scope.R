@@ -3,27 +3,27 @@ NULL
 
 #' Convert the scope of a check formula
 #'
-#' \code{localize_check()} converts a check formula of global scope into a
+#' \code{localize()} converts a check formula of global scope into a
 #' function that generates a check formulae of local scope;
-#' \code{globalize_check()} takes such a function and returns the underlying
+#' \code{globalize()} takes such a function and returns the underlying
 #' check formula (of global scope). These operations are mutually invertible.
 #'
 #' @seealso \link{strictly} explains the notion of "scope" for check formulae.
 #' @examples
 #' \dontrun{
 #'
-#' is_positive <- localize_check("Not positive" ~ {. > 0})
+#' is_positive <- localize("Not positive" ~ {. > 0})
 #' is_positive(x, x - y)
 #' #> list("Not positive: `x`" ~ x, "Not positive: `x - y`" ~ x - y) ~ {. > 0}
 #'
-#' globalize_check(is_positive)
+#' globalize(is_positive)
 #' #> "Not positive" ~ {. > 0}
 #' }
 #'
 #' @name scope
 NULL
 
-localize_check_ <- function(chk) {
+localize_ <- function(chk) {
   .msg <- lazyeval::f_eval_lhs(chk)
   .rhs <- lazyeval::f_rhs(chk)
   .env <- lazyeval::f_env(chk)
@@ -46,14 +46,14 @@ is_check_maker <- function(x) {
   purrr::is_function(x) && inherits(x, "check_maker")
 }
 
-globalize_check_ <- function(chkr) environment(chkr)$chk
+globalize_ <- function(chkr) environment(chkr)$chk
 
 #' @rdname scope
 #' @export
 #' @param chk Check formula of global scope with a custom error message, i.e., a
 #'   formula of the form \code{<string> ~ <predicate>}, cf. \link{strictly}.
-localize_check <- strictly(
-  localize_check_,
+localize <- strictly(
+  localize_,
   list("`chk` must be a formula of the form <string> ~ <predicate>" ~ chk) ~
     is_gbl_check_formula,
   .warn_missing = TRUE
@@ -62,10 +62,10 @@ localize_check <- strictly(
 #' @rdname scope
 #' @export
 #' @param chkr Function of class \code{"check_maker"}, i.e., created by
-#'   \code{localize_check()}.
-globalize_check <- strictly(
-  globalize_check_,
-  list("`chkr` must be a local checker function, see ?localize_check" ~ chkr) ~
+#'   \code{localize()}.
+globalize <- strictly(
+  globalize_,
+  list("`chkr` must be a local checker function, see ?localize" ~ chkr) ~
     is_check_maker,
   .warn_missing = TRUE
 )

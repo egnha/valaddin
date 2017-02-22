@@ -1,18 +1,18 @@
 #' @include scope.R
 NULL
 
-localize_nm <- function(nm, what_is, ns, env) {
-  msg <- paste("Not", what_is(nm))
-  p <- getExportedValue(ns, nm)
-
-  localize_check(f_new(p, msg, env = env))
-}
-
 scrub <- function(pttn_rm, pttn_sep) {
   force(pttn_rm)
   force(pttn_sep)
 
   function(x) gsub(pttn_sep, " ", gsub(pttn_rm, "", x))
+}
+
+localize_nm <- function(nm, what_is, ns, env) {
+  msg <- paste("Not", what_is(nm))
+  p <- getExportedValue(ns, nm)
+
+  localize(f_new(p, msg, env = env))
 }
 
 make_vld_chkrs <- function(ns, pattern, sep, env = parent.frame()) {
@@ -25,7 +25,8 @@ make_vld_chkrs <- function(ns, pattern, sep, env = parent.frame()) {
 }
 
 chkrs_purrr <- make_vld_chkrs("purrr", pattern = "^is_", sep = "_")
-for (nm in names(chkrs_purrr)) assign(nm, chkrs_purrr[[nm]])
+for (nm in names(chkrs_purrr))
+  assign(nm, chkrs_purrr[[nm]])
 
 #' Make local check formulae
 #'

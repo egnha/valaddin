@@ -2,11 +2,11 @@
 
 S3method(print,check_maker)
 S3method(print,strict_closure)
-export(globalize_check)
+export(globalize)
 export(is_check_formula)
 export(is_checklist)
 export(is_strict_closure)
-export(localize_check)
+export(localize)
 export(nonstrictly)
 export(strict_args)
 export(strict_checks)

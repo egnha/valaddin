@@ -24,7 +24,7 @@ test_that("local checker creates checks for supplied arguments", {
   err_fail <- "Not positive"
   # Test all forms of predicate in a global check formula
   chks <- chks_gbl[map_lgl(chks_gbl, ~ lazyeval::f_lhs(.) == err_fail)]
-  chkrs <- lapply(chks, localize_check)
+  chkrs <- lapply(chks, localize)
 
   has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
   fs <- lapply(args_list[has_xy], pass_args)
@@ -63,23 +63,23 @@ test_that("local checker evaluates predicate in global formula environment", {
   chk <- "Not external" ~ predicate
 
   f <- function(x) NULL
-  f_ext <- strictly(f, localize_check(chk)(x))
+  f_ext <- strictly(f, localize(chk)(x))
   g <- (function() {
     parent <- parent.frame()
     predicate <- function(x) identical(x, "internal")
     list(
-      int  = strictly(f, localize_check("Not internal" ~ predicate)(x)),
+      int  = strictly(f, localize("Not internal" ~ predicate)(x)),
       # Evaluate in enclosure
       ext1 = eval(
-        quote(strictly(f, localize_check("Not external" ~ predicate)(x))),
+        quote(strictly(f, localize("Not external" ~ predicate)(x))),
         parent
       ),
       # Evaluate locally but evaluate check in enclosure
       ext2 = strictly(f, eval(
-        quote(localize_check("Not external"  ~ predicate)), parent)(x)
+        quote(localize("Not external"  ~ predicate)), parent)(x)
         ),
       # Evaluate locally but reference check in enclosure
-      ext3 = strictly(f, localize_check(chk)(x))
+      ext3 = strictly(f, localize(chk)(x))
     )
   })()
 
@@ -96,38 +96,38 @@ test_that("local checker evaluates predicate in global formula environment", {
   expect_error(g$int(x = "external"), "Not internal")
 })
 
-test_that("globalize_check() inverts localize_check()", {
+test_that("globalize() inverts localize()", {
   for (chk in chks_gbl) {
     chk %>%
-      expect_identical(globalize_check(localize_check(chk))) %>%
-      expect_identical(globalize_check_(localize_check(chk)))
+      expect_identical(globalize(localize(chk))) %>%
+      expect_identical(globalize_(localize(chk)))
   }
 })
 
-test_that("localize_check() inverts globalize_check()", {
-  lcl_chkrs <- lapply(chks_gbl, localize_check)
+test_that("localize() inverts globalize()", {
+  lcl_chkrs <- lapply(chks_gbl, localize)
 
   for (chkr in lcl_chkrs) {
     chkr %>%
-      expect_equal(localize_check(globalize_check(chkr))) %>%
-      expect_equal(localize_check_(globalize_check(chkr)))
+      expect_equal(localize(globalize(chkr))) %>%
+      expect_equal(localize_(globalize(chkr)))
   }
 })
 
-test_that("globalize_check(x) raises error when x not local checker", {
+test_that("globalize(x) raises error when x not local checker", {
   # A local checker is a function of class "check_maker"
   nonlc <- list(
     structure(NULL, class = "check_maker"),
-    `class<-`(localize_check("Not numeric" ~ is.numeric), NULL)
+    `class<-`(localize("Not numeric" ~ is.numeric), NULL)
   )
 
   errmsg <- "`chkr` must be a local checker function"
   for (x in nonlc)
-    expect_error_p(globalize_check(x), errmsg)
+    expect_error_p(globalize(x), errmsg)
 })
 
-test_that("localize_check(x) raises error when x not global check formula", {
+test_that("localize(x) raises error when x not global check formula", {
   errmsg <- "`chk` must be a formula of the form <string> ~ <predicate>"
   for (chk in chks_nongbl)
-    expect_error_p(localize_check(chk), errmsg)
+    expect_error_p(localize(chk), errmsg)
 })
