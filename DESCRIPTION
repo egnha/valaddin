@@ -17,8 +17,7 @@ Imports:
     dplyr
 Suggests:
     testthat,
-    stringr,
-    covr
+    stringr
 URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
 RoxygenNote: 6.0.1
