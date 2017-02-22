@@ -28,13 +28,13 @@ chkrs_purrr <- make_vld_chkrs("purrr", pattern = "^is_", sep = "_")
 for (nm in names(chkrs_purrr))
   assign(nm, chkrs_purrr[[nm]])
 
+#' @rawNamespace exportPattern("^vld_.*$")
+NULL
+
 nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
               grep, x = names(chkrs_purrr), value = TRUE)
 nms$misc  <- paste0("vld_", c("empty", "formula"))
 nms$types <- setdiff(names(chkrs_purrr), unlist(nms))
-
-#' @rawNamespace exportPattern("^vld_.*$")
-NULL
 
 #' Type checkers
 #'
@@ -42,6 +42,7 @@ NULL
 #' @evalRd rd_usage(nms$type)
 #' @param ... Expressions to check.
 #' @return Check formula.
+#' @family type checkers
 #' @name checkers-type
 NULL
 
@@ -51,7 +52,8 @@ NULL
 #' @evalRd rd_usage(nms$bare)
 #' @param ... Expressions to check.
 #' @inherit checkers-type
-#' @name checkers-bare
+#' @family type checkers
+#' @name checkers-bare-type
 NULL
 
 #' Scalar type checkers
@@ -60,7 +62,8 @@ NULL
 #' @evalRd rd_usage(nms$scalar)
 #' @param ... Expressions to check.
 #' @inherit checkers-type
-#' @name checkers-scalar
+#' @family type checkers
+#' @name checkers-scalar-type
 NULL
 
 #' Miscellaneous type checkers
@@ -69,5 +72,6 @@ NULL
 #' @evalRd rd_usage(nms$misc)
 #' @param ... Expressions to check.
 #' @inherit checkers-type
+#' @family type checkers
 #' @name checkers-misc
 NULL

@@ -12,6 +12,11 @@ Check formula.
 \description{
 Miscellaneous type checkers
 }
+\seealso{
+Other type checkers: \code{\link{checkers-bare-type}},
+  \code{\link{checkers-scalar-type}},
+  \code{\link{checkers-type}}
+}
 \alias{vld_empty}
 \alias{vld_formula}
 \usage{

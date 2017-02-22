@@ -12,6 +12,11 @@ Check formula.
 \description{
 Type checkers
 }
+\seealso{
+Other type checkers: \code{\link{checkers-bare-type}},
+  \code{\link{checkers-misc}},
+  \code{\link{checkers-scalar-type}}
+}
 \alias{vld_atomic}
 \alias{vld_character}
 \alias{vld_double}
