@@ -21,21 +21,53 @@ make_vld_chkrs <- function(ns, pattern, sep, env = parent.frame()) {
   chkrs <- lapply(nms, localize_nm, ns = ns, what_is = what_is, env = env)
   names(chkrs) <- paste("vld", gsub(pattern, "", nms), sep = "_")
 
-  chkrs
+  chkrs[sort(names(chkrs))]
 }
 
 chkrs_purrr <- make_vld_chkrs("purrr", pattern = "^is_", sep = "_")
 for (nm in names(chkrs_purrr))
   assign(nm, chkrs_purrr[[nm]])
 
-#' Make local check formulae
-#'
-#' Check makers derived from purrr predicate functions.
-#'
-#' @evalRd rd_alias(names(chkrs_purrr))
-#' @evalRd rd_usage(names(chkrs_purrr))
-#' @param ... Expressions of function arguments to check.
-#' @return Check formula.
+nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
+              grep, x = names(chkrs_purrr), value = TRUE)
+nms$misc  <- paste0("vld_", c("empty", "formula"))
+nms$types <- setdiff(names(chkrs_purrr), unlist(nms))
+
 #' @rawNamespace exportPattern("^vld_.*$")
-#' @name checkers
+NULL
+
+#' Type checkers
+#'
+#' @evalRd rd_alias(nms$type)
+#' @evalRd rd_usage(nms$type)
+#' @param ... Expressions to check.
+#' @return Check formula.
+#' @name checkers-type
+NULL
+
+#' Bare type checkers
+#'
+#' @evalRd rd_alias(nms$bare)
+#' @evalRd rd_usage(nms$bare)
+#' @param ... Expressions to check.
+#' @inherit checkers-type
+#' @name checkers-bare
+NULL
+
+#' Scalar type checkers
+#'
+#' @evalRd rd_alias(nms$scalar)
+#' @evalRd rd_usage(nms$scalar)
+#' @param ... Expressions to check.
+#' @inherit checkers-type
+#' @name checkers-scalar
+NULL
+
+#' Miscellaneous type checkers
+#'
+#' @evalRd rd_alias(nms$misc)
+#' @evalRd rd_usage(nms$misc)
+#' @param ... Expressions to check.
+#' @inherit checkers-type
+#' @name checkers-misc
 NULL
