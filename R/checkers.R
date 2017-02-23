@@ -33,8 +33,8 @@ NULL
 
 nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
               grep, x = names(chkrs_purrr), value = TRUE)
-nms$misc  <- paste0("vld_", c("empty", "formula"))
-nms$types <- setdiff(names(chkrs_purrr), unlist(nms))
+nms$misc <- paste0("vld_", c("empty", "formula"))
+nms$type <- setdiff(names(chkrs_purrr), unlist(nms))
 
 #' Type checkers
 #'
