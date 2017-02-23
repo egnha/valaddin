@@ -40,3 +40,7 @@ test_that("arguments whose absence is checked are displayed", {
     }
   }
 })
+
+test_that("local checker predicate is displayed", {})
+
+test_that("local checker error message is displayed", {})
