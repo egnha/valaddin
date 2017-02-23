@@ -7,4 +7,4 @@ r_github_packages:
 - jimhester/covr
 
 after_success:
-- Rscript -e 'covr::codecov(function_exclusions = "_$")'
+- Rscript -e 'covr::codecov(function_exclusions = "_$", line_exclusions = list("R/checkers.R", "R/rawrd.R"))'
