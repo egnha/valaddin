@@ -11,8 +11,8 @@ chkrs <- purrr::transpose(
 )
 
 test_that("purrr checker class is 'check_maker'", {
-  is_check_maker <- map_lgl(chkrs, ~ inherits(.$chkr, "check_maker"))
-  expect_true(all(is_check_maker))
+  check_maker <- vapply(chkrs, function(.) is_check_maker(.$chkr), logical(1))
+  expect_true(all(check_maker))
 })
 
 test_that("purrr checker predicate is corresponding purrr predicate", {
