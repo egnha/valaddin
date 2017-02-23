@@ -18,6 +18,7 @@ NULL
 #' is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))
 #'
 #' # Invalid checklists
+#' is_checklist("Not positive" ~ {. > 0})            # Not a list
 #' is_checklist(list(is.numeric ~ list(~ x)))        # Backwards
 #' is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
 #'
