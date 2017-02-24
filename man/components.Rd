@@ -20,12 +20,12 @@ strict_args(x)
 \item{x}{R object.}
 }
 \value{
-If \code{x} is a strictly applied function: \code{strict_core()}
-  returns a function; \code{strict_checks()} returns a data frame with
-  columns \code{expr} (language), \code{string} (character), \code{msg}
-  (character); \code{strict_args()} returns a character vector. However,
-  these functions return \code{NULL} in the absence of the component to be
-  extracted.
+If \code{x} is a strictly applied function: \code{strict_core}
+  returns a function; \code{strict_checks} returns a data frame with columns
+  \code{expr} (language), \code{env} (environment), \code{string}
+  (character), \code{msg} (character); \code{strict_args} returns a character
+  vector. (In the absence of the component to be extracted, these functions
+  return \code{NULL}.)
 }
 \description{
 Helper functions are provided to extract the components of a strictly applied

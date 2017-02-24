@@ -14,12 +14,12 @@
 #' warning, i.e., a function of class \code{"strict_closure"}.
 #'
 #' @param x R object.
-#' @return If \code{x} is a strictly applied function: \code{strict_core()}
-#'   returns a function; \code{strict_checks()} returns a data frame with
-#'   columns \code{expr} (language), \code{string} (character), \code{msg}
-#'   (character); \code{strict_args()} returns a character vector. However,
-#'   these functions return \code{NULL} in the absence of the component to be
-#'   extracted.
+#' @return If \code{x} is a strictly applied function: \code{strict_core}
+#'   returns a function; \code{strict_checks} returns a data frame with columns
+#'   \code{expr} (language), \code{env} (environment), \code{string}
+#'   (character), \code{msg} (character); \code{strict_args} returns a character
+#'   vector. (In the absence of the component to be extracted, these functions
+#'   return \code{NULL}.)
 #' @examples
 #' f <- function(x, y, ...) NULL
 #' f_stc <- strictly(f, ~ is.numeric, list(~x, ~ y - x) ~ {. > 0})
