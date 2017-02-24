@@ -1,7 +1,9 @@
 context("Printing")
 
-# Like expect_output(), but gracefully accepts expectation strings w/o escaping
+# Like expect_output(), but accepts expectation strings with less escaping
 expect_output_p <- perlize(expect_output)
+
+# strict_closure ----------------------------------------------------------
 
 has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
 fs <- lapply(args_list[has_xy], pass_args)
@@ -11,21 +13,21 @@ chks <- list(
 )
 fs_strict <- lapply(fs, strictly, .checklist = chks)
 
-test_that("original function body is displayed", {
+test_that("strict closure original function body is displayed", {
   for (i in seq_along(fs)) {
     original_fn <- capture_output(print(fs[[i]]))
     expect_output_p(print(fs_strict[[i]]), original_fn)
   }
 })
 
-test_that("checks are displayed", {
+test_that("strict closure checks are displayed", {
   for (f in fs_strict) {
     expect_output_p(print(f), "is.numeric(x):\n\"Not numeric\"")
     expect_output_p(print(f), "is.character(y):\n\"Not character\"")
   }
 })
 
-test_that("arguments whose absence is checked are displayed", {
+test_that("strict closure arguments whose absence is checked are displayed", {
   for (f in fs_strict) {
     arg <- nomen(formals(f))
     missing <- arg$nm[arg$wo_value] %>% paste(collapse = ", ")
@@ -41,6 +43,30 @@ test_that("arguments whose absence is checked are displayed", {
   }
 })
 
-test_that("local checker predicate is displayed", {})
+# check_maker -------------------------------------------------------------
 
-test_that("local checker error message is displayed", {})
+nms_chkrs <- grep("^vld_", getNamespaceExports("valaddin"), value = TRUE)
+chkrs <- lapply(nms_chkrs, get)
+names(chkrs) <- sub("^vld_", "", nms_chkrs)
+
+test_that("local checker predicate is displayed", {
+  header <- "* Predicate function:"
+
+  for (nm in names(chkrs)) {
+    pred_purrr <- getExportedValue("purrr", sprintf("is_%s", nm))
+    out <- paste(header, capture_output(print(pred_purrr)), sep = "\n")
+
+    expect_output_p(print(chkrs[[nm]]), out)
+  }
+})
+
+test_that("local checker error message is displayed", {
+  header <- "* Error message:"
+
+  for (nm in names(chkrs)) {
+    msg <- sprintf("Not %s", gsub("_", " ", nm))
+    out <- paste(header, encodeString(msg, quote = "\""), sep = "\n")
+
+    expect_output_p(print(chkrs[[nm]]), out)
+  }
+})
