@@ -22,7 +22,7 @@ vec_strjoin <- function(f_str, join = "\n") {
     paste(vapply(x, f_str, character(1)), collapse = join)
 }
 
-# Make a function that makes raw Rd tags
+# Make a function that makes raw Rd markup
 rd_markup <- function(cmd, join = "", sep = "") {
   force(join)
   force(sep)
@@ -34,7 +34,7 @@ rd_markup <- function(cmd, join = "", sep = "") {
   }
 }
 
-#' Make a raw Rd markup
+#' Make raw Rd markup
 #'
 #' @param x Character vector of object names.
 #' @name rd_markup
