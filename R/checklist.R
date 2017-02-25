@@ -63,6 +63,8 @@ is_onesided <- function(x) {
   length(x) == 2L
 }
 
+is_f_onesided <- function(x) purrr::is_formula(x) && is_onesided(x)
+
 is_lhs_checkitem <- function(x) {
   is_onesided(x) || {
     lhs <- lazyeval::f_eval_lhs(x)

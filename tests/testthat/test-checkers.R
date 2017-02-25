@@ -33,6 +33,6 @@ test_that("purrr checker error message is derived from purrr predicate name", {
     msg_purrr <- sprintf("Not %s", gsub("_", " ", sub("^is_", "", .$nm)))
 
     expect_identical(msg_chkr, msg_purrr)
-    expect_error(strictly(f, .$chkr(x))(bad_arg), msg_purrr)
+    expect_error(strictly(f, .$chkr(~ x))(bad_arg), msg_purrr)
   }
 })

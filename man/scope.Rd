@@ -4,7 +4,7 @@
 \alias{scope}
 \alias{localize}
 \alias{globalize}
-\title{Convert the scope of a check formula}
+\title{Make a reusable check formula}
 \usage{
 localize(chk)
 
@@ -12,29 +12,59 @@ globalize(chkr)
 }
 \arguments{
 \item{chk}{Check formula of global scope with a custom error message, i.e., a
-formula of the form \code{<string> ~ <predicate>}, cf. \link{strictly}.}
+formula of the form \code{<string> ~ <predicate>}, cf.
+\code{\link{strictly}()}.}
 
 \item{chkr}{Function of class \code{"check_maker"}, i.e., created by
 \code{localize()}.}
 }
+\value{
+\code{localize()} returns a function of class \code{"check_maker"}
+  with signature \code{function(...)}, which expects one-sided formulae as
+  arguments.
+
+\code{globalize()} returns the underlying global check formula.
+}
 \description{
-\code{localize()} converts a check formula of global scope into a
-function that generates a check formulae of local scope;
-\code{globalize()} takes such a function and returns the underlying
-check formula (of global scope). These operations are mutually invertible.
+\code{localize()} converts a check formula of global scope into a function
+that \emph{generates} corresponding check formulae of local scope. This makes
+it easy to specify reusable checks. \code{globalize()} takes such a
+check-formula generator and returns the underlying check formula (of global
+scope). \code{localize()} and \code{globalize()} are mutually invertible.
 }
 \examples{
 \dontrun{
 
-is_positive <- localize("Not positive" ~ {. > 0})
-is_positive(x, x - y)
-#> list("Not positive: `x`" ~ x, "Not positive: `x - y`" ~ x - y) ~ {. > 0}
+chk_pos_gbl <- "Not positive" ~ {. > 0}
+chk_pos_lcl <- localize(chk_pos_gbl)
+chk_pos_lcl(~x, ~x - y)
+# list("Not positive: x" ~ x, "Not positive: x - y" ~ x - y) ~ {. > 0}
 
-globalize(is_positive)
-#> "Not positive" ~ {. > 0}
+pass <- function(x, y) "Pass"
+
+# Impose local positivity checks
+f <- strictly(pass, chk_pos_lcl(~x, ~x - y))
+f(2, 1)  # "Pass"
+f(2, 2)  # Error: "Not positive: x - y"
+f(0, 1)  # Errors: "Not positive: x", "Not positive: x - y"
+
+# Or just check positivity of x
+g <- strictly(pass, chk_pos_lcl(~x))
+g(1, 0)  # "Pass"
+g(0, 0)  # Error: "Not positive: x"
+
+# On the other hand, chk_pos_gbl checks positive, uniformly
+h <- strictly(pass, chk_pos_gbl)
+h(2, 2)  # "Pass"
+h(1, 0)  # Error: "Not positive: `y`"
+
+# localize() and globalize() are mutual inverses
+globalize(chk_pos_lcl)  # "Not positive" ~ {. > 0}
+all.equal(localize(globalize(chk_pos_lcl)), chk_pos_lcl)  # TRUE
 }
 
 }
 \seealso{
-\link{strictly} explains the notion of "scope" for check formulae.
+Documentation for \code{\link{strictly}()} explains the notion of
+  \dQuote{scope} in the context of check formulae.
 }
