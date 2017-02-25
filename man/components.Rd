@@ -6,7 +6,7 @@
 \alias{strict_core}
 \alias{strict_checks}
 \alias{strict_args}
-\title{Components of a strictly applied function}
+\title{Decompose a strictly applied function}
 \usage{
 is_strict_closure(x)
 
