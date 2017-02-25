@@ -1,7 +1,6 @@
 #' Decompose a strictly applied function
 #'
-#' Helper functions are provided to extract the components of a strictly applied
-#' function:
+#' Helper functions are provided to decompose a strictly applied function:
 #' \itemize{
 #'   \item \code{strict_core()}: extracts the underlying \dQuote{nonstrict}
 #'     function
@@ -9,11 +8,8 @@
 #'   \item \code{strict_args()}: extracts the names of arguments whose presence
 #'     is to be checked
 #' }
-#' \code{is_strict_closure()} is a predicate function that checks whether an
-#' object is a strictly applied function with checks or missing-argument
-#' warning, i.e., a function of class \code{"strict_closure"}.
 #'
-#' @param x R object.
+#' @param x Object to decompose.
 #' @return If \code{x} is a strictly applied function: \code{strict_core}
 #'   returns a function; \code{strict_checks} returns a data frame with columns
 #'   \code{expr} (language), \code{env} (environment), \code{string}
@@ -31,12 +27,6 @@
 #'
 #' @name components
 NULL
-
-#' @rdname components
-#' @export
-is_strict_closure <- function(x) {
-  purrr::is_function(x) && inherits(x, "strict_closure")
-}
 
 #' @rdname components
 #' @export

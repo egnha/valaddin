@@ -2,14 +2,11 @@
 % Please edit documentation in R/components.R
 \name{components}
 \alias{components}
-\alias{is_strict_closure}
 \alias{strict_core}
 \alias{strict_checks}
 \alias{strict_args}
 \title{Decompose a strictly applied function}
 \usage{
-is_strict_closure(x)
-
 strict_core(x)
 
 strict_checks(x)
@@ -17,7 +14,7 @@ strict_checks(x)
 strict_args(x)
 }
 \arguments{
-\item{x}{R object.}
+\item{x}{Object to decompose.}
 }
 \value{
 If \code{x} is a strictly applied function: \code{strict_core}
@@ -28,8 +25,7 @@ If \code{x} is a strictly applied function: \code{strict_core}
   return \code{NULL}.)
 }
 \description{
-Helper functions are provided to extract the components of a strictly applied
-function:
+Helper functions are provided to decompose a strictly applied function:
 \itemize{
   \item \code{strict_core()}: extracts the underlying \dQuote{nonstrict}
     function
@@ -37,9 +33,6 @@ function:
   \item \code{strict_args()}: extracts the names of arguments whose presence
     is to be checked
 }
-\code{is_strict_closure()} is a predicate function that checks whether an
-object is a strictly applied function with checks or missing-argument
-warning, i.e., a function of class \code{"strict_closure"}.
 }
 \examples{
 f <- function(x, y, ...) NULL

@@ -136,6 +136,11 @@ strict_closure <- function(.f) {
   structure(.f, class = c("strict_closure", class(.f)))
 }
 
+#' @export
+is_strict_closure <- function(x) {
+  purrr::is_function(x) && inherits(x, "strict_closure")
+}
+
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
@@ -180,69 +185,71 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   strict_closure(with_sig(f, sig, .attrs = attributes(.f)))
 }
 
+#' @export
+strictly <- strictly_(
+  strictly_,
+  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
+    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)},
+  .warn_missing = TRUE
+)
+
+nonstrictly_ <- function(.f, .quiet = FALSE) {
+  if (is_strict_closure(.f)) {
+    strict_core(.f)
+  } else {
+    if (!.quiet) {
+      warning("Argument not a strictly applied function", call. = FALSE)
+    }
+    .f
+  }
+}
+
+#' @export
+nonstrictly <- strictly(
+  nonstrictly_,
+  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("`.quiet` not TRUE/FALSE" ~ .quiet) ~ {is_true(.) || is_false(.)}
+)
+
+#' @export
+print.strict_closure <- function(x, ...) {
+  cat("<strict_closure>\n")
+
+  cat("\n* Core function:\n")
+  print(strict_core(x))
+
+  cat("\n* Checks (<predicate>:<error message>):\n")
+  calls <- strict_checks(x)
+  if (!is.null(calls) && nrow(calls)) {
+    labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
+    cat(enumerate_many(labels))
+  } else {
+    cat("None\n")
+  }
+
+  cat("\n* Check for missing arguments:\n")
+  args <- strict_args(x)
+  if (!is.null(args) && length(args)) {
+    cat(paste(args, collapse = ", "), "\n")
+  } else {
+    cat("Not checked\n")
+  }
+}
+
 #' Apply a function strictly
 #'
 #' \code{strictly()} transforms a function into a function with input validation
 #' checks. \code{nonstrictly()} undoes the application of \code{strictly()}, by
-#' returning the original function, without checks.
+#' returning the original function, without checks. \code{is_strict_closure()}
+#' is a predicate function that checks whether an object is a function created
+#' by \code{strictly()}.
+#'
+#' @evalRd rd_usage(c("strictly", "nonstrictly", "is_strict_closure"))
+#' @evalRd rd_alias(c("strictly", "nonstrictly", "is_strict_closure"))
 #'
 #' @param .f Interpreted function, i.e., function of type \code{"closure"}, not
 #'   a primitive function.
-#'
-#' @seealso \link{checklist} — predicate functions for verifying the syntactic
-#'   validity of checklists; \link{scope} — functions for converting the scope
-#'   of check formulae; \link{components} — functions for extracting components
-#'   of a strictly applied function.
-#'
-#' @examples
-#' \dontrun{
-#'
-#' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
-#'
-#' # Ensure that `f` is a function
-#' secant_stc <- strictly(secant, list("`f` not a function" ~ f) ~ is.function)
-#' secant_stc(log, 1, .1)    # 0.9531018
-#' secant_stc("log", 1, .1)  # Error: "`f` not a function"
-#'
-#' # Ensure that `x` and `dx` are numerical (possibly non-scalars)
-#' secant_vec <- strictly(secant_stc, list(~x, ~dx) ~ is.numeric)
-#' secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
-#' secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
-#' secant_vec(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
-#' secant_vec("log", "1", .1)    # Two errors
-#'
-#' # Ensure that `dx` is a numerical scalar
-#' secant_scalar <- strictly(secant_stc, list(~dx) ~ purrr::is_scalar_numeric)
-#' secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
-#' secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
-#' secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
-#'
-#' # Use purrr::lift() for predicate functions with multi-argument dependencies
-#' f <- function(f, l, r) secant(f, l, dx = r - l)
-#' is_monotone <- function(x, y) y - x > 0
-#' secant_right <- strictly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
-#' secant_right(log, 1, 1.1)  # 0.9531018
-#' secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
-#'
-#' # Alternatively, secant_right() can be implemented with a unary check
-#' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
-#' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
-#' secant_right2(log, 1, .9)  # Error (as before)
-#'
-#' # strictly() won't force any argument not involved in a check
-#' g <- strictly(function(x, y) "Pass", list(~x) ~ is.character)
-#' g(c("a", "b"), stop("Not signaled"))  # "Pass"
-#'
-#' # nonstrictly() recovers the underlying function
-#' identical(nonstrictly(secant_vec), secant)  # TRUE
-#' }
-#'
-#' @name strictly
-NULL
-
-#' @rdname strictly
-#' @export
-#'
 #' @param ... Check formula(e); see the section \dQuote{Check formulae.}
 #' @param .checklist List of check formulae. Check formulae in \code{.checklist}
 #'   are combined with check formulae provided via the \code{...} argument.
@@ -250,6 +257,9 @@ NULL
 #'   required arguments be checked? (A \dQuote{required argument} is a (named)
 #'   argument without default value.) This question is disregarded if
 #'   \code{.warn_missing} is \code{NULL}.
+#' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
+#'   \code{.f} is not a function created by \code{strictly()}?
+#' @param x Object to check.
 #'
 #' @return
 #'   \subsection{\code{strictly()}}{
@@ -279,6 +289,10 @@ NULL
 #'   all its attributes (with the execption that the resulting class is
 #'   \code{"strict_closure"}, which inherits from the class of \code{.f}).
 #'   }
+#'
+#' @return \subsection{\code{nonstrictly()}}{
+#'   Returns the original function without checks. (This works even if the
+#'   original function has been removed.)}
 #'
 #' @section Check formulae:
 #'   An input validation check is specified by a \link[stats]{formula}, where
@@ -345,61 +359,54 @@ NULL
 #'   \preformatted{
 #'   ~ function(.) {. > 0}}
 #'   is equivalent to the check formula \code{~ {. > 0}}.
-strictly <- strictly_(
-  strictly_,
-  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
-    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)},
-  .warn_missing = TRUE
-)
-
-nonstrictly_ <- function(.f, .quiet = FALSE) {
-  if (is_strict_closure(.f)) {
-    strict_core(.f)
-  } else {
-    if (!.quiet) {
-      warning("Argument not a strictly applied function", call. = FALSE)
-    }
-    .f
-  }
-}
-
-#' @rdname strictly
-#' @export
 #'
-#' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
-#'   \code{.f} is not a function created by \code{strictly()}?
+#' @seealso \link{checklist} — predicate functions for verifying the syntactic
+#'   validity of checklists; \link{scope} — functions for converting the scope
+#'   of check formulae (i.e., making reusable check formulae); \link{components}
+#'   — functions for extracting components of a strictly applied function.
 #'
-#' @return \subsection{\code{nonstrictly()}}{
-#'   Returns the original function without checks. (This works even if the
-#'   original function has been removed.)}
-nonstrictly <- strictly(
-  nonstrictly_,
-  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("`.quiet` not TRUE/FALSE" ~ .quiet) ~ {is_true(.) || is_false(.)}
-)
-
-#' @export
-print.strict_closure <- function(x, ...) {
-  cat("<strict_closure>\n")
-
-  cat("\n* Core function:\n")
-  print(strict_core(x))
-
-  cat("\n* Checks (<predicate>:<error message>):\n")
-  calls <- strict_checks(x)
-  if (!is.null(calls) && nrow(calls)) {
-    labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
-    cat(enumerate_many(labels))
-  } else {
-    cat("None\n")
-  }
-
-  cat("\n* Check for missing arguments:\n")
-  args <- strict_args(x)
-  if (!is.null(args) && length(args)) {
-    cat(paste(args, collapse = ", "), "\n")
-  } else {
-    cat("Not checked\n")
-  }
-}
+#' @examples
+#' \dontrun{
+#'
+#' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
+#'
+#' # Ensure that `f` is a function
+#' secant_stc <- strictly(secant, list("`f` not a function" ~ f) ~ is.function)
+#' secant_stc(log, 1, .1)    # 0.9531018
+#' secant_stc("log", 1, .1)  # Error: "`f` not a function"
+#'
+#' # Ensure that `x` and `dx` are numerical (possibly non-scalars)
+#' secant_vec <- strictly(secant_stc, list(~x, ~dx) ~ is.numeric)
+#' secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
+#' secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
+#' secant_vec(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
+#' secant_vec("log", "1", .1)    # Two errors
+#'
+#' # Ensure that `dx` is a numerical scalar
+#' secant_scalar <- strictly(secant_stc, list(~dx) ~ purrr::is_scalar_numeric)
+#' secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
+#' secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
+#' secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
+#'
+#' # Use purrr::lift() for predicate functions with multi-argument dependencies
+#' f <- function(f, l, r) secant(f, l, dx = r - l)
+#' is_monotone <- function(x, y) y - x > 0
+#' secant_right <- strictly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
+#' secant_right(log, 1, 1.1)  # 0.9531018
+#' secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
+#'
+#' # Alternatively, secant_right() can be implemented with a unary check
+#' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
+#' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
+#' secant_right2(log, 1, .9)  # Error (as before)
+#'
+#' # strictly() won't force any argument not involved in a check
+#' g <- strictly(function(x, y) "Pass", list(~x) ~ is.character)
+#' g(c("a", "b"), stop("Not signaled"))  # "Pass"
+#'
+#' # nonstrictly() recovers the underlying function
+#' identical(nonstrictly(secant_vec), secant)  # TRUE
+#' }
+#'
+#' @name strictly
+NULL

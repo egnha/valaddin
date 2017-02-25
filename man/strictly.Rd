@@ -2,14 +2,7 @@
 % Please edit documentation in R/strictly.R
 \name{strictly}
 \alias{strictly}
-\alias{strictly}
-\alias{nonstrictly}
 \title{Apply a function strictly}
-\usage{
-strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
-
-nonstrictly(.f, .quiet = FALSE)
-}
 \arguments{
 \item{.f}{Interpreted function, i.e., function of type \code{"closure"}, not
 a primitive function.}
@@ -26,6 +19,8 @@ argument without default value.) This question is disregarded if
 
 \item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning be signaled if
 \code{.f} is not a function created by \code{strictly()}?}
+
+\item{x}{Object to check.}
 }
 \value{
 \subsection{\code{strictly()}}{
@@ -63,7 +58,9 @@ argument without default value.) This question is disregarded if
 \description{
 \code{strictly()} transforms a function into a function with input validation
 checks. \code{nonstrictly()} undoes the application of \code{strictly()}, by
-returning the original function, without checks.
+returning the original function, without checks. \code{is_strict_closure()}
+is a predicate function that checks whether an object is a function created
+by \code{strictly()}.
 }
 \section{Check formulae}{
 
@@ -182,6 +179,16 @@ identical(nonstrictly(secant_vec), secant)  # TRUE
 \seealso{
 \link{checklist} — predicate functions for verifying the syntactic
   validity of checklists; \link{scope} — functions for converting the scope
-  of check formulae; \link{components} — functions for extracting components
-  of a strictly applied function.
+  of check formulae (i.e., making reusable check formulae); \link{components}
+  — functions for extracting components of a strictly applied function.
 }
+\usage{
+strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
+
+nonstrictly(.f, .quiet = FALSE)
+
+is_strict_closure(x)
+}
+\alias{strictly}
+\alias{nonstrictly}
+\alias{is_strict_closure}
