@@ -40,42 +40,42 @@ nms$type <- setdiff(names(chkrs_purrr), unlist(nms))
 #'
 #' @evalRd rd_alias(nms$type)
 #' @evalRd rd_usage(nms$type)
-#' @param ... Expressions to check.
+#' @param ... Expressions to check, supplied as one-sided formulae.
 #' @return Check formula.
 #' @seealso \link[purrr:type-predicates]{Type predicates} (purrr)
 #' @family type checkers
-#' @name checkers-type
+#' @name type-checkers
 NULL
 
 #' Bare type checkers
 #'
 #' @evalRd rd_alias(nms$bare)
 #' @evalRd rd_usage(nms$bare)
-#' @param ... Expressions to check.
-#' @inherit checkers-type
+#' @param ... Expressions to check, supplied as one-sided formulae.
+#' @inherit type-checkers
 #' @seealso \link[purrr:bare-type-predicates]{Bare type predicates} (purrr)
 #' @family type checkers
-#' @name checkers-bare-type
+#' @name bare-type-checkers
 NULL
 
 #' Scalar type checkers
 #'
 #' @evalRd rd_alias(nms$scalar)
 #' @evalRd rd_usage(nms$scalar)
-#' @param ... Expressions to check.
-#' @inherit checkers-type
+#' @param ... Expressions to check, supplied as one-sided formulae.
+#' @inherit type-checkers
 #' @seealso \link[purrr:scalar-type-predicates]{Scalar type predicates} (purrr)
 #' @family type checkers
-#' @name checkers-scalar-type
+#' @name scalar-type-checkers
 NULL
 
 #' Miscellaneous type checkers
 #'
 #' @evalRd rd_alias(nms$misc)
 #' @evalRd rd_usage(nms$misc)
-#' @param ... Expressions to check.
-#' @inherit checkers-type
+#' @param ... Expressions to check, supplied as one-sided formulae.
+#' @inherit type-checkers
 #' @seealso \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
 #' @family type checkers
-#' @name checkers-misc
+#' @name misc-checkers
 NULL
