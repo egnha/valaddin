@@ -221,9 +221,10 @@ of predicate functions that you can use with `strictly()`.
 input validation, using [roxygen](https://github.com/klutometis/roxygen)
 comments to specify checks.
 
-* [ensurer](https://github.com/smbache/ensurer) provides a means of validating
-function values, along with a replacement for `function()` to build functions
-with type-validated arguments.
+* Both [ensurer](https://github.com/smbache/ensurer) and 
+[assertr](https://github.com/ropensci/assertr) provide a means of validating 
+function values. Additionally, ensurer provides a replacement for `function()` 
+that build functions with type-validated arguments.
 
 * [typeCheck](https://github.com/jimhester/typeCheck), together with [Types for
 R](https://github.com/jimhester/types), enables the creation of functions with
