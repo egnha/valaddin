@@ -13,6 +13,8 @@ Check formula.
 Miscellaneous type checkers
 }
 \seealso{
+\code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
+
 Other type checkers: \code{\link{checkers-bare-type}},
   \code{\link{checkers-scalar-type}},
   \code{\link{checkers-type}}

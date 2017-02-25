@@ -13,6 +13,8 @@ Check formula.
 Type checkers
 }
 \seealso{
+\link[purrr:type-predicates]{Type predicates} (purrr)
+
 Other type checkers: \code{\link{checkers-bare-type}},
   \code{\link{checkers-misc}},
   \code{\link{checkers-scalar-type}}

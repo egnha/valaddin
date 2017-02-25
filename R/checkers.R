@@ -42,6 +42,7 @@ nms$type <- setdiff(names(chkrs_purrr), unlist(nms))
 #' @evalRd rd_usage(nms$type)
 #' @param ... Expressions to check.
 #' @return Check formula.
+#' @seealso \link[purrr:type-predicates]{Type predicates} (purrr)
 #' @family type checkers
 #' @name checkers-type
 NULL
@@ -52,6 +53,7 @@ NULL
 #' @evalRd rd_usage(nms$bare)
 #' @param ... Expressions to check.
 #' @inherit checkers-type
+#' @seealso \link[purrr:bare-type-predicates]{Bare type predicates} (purrr)
 #' @family type checkers
 #' @name checkers-bare-type
 NULL
@@ -62,6 +64,7 @@ NULL
 #' @evalRd rd_usage(nms$scalar)
 #' @param ... Expressions to check.
 #' @inherit checkers-type
+#' @seealso \link[purrr:scalar-type-predicates]{Scalar type predicates} (purrr)
 #' @family type checkers
 #' @name checkers-scalar-type
 NULL
@@ -72,6 +75,7 @@ NULL
 #' @evalRd rd_usage(nms$misc)
 #' @param ... Expressions to check.
 #' @inherit checkers-type
+#' @seealso \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
 #' @family type checkers
 #' @name checkers-misc
 NULL
