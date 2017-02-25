@@ -145,7 +145,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
   if (!is_checklist(chks)) {
-    stop("Invalid argument checks", call. = FALSE)
+    stop("Invalid argument checks (see ?strictly)", call. = FALSE)
   }
 
   sig <- formals(.f)

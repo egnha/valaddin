@@ -103,7 +103,7 @@ localize <- strictly(
 #' @return \code{globalize()} returns the underlying global check formula.
 globalize <- strictly(
   globalize_,
-  list("`chkr` must be a local checker function, see ?localize" ~ chkr) ~
+  list("`chkr` must be a local checker function (see ?localize)" ~ chkr) ~
     is_check_maker,
   .warn_missing = TRUE
 )
