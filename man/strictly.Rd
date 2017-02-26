@@ -2,6 +2,8 @@
 % Please edit documentation in R/strictly.R
 \name{strictly}
 \alias{strictly}
+\alias{nonstrictly}
+\alias{is_strict_closure}
 \title{Apply a function strictly}
 \arguments{
 \item{.f}{Interpreted function, i.e., function of type \code{"closure"}, not
@@ -189,6 +191,3 @@ nonstrictly(.f, .quiet = FALSE)
 
 is_strict_closure(x)
 }
-\alias{strictly}
-\alias{nonstrictly}
-\alias{is_strict_closure}

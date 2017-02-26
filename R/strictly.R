@@ -245,8 +245,8 @@ print.strict_closure <- function(x, ...) {
 #' is a predicate function that checks whether an object is a function created
 #' by \code{strictly()}.
 #'
+#' @aliases strictly nonstrictly is_strict_closure
 #' @evalRd rd_usage(c("strictly", "nonstrictly", "is_strict_closure"))
-#' @evalRd rd_alias(c("strictly", "nonstrictly", "is_strict_closure"))
 #'
 #' @param .f Interpreted function, i.e., function of type \code{"closure"}, not
 #'   a primitive function.
