@@ -35,8 +35,8 @@ NULL
 #' # In contrast, chk_pos_gbl checks positivity for all arguments
 #' h <- strictly(pass, chk_pos_gbl)
 #' h(2, 2)  # "Pass"
-#' h(1, 0)  # Error: "Not positive: `y`"
-#' h(0, 0)  # Errors: "Not positive: `x`", "Not positive: `y`"
+#' h(1, 0)  # Error: "Not positive: y"
+#' h(0, 0)  # Errors: "Not positive: x", "Not positive: y"
 #'
 #' # Alternatively, globalize the localized checker
 #' h2 <- strictly(pass, globalize(chk_pos_lcl))
