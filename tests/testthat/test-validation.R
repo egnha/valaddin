@@ -106,7 +106,7 @@ test_that("string formula produces global check with message", {
   for (i in seq_along(arg_list)) {
     for (arg in nms[1:i]) {
       expect_error(purrr::lift(f_pos)(arg_list[[i]]),
-                   sprintf("Not positive: `%s`", arg))
+                   sprintf("Not positive: %s", arg))
     }
     # No other errors
     expect_n_errors(i, f_pos, arg_list[[i]], "Not positive")
@@ -120,9 +120,9 @@ test_that("string formula produces global check with message", {
   # Error evaluating check because of invalid input types
   args <- list(1, "y", v = 0)
 
-  expect_error(do.call("f_pos", args), "Not numeric: `y`")
-  expect_error(do.call("f_pos", args), "Not positive: `z`")
-  expect_error(do.call("f_pos", args), "Not positive: `v`")
+  expect_error(do.call("f_pos", args), "Not numeric: y")
+  expect_error(do.call("f_pos", args), "Not positive: z")
+  expect_error(do.call("f_pos", args), "Not positive: v")
   expect_error(do.call("f_pos", args),
                "Error evaluating check.*?is\\.numeric\\(u\\)")
   expect_error(do.call("f_pos", args),
@@ -138,7 +138,7 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {
   has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
   fs <- lapply(args_list[has_xy], pass_args)
 
-  chklist <- list(list(~x, "`y` not numeric" ~ y) ~ is.numeric)
+  chklist <- list(list(~x, "y not numeric" ~ y) ~ is.numeric)
 
   non_numeric <- list(NULL, NA, "string", TRUE, sin, quote({cat("Ho!")}))
   for (f in fs) {
@@ -149,7 +149,7 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {
       expect_error(do.call(f_strict, args, quote = TRUE),
                    "FALSE[^\n]*?is\\.numeric\\(x\\)")
       expect_n_errors(1, f_strict, args, "FALSE")
-      expect_n_errors(0, f_strict, args, "`y` not numeric")
+      expect_n_errors(0, f_strict, args, "y not numeric")
     }
   }
 })
@@ -158,7 +158,7 @@ test_that("named checks in checklist formula use custom messages", {
   has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
   fs <- lapply(args_list[has_xy], pass_args)
 
-  errmsg <- "`y` not numeric"
+  errmsg <- "y not numeric"
   chklist <- list(list(~x, errmsg ~ y) ~ is.numeric)
 
   non_numeric <- list(NULL, NA, "string", TRUE, sin, quote({cat("Ho!")}))

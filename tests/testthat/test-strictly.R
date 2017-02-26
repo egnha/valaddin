@@ -181,8 +181,8 @@ test_that("existing checks are preserved when adding new checks", {
     )
 
     # All previous checks checked
-    expect_error(g("1", 1), "Not numeric: `x`")
-    expect_error(g(1, "1"), "Not numeric: `y`")
+    expect_error(g("1", 1), "Not numeric: x")
+    expect_error(g(1, "1"), "Not numeric: y")
     expect_error(g(1, 0), "y not nonzero")
 
     # New check checked
