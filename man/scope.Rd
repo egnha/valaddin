@@ -53,13 +53,18 @@ g <- strictly(pass, chk_pos_lcl(~x))
 g(1, 0)  # "Pass"
 g(0, 0)  # Error: "Not positive: x"
 
-# On the other hand, chk_pos_gbl checks positive, uniformly
+# In contrast, chk_pos_gbl checks positivity for all arguments
 h <- strictly(pass, chk_pos_gbl)
 h(2, 2)  # "Pass"
 h(1, 0)  # Error: "Not positive: `y`"
+h(0, 0)  # Errors: "Not positive: `x`", "Not positive: `y`"
+
+# Alternatively, globalize the localized checker
+h2 <- strictly(pass, globalize(chk_pos_lcl))
+all.equal(h, h2)  # TRUE
 
 # localize() and globalize() are mutual inverses
-globalize(chk_pos_lcl)  # "Not positive" ~ {. > 0}
+identical(globalize(localize(chk_pos_gbl)), chk_pos_gbl)  # TRUE
 all.equal(localize(globalize(chk_pos_lcl)), chk_pos_lcl)  # TRUE
 }
 
