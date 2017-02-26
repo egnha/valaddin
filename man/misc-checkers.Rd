@@ -2,7 +2,7 @@
 % Please edit documentation in R/checkers.R
 \name{misc-checkers}
 \alias{misc-checkers}
-\title{Miscellaneous type checkers}
+\title{Miscellaneous checkers}
 \arguments{
 \item{...}{One-sided formulae that specify the expressions to check.}
 }
@@ -38,6 +38,9 @@ h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
   (\pkg{purrr}); \code{\link{globalize}()} (recover the underlying check
   formula of global scope)
+
+  The documentation for \code{\link{strictly}()} explains the notion of
+  \dQuote{scope} in the context of check formulae.
 
 Other type checkers: \code{\link{bare-type-checkers}},
   \code{\link{scalar-type-checkers}},

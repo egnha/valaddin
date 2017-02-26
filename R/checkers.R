@@ -55,6 +55,9 @@ nms$type <- setdiff(names(chkrs_purrr), unlist(nms))
 #' @seealso \link[purrr:type-predicates]{Type predicates} (\pkg{purrr}),
 #'   \code{\link{globalize}()} (recover the underlying check formula of global
 #'   scope)
+#'
+#'   The documentation for \code{\link{strictly}()} explains the notion of
+#'   \dQuote{scope} in the context of check formulae.
 #' @family type checkers
 #' @examples
 #' \dontrun{
@@ -90,6 +93,9 @@ NULL
 #' @seealso \link[purrr:bare-type-predicates]{Bare type predicates}
 #'   (\pkg{purrr}), \code{\link{globalize}()} (recover the underlying check
 #'   formula of global scope)
+#'
+#'   The documentation for \code{\link{strictly}()} explains the notion of
+#'   \dQuote{scope} in the context of check formulae.
 #' @family type checkers
 #' @examples
 #' \dontrun{
@@ -126,6 +132,9 @@ NULL
 #' @seealso \link[purrr:scalar-type-predicates]{Scalar type predicates}
 #'   (\pkg{purrr}), \code{\link{globalize}()} (recover the underlying check
 #'   formula of global scope)
+#'
+#'   The documentation for \code{\link{strictly}()} explains the notion of
+#'   \dQuote{scope} in the context of check formulae.
 #' @family type checkers
 #' @examples
 #' \dontrun{
@@ -146,7 +155,7 @@ NULL
 #' @name scalar-type-checkers
 NULL
 
-#' Miscellaneous type checkers
+#' Miscellaneous checkers
 #'
 #' These functions make check formulae of local scope based on the
 #' correspondingly named predicates \code{\link[purrr]{is_empty}()},
@@ -159,6 +168,9 @@ NULL
 #' @seealso \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
 #'   (\pkg{purrr}); \code{\link{globalize}()} (recover the underlying check
 #'   formula of global scope)
+#'
+#'   The documentation for \code{\link{strictly}()} explains the notion of
+#'   \dQuote{scope} in the context of check formulae.
 #' @family type checkers
 #' @examples
 #' \dontrun{

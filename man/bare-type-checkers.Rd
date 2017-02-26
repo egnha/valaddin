@@ -43,6 +43,9 @@ f_stricter(x, 0)         # Errors: "Not bare logical: x", "Not bare logical: y"
   (\pkg{purrr}), \code{\link{globalize}()} (recover the underlying check
   formula of global scope)
 
+  The documentation for \code{\link{strictly}()} explains the notion of
+  \dQuote{scope} in the context of check formulae.
+
 Other type checkers: \code{\link{misc-checkers}},
   \code{\link{scalar-type-checkers}},
   \code{\link{type-checkers}}
