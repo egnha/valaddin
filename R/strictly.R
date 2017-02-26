@@ -242,8 +242,8 @@ print.strict_closure <- function(x, ...) {
 #' \code{strictly()} transforms a function into a function with input validation
 #' checks. \code{nonstrictly()} undoes the application of \code{strictly()}, by
 #' returning the original function, without checks. \code{is_strict_closure()}
-#' is a predicate function that checks whether an object is a function created
-#' by \code{strictly()}.
+#' is a predicate function that checks whether an object is strictly applied
+#' function, i.e., a function created by \code{strictly()}.
 #'
 #' @aliases strictly nonstrictly is_strict_closure
 #' @evalRd rd_usage(c("strictly", "nonstrictly", "is_strict_closure"))
@@ -361,9 +361,10 @@ print.strict_closure <- function(x, ...) {
 #'   is equivalent to the check formula \code{~ {. > 0}}.
 #'
 #' @seealso \link{checklist} — predicate functions for verifying the syntactic
-#'   validity of checklists; \link{scope} — functions for converting the scope
-#'   of check formulae (i.e., making reusable check formulae); \link{components}
-#'   — functions for extracting components of a strictly applied function.
+#'   validity of checklists; \link{scope-changing} — functions for converting
+#'   the scope of check formulae (i.e., making reusable check formulae);
+#'   \link{components} — functions for extracting components of a strictly
+#'   applied function.
 #'
 #' @examples
 #' \dontrun{
