@@ -2,26 +2,27 @@
 % Please edit documentation in R/checklist.R
 \name{checklist}
 \alias{checklist}
-\alias{is_checklist}
 \alias{is_check_formula}
+\alias{is_checklist}
 \title{Is a formula a check formula?}
 \usage{
-is_checklist(x)
-
 is_check_formula(x)
+
+is_checklist(x)
 }
 \arguments{
-\item{x}{R object.}
+\item{x}{Object to test.}
 }
 \value{
-\code{is_check_formula(x)}, resp. \code{is_checklist(x)}, returns
+\code{is_check_formula}, resp. \code{is_checklist}, returns
   \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
   check formula, resp. checklist.
 }
 \description{
 \code{is_check_formula(x)} checks whether \code{x} is a check formula, while
 \code{is_checklist(x)} checks whether \code{x} is a \emph{checklist}, i.e., a
-list of check formulae. Neither function verifies logical consistency.
+list of check formulae. (Neither function verifies logical consistency of the
+implied checks.)
 }
 \examples{
 # Valid checklist
@@ -34,6 +35,5 @@ is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
 
 }
 \seealso{
-\link{strictly}, for information on the specificaton and use of
-  check formulae.
+\link{strictly} (on the specification and use of check formulae)
 }

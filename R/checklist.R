@@ -2,14 +2,14 @@
 #'
 #' \code{is_check_formula(x)} checks whether \code{x} is a check formula, while
 #' \code{is_checklist(x)} checks whether \code{x} is a \emph{checklist}, i.e., a
-#' list of check formulae. Neither function verifies logical consistency.
+#' list of check formulae. (Neither function verifies logical consistency of the
+#' implied checks.)
 #'
-#' @param x R object.
-#' @return \code{is_check_formula(x)}, resp. \code{is_checklist(x)}, returns
+#' @param x Object to test.
+#' @return \code{is_check_formula}, resp. \code{is_checklist}, returns
 #'   \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
 #'   check formula, resp. checklist.
-#' @seealso \link{strictly}, for information on the specificaton and use of
-#'   check formulae.
+#' @seealso \link{strictly} (on the specification and use of check formulae)
 #' @examples
 #' # Valid checklist
 #' is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))
@@ -24,14 +24,14 @@ NULL
 
 #' @rdname checklist
 #' @export
-is_checklist <- function(x) {
-  is.list(x) && all(vapply(x, is_check_formula, logical(1)))
+is_check_formula <- function(x) {
+  purrr::is_formula(x) && is_rhs_function(x) && is_lhs_checkitem(x)
 }
 
 #' @rdname checklist
 #' @export
-is_check_formula <- function(x) {
-  purrr::is_formula(x) && is_rhs_function(x) && is_lhs_checkitem(x)
+is_checklist <- function(x) {
+  is.list(x) && all(vapply(x, is_check_formula, logical(1)))
 }
 
 # Same as purrr::is_scalar_character() but with check against NA
