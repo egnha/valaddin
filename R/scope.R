@@ -50,6 +50,10 @@ NULL
 #' @name scope
 NULL
 
+is_check_maker <- function(x) {
+  purrr::is_function(x) && inherits(x, "check_maker")
+}
+
 localize_ <- function(chk) {
   .msg <- lazyeval::f_eval_lhs(chk)
   .rhs <- lazyeval::f_rhs(chk)
@@ -80,12 +84,6 @@ localize_ <- function(chk) {
   structure(chkr, class = c("check_maker", class(chkr)))
 }
 
-is_check_maker <- function(x) {
-  purrr::is_function(x) && inherits(x, "check_maker")
-}
-
-globalize_ <- function(chkr) environment(chkr)$chk
-
 #' @rdname scope
 #' @export
 #' @param chk Check formula of global scope with a custom error message, i.e., a
@@ -100,6 +98,8 @@ localize <- strictly(
     is_gbl_check_formula,
   .warn_missing = TRUE
 )
+
+globalize_ <- function(chkr) environment(chkr)$chk
 
 #' @rdname scope
 #' @export
