@@ -42,15 +42,15 @@ rd_markup <- function(cmd, join = "", sep = "") {
 NULL
 
 #' @rdname rd_markup
+#' @examples
+#' rd_alias(c("strictly", "nonstrictly"))
+#' @noRd
+rd_alias <- vec_strjoin(rd_markup("alias"))
+
+#' @rdname rd_markup
 #' @param ... Arguments to pass to \code{\link[base]{get}}.
 #' @examples
 #' rd_usage("ls")
 #' rd_usage(c("strictly", "nonstrictly"), pos = "package:valaddin")
 #' @noRd
 rd_usage <- purrr::compose(rd_markup("usage", join = "\n\n", sep = "\n"), call_sig)
-
-#' @rdname rd_markup
-#' @examples
-#' rd_alias(c("strictly", "nonstrictly"))
-#' @noRd
-rd_alias <- vec_strjoin(rd_markup("alias"))
