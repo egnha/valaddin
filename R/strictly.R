@@ -1,13 +1,27 @@
 #' @include promises.R functions.R components.R checklist.R future.R rawrd.R utils.R
 NULL
 
-unfurl_args <- function(.lhs, .arg_nm, .arg_symb, .env) {
+# Checking infrastructure -------------------------------------------------
+
+is_void_symb <- function(x) is.symbol(x) && x == substitute()
+
+# Represent non-dot arguments by name and symbol (sig: pairlist)
+nomen <- function(sig) {
+  nm <- setdiff(names(sig), "...") %||% character(0)
+  list(
+    nm       = nm,
+    symb     = lapply(nm, as.symbol),
+    wo_value = vapply(sig[nm], is_void_symb, logical(1), USE.NAMES = FALSE)
+  )
+}
+
+# Make a list of argument-expressions (as formulas), named by error message
+unfurl_args <- function(.errmsg, .arg_nm, .arg_symb, .env) {
   q <- lapply(.arg_symb, f_new, env = .env)
-  if (!is.null(.lhs)) {
-    names(q) <- paste(.lhs, .arg_nm, sep = ": ")
-  } else {
-    names(q) <- character(length(q))
-  }
+  names(q) <- if (is.null(.errmsg))
+    character(length(q))
+  else
+    paste(.errmsg, .arg_nm, sep = ": ")
 
   q
 }
@@ -21,6 +35,7 @@ call_str <- function(chk_item, fn_expr) {
   deparse_collapse(call)
 }
 
+# Expand a check formula into a data frame of checks
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
   p_expr <- if (is_lambda(p)) expr_lambda(p) else p
@@ -28,9 +43,11 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
 
   lhs <- lazyeval::f_eval_lhs(.chk)
   q <- if (is.list(lhs)) {
+    # .chk: local scope
     do.call(lazyeval::f_list, lhs)
-  } else {  # lhs: string or NULL
-    unfurl_args(lhs, .nm, .symb, .env)
+  } else {
+    # .chk: global scope (lhs: string/NULL)
+    unfurl_args(.errmsg = lhs, .nm, .symb, .env)
   }
   string <- vapply(q, call_str, FUN.VALUE = character(1), fn_expr = p_expr)
   is_empty <- names(q) == ""
@@ -45,6 +62,8 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
     )
   })
 }
+
+# Warning apparatus -------------------------------------------------------
 
 warn <- function(.ref_args) {
   force(.ref_args)
@@ -71,6 +90,8 @@ warning_closure <- function(.fn, .warn) {
     eval(.fn(call), parent, parent)
   }
 }
+
+# Validation apparatus ----------------------------------------------------
 
 problems <- function(chks, verdict) {
   vapply(seq_along(verdict), function(i) {
@@ -118,28 +139,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
   }
 }
 
-is_void_symb <- function(x) {
-  is.symbol(x) && x == substitute()
-}
-
-# Represent non-dot arguments by name and symbol (sig: pairlist)
-nomen <- function(sig) {
-  nm <- setdiff(names(sig), "...") %||% character(0)
-  list(
-    nm       = nm,
-    symb     = lapply(nm, as.symbol),
-    wo_value = vapply(sig[nm], is_void_symb, logical(1), USE.NAMES = FALSE)
-  )
-}
-
-strict_closure <- function(.f) {
-  structure(.f, class = c("strict_closure", class(.f)))
-}
-
-#' @export
-is_strict_closure <- function(x) {
-  purrr::is_function(x) && inherits(x, "strict_closure")
-}
+# Functional operators ----------------------------------------------------
 
 strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
@@ -183,6 +183,15 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   }
 
   strict_closure(with_sig(f, sig, .attrs = attributes(.f)))
+}
+
+strict_closure <- function(.f) {
+  structure(.f, class = c("strict_closure", class(.f)))
+}
+
+#' @export
+is_strict_closure <- function(x) {
+  purrr::is_function(x) && inherits(x, "strict_closure")
 }
 
 #' @export
