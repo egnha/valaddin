@@ -48,7 +48,7 @@ NULL
 rd_alias <- vec_strjoin(rd_markup("alias"))
 
 #' @rdname rd_markup
-#' @param ... Arguments to pass to \code{\link[base]{get}}.
+#' @param \dots Arguments to pass to \code{\link[base]{get}}.
 #' @examples
 #' rd_usage("ls")
 #' rd_usage(c("strictly", "nonstrictly"), pos = "package:valaddin")

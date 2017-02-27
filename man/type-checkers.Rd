@@ -4,7 +4,7 @@
 \alias{type-checkers}
 \title{Type checkers}
 \arguments{
-\item{...}{One-sided formulae that specify the expressions to check.}
+\item{\dots}{One-sided formulae that specify the expressions to check.}
 }
 \value{
 Check formula of local scope.

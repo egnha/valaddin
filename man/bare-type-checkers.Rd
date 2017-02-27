@@ -4,7 +4,7 @@
 \alias{bare-type-checkers}
 \title{Bare type checkers}
 \arguments{
-\item{...}{One-sided formulae that specify the expressions to check.}
+\item{\dots}{One-sided formulae that specify the expressions to check.}
 }
 \value{
 Check formula of local scope.
