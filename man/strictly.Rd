@@ -6,13 +6,12 @@
 \alias{is_strict_closure}
 \title{Apply a function strictly}
 \arguments{
-\item{.f}{Interpreted function, i.e., function of type \code{"closure"}, not
-a primitive function.}
+\item{.f}{Interpreted function, i.e., a function of type \code{"closure"}.}
 
-\item{...}{Check formula(e); see the section \dQuote{Check formulae.}}
+\item{\dots}{Check formula(e); see the section \dQuote{Check formulae}.}
 
-\item{.checklist}{List of check formulae. Check formulae in \code{.checklist}
-are combined with check formulae provided via the \code{...} argument.}
+\item{.checklist}{List of check formulae. These are combined with check
+formulae provided via the \dots argument.}
 
 \item{.warn_missing}{\code{TRUE} or \code{FALSE}: Should the absence of
 required arguments be checked? (A \dQuote{required argument} is a (named)
@@ -22,7 +21,7 @@ argument without default value.) This question is disregarded if
 \item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning be signaled if
 \code{.f} is not a function created by \code{strictly()}?}
 
-\item{x}{Object to check.}
+\item{x}{Object to probe.}
 }
 \value{
 \subsection{\code{strictly()}}{
@@ -31,25 +30,24 @@ argument without default value.) This question is disregarded if
   This is the case when \code{.f} has no named arguments, i.e., \code{.f} has
   argument signature \code{function()} or \code{function(...)}.
 
-  Otherwise, \code{strictly()} returns a function of class
-  \code{"strict_closure"}. This function behaves \emph{identically} to
-  \code{.f}, with the exception that it does input validation, as follows:
+  Otherwise, \code{strictly()} returns a function that behaves
+  \emph{identically} to \code{.f}, with the exception that it validates its
+  inputs, as follows:
   \enumerate{
     \item Validation: Before \code{.f} is called, every check-formula
     predicate is evaluated: for each named argument, in the case of a global
     check formula, and for each check-item expression, in the case of a local
     check formula. Every resulting value of \code{FALSE}, or failure to
-    evalute the predicate itself, is tabulated; these are the
-    \emph{validation errors}.
+    evalute the predicate itself, is tabulated as a \emph{validation error}.
 
-    \item Error reporting: If there are any validation errors, an error is
-    signaled listing them. Execution halts.
+    \item Error reporting: For each validation error, an error is signaled.
+    Execution halts.
 
     \item Checks passed: If there are no validation errors, \code{.f} is
     called on the supplied arguments.
   }
   \code{strictly()} preserves the argument signature of \code{.f}, along with
-  all its attributes (with the execption that the resulting class is
+  its attributes (with the execption that the resulting class is
   \code{"strict_closure"}, which inherits from the class of \code{.f}).
   }
 
@@ -61,79 +59,90 @@ argument without default value.) This question is disregarded if
 \code{strictly()} transforms a function into a function with input validation
 checks. \code{nonstrictly()} undoes the application of \code{strictly()}, by
 returning the original function, without checks. \code{is_strict_closure()}
-is a predicate function that checks whether an object is strictly applied
+is a predicate function that checks whether an object is a strictly applied
 function, i.e., a function created by \code{strictly()}.
 }
-\section{Check formulae}{
+\details{
+To get started with \code{strictly()}, skip to the examples, below.
+  What follows is a precise description of how to specify checks. An
+  awareness of the distinction between a check formula of \dQuote{global
+  scope} vs. one of \dQuote{local scope} is helpful in understanding the
+  purpose and use of convenience functions, such as \code{\link{localize}()}.
 
-  An input validation check is specified by a \link[stats]{formula}, where
-  the right-hand side expresses \emph{what} to check, and the left-hand side
-  expresses \emph{where} to check it:
+  \subsection{Check formulae}{
+  An input validation check is specified by a \link[stats]{formula} of the
+  form
   \preformatted{
   <scope> ~ <predicate>}
-  \code{<predicate>} is a predicate function, i.e, a one-variable function
-  that returns \code{TRUE} or \code{FALSE}. \code{<scope>} is an expression
-  specifying whether the scope of \code{<predicate>} is \emph{global}—applies
-  to all (named) arguments of \code{.f}—or \emph{local}—applies to certain
-  arguments, either individually or in combination. Thus, with respect to
-  \code{<scope>}, there are two classes of check formulae:
+  where the right-hand side expresses \emph{what} to check, and the left-hand
+  side expresses \emph{where} to check it.
+
+  The right-hand side \code{<predicate>} is a predicate function, i.e, a
+  one-variable function that returns either \code{TRUE} or \code{FALSE}. The
+  left-hand side \code{<scope>} is an expression specifying whether the scope
+  of \code{<predicate>} is \emph{global}—applies to all (named) arguments of
+  \code{.f}—or \emph{local}—applies to certain arguments or expressions
+  thereof. In other words, there are two kinds of \code{<scope>}, and
+  therefore two kinds of check formulae:
   \itemize{
-    \item \strong{Check formulae with global scope}:\cr
+    \item \strong{Check formulae of global scope}:\cr
     \code{~ <predicate>} (onsided) or \code{<string> ~ <predicate>}
 
-    \item \strong{Check formulae with local scope}:\cr
+    \item \strong{Check formulae of local scope}:\cr
     \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
   }
-  \subsection{Check formulae with global scope}{
-  A \emph{global check formula} asserts that the evaluation of
-  \code{<predicate>} is \code{TRUE} for each (named) argument of \code{.f}.
-  Each argument for which the \code{<predicate>} fails (i.e., evaluates to
-  \code{FALSE}) produces an error message, which is auto-generated unless a
-  custom error message is supplied by specifying the string \code{<string>}.
-  \cr\cr
-  Example: the assertion that all (named) arguments of a function must be
-  numerical can be enforced by the check formula
-  \preformatted{
-  ~ is.numeric}
-  or
-  \preformatted{
-  "Not numeric" ~ is.numeric}
-  if the custom error message \code{"Not numeric"} is to be used.}
+  \subsection{Check formulae of global scope}{
+    A \strong{global check formula} imposes the condition that the
+    \code{<predicate>} (function) is \code{TRUE} for each (named) argument of
+    \code{.f}. Each argument for which the \code{<predicate>} fails (i.e.,
+    evaluates to \code{FALSE}) produces an error message, which is
+    auto-generated unless a custom error message is supplied by specifying
+    the string \code{<string>}.
+    \cr\cr
+    \emph{Example} — The assertion that all (named) arguments of a function
+    must be numerical can be enforced by the check formula
+    \preformatted{
+    ~ is.numeric}
+   or
+    \preformatted{
+   "Not numeric" ~ is.numeric}
+   if the custom error message \code{"Not numeric"} is to be used (in lieu of
+   an auto-generated error message).}
 
-  \subsection{Check formulae with local scope}{
-  A \emph{local check formula} makes argument-specific assertions. Each
-  \dQuote{check item} \code{<check_item>} is a formula of the form \code{~
-  <expression>} (one-sided) or \code{<string> ~ <expression>}; it makes the
-  assertion that the \code{<predicate>} evaluates to \code{TRUE} for the
-  expression \code{<expression>}. As for global check formulae, each check
-  item for which the \code{<predicate>} fails produces an error message,
-  which is auto-generated unless a custom error message is supplied by a
-  string as part of the left-hand side of the check item (formula).
-  \cr\cr
-  Example: the assertion that \code{x} and \code{y} must differ for the
-  function \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
-  check formulae
-  \preformatted{
-  list(~ x - y) ~ function(.) abs(.) > 0}
-  or
-  \preformatted{
-  list("`x`, `y` must differ" ~ x - y) ~ function(.) abs(.) > 0}
-  if the custom error message \code{"`x`, `y` must differ"} is to be used
-  (in lieu of an auto-generated error message).}
+  \subsection{Check formulae of local scope}{
+    A \strong{local check formula} imposes argument-specific conditions. Each
+    \dQuote{check item} \code{<check_item>} is a formula of the form \code{~
+    <expression>} (one-sided) or \code{<string> ~ <expression>}; it imposes
+    the condition that the \code{<predicate>} (function) is \code{TRUE} for
+    the expression \code{<expression>}. As for global check formulae, each
+    check item for which the \code{<predicate>} fails produces an error
+    message, which is auto-generated unless a custom error message is
+    supplied by a string as part of the left-hand side of the check item
+    (formula).
+    \cr\cr
+    \emph{Example} — The assertion that \code{x} and \code{y} must differ for
+    the function \code{function(x, y) \{1 / (x - y)\}} can be enforced by the
+    local check formulae
+    \preformatted{
+    list(~ x - y) ~ function(.) abs(.) > 0}
+    or
+    \preformatted{
+    list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
+    if the custom error message \code{"x, y must differ"} is to be used (in
+    lieu of an auto-generated error message).}
+  }
+
+  \subsection{Anonymous predicate functions}{
+    Following the \pkg{magrittr} package, an anonymous (predicate) function
+    of a single argument \code{.} can be expressed succinctly by enclosing
+    the body of such a function by curly braces \code{\{ \ldots \}}.
+    \cr\cr
+    \emph{Example} — The (onsided, global) check formula
+    \preformatted{
+    ~ {. > 0}}
+    is equivalent to the check formula \code{~ function(.) {. > 0}}.
+  }
 }
-
-\section{Anonymous predicate functions}{
-
-  Following the \link[magrittr]{magrittr} package, an anonymous (predicate)
-  function of a single argument \code{.} can be specified by placing the body
-  of such a function within curly braces \code{\{ \ldots \}}.
-  \cr\cr
-  For example, the (onsided, global) check formula
-  \preformatted{
-  ~ function(.) {. > 0}}
-  is equivalent to the check formula \code{~ {. > 0}}.
-}
-
 \examples{
 \dontrun{
 
@@ -179,11 +188,7 @@ identical(nonstrictly(secant_vec), secant)  # TRUE
 
 }
 \seealso{
-\link{checklist} — predicate functions for verifying the syntactic
-  validity of checklists; \link{scope-changing} — functions for converting
-  the scope of check formulae (i.e., making reusable check formulae);
-  \link{components} — functions for extracting components of a strictly
-  applied function.
+\link{components}
 }
 \usage{
 strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
