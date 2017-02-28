@@ -1,3 +1,6 @@
+# Pipe operator
+`%>%` <- purrr::`%>%`
+
 # Null-default operator
 `%||%` <- purrr::`%||%`
 
