@@ -54,3 +54,9 @@ rd_alias <- vec_strjoin(rd_markup("alias"))
 #' rd_usage(c("strictly", "nonstrictly"), pos = "package:valaddin")
 #' @noRd
 rd_usage <- purrr::compose(rd_markup("usage", join = "\n\n", sep = "\n"), call_sig)
+
+#' @rdname rd_markup
+#' @examples
+#' rd_seealso("Logarithm: \\code{\\link{log}}, \\code{\\link[utils]{head}}")
+#' @noRd
+rd_seealso <- rd_markup("seealso", join = "\n\n", sep = "\n")
