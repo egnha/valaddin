@@ -11,8 +11,12 @@ Check formula of local scope.
 }
 \description{
 These functions make check formulae of local scope based on the
-correspondingly named predicates \code{\link[purrr]{is_empty}()},
-\code{\link[purrr]{is_formula}()} from the \pkg{purrr} package.
+correspondingly named \pkg{base} R predicates \code{is.*()} (e.g.,
+\code{vld_data_frame()} corresponds to the predicate
+\code{\link[base]{is.data.frame}()}), with the exception that
+\code{vld_empty()}, \code{vld_formula()} are based on the \pkg{purrr}
+predicates \code{\link[purrr]{is_empty}()},
+\code{\link[purrr]{is_formula}()}.
 }
 \details{
 Each function \code{vld_*()} is a function of class
@@ -34,22 +38,79 @@ h(letters[1:3], letters[4:5])  # "Pass"
 h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 }
 }
-\seealso{
-\code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
-  (\pkg{purrr}); \code{\link{globalize}()} (recover the underlying check
-  formula of global scope)
-
-  The documentation for \code{\link{strictly}()} explains the notion of
-  \dQuote{scope} in the context of check formulae.
-
-Other type checkers: \code{\link{bare-type-checkers}},
-  \code{\link{scalar-type-checkers}},
-  \code{\link{type-checkers}}
-}
+\alias{vld_array}
+\alias{vld_call}
+\alias{vld_complex}
+\alias{vld_data_frame}
 \alias{vld_empty}
+\alias{vld_environment}
+\alias{vld_expression}
+\alias{vld_factor}
 \alias{vld_formula}
+\alias{vld_language}
+\alias{vld_matrix}
+\alias{vld_na}
+\alias{vld_name}
+\alias{vld_nan}
+\alias{vld_ordered}
+\alias{vld_pairlist}
+\alias{vld_primitive}
+\alias{vld_raw}
+\alias{vld_recursive}
+\alias{vld_symbol}
+\alias{vld_table}
+\alias{vld_unsorted}
 \usage{
+vld_array(...)
+
+vld_call(...)
+
+vld_complex(...)
+
+vld_data_frame(...)
+
 vld_empty(...)
 
+vld_environment(...)
+
+vld_expression(...)
+
+vld_factor(...)
+
 vld_formula(...)
+
+vld_language(...)
+
+vld_matrix(...)
+
+vld_na(...)
+
+vld_name(...)
+
+vld_nan(...)
+
+vld_ordered(...)
+
+vld_pairlist(...)
+
+vld_primitive(...)
+
+vld_raw(...)
+
+vld_recursive(...)
+
+vld_symbol(...)
+
+vld_table(...)
+
+vld_unsorted(...)
+}
+\seealso{
+Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.call}}, \code{\link[base]{is.complex}}, \code{\link[base]{is.data.frame}}, \code{\link[base]{is.environment}}, \code{\link[base]{is.expression}}, \code{\link[base]{is.factor}}, \code{\link[base]{is.language}}, \code{\link[base]{is.matrix}}, \code{\link[base]{is.na}}, \code{\link[base]{is.name}}, \code{\link[base]{is.nan}}, \code{\link[base]{is.ordered}}, \code{\link[base]{is.pairlist}}, \code{\link[base]{is.primitive}}, \code{\link[base]{is.raw}}, \code{\link[base]{is.recursive}}, \code{\link[base]{is.symbol}}, \code{\link[base]{is.table}}, \code{\link[base]{is.unsorted}}, \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
+
+\code{\link{globalize}()} recovers the underlying check formula of global scope.
+
+ The documentation for \code{\link{strictly}()} explains the notion of \dQuote{scope} in the context of check formulae.
+
+Other checkers: \code{\link{bare-type-checkers}}, \code{\link{scalar-type-checkers}}, \code{\link{type-checkers}}
 }

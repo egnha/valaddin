@@ -37,17 +37,6 @@ f_stricter(TRUE, 0)        # Error: "Not scalar logical: y"
 f_stricter(logical(0), 0)  # Errors: "Not scalar logical: x", "Not scalar logical: y"
 }
 }
-\seealso{
-\link[purrr:scalar-type-predicates]{Scalar type predicates}
-  (\pkg{purrr}), \code{\link{globalize}()} (recover the underlying check
-  formula of global scope)
-
-  The documentation for \code{\link{strictly}()} explains the notion of
-  \dQuote{scope} in the context of check formulae.
-
-Other type checkers: \code{\link{bare-type-checkers}},
-  \code{\link{misc-checkers}}, \code{\link{type-checkers}}
-}
 \alias{vld_scalar_atomic}
 \alias{vld_scalar_character}
 \alias{vld_scalar_double}
@@ -72,4 +61,13 @@ vld_scalar_logical(...)
 vld_scalar_numeric(...)
 
 vld_scalar_vector(...)
+}
+\seealso{
+Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predicates} (\pkg{purrr})
+
+\code{\link{globalize}()} recovers the underlying check formula of global scope.
+
+ The documentation for \code{\link{strictly}()} explains the notion of \dQuote{scope} in the context of check formulae.
+
+Other checkers: \code{\link{misc-checkers}}, \code{\link{bare-type-checkers}}, \code{\link{type-checkers}}
 }

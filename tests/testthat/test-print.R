@@ -45,23 +45,30 @@ test_that("strict closure arguments whose absence is checked are displayed", {
 
 # check_maker -------------------------------------------------------------
 
-nms_chkrs <- grep("^vld_", getNamespaceExports("valaddin"), value = TRUE)
-chkrs <- lapply(nms_chkrs, get)
-names(chkrs) <- sub("^vld_", "", nms_chkrs)
-
 test_that("local checker predicate is displayed", {
   header <- "* Predicate function:"
 
-  for (nm in names(chkrs)) {
-    pred_purrr <- getExportedValue("purrr", sprintf("is_%s", nm))
-    out <- paste(header, capture_output(print(pred_purrr)), sep = "\n")
+  fmls <- list(
+    "Not data frame" ~ is.data.frame,
+    "Not unsorted" ~ is.unsorted,
+    "Not NaN" ~ is.nan,
+    "Not positive" ~ function(x) x > 0
+  )
 
-    expect_output_p(print(chkrs[[nm]]), out)
+  for (f in fmls) {
+    pred <- lazyeval::f_rhs(f)
+    out <- paste(header, capture_output(pred), sep = "\n")
+
+    expect_output_p(print(localize(f)), out)
   }
 })
 
 test_that("local checker error message is displayed", {
   header <- "* Error message:"
+
+  nms_chkrs <- grep("^vld_", getNamespaceExports("valaddin"), value = TRUE)
+  chkrs <- lapply(nms_chkrs, getExportedValue, ns = "valaddin")
+  names(chkrs) <- sub("^vld_", "", nms_chkrs)
 
   for (nm in names(chkrs)) {
     msg <- sprintf("Not %s", gsub("_", " ", nm))
