@@ -1,6 +1,9 @@
 # Pipe operator
 `%>%` <- purrr::`%>%`
 
+# Hush `R CMD check` note (confused by `.` in pipes)
+. <- NULL
+
 # Null-default operator
 `%||%` <- purrr::`%||%`
 
