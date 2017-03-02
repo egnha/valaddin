@@ -42,10 +42,10 @@ test_that("checker error message is derived from predicate name", {
   for (. in chkrs) {
     msg_chkr <- lazyeval::f_eval_lhs(globalize(.$chkr))
     msg <- sprintf("Not %s", gsub("[_\\.]", " ", substring(.$nm, 4L)))
+    expect_identical(msg_chkr, msg)
 
     # Every purrr, resp. base, predicate returns FALSE for log, resp. 0L
     bad_arg <- if (.$ns == "purrr") log else 0L
-    expect_identical(msg_chkr, msg)
     expect_error(strictly(f, .$chkr(~ x))(bad_arg), msg)
   }
 })
