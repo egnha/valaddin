@@ -1,4 +1,4 @@
-# valaddin 1.0.0.9000
+# valaddin 0.0.0.9000
 
 * Initial feature complete version:
     * Main functional operators: `strictly()`, `nonstrictly()`
