@@ -49,18 +49,19 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
     # .chk: global scope (lhs: string/NULL)
     unfurl_args(.errmsg = lhs, .nm, .symb, .env)
   }
-  string <- vapply(q, call_str, FUN.VALUE = character(1), fn_expr = p_expr)
+  string <- vapply(q, call_str, FUN.VALUE = character(1L), fn_expr = p_expr)
   is_empty <- names(q) == ""
   names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
 
-  purrr::pmap_df(list(q, string, names(q)), function(x, s, m) {
-    dplyr::data_frame(
-      expr   = list(as.call(c(predicate, lazyeval::f_rhs(x)))),
+  dplyr::as_data_frame(
+    list(
+      expr   = lapply(q, function(.) as.call(c(predicate, lazyeval::f_rhs(.)))),
       env    = list(.env),
-      string = s,
-      msg    = m
-    )
-  })
+      string = string,
+      msg    = names(q)
+    ),
+    validate = FALSE
+  )
 }
 
 # Warning apparatus -------------------------------------------------------
@@ -166,7 +167,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   fn <- call_fn(f_core)
   pre_chks <- strict_checks(.f)
 
-  if (!length(chks)) {  # .warn_missing is either TRUE or FALSE
+  if (!length(chks)) {  # .warn_missing is not NULL (so either TRUE or FALSE)
     if (is.null(pre_chks) && is_false(.warn_missing))
       return(f_core)
 
