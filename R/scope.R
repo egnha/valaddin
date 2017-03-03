@@ -101,8 +101,7 @@ localize_ <- function(chk) {
 localize <- strictly(
   localize_,
   list("`chk` must be a formula of the form <string> ~ <predicate>" ~ chk) ~
-    is_gbl_check_formula,
-  .warn_missing = TRUE
+    is_gbl_check_formula
 )
 
 globalize_ <- function(chkr) environment(chkr)$chk
@@ -116,8 +115,7 @@ globalize_ <- function(chkr) environment(chkr)$chk
 globalize <- strictly(
   globalize_,
   list("`chkr` must be a local checker function (see ?localize)" ~ chkr) ~
-    is_check_maker,
-  .warn_missing = TRUE
+    is_check_maker
 )
 
 #' @export

@@ -202,8 +202,7 @@ strictly <- strictly_(
   strictly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
   list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
-    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)},
-  .warn_missing = TRUE
+    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)}
 )
 
 nonstrictly_ <- function(.f, .quiet = FALSE) {
