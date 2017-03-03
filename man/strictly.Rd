@@ -63,13 +63,7 @@ is a predicate function that checks whether an object is a strictly applied
 function, i.e., a function created by \code{strictly()}.
 }
 \details{
-To get started with \code{strictly()}, skip to the examples, below.
-  What follows is a precise description of how to specify checks. An
-  awareness of the distinction between a check formula of \dQuote{global
-  scope} vs. one of \dQuote{local scope} is helpful in understanding the
-  purpose and use of convenience functions, such as \code{\link{localize}()}.
-
-  \subsection{Check formulae}{
+\subsection{Check formulae}{
   An input validation check is specified by a \link[stats]{formula} of the
   form
   \preformatted{
