@@ -176,9 +176,11 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
     else
       validating_closure(pre_chks, sig, fn, maybe_warn)
   } else {
-    assembled_chks <- dplyr::distinct(
-      dplyr::bind_rows(pre_chks,
-                       lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb))
+    assembled_chks <- dplyr::distinct_(
+      dplyr::bind_rows(
+        pre_chks,
+        lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
+      )
     )
     f <- validating_closure(assembled_chks, sig, fn, maybe_warn)
   }
