@@ -44,3 +44,6 @@ strict_args(f_stc)                                  # NULL
 strict_args(strictly(f_stc, .warn_missing = TRUE))  # "x" "y"
 
 }
+\seealso{
+\code{\link{strictly}}
+}

@@ -71,8 +71,8 @@ identical(globalize(localize(chk_pos_gbl)), chk_pos_gbl)  # TRUE
 all.equal(localize(globalize(chk_pos_lcl)), chk_pos_lcl)  # TRUE
 }
 \seealso{
-The documentation for \code{\link{strictly}()} explains the notion
-  of \dQuote{scope} in the context of check formulae.
+The \emph{Details} section of \link{strictly} explains the notion of
+  \dQuote{scope} in the context of check formulae.
 
   Ready-made checkers for \link[=type-checkers]{types},
   \link[=bare-type-checkers]{bare types}, \link[=scalar-type-checkers]{scalar

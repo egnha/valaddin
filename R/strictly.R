@@ -370,7 +370,9 @@ print.strict_closure <- function(x, ...) {
 #'     }
 #'   }
 #'
-#' @seealso \link{components}
+#' @seealso \link{scope-changing}, \link{checklist}, \link{components},
+#'   \link{bare-type-checkers}, \link{scalar-type-checkers},
+#'   \link{type-checkers}, \link{misc-checkers}
 #'
 #' @examples
 #' \dontrun{

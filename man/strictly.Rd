@@ -174,7 +174,9 @@ identical(nonstrictly(secant_vec), secant)  # TRUE
 
 }
 \seealso{
-\link{components}
+\link{scope-changing}, \link{checklist}, \link{components},
+  \link{bare-type-checkers}, \link{scalar-type-checkers},
+  \link{type-checkers}, \link{misc-checkers}
 }
 \usage{
 strictly(.f, ..., .checklist = list(), .warn_missing = NULL)

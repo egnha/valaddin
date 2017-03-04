@@ -73,7 +73,7 @@ nms <- lapply(nms, function(.) .[order(tolower(.))])
 
 # "See Also" (required, because @family would overwrite our custom "See Also")
 
-link_code  <- "\\code{\\link{%s}}"
+link_bare  <- "\\link{%s}"
 link_extfn <- "\\code{\\link[%s]{%s}}"
 link_purrr <- "\\link[purrr:%s-predicates]{%s predicates} (\\pkg{purrr})"
 
@@ -92,9 +92,9 @@ predicates <- list(
   prefix_with("Corresponding predicates:")
 
 other <- c(
-  "\\code{\\link{globalize}()} recovers the underlying check formula of global",
+  "\\code{\\link{globalize}} recovers the underlying check formula of global",
   "scope.\n\n",
-  "The documentation for \\code{\\link{strictly}()} explains the notion of",
+  "The \\emph{Details} section of \\link{strictly} explains the notion of",
   "\\dQuote{scope} in the context of check formulae."
 ) %>%
   paste(collapse = " ")
@@ -104,7 +104,7 @@ family <- doc_nms %>%
   stats::setNames(paste(., "checkers", sep = "-"), .) %>%
   lapply(function(nm) {
     other <- unname(.[. != nm])
-    paste(sprintf(link_code, other), collapse = ", ")
+    paste(sprintf(link_bare, other), collapse = ", ")
   }) %>%
   prefix_with("Other checkers:")
 

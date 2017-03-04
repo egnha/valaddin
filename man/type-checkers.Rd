@@ -71,9 +71,9 @@ vld_vector(...)
 \seealso{
 Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\pkg{purrr})
 
-\code{\link{globalize}()} recovers the underlying check formula of global scope.
+\code{\link{globalize}} recovers the underlying check formula of global scope.
 
- The documentation for \code{\link{strictly}()} explains the notion of \dQuote{scope} in the context of check formulae.
+ The \emph{Details} section of \link{strictly} explains the notion of \dQuote{scope} in the context of check formulae.
 
-Other checkers: \code{\link{misc-checkers}}, \code{\link{bare-type-checkers}}, \code{\link{scalar-type-checkers}}
+Other checkers: \link{misc-checkers}, \link{bare-type-checkers}, \link{scalar-type-checkers}
 }

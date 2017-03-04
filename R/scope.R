@@ -9,8 +9,8 @@ NULL
 #' generator and returns the underlying check formula (of global scope). These
 #' operations are mutually invertible.
 #'
-#' @seealso The documentation for \code{\link{strictly}()} explains the notion
-#'   of \dQuote{scope} in the context of check formulae.
+#' @seealso The \emph{Details} section of \link{strictly} explains the notion of
+#'   \dQuote{scope} in the context of check formulae.
 #'
 #'   Ready-made checkers for \link[=type-checkers]{types},
 #'   \link[=bare-type-checkers]{bare types}, \link[=scalar-type-checkers]{scalar

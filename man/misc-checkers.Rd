@@ -108,9 +108,9 @@ vld_unsorted(...)
 \seealso{
 Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.call}}, \code{\link[base]{is.complex}}, \code{\link[base]{is.data.frame}}, \code{\link[base]{is.environment}}, \code{\link[base]{is.expression}}, \code{\link[base]{is.factor}}, \code{\link[base]{is.language}}, \code{\link[base]{is.matrix}}, \code{\link[base]{is.na}}, \code{\link[base]{is.name}}, \code{\link[base]{is.nan}}, \code{\link[base]{is.ordered}}, \code{\link[base]{is.pairlist}}, \code{\link[base]{is.primitive}}, \code{\link[base]{is.raw}}, \code{\link[base]{is.recursive}}, \code{\link[base]{is.symbol}}, \code{\link[base]{is.table}}, \code{\link[base]{is.unsorted}}, \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
 
-\code{\link{globalize}()} recovers the underlying check formula of global scope.
+\code{\link{globalize}} recovers the underlying check formula of global scope.
 
- The documentation for \code{\link{strictly}()} explains the notion of \dQuote{scope} in the context of check formulae.
+ The \emph{Details} section of \link{strictly} explains the notion of \dQuote{scope} in the context of check formulae.
 
-Other checkers: \code{\link{bare-type-checkers}}, \code{\link{scalar-type-checkers}}, \code{\link{type-checkers}}
+Other checkers: \link{bare-type-checkers}, \link{scalar-type-checkers}, \link{type-checkers}
 }

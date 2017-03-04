@@ -16,6 +16,7 @@
 #'   (character), \code{msg} (character); \code{strict_args} returns a character
 #'   vector. (In the absence of the component to be extracted, these functions
 #'   return \code{NULL}.)
+#' @seealso \code{\link{strictly}}
 #' @examples
 #' f <- function(x, y, ...) NULL
 #' f_stc <- strictly(f, ~ is.numeric, list(~x, ~ y - x) ~ {. > 0})
