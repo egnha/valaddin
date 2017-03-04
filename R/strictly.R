@@ -260,7 +260,7 @@ print.strict_closure <- function(x, ...) {
 #' @evalRd rd_usage(c("strictly", "nonstrictly", "is_strict_closure"))
 #'
 #' @param .f Interpreted function, i.e., a function of type \code{"closure"}.
-#' @param \dots Check formula(e); see the section \dQuote{Check formulae}.
+#' @param \dots Check formula(e) (see \emph{Details}).
 #' @param .checklist List of check formulae. These are combined with check
 #'   formulae provided via \code{\dots}.
 #' @param .warn_missing \code{TRUE} or \code{FALSE}: Should the absence of
@@ -295,8 +295,7 @@ print.strict_closure <- function(x, ...) {
 #' @details
 #'   An input validation check is specified by a \link[stats]{formula} of the
 #'   form
-#'   \preformatted{
-#'   <scope> ~ <predicate>}
+#'   \preformatted{<scope> ~ <predicate>}
 #'   where the right-hand side expresses \emph{what} to check, and the left-hand
 #'   side expresses \emph{where} to check it.
 #'
@@ -310,12 +309,12 @@ print.strict_closure <- function(x, ...) {
 #'
 #'   According to scope, we have
 #'   \itemize{
-#'     \item \strong{Check formulae of global scope}\cr
-#'     \code{~ <predicate>} (onsided)\cr
-#'     \code{<string> ~ <predicate>}
+#'     \item \strong{Check formulae of global scope}
+#'       \preformatted{<string> ~ <predicate>}
+#'       \preformatted{~ <predicate>}
 #'
-#'     \item \strong{Check formulae of local scope}\cr
-#'     \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
+#'     \item \strong{Check formulae of local scope}
+#'       \preformatted{list(<check_item>, <check_item>, ...) ~ <predicate>}
 #'   }
 #'
 #'   \subsection{Check formulae of global scope}{
@@ -329,11 +328,9 @@ print.strict_closure <- function(x, ...) {
 #'     \subsection{Example}{
 #'       The assertion that all (named) arguments of a function must be
 #'       numerical can be enforced by the check formula
-#'       \preformatted{
-#'       ~ is.numeric}
+#'       \preformatted{~ is.numeric}
 #'       or
-#'       \preformatted{
-#'       "Not numeric" ~ is.numeric}
+#'       \preformatted{"Not numeric" ~ is.numeric}
 #'       if the custom error message \code{"Not numeric"} is to be used (in lieu
 #'       of an auto-generated error message).
 #'     }
@@ -353,11 +350,9 @@ print.strict_closure <- function(x, ...) {
 #'       The assertion that \code{x} and \code{y} must differ for the function
 #'       \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
 #'       check formula
-#'       \preformatted{
-#'       list(~ x - y) ~ function(.) abs(.) > 0}
+#'       \preformatted{list(~ x - y) ~ function(.) abs(.) > 0}
 #'       or
-#'       \preformatted{
-#'       list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
+#'       \preformatted{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
 #'       if the custom error message \code{"x, y must differ"} is to be used (in
 #'       lieu of an auto-generated error message).
 #'     }
@@ -370,8 +365,7 @@ print.strict_closure <- function(x, ...) {
 #'
 #'     \subsection{Example}{
 #'       The (onsided, global) check formula
-#'       \preformatted{
-#'       ~ {. > 0}}
+#'       \preformatted{~ {. > 0}}
 #'       is equivalent to the check formula \code{~ function(.) {. > 0}}
 #'     }
 #'   }
