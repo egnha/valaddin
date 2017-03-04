@@ -25,23 +25,23 @@ argument without default value.) This question is disregarded if
 }
 \value{
 \subsection{\code{strictly}}{
-  If neither the check formulae nor the switch \code{.warn_missing} are
-  applicable to \code{.f}, then \code{strictly} simply returns \code{.f},
-  unaltered; this is the case when \code{.f} has no named arguments, i.e.,
-  \code{.f} has argument signature \code{function()} or \code{function(...)}.
-  Otherwise, \code{strictly} returns a function that behaves
-  \emph{identically} to \code{.f}, with the exception that it validates its
-  inputs before being called on them. For every failing validation, an error
-  is signaled.
+    If neither the check formulae nor the switch \code{.warn_missing} are
+    applicable to \code{.f}, then \code{strictly} simply returns \code{.f},
+    unaltered; this is the case when \code{.f} has no named arguments, i.e.,
+    \code{.f} has argument signature \code{function()} or
+    \code{function(...)}. Otherwise, \code{strictly} returns a function that
+    behaves \emph{identically} to \code{.f}, with the exception that it
+    validates its inputs before being called on them. For every failing
+    validation, an error is signaled.
 
-  \code{strictly} preserves the argument signature of \code{.f}, along with
-  its attributes (with the execption that the resulting class is
-  \code{"strict_closure"}, which inherits from the class of \code{.f}).
+    \code{strictly} preserves the argument signature of \code{.f}, along with
+    its attributes (with the execption that the resulting class is
+    \code{"strict_closure"}, which inherits from the class of \code{.f}).
   }
 
-\subsection{\code{nonstrictly}}{
-  The original function, stripped of any input validation checks imposed by
-  \code{strictly}.
+  \subsection{\code{nonstrictly}}{
+    The original function, stripped of any input validation checks imposed by
+    \code{strictly}.
   }
 }
 \description{
@@ -52,8 +52,7 @@ a predicate function that checks whether an object is a strictly applied
 function, i.e., a function created by \code{strictly}.
 }
 \details{
-\subsection{Check formulae}{
-  An input validation check is specified by a \link[stats]{formula} of the
+An input validation check is specified by a \link[stats]{formula} of the
   form
   \preformatted{
   <scope> ~ <predicate>}
@@ -77,6 +76,7 @@ function, i.e., a function created by \code{strictly}.
     \item \strong{Check formulae of local scope}\cr
     \code{list(<check_item>, <check_item>, ...) ~ <predicate>}
   }
+
   \subsection{Check formulae of global scope}{
     A \strong{global check formula} is a succinct way of imposing the
     condition that the function \code{<predicate>} is \code{TRUE} for every
@@ -84,16 +84,19 @@ function, i.e., a function created by \code{strictly}.
     \code{<predicate>} fails (i.e., evaluates to \code{FALSE}) produces an
     error message, which is auto-generated unless a custom error message is
     supplied by specifying the string \code{<string>}.
-    \cr\cr
-    \emph{Example} — The assertion that all (named) arguments of a function
-    must be numerical can be enforced by the check formula
-    \preformatted{
-    ~ is.numeric}
-   or
-    \preformatted{
-   "Not numeric" ~ is.numeric}
-   if the custom error message \code{"Not numeric"} is to be used (in lieu of
-   an auto-generated error message).}
+
+    \subsection{Example}{
+      The assertion that all (named) arguments of a function must be
+      numerical can be enforced by the check formula
+      \preformatted{
+      ~ is.numeric}
+      or
+      \preformatted{
+      "Not numeric" ~ is.numeric}
+      if the custom error message \code{"Not numeric"} is to be used (in lieu
+      of an auto-generated error message).
+    }
+  }
 
   \subsection{Check formulae of local scope}{
     A \strong{local check formula} imposes argument-specific conditions. Each
@@ -104,28 +107,32 @@ function, i.e., a function created by \code{strictly}.
     item for which the \code{<predicate>} fails produces an error message,
     which is auto-generated unless a custom error message is supplied by a
     string as part of the left-hand side of the check item (formula).
-    \cr\cr
-    \emph{Example} — The assertion that \code{x} and \code{y} must differ for
-    the function \code{function(x, y) \{1 / (x - y)\}} can be enforced by the
-    local check formula
-    \preformatted{
-    list(~ x - y) ~ function(.) abs(.) > 0}
-    or
-    \preformatted{
-    list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
-    if the custom error message \code{"x, y must differ"} is to be used (in
-    lieu of an auto-generated error message).}
+
+    \subsection{Example}{
+      The assertion that \code{x} and \code{y} must differ for the function
+      \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
+      check formula
+      \preformatted{
+      list(~ x - y) ~ function(.) abs(.) > 0}
+      or
+      \preformatted{
+      list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
+      if the custom error message \code{"x, y must differ"} is to be used (in
+      lieu of an auto-generated error message).
+    }
   }
 
   \subsection{Anonymous predicate functions}{
     Following the \pkg{magrittr} package, an anonymous (predicate) function
     of a single argument \code{.} can be expressed succinctly by enclosing
     the body of such a function by curly braces \code{\{ \}}.
-    \cr\cr
-    \emph{Example} — The (onsided, global) check formula
-    \preformatted{
-    ~ {. > 0}}
-    is equivalent to the check formula \code{~ function(.) {. > 0}}.
+
+    \subsection{Example}{
+      The (onsided, global) check formula
+      \preformatted{
+      ~ {. > 0}}
+      is equivalent to the check formula \code{~ function(.) {. > 0}}
+    }
   }
 }
 \examples{
@@ -163,11 +170,11 @@ secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
 all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 secant_right2(log, 1, .9)  # Error (as before)
 
-# strictly() won't force any argument not involved in a check
+# strictly won't force any argument not involved in a check
 g <- strictly(function(x, y) "Pass", list(~x) ~ is.character)
 g(c("a", "b"), stop("Not signaled"))  # "Pass"
 
-# nonstrictly() recovers the underlying function
+# nonstrictly recovers the underlying function
 identical(nonstrictly(secant_vec), secant)  # TRUE
 }
 
