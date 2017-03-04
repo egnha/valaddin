@@ -279,7 +279,7 @@ print.strict_closure <- function(x, ...) {
 #'     \code{.f} has argument signature \code{function()} or
 #'     \code{function(...)}. Otherwise, \code{strictly} returns a function that
 #'     behaves \emph{identically} to \code{.f}, with the exception that it
-#'     validates its inputs before being called on them. For every failing
+#'     validates its inputs before being called on them. For every failed
 #'     validation, an error is signaled.
 #'
 #'     \code{strictly} preserves the argument signature of \code{.f}, along with
@@ -300,14 +300,15 @@ print.strict_closure <- function(x, ...) {
 #'   side expresses \emph{where} to check it.
 #'
 #'   The right-hand side \code{<predicate>} is a predicate function, i.e, a
-#'   one-variable function that returns either \code{TRUE} or \code{FALSE}. It
+#'   one-argument function that returns either \code{TRUE} or \code{FALSE}. It
 #'   is the condition to check/enforce. The left-hand side \code{<scope>} is an
 #'   expression specifying what the condition is to be applied to: whether the
-#'   condition is to be applied to all (named) arguments of \code{.f}
-#'   (\dQuote{global scope}), or whether the condition is to be selectively
-#'   applied to certain expressions of the arguments (\dQuote{local scope}).
+#'   condition is to be applied to all (named) arguments of \code{.f} (the case
+#'   of \dQuote{global scope}), or whether the condition is to be selectively
+#'   applied to certain expressions of the arguments (the case of \dQuote{local
+#'   scope}).
 #'
-#'   According to scope, we have
+#'   Thus according to \emph{scope}, there are two classes of check formulae:
 #'   \itemize{
 #'     \item \strong{Check formulae of global scope}
 #'       \preformatted{<string> ~ <predicate>}
@@ -318,15 +319,16 @@ print.strict_closure <- function(x, ...) {
 #'   }
 #'
 #'   \subsection{Check formulae of global scope}{
-#'     A \strong{global check formula} is a succinct way of imposing the
-#'     condition that the function \code{<predicate>} is \code{TRUE} for every
-#'     (named) argument of \code{.f}. Each argument for which the
-#'     \code{<predicate>} fails (i.e., evaluates to \code{FALSE}) produces an
-#'     error message, which is auto-generated unless a custom error message is
-#'     supplied by specifying the string \code{<string>}.
+#'     A \strong{global check formula} is a succinct way of enforcing the
+#'     veracity of the function \code{<predicate>} upon every (named) argument
+#'     of \code{.f}. Each argument for which \code{<predicate>}
+#'     \emph{fails}—evaluates to \code{FALSE} or is itself not
+#'     evaluable—produces an error message, which is auto-generated, unless a
+#'     custom error message is supplied by specifying the string
+#'     \code{<string>}.
 #'
 #'     \subsection{Example}{
-#'       The assertion that all (named) arguments of a function must be
+#'       The condition that all (named) arguments of a function must be
 #'       numerical can be enforced by the check formula
 #'       \preformatted{~ is.numeric}
 #'       or
@@ -342,12 +344,12 @@ print.strict_closure <- function(x, ...) {
 #'     <expression>} (one-sided) or \code{<string> ~ <expression>}; it imposes
 #'     the condition that the function \code{<predicate>} is \code{TRUE} for the
 #'     expression \code{<expression>}. As for global check formulae, each check
-#'     item for which the \code{<predicate>} fails produces an error message,
-#'     which is auto-generated unless a custom error message is supplied by a
-#'     string as part of the left-hand side of the check item (formula).
+#'     item for which \code{<predicate>} fails produces an error message, which
+#'     is auto-generated, unless a custom error message is supplied by a string
+#'     as part of the left-hand side of the check item (formula).
 #'
 #'     \subsection{Example}{
-#'       The assertion that \code{x} and \code{y} must differ for the function
+#'       The condition that \code{x} and \code{y} must differ for the function
 #'       \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
 #'       check formula
 #'       \preformatted{list(~ x - y) ~ function(.) abs(.) > 0}
@@ -360,8 +362,8 @@ print.strict_closure <- function(x, ...) {
 #'
 #'   \subsection{Anonymous predicate functions}{
 #'     Following the \pkg{magrittr} package, an anonymous (predicate) function
-#'     of a single argument \code{.} can be expressed succinctly by enclosing
-#'     the body of such a function by curly braces \code{\{ \}}.
+#'     of a single argument \code{.} can be concisely expressed by enclosing the
+#'     body of such a function within curly braces \code{\{ \}}.
 #'
 #'     \subsection{Example}{
 #'       The (onsided, global) check formula
