@@ -67,16 +67,15 @@ localize_ <- function(chk) {
   chkr <- function(...) {
     fs <- list(...)
 
-    not_f_onesided <- vapply(fs, Negate(is_f_onesided), logical(1))
-    if (any(not_f_onesided)) {
+    not_onesided <- vapply(fs, Negate(is_f_onesided), logical(1))
+    if (any(not_onesided)) {
       args <- paste(
-        vapply(fs[not_f_onesided], deparse_collapse, character(1)),
+        vapply(fs[not_onesided], deparse_collapse, character(1)),
         collapse = ", "
       )
       stop("Not one-sided formula(e) (see ?localize): ", args, call. = FALSE)
     }
 
-    parent <- parent.frame()
     lhs <- lapply(fs, function(f) {
       errmsg <- paste(.msg, deparse_collapse(lazyeval::f_rhs(f)), sep = ": ")
       lazyeval::f_lhs(f) <- errmsg
