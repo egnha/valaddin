@@ -22,13 +22,16 @@ chkrs <- purrr::transpose(
   )
 )
 
+aliases <- paste0("vld_", c("boolean", "number", "string", "singleton"))
+chkrs_orig <- chkrs[!names(chkrs) %in% aliases]
+
 test_that("checker class is 'check_maker'", {
   for (. in chkrs)
     expect_true(is_check_maker(.$chkr))
 })
 
 test_that("checker predicate matches underlying predicate function", {
-  for (. in chkrs) {
+  for (. in chkrs_orig) {
     pred_chkr <- lazyeval::f_eval_rhs(globalize(.$chkr))
     pred_orig <- getExportedValue(.$ns, .$nm)
 
@@ -39,7 +42,7 @@ test_that("checker predicate matches underlying predicate function", {
 test_that("checker error message is derived from predicate name", {
   f <- function(x) NULL
 
-  for (. in chkrs) {
+  for (. in chkrs_orig) {
     msg_chkr <- lazyeval::f_eval_lhs(globalize(.$chkr))
     msg <- sprintf("Not %s", gsub("[_\\.]", " ", substring(.$nm, 4L)))
     expect_identical(msg_chkr, msg)
