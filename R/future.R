@@ -10,10 +10,11 @@ f_new <- function(rhs, lhs = NULL, env = parent.frame()) {
     stop("`env` must be an environment", call. = FALSE)
   }
 
-  f <- if (is.null(lhs))
+  f <- if (is.null(lhs)) {
     lazyeval::call_new("~", rhs)
-  else
+  } else {
     lazyeval::call_new("~", lhs, rhs)
+  }
 
   structure(f, class = "formula", .Environment = env)
 }

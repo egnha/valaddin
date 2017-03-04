@@ -18,10 +18,11 @@ nomen <- function(sig) {
 # Make a list of argument-expressions (as formulas), named by error message
 unfurl_args <- function(.errmsg, .arg_nm, .arg_symb, .env) {
   q <- lapply(.arg_symb, f_new, env = .env)
-  names(q) <- if (is.null(.errmsg))
+  names(q) <- if (is.null(.errmsg)) {
     character(length(q))
-  else
+  } else {
     paste(.errmsg, .arg_nm, sep = ": ")
+  }
 
   q
 }
@@ -97,13 +98,14 @@ warning_closure <- function(.fn, .warn) {
 problems <- function(chks, verdict) {
   vapply(seq_along(verdict), function(i) {
     x <- verdict[[i]]
-    if (is_false(x))
+    if (is_false(x)) {
       chks$msg[[i]]
-    else if (is_error(x))
+    } else if (is_error(x)) {
       sprintf("Error evaluating check %s: %s", chks$string[[i]], x$message)
-    else
+    } else {
       sprintf("Predicate value %s not TRUE/FALSE: %s",
               chks$string[[i]], deparse_collapse(x))
+    }
   }, character(1))
 }
 
@@ -168,13 +170,15 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   pre_chks <- strict_checks(.f)
 
   if (!length(chks)) {  # .warn_missing is not NULL (so either TRUE or FALSE)
-    if (is.null(pre_chks) && is_false(.warn_missing))
+    if (is.null(pre_chks) && is_false(.warn_missing)) {
       return(f_core)
+    }
 
-    f <- if (is.null(pre_chks))
+    f <- if (is.null(pre_chks)) {
       warning_closure(fn, maybe_warn)
-    else
+    } else {
       validating_closure(pre_chks, sig, fn, maybe_warn)
+    }
   } else {
     assembled_chks <- dplyr::distinct_(
       dplyr::bind_rows(
