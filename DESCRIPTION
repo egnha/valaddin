@@ -28,7 +28,6 @@ Collate:
     'checklist.R'
     'components.R'
     'functions.R'
-    'promises.R'
     'strictly.R'
     'scope.R'
     'checkers.R'
