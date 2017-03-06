@@ -52,22 +52,22 @@ a predicate function that checks whether an object is a strictly applied
 function, i.e., a function created by \code{strictly}.
 }
 \details{
-An input validation check is specified by a \link[stats]{formula} of the
-  form
+An \strong{input validation check} is specified by a \strong{check
+  formula}, a special \link[stats]{formula} of the form
   \preformatted{<scope> ~ <predicate>}
   where the right-hand side expresses \emph{what} to check, and the left-hand
   side expresses \emph{where} to check it.
 
-  The right-hand side \code{<predicate>} is a predicate function, i.e, a
-  one-argument function that returns either \code{TRUE} or \code{FALSE}. It
-  is the condition to check/enforce. The left-hand side \code{<scope>} is an
-  expression specifying what the condition is to be applied to: whether the
-  condition is to be applied to all (named) arguments of \code{.f} (the case
-  of \dQuote{global scope}), or whether the condition is to be selectively
-  applied to certain expressions of the arguments (the case of \dQuote{local
-  scope}).
+  The right-hand side \code{<predicate>} is a \strong{predicate} function,
+  i.e, a one-argument function that returns either \code{TRUE} or
+  \code{FALSE}. It is the condition to check/enforce. The left-hand side
+  \code{<scope>} is an expression specifying what the condition is to be
+  applied to: whether the condition is to be applied to all \emph{named}
+  arguments of \code{.f} (the case of \dQuote{global scope}), or whether the
+  condition is to be selectively applied to certain expressions of the
+  arguments (the case of \dQuote{local scope}).
 
-  Thus according to \emph{scope}, there are two classes of check formulae:
+  Thus according to \strong{scope}, there are two classes of check formulae:
   \itemize{
     \item \strong{Check formulae of global scope}
       \preformatted{<string> ~ <predicate>}
@@ -99,7 +99,7 @@ An input validation check is specified by a \link[stats]{formula} of the
 
   \subsection{Check formulae of local scope}{
     A \strong{local check formula} imposes argument-specific conditions. Each
-    \dQuote{check item} \code{<check_item>} is a formula of the form \code{~
+    \strong{check item} \code{<check_item>} is a formula of the form \code{~
     <expression>} (one-sided) or \code{<string> ~ <expression>}; it imposes
     the condition that the function \code{<predicate>} is \code{TRUE} for the
     expression \code{<expression>}. As for global check formulae, each check
