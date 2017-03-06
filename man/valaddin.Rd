@@ -30,9 +30,11 @@ the legibility, reusability, and reliability of your code:
   \item Reduce repetition by reusing common checks across functions with
     similar input requirements.
   \item Vary the strictness of a function as needed, either on-the-fly, for
-    use in \pkg{magrittr} \code{\link[magrittr]{\%>\%}}-lines, or when
-    entering \dQuote{hazardous} environments (e.g., if your function is being
-    fed data from a potentially unreliable source).
+    use in
+    \href{https://cran.r-project.org/package=magrittr}{\pkg{magrittr}}
+    \code{\link[magrittr]{\%>\%}}-lines, or when entering \dQuote{hazardous}
+    environments (e.g., if your function is being fed data from a potentially
+    unreliable source).
   \item Ensure that your function gets what it needs, with minimal fuss; and
     when it doesn't, immediately pinpoint the deficiency—did a check, or its
     very evaluation, fail?

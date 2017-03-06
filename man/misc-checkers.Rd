@@ -11,12 +11,13 @@ Check formula of local scope.
 }
 \description{
 These functions make check formulae of local scope based on the
-correspondingly named \pkg{base} R predicates \code{is.*()} (e.g.,
-\code{vld_data_frame()} corresponds to the predicate
-\code{\link[base]{is.data.frame}()}), with the exception that
-\code{vld_empty()}, \code{vld_formula()} are based on the \pkg{purrr}
-predicates \code{\link[purrr]{is_empty}()},
-\code{\link[purrr]{is_formula}()}.
+correspondingly named \pkg{base} R predicates \code{is.*} (e.g.,
+\code{vld_data_frame} corresponds to the predicate
+\code{\link[base]{is.data.frame}}), with the exception that
+\code{vld_empty}, \code{vld_formula} are based on the
+\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+predicates \code{\link[purrr]{is_empty}},
+\code{\link[purrr]{is_formula}}.
 }
 \details{
 Each function \code{vld_*} is a function of class

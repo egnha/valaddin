@@ -12,11 +12,12 @@ Check formula of local scope.
 \description{
 These functions make check formulae of local scope based on the
 correspondingly named \link[purrr:scalar-type-predicates]{scalar type
-predicate} from the \pkg{purrr} package. For example,
-\code{vld_scalar_atomic} creates check formulae (of local scope) for the
-\pkg{purrr} predicate function \code{\link[purrr]{is_scalar_atomic}}.
-\cr\cr
-The functions \code{vld_boolean}, \code{vld_number}, \code{vld_string},
+predicate} from the
+\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+package. For example, \code{vld_scalar_atomic} creates check formulae (of
+local scope) for the predicate function
+\code{\link[purrr]{is_scalar_atomic}}. \cr\cr The functions
+\code{vld_boolean}, \code{vld_number}, \code{vld_string},
 \code{vld_singleton} are aliases for \code{vld_scalar_logical},
 \code{vld_scalar_numeric}, \code{vld_scalar_character},
 \code{vld_scalar_vector}, resp. (with appropriately modified error messages).
@@ -80,7 +81,7 @@ vld_string(...)
 vld_singleton(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predicates} (\pkg{purrr})
+Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 

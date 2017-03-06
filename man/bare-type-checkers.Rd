@@ -12,9 +12,11 @@ Check formula of local scope.
 \description{
 These functions make check formulae of local scope based on the
 correspondingly named \link[purrr:bare-type-predicates]{bare type predicate}
-from the \pkg{purrr} package. For example, \code{vld_bare_atomic()} creates
-check formulae (of local scope) for the \pkg{purrr} predicate function
-\code{\link[purrr]{is_bare_atomic}()}.
+from the
+\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+package. For example, \code{vld_bare_atomic} creates check formulae (of
+local scope) for the \pkg{purrr} predicate function
+\code{\link[purrr]{is_bare_atomic}}.
 }
 \details{
 Each function \code{vld_*} is a function of class
@@ -64,7 +66,7 @@ vld_bare_numeric(...)
 vld_bare_vector(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:bare-type-predicates]{Bare type predicates} (\pkg{purrr})
+Corresponding predicates: \link[purrr:bare-type-predicates]{Bare type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 

@@ -93,7 +93,10 @@ nms$scalar <- c(nms$scalar, names(chkrs_alias))
 
 link_bare  <- "\\link{%s}"
 link_extfn <- "\\code{\\link[%s]{%s}}"
-link_purrr <- "\\link[purrr:%s-predicates]{%s predicates} (\\pkg{purrr})"
+link_purrr <- c(
+  "\\link[purrr:%s-predicates]{%s predicates}",
+  "(\\href{https://cran.r-project.org/package=purrr}{\\pkg{purrr}})") %>%
+  paste(collapse = " ")
 
 prefix_with <- function(x, text) {
   stats::setNames(paste(text, x), names(x)) %>% as.list()
@@ -131,12 +134,13 @@ ref <- Map(function(p, f) c(p, other, f), predicates, family)
 #' Miscellaneous checkers
 #'
 #' These functions make check formulae of local scope based on the
-#' correspondingly named \pkg{base} R predicates \code{is.*()} (e.g.,
-#' \code{vld_data_frame()} corresponds to the predicate
-#' \code{\link[base]{is.data.frame}()}), with the exception that
-#' \code{vld_empty()}, \code{vld_formula()} are based on the \pkg{purrr}
-#' predicates \code{\link[purrr]{is_empty}()},
-#' \code{\link[purrr]{is_formula}()}.
+#' correspondingly named \pkg{base} R predicates \code{is.*} (e.g.,
+#' \code{vld_data_frame} corresponds to the predicate
+#' \code{\link[base]{is.data.frame}}), with the exception that
+#' \code{vld_empty}, \code{vld_formula} are based on the
+#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+#' predicates \code{\link[purrr]{is_empty}},
+#' \code{\link[purrr]{is_formula}}.
 #'
 #' @evalRd rd_alias(nms$misc)
 #' @evalRd rd_usage(nms$misc)
@@ -167,9 +171,10 @@ NULL
 #'
 #' These functions make check formulae of local scope based on the
 #' correspondingly named \link[purrr:type-predicates]{type predicate} from the
-#' \pkg{purrr} package. For example, \code{vld_atomic()} creates check formulae
-#' (of local scope) for the \pkg{purrr} predicate function
-#' \code{\link[purrr]{is_atomic}()}.
+#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+#' package. For example, \code{vld_atomic} creates check formulae (of local
+#' scope) for the \pkg{purrr} predicate function
+#' \code{\link[purrr]{is_atomic}}.
 #'
 #' @evalRd rd_alias(nms$type)
 #' @evalRd rd_usage(nms$type)
@@ -199,9 +204,11 @@ NULL
 #'
 #' These functions make check formulae of local scope based on the
 #' correspondingly named \link[purrr:bare-type-predicates]{bare type predicate}
-#' from the \pkg{purrr} package. For example, \code{vld_bare_atomic()} creates
-#' check formulae (of local scope) for the \pkg{purrr} predicate function
-#' \code{\link[purrr]{is_bare_atomic}()}.
+#' from the
+#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+#' package. For example, \code{vld_bare_atomic} creates check formulae (of
+#' local scope) for the \pkg{purrr} predicate function
+#' \code{\link[purrr]{is_bare_atomic}}.
 #'
 #' @evalRd rd_alias(nms$bare)
 #' @evalRd rd_usage(nms$bare)
@@ -232,11 +239,12 @@ NULL
 #'
 #' These functions make check formulae of local scope based on the
 #' correspondingly named \link[purrr:scalar-type-predicates]{scalar type
-#' predicate} from the \pkg{purrr} package. For example,
-#' \code{vld_scalar_atomic} creates check formulae (of local scope) for the
-#' \pkg{purrr} predicate function \code{\link[purrr]{is_scalar_atomic}}.
-#' \cr\cr
-#' The functions \code{vld_boolean}, \code{vld_number}, \code{vld_string},
+#' predicate} from the
+#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+#' package. For example, \code{vld_scalar_atomic} creates check formulae (of
+#' local scope) for the predicate function
+#' \code{\link[purrr]{is_scalar_atomic}}. \cr\cr The functions
+#' \code{vld_boolean}, \code{vld_number}, \code{vld_string},
 #' \code{vld_singleton} are aliases for \code{vld_scalar_logical},
 #' \code{vld_scalar_numeric}, \code{vld_scalar_character},
 #' \code{vld_scalar_vector}, resp. (with appropriately modified error messages).

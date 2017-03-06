@@ -365,9 +365,11 @@ print.strict_closure <- function(x, ...) {
 #'   }
 #'
 #'   \subsection{Anonymous predicate functions}{
-#'     Following the \pkg{magrittr} package, an anonymous (predicate) function
-#'     of a single argument \code{.} can be concisely expressed by enclosing the
-#'     body of such a function within curly braces \code{\{ \}}.
+#'     Following the
+#'     \href{https://cran.r-project.org/package=magrittr}{\pkg{magrittr}}
+#'     package, an anonymous (predicate) function of a single argument \code{.}
+#'     can be concisely expressed by enclosing the body of such a function
+#'     within curly braces \code{\{ \}}.
 #'
 #'     \subsection{Example}{
 #'       The (onsided, global) check formula
