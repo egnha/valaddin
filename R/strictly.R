@@ -282,22 +282,27 @@ print.strict_closure <- function(x, ...) {
 #'
 #' @return
 #'   \subsection{\code{strictly}}{
-#'     If neither the check formulae nor the switch \code{.warn_missing} are
-#'     applicable to \code{.f}, then \code{strictly} simply returns \code{.f},
-#'     unaltered; this is the case when \code{.f} has no named arguments, i.e.,
+#'     \code{strictly} does nothing if it has nothing to do: \code{.f} is
+#'     returned unaltered if \code{.f} has no named arguments to check (i.e.,
 #'     \code{.f} has argument signature \code{function()} or
-#'     \code{function(...)}. Otherwise, \code{strictly} returns a function that
-#'     behaves \emph{identically} to \code{.f}, with the exception that it
-#'     validates its inputs before being called on them. For every failed
-#'     validation, an error is signaled.
+#'     \code{function(...)}).
 #'
-#'     \code{strictly} preserves the argument signature of \code{.f}, along with
-#'     its attributes (with the execption that the resulting class is
-#'     \code{"strict_closure"}, which inherits from the class of \code{.f}).
+#'     Otherwise, \code{strictly} returns a function that behaves
+#'     \emph{identically} to \code{.f}, with the exception that it validates its
+#'     inputs before being called on them. In particular, \code{strictly}
+#'     respects lazy evaluation: if all checks pass, then in the call to the
+#'     underlying function, all function arguments, irrespective of the checks,
+#'     are still lazily evaluated. An error is signaled if any check fails; this
+#'     error tabulates every failing check.
+#'
+#'     Additionally, \code{strictly} preserves the argument signature of
+#'     \code{.f}, along with its attributes. (Sole exception: the resulting
+#'     class is \code{"strict_closure"}, which contains the class of \code{.f}.)
 #'   }
 #'
-#'   \subsection{\code{nonstrictly}}{
-#'     The original function, stripped of any input validation checks imposed by
+#'   \subsection{\code{nonstrictly} (\code{freely})}{
+#'     \code{nonstrictly} (and its alias, \code{freely}) return the original
+#'     function, stripped of any input validation checks imposed by
 #'     \code{strictly}.
 #'   }
 #'

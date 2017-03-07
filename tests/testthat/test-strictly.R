@@ -312,3 +312,22 @@ test_that(".warn_missing value does not change checks", {
   expect_warning(purrr::safely(f1_warn_true)(y = 1),
                  "Missing required argument\\(s\\): x")
 })
+
+test_that("arguments, whether checked or not, are evaluated lazily", {
+  f <- function(x, y) if (x) "True" else y
+  msg <- "`y` not an error"
+  chk_is_error <-
+    list(msg ~ tryCatch({y; FALSE}, error = function(e) TRUE)) ~ isTRUE
+
+  f_strict <- strictly(f, chk_is_error)
+
+  # Verify that y is checked:
+  # - Pass
+  expect_error(f_strict(TRUE, stop("!")), NA)
+  # - Fail
+  not_error <- list(TRUE, FALSE, NULL, NA_real_, NaN, letters, mtcars)
+  for (. in not_error) expect_error(f_strict(TRUE, .), msg)
+
+  # Verify that y is not forced when function called
+  expect_identical(f_strict(TRUE, stop("!")), "True")
+})
