@@ -72,3 +72,7 @@ test_that("original function attributes are restored", {
                      attributes(f))
   }
 })
+
+test_that("freely is an alias for nonstrictly", {
+  expect_identical(freely, nonstrictly)
+})

@@ -228,6 +228,9 @@ nonstrictly <- strictly(
 )
 
 #' @export
+freely <- nonstrictly
+
+#' @export
 print.strict_closure <- function(x, ...) {
   cat("<strict_closure>\n")
 
@@ -256,12 +259,14 @@ print.strict_closure <- function(x, ...) {
 #'
 #' \code{strictly} transforms a function into a function with input validation
 #' checks. \code{nonstrictly} undoes the application of \code{strictly}, by
-#' returning the original function, without checks. \code{is_strict_closure} is
-#' a predicate function that checks whether an object is a strictly applied
-#' function, i.e., a function created by \code{strictly}.
+#' returning the original function, without checks; \code{freely} is an alias
+#' for \code{nonstrictly}, which in certain constructs is more semantically
+#' natural. \code{is_strict_closure} is a predicate function that checks whether
+#' an object is a strictly applied function, i.e., a function created by
+#' \code{strictly}.
 #'
-#' @aliases strictly nonstrictly is_strict_closure
-#' @evalRd rd_usage(c("strictly", "nonstrictly", "is_strict_closure"))
+#' @aliases strictly nonstrictly freely is_strict_closure
+#' @evalRd rd_usage(c("strictly", "nonstrictly", "freely", "is_strict_closure"))
 #'
 #' @param .f Interpreted function, i.e., a function of type \code{"closure"}.
 #' @param \dots Check formula(e) (see \emph{Details}).

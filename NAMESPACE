@@ -2,6 +2,7 @@
 
 S3method(print,check_maker)
 S3method(print,strict_closure)
+export(freely)
 export(globalize)
 export(is_check_formula)
 export(is_checklist)

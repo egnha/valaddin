@@ -3,6 +3,7 @@
 \name{strictly}
 \alias{strictly}
 \alias{nonstrictly}
+\alias{freely}
 \alias{is_strict_closure}
 \title{Apply a function strictly}
 \arguments{
@@ -47,9 +48,11 @@ argument without default value.) This question is disregarded if
 \description{
 \code{strictly} transforms a function into a function with input validation
 checks. \code{nonstrictly} undoes the application of \code{strictly}, by
-returning the original function, without checks. \code{is_strict_closure} is
-a predicate function that checks whether an object is a strictly applied
-function, i.e., a function created by \code{strictly}.
+returning the original function, without checks; \code{freely} is an alias
+for \code{nonstrictly}, which in certain constructs is more semantically
+natural. \code{is_strict_closure} is a predicate function that checks whether
+an object is a strictly applied function, i.e., a function created by
+\code{strictly}.
 }
 \details{
 An \strong{input validation check} is specified by a \strong{check
@@ -186,6 +189,8 @@ identical(nonstrictly(secant_vec), secant)  # TRUE
 strictly(.f, ..., .checklist = list(), .warn_missing = NULL)
 
 nonstrictly(.f, .quiet = FALSE)
+
+freely(.f, .quiet = FALSE)
 
 is_strict_closure(x)
 }
