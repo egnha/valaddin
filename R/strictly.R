@@ -290,18 +290,18 @@ print.strict_closure <- function(x, ...) {
 #'     Otherwise, \code{strictly} returns a function that behaves
 #'     \emph{identically} to \code{.f}, with the exception that it validates its
 #'     inputs before being called on them. In particular, \code{strictly}
-#'     respects lazy evaluation: if all checks pass, then in the call to the
-#'     underlying function, all function arguments, irrespective of the checks,
-#'     are still lazily evaluated. An error is signaled if any check fails; this
-#'     error tabulates every failing check.
+#'     respects lazy evaluation: if all checks pass, then when it comes to
+#'     calling the underlying function, all arguments, including those that
+#'     undergo checks, are still lazily evaluated. If any check fails, an error
+#'     is signaled, which tabulates every failing check.
 #'
 #'     Additionally, \code{strictly} preserves the argument signature of
 #'     \code{.f}, along with its attributes. (Sole exception: the resulting
 #'     class is \code{"strict_closure"}, which contains the class of \code{.f}.)
 #'   }
 #'
-#'   \subsection{\code{nonstrictly} (\code{freely})}{
-#'     \code{nonstrictly} (and its alias, \code{freely}) return the original
+#'   \subsection{\code{nonstrictly}, \code{freely}}{
+#'     \code{nonstrictly} (and its alias, \code{freely}) returns the original
 #'     function, stripped of any input validation checks imposed by
 #'     \code{strictly}.
 #'   }
