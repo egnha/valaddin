@@ -223,10 +223,11 @@ test_that("invalid predicate value flagged by precise error of such", {
   f <- function(x) fncmsg
   is_long_lgl <- function(x) is.logical(x) && (length(x) >= 2L)
   is_numeric_faulty <- function(x) {
-    if (is.null(x) || is.na(x) || identical(x, logical(0)) || is_long_lgl(x))
+    if (is.null(x) || is.na(x) || identical(x, logical(0)) || is_long_lgl(x)) {
       x
-    else
+    } else {
       is.numeric(x)
+    }
   }
   f_strict <- strictly(f, list(errmsg ~ x) ~ is_numeric_faulty)
 
