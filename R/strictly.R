@@ -165,7 +165,7 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
     is_true(.warn_missing) ||
     is.null(.warn_missing) && !is.null(strict_args(.f))
   maybe_warn <- if (is_missing) warn(arg$nm[arg$wo_value]) else skip
-  f_core <- if (is_strict_closure(.f)) strict_core(.f) else .f
+  f_core <- if (is_strict(.f)) strict_core(.f) else .f
   fn <- call_fn(f_core)
   pre_chks <- strict_checks(.f)
 
@@ -197,7 +197,7 @@ strict_closure <- function(.f) {
 }
 
 #' @export
-is_strict_closure <- function(x) {
+is_strict <- function(x) {
   purrr::is_function(x) && inherits(x, "strict_closure")
 }
 
@@ -210,7 +210,7 @@ strictly <- strictly_(
 )
 
 nonstrictly_ <- function(.f, .quiet = FALSE) {
-  if (is_strict_closure(.f)) {
+  if (is_strict(.f)) {
     strict_core(.f)
   } else {
     if (!.quiet) {
@@ -261,12 +261,12 @@ print.strict_closure <- function(x, ...) {
 #' checks. \code{nonstrictly} undoes the application of \code{strictly}, by
 #' returning the original function, without checks; \code{freely} is an alias
 #' for \code{nonstrictly}, which in certain constructs is more semantically
-#' natural. \code{is_strict_closure} is a predicate function that checks whether
-#' an object is a strictly applied function, i.e., a function created by
+#' natural. \code{is_strict} is a predicate function that checks whether an
+#' object is a strictly applied function, i.e., a function created by
 #' \code{strictly}.
 #'
-#' @aliases strictly nonstrictly freely is_strict_closure
-#' @evalRd rd_usage(c("strictly", "nonstrictly", "freely", "is_strict_closure"))
+#' @aliases strictly nonstrictly freely is_strict
+#' @evalRd rd_usage(c("strictly", "nonstrictly", "freely", "is_strict"))
 #'
 #' @param .f Interpreted function, i.e., a function of type \code{"closure"}.
 #' @param \dots Check formula(e) (see \emph{Details}).

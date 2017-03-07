@@ -4,7 +4,7 @@
 \alias{strictly}
 \alias{nonstrictly}
 \alias{freely}
-\alias{is_strict_closure}
+\alias{is_strict}
 \title{Apply a function strictly}
 \arguments{
 \item{.f}{Interpreted function, i.e., a function of type \code{"closure"}.}
@@ -50,7 +50,7 @@ argument without default value.) This question is disregarded if
 checks. \code{nonstrictly} undoes the application of \code{strictly}, by
 returning the original function, without checks; \code{freely} is an alias
 for \code{nonstrictly}, which in certain constructs is more semantically
-natural. \code{is_strict_closure} is a predicate function that checks whether
+natural. \code{is_strict} is a predicate function that checks whether
 an object is a strictly applied function, i.e., a function created by
 \code{strictly}.
 }
@@ -192,5 +192,5 @@ nonstrictly(.f, .quiet = FALSE)
 
 freely(.f, .quiet = FALSE)
 
-is_strict_closure(x)
+is_strict(x)
 }
