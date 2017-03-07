@@ -156,15 +156,14 @@ bc_num(.5, ".2")
 
 #### Check conditions with multi-argument dependencies
 
-Use the `lift()` function from the [purrr](https://github.com/hadley/purrr)
-package to specify checks depending on multiple arguments:
+Use the `isTRUE()` predicate to implement checks depending on multiple
+arguments:
 
 ```R
-library(purrr)
-
 in_triangle <- function(x, y) x >= 0 && y >= 0 && 1 - x - y >= 0
-in_triangle <- purrr::lift(in_triangle)
-bc_tri <- strictly(bc, list("(x, y) not in triangle" ~ list(x, y)) ~ in_triangle)
+outside <- "(x, y) not in triangle"
+
+bc_tri <- strictly(bc, list(outside ~ in_triangle(x, y)) ~ isTRUE)
 
 bc_tri(.5, .2)
 #> [1] 0.5 0.2 0.3
@@ -172,6 +171,15 @@ bc_tri(.5, .2)
 bc_tri(.5, .6)
 #> Error: bc_tri(x = 0.5, y = 0.6)
 #> (x, y) not in triangle
+```
+
+Alternatively, use the `lift()` function from the
+[purrr](https://github.com/hadley/purrr) package:
+
+```R
+library(purrr)
+
+bc_tri <- strictly(bc, list(outside ~ list(x, y)) ~  purrr::lift(in_triangle))
 ```
 
 #### Layer checks using the magrittr pipe `%>%`
