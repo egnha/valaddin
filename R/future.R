@@ -1,4 +1,4 @@
-# Formula functions from future lazyeval (> 0.2.0)
+# Formula functions from future lazyeval (> 0.2.0) or rlang
 #
 # lazyeval::f_new() is too rigid in versions <= 0.2.0, where rhs and lhs are
 # required to be language objects; in valaddin, rhs, resp. lhs, is typically a
@@ -6,7 +6,7 @@
 # provisionally included until they, or some functional analogue of them, become
 # available on CRAN (either in lazyeval or its fork, rlang).
 
-# Future f_new
+# Future f_new (available in development version 0.2.0.9000)
 ff_new <- function(rhs, lhs = NULL, env = parent.frame()) {
   if (!is.environment(env)) {
     stop("`env` must be an environment", call. = FALSE)
