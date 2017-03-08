@@ -5,7 +5,8 @@ localize_nm <- function(nm, what_is, ns, env) {
   msg <- paste("Not", what_is(nm))
   p <- getExportedValue(ns, nm)
 
-  localize(f_new(p, msg, env = env))
+  # Cannot use lazyeval::f_new (<= 0.2.0) because p is not a language object
+  localize(ff_new(p, msg, env = env))
 }
 
 replace <- function(x, pattern, with, ...) gsub(pattern, with, x, ...)
@@ -58,7 +59,7 @@ chkrs  <- purrr::flatten(chkrs_)
 # Aliases
 replace_msg <- function(chkr, msg) {
   f <- globalize(chkr)
-  lazyeval::f_lhs(f) <- msg
+  ff_lhs(f) <- msg
   localize(f)
 }
 

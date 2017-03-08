@@ -60,7 +60,7 @@ is_check_maker <- function(x) {
 }
 
 localize_ <- function(chk) {
-  .msg <- lazyeval::f_eval_lhs(chk)
+  .msg <- ff_eval_lhs(chk)
   .rhs <- lazyeval::f_rhs(chk)
   .env <- lazyeval::f_env(chk)
 
@@ -78,11 +78,12 @@ localize_ <- function(chk) {
 
     lhs <- lapply(fs, function(f) {
       errmsg <- paste(.msg, deparse_collapse(lazyeval::f_rhs(f)), sep = ": ")
-      lazyeval::f_lhs(f) <- errmsg
+      ff_lhs(f) <- errmsg
       f
     })
 
-    f_new(.rhs, lhs, .env)
+    # Cannot use lazyeval::f_new (<= 0.2.0) because lhs is not a language object
+    ff_new(.rhs, lhs, .env)
   }
 
   structure(chkr, class = c("check_maker", class(chkr)))

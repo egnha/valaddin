@@ -17,7 +17,7 @@ nomen <- function(sig) {
 
 # Make a list of argument-expressions (as formulas), named by error message
 unfurl_args <- function(.errmsg, .arg_nm, .arg_symb, .env) {
-  q <- lapply(.arg_symb, f_new, env = .env)
+  q <- lapply(.arg_symb, ff_new, env = .env)
   names(q) <- if (is.null(.errmsg)) {
     character(length(q))
   } else {
@@ -42,7 +42,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p_expr <- if (is_lambda(p)) expr_lambda(p) else p
   predicate <- eval(p_expr, .env)
 
-  lhs <- lazyeval::f_eval_lhs(.chk)
+  lhs <- ff_eval_lhs(.chk)
   q <- if (is.list(lhs)) {
     # .chk: local scope
     do.call(lazyeval::f_list, lhs)
