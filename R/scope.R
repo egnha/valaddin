@@ -1,4 +1,4 @@
-#' @include strictly.R
+#' @include firmly.R
 NULL
 
 #' Reuse check formulae
@@ -9,7 +9,7 @@ NULL
 #' generator and returns the underlying check formula (of global scope). These
 #' operations are mutually invertible.
 #'
-#' @seealso The \emph{Details} section of \link{strictly} explains the notion of
+#' @seealso The \emph{Details} section of \link{firmly} explains the notion of
 #'   \dQuote{scope} in the context of check formulae.
 #'
 #'   Ready-made checkers for \link[=type-checkers]{types},
@@ -28,24 +28,24 @@ NULL
 #' pass <- function(x, y) "Pass"
 #'
 #' # Impose local positivity checks
-#' f <- strictly(pass, chk_pos_lcl(~x, ~x - y))
+#' f <- firmly(pass, chk_pos_lcl(~x, ~x - y))
 #' f(2, 1)  # "Pass"
 #' f(2, 2)  # Error: "Not positive: x - y"
 #' f(0, 1)  # Errors: "Not positive: x", "Not positive: x - y"
 #'
 #' # Or just check positivity of x
-#' g <- strictly(pass, chk_pos_lcl(~x))
+#' g <- firmly(pass, chk_pos_lcl(~x))
 #' g(1, 0)  # "Pass"
 #' g(0, 0)  # Error: "Not positive: x"
 #'
 #' # In contrast, chk_pos_gbl checks positivity for all arguments
-#' h <- strictly(pass, chk_pos_gbl)
+#' h <- firmly(pass, chk_pos_gbl)
 #' h(2, 2)  # "Pass"
 #' h(1, 0)  # Error: "Not positive: y"
 #' h(0, 0)  # Errors: "Not positive: x", "Not positive: y"
 #'
 #' # Alternatively, globalize the localized checker
-#' h2 <- strictly(pass, globalize(chk_pos_lcl))
+#' h2 <- firmly(pass, globalize(chk_pos_lcl))
 #' all.equal(h, h2)  # TRUE
 #' }
 #'
@@ -98,7 +98,7 @@ localize_ <- function(chk) {
 #'   as arguments, which are interpreted as expressions to check, and returns
 #'   the corresponding check formula of local scope, based on the predicate
 #'   function of the global-scope check formula \code{chk}.
-localize <- strictly(
+localize <- firmly(
   localize_,
   list("`chk` must be a formula of the form <string> ~ <predicate>" ~ chk) ~
     is_gbl_check_formula
@@ -112,7 +112,7 @@ globalize_ <- function(chkr) environment(chkr)$chk
 #'   by \code{localize()}.
 #' @return \code{globalize} returns the global-scope check formula underlying
 #'   the function \code{chkr}.
-globalize <- strictly(
+globalize <- firmly(
   globalize_,
   list("`chkr` must be a local checker function (see ?localize)" ~ chkr) ~
     is_check_maker

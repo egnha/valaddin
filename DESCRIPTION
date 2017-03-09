@@ -21,14 +21,14 @@ Suggests:
 URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
 RoxygenNote: 6.0.1
-Collate:
+Collate: 
     'utils.R'
     'rawrd.R'
     'future.R'
     'checklist.R'
     'components.R'
     'functions.R'
-    'strictly.R'
+    'firmly.R'
     'scope.R'
     'checkers.R'
     'valaddin.R'

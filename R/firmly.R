@@ -144,11 +144,11 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
 
 # Functional operators ----------------------------------------------------
 
-strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
+firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   chks <- c(list(...), .checklist)
 
   if (!is_checklist(chks)) {
-    stop("Invalid argument checks (see ?strictly)", call. = FALSE)
+    stop("Invalid argument checks (see ?firmly)", call. = FALSE)
   }
 
   sig <- formals(.f)
@@ -163,11 +163,11 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
 
   is_missing <-
     is_true(.warn_missing) ||
-    is.null(.warn_missing) && !is.null(strict_args(.f))
+    is.null(.warn_missing) && !is.null(firm_args(.f))
   maybe_warn <- if (is_missing) warn(arg$nm[arg$wo_value]) else skip
-  f_core <- if (is_strict(.f)) strict_core(.f) else .f
+  f_core <- if (is_firm(.f)) firm_core(.f) else .f
   fn <- call_fn(f_core)
-  pre_chks <- strict_checks(.f)
+  pre_chks <- firm_checks(.f)
 
   if (!length(chks)) {  # .warn_missing is not NULL (so either TRUE or FALSE)
     if (is.null(pre_chks) && is_false(.warn_missing)) {
@@ -189,56 +189,53 @@ strictly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
     f <- validating_closure(assembled_chks, sig, fn, maybe_warn)
   }
 
-  strict_closure(with_sig(f, sig, .attrs = attributes(.f)))
+  firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
 }
 
-strict_closure <- function(.f) {
-  structure(.f, class = c("strict_closure", class(.f)))
-}
-
-#' @export
-is_strict <- function(x) {
-  purrr::is_function(x) && inherits(x, "strict_closure")
+firm_closure <- function(.f) {
+  structure(.f, class = c("firm_closure", class(.f)))
 }
 
 #' @export
-strictly <- strictly_(
-  strictly_,
+is_firm <- function(x) {
+  purrr::is_function(x) && inherits(x, "firm_closure")
+}
+
+#' @export
+firmly <- firmly_(
+  firmly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
   list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
     {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)}
 )
 
-nonstrictly_ <- function(.f, .quiet = FALSE) {
-  if (is_strict(.f)) {
-    strict_core(.f)
+loosely_ <- function(.f, .quiet = FALSE) {
+  if (is_firm(.f)) {
+    firm_core(.f)
   } else {
     if (!.quiet) {
-      warning("Argument not a strictly applied function", call. = FALSE)
+      warning("Argument not a firmly applied function", call. = FALSE)
     }
     .f
   }
 }
 
 #' @export
-nonstrictly <- strictly(
-  nonstrictly_,
+loosely <- firmly(
+  loosely_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
   list("`.quiet` not TRUE/FALSE" ~ .quiet) ~ {is_true(.) || is_false(.)}
 )
 
 #' @export
-freely <- nonstrictly
-
-#' @export
-print.strict_closure <- function(x, ...) {
-  cat("<strict_closure>\n")
+print.firm_closure <- function(x, ...) {
+  cat("<firm_closure>\n")
 
   cat("\n* Core function:\n")
-  print(strict_core(x))
+  print(firm_core(x))
 
   cat("\n* Checks (<predicate>:<error message>):\n")
-  calls <- strict_checks(x)
+  calls <- firm_checks(x)
   if (!is.null(calls) && nrow(calls)) {
     labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
     cat(enumerate_many(labels))
@@ -247,7 +244,7 @@ print.strict_closure <- function(x, ...) {
   }
 
   cat("\n* Check for missing arguments:\n")
-  args <- strict_args(x)
+  args <- firm_args(x)
   if (!is.null(args) && length(args)) {
     cat(paste(args, collapse = ", "), "\n")
   } else {
@@ -255,18 +252,16 @@ print.strict_closure <- function(x, ...) {
   }
 }
 
-#' Apply a function strictly
+#' Apply a function firmly
 #'
-#' \code{strictly} transforms a function into a function with input validation
-#' checks. \code{nonstrictly} undoes the application of \code{strictly}, by
-#' returning the original function, without checks; \code{freely} is an alias
-#' for \code{nonstrictly}, which in certain constructs is more semantically
-#' natural. \code{is_strict} is a predicate function that checks whether an
-#' object is a strictly applied function, i.e., a function created by
-#' \code{strictly}.
+#' \code{firmly} transforms a function into a function with input validation
+#' checks. \code{loosely} undoes the application of \code{firmly}, by returning
+#' the original function, without checks. \code{is_firm} is a predicate function
+#' that checks whether an object is a firmly applied function, i.e., a function
+#' created by \code{firmly}.
 #'
-#' @aliases strictly nonstrictly freely is_strict
-#' @evalRd rd_usage(c("strictly", "nonstrictly", "freely", "is_strict"))
+#' @aliases firmly loosely is_firm
+#' @evalRd rd_usage(c("firmly", "loosely", "is_firm"))
 #'
 #' @param .f Interpreted function, i.e., a function of type \code{"closure"}.
 #' @param \dots Check formula(e) (see \emph{Details}).
@@ -277,33 +272,31 @@ print.strict_closure <- function(x, ...) {
 #'   argument without default value.) This question is disregarded if
 #'   \code{.warn_missing} is \code{NULL}.
 #' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning be signaled if
-#'   \code{.f} is not a function created by \code{strictly}?
+#'   \code{.f} is not a function created by \code{firmly}?
 #' @param x Object to probe.
 #'
 #' @return
-#'   \subsection{\code{strictly}}{
-#'     \code{strictly} does nothing if it has nothing to do: \code{.f} is
-#'     returned unaltered if \code{.f} has no named arguments to check (i.e.,
-#'     \code{.f} has argument signature \code{function()} or
-#'     \code{function(...)}).
+#'   \subsection{\code{firmly}}{
+#'     \code{firmly} does nothing if it has nothing to do: \code{.f} is returned
+#'     unaltered if \code{.f} has no named arguments to check (i.e., \code{.f}
+#'     has argument signature \code{function()} or \code{function(...)}).
 #'
-#'     Otherwise, \code{strictly} returns a function that behaves
+#'     Otherwise, \code{firmly} returns a function that behaves
 #'     \emph{identically} to \code{.f}, with the exception that it validates its
-#'     inputs before being called on them. In particular, \code{strictly}
-#'     respects lazy evaluation: if all checks pass, then when it comes to
-#'     calling the underlying function, all arguments, including those that
-#'     undergo checks, are still lazily evaluated. If any check fails, an error
-#'     is signaled, which tabulates every failing check.
+#'     inputs before being called on them. In particular, \code{firmly} respects
+#'     lazy evaluation: if all checks pass, then when it comes to calling the
+#'     underlying function, all arguments, including those that undergo checks,
+#'     are still lazily evaluated. If any check fails, an error that tabulates
+#'     every failing check is signaled.
 #'
-#'     Additionally, \code{strictly} preserves the argument signature of
+#'     Additionally, \code{firmly} preserves the argument signature of
 #'     \code{.f}, along with its attributes. (Sole exception: the resulting
-#'     class is \code{"strict_closure"}, which contains the class of \code{.f}.)
+#'     class is \code{"firm_closure"}, which contains the class of \code{.f}.)
 #'   }
 #'
-#'   \subsection{\code{nonstrictly}, \code{freely}}{
-#'     \code{nonstrictly} (and its alias, \code{freely}) returns the original
-#'     function, stripped of any input validation checks imposed by
-#'     \code{strictly}.
+#'   \subsection{\code{loosely}}{
+#'     \code{loosely} returns the original function, stripped of any input
+#'     validation checks imposed by \code{firmly}.
 #'   }
 #'
 #' @details
@@ -398,19 +391,19 @@ print.strict_closure <- function(x, ...) {
 #' secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
 #'
 #' # Ensure that `f` is a function
-#' secant_stc <- strictly(secant, list("`f` not a function" ~ f) ~ is.function)
-#' secant_stc(log, 1, .1)    # 0.9531018
-#' secant_stc("log", 1, .1)  # Error: "`f` not a function"
+#' secant_firm <- firmly(secant, list("`f` not a function" ~ f) ~ is.function)
+#' secant_firm(log, 1, .1)    # 0.9531018
+#' secant_firm("log", 1, .1)  # Error: "`f` not a function"
 #'
 #' # Ensure that `x` and `dx` are numerical (possibly non-scalars)
-#' secant_vec <- strictly(secant_stc, list(~x, ~dx) ~ is.numeric)
+#' secant_vec <- firmly(secant_firm, list(~x, ~dx) ~ is.numeric)
 #' secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
 #' secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
 #' secant_vec(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
 #' secant_vec("log", "1", .1)    # Two errors
 #'
 #' # Ensure that `dx` is a numerical scalar
-#' secant_scalar <- strictly(secant_stc, list(~dx) ~ purrr::is_scalar_numeric)
+#' secant_scalar <- firmly(secant_firm, list(~dx) ~ purrr::is_scalar_numeric)
 #' secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
 #' secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
 #' secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
@@ -418,22 +411,22 @@ print.strict_closure <- function(x, ...) {
 #' # Use purrr::lift() for predicate functions with multi-argument dependencies
 #' f <- function(f, l, r) secant(f, l, dx = r - l)
 #' is_monotone <- function(x, y) y - x > 0
-#' secant_right <- strictly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
+#' secant_right <- firmly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
 #' secant_right(log, 1, 1.1)  # 0.9531018
 #' secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
 #'
 #' # Alternatively, secant_right() can be implemented with a unary check
-#' secant_right2 <- strictly(f, list(~ r - l) ~ {. > 0})
+#' secant_right2 <- firmly(f, list(~ r - l) ~ {. > 0})
 #' all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
 #' secant_right2(log, 1, .9)  # Error (as before)
 #'
-#' # strictly won't force any argument not involved in a check
-#' g <- strictly(function(x, y) "Pass", list(~x) ~ is.character)
+#' # firmly won't force any argument not involved in a check
+#' g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
 #' g(c("a", "b"), stop("Not signaled"))  # "Pass"
 #'
-#' # nonstrictly recovers the underlying function
-#' identical(nonstrictly(secant_vec), secant)  # TRUE
+#' # loosely recovers the underlying function
+#' identical(loosely(secant_vec), secant)  # TRUE
 #' }
 #'
-#' @name strictly
+#' @name firmly
 NULL

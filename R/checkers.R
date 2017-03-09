@@ -116,7 +116,7 @@ predicates <- list(
 other <- c(
   "\\code{\\link{globalize}} recovers the underlying check formula of global",
   "scope.\n\n",
-  "The \\emph{Details} section of \\link{strictly} explains the notion of",
+  "The \\emph{Details} section of \\link{firmly} explains the notion of",
   "\\dQuote{scope} in the context of check formulae."
 ) %>%
   paste(collapse = " ")
@@ -156,12 +156,12 @@ ref <- Map(function(p, f) c(p, other, f), predicates, family)
 #' f <- function(x, y) "Pass"
 #'
 #' # Impose the condition that x is a formula
-#' g <- strictly(f, vld_formula(~ x))
+#' g <- firmly(f, vld_formula(~ x))
 #' g(z ~ a + b, 0)  # "Pass"
 #' g(0, 0)          # Error: "Not formula: x"
 #'
 #' # Impose the condition that x and y are disjoint (assuming they are vectors)
-#' h <- strictly(f, vld_empty(~ intersect(x, y)))
+#' h <- firmly(f, vld_empty(~ intersect(x, y)))
 #' h(letters[1:3], letters[4:5])  # "Pass"
 #' h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 #' }
@@ -188,15 +188,15 @@ NULL
 #' f <- function(x, y) "Pass"
 #'
 #' # Impose a check on x: ensure it's of type "logical"
-#' f_strict <- strictly(f, vld_logical(~ x))
-#' f_strict(TRUE, 0)  # "Pass"
-#' f_strict(1, 0)     # Error: "Not logical: x"
+#' f_firm <- firmly(f, vld_logical(~x))
+#' f_firm(TRUE, 0)  # "Pass"
+#' f_firm(1, 0)     # Error: "Not logical: x"
 #'
 #' # To impose the same check on all arguments, apply globalize()
-#' f_stricter <- strictly(f, globalize(vld_logical))
-#' f_stricter(TRUE, FALSE)  # "Pass"
-#' f_stricter(TRUE, 0)      # Error: "Not logical: y"
-#' f_stricter(1, 0)         # Errors: "Not logical: x", "Not logical: y"
+#' f_firmer <- firmly(f, globalize(vld_logical))
+#' f_firmer(TRUE, FALSE)  # "Pass"
+#' f_firmer(TRUE, 0)      # Error: "Not logical: y"
+#' f_firmer(1, 0)         # Errors: "Not logical: x", "Not logical: y"
 #' }
 #' @name type-checkers
 NULL
@@ -222,16 +222,16 @@ NULL
 #' f <- function(x, y) "Pass"
 #'
 #' # Impose a check on x: ensure it's a bare logical object (i.e., has no class)
-#' f_strict <- strictly(f, vld_bare_logical(~ x))
+#' f_firm <- firmly(f, vld_bare_logical(~x))
 #' x <- structure(TRUE, class = "boolean")
-#' f_strict(TRUE, 0)  # "Pass"
-#' f_strict(x, 0)     # Error: "Not bare logical: x"
+#' f_firm(TRUE, 0)  # "Pass"
+#' f_firm(x, 0)     # Error: "Not bare logical: x"
 #'
 #' # To impose the same check on all arguments, apply globalize()
-#' f_stricter <- strictly(f, globalize(vld_bare_logical))
-#' f_stricter(TRUE, FALSE)  # "Pass"
-#' f_stricter(TRUE, 0)      # Error: "Not bare logical: y"
-#' f_stricter(x, 0)         # Errors: "Not bare logical: x", "Not bare logical: y"
+#' f_firmer <- firmly(f, globalize(vld_bare_logical))
+#' f_firmer(TRUE, FALSE)  # "Pass"
+#' f_firmer(TRUE, 0)      # Error: "Not bare logical: y"
+#' f_firmer(x, 0)         # Errors: "Not bare logical: x", "Not bare logical: y"
 #' }
 #' @name bare-type-checkers
 NULL
@@ -261,15 +261,15 @@ NULL
 #' f <- function(x, y) "Pass"
 #'
 #' # Impose a check on x: ensure it's boolean (i.e., a scalar logical vector)
-#' f_strict <- strictly(f, vld_boolean(~ x))
-#' f_strict(TRUE, 0)           # "Pass"
-#' f_strict(c(TRUE, TRUE), 0)  # Error: "Not boolean: x"
+#' f_firm <- firmly(f, vld_boolean(~x))
+#' f_firm(TRUE, 0)           # "Pass"
+#' f_firm(c(TRUE, TRUE), 0)  # Error: "Not boolean: x"
 #'
 #' # To impose the same check on all arguments, apply globalize
-#' f_stricter <- strictly(f, globalize(vld_boolean))
-#' f_stricter(TRUE, FALSE)    # "Pass"
-#' f_stricter(TRUE, 0)        # Error: "Not boolean: y"
-#' f_stricter(logical(0), 0)  # Errors: "Not boolean: x", "Not boolean: y"
+#' f_firmer <- firmly(f, globalize(vld_boolean))
+#' f_firmer(TRUE, FALSE)    # "Pass"
+#' f_firmer(TRUE, 0)        # Error: "Not boolean: y"
+#' f_firmer(logical(0), 0)  # Errors: "Not boolean: x", "Not boolean: y"
 #' }
 #' @name scalar-type-checkers
 NULL

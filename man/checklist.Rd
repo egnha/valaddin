@@ -35,5 +35,5 @@ is_checklist(list(list(log ~ x) ~ is.character))  # Invalid check item
 
 }
 \seealso{
-\link{strictly} (on the specification and use of check formulae)
+\link{firmly} (on the specification and use of check formulae)
 }

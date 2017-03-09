@@ -29,12 +29,12 @@ Each function \code{vld_*} is a function of class
 f <- function(x, y) "Pass"
 
 # Impose the condition that x is a formula
-g <- strictly(f, vld_formula(~ x))
+g <- firmly(f, vld_formula(~ x))
 g(z ~ a + b, 0)  # "Pass"
 g(0, 0)          # Error: "Not formula: x"
 
 # Impose the condition that x and y are disjoint (assuming they are vectors)
-h <- strictly(f, vld_empty(~ intersect(x, y)))
+h <- firmly(f, vld_empty(~ intersect(x, y)))
 h(letters[1:3], letters[4:5])  # "Pass"
 h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 }
@@ -111,7 +111,7 @@ Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.cal
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
- The \emph{Details} section of \link{strictly} explains the notion of \dQuote{scope} in the context of check formulae.
+ The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
 
 Other checkers: \link{bare-type-checkers}, \link{scalar-type-checkers}, \link{type-checkers}
 }

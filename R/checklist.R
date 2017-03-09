@@ -9,7 +9,7 @@
 #' @return \code{is_check_formula}, resp. \code{is_checklist}, returns
 #'   \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
 #'   check formula, resp. checklist.
-#' @seealso \link{strictly} (on the specification and use of check formulae)
+#' @seealso \link{firmly} (on the specification and use of check formulae)
 #' @examples
 #' # Valid checklist
 #' is_checklist(list(list(~x, ~y) ~ is.numeric, "Not positive" ~ {. > 0}))

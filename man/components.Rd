@@ -2,48 +2,46 @@
 % Please edit documentation in R/components.R
 \name{components}
 \alias{components}
-\alias{strict_core}
-\alias{strict_checks}
-\alias{strict_args}
-\title{Decompose a strictly applied function}
+\alias{firm_core}
+\alias{firm_checks}
+\alias{firm_args}
+\title{Decompose a firmly applied function}
 \usage{
-strict_core(x)
+firm_core(x)
 
-strict_checks(x)
+firm_checks(x)
 
-strict_args(x)
+firm_args(x)
 }
 \arguments{
 \item{x}{Object to decompose.}
 }
 \value{
-If \code{x} is a strictly applied function: \code{strict_core}
-  returns a function; \code{strict_checks} returns a data frame with columns
-  \code{expr} (language), \code{env} (environment), \code{string}
-  (character), \code{msg} (character); \code{strict_args} returns a character
-  vector. (In the absence of the component to be extracted, these functions
-  return \code{NULL}.)
+If \code{x} is a firmly applied function: \code{firm_core} returns a
+  function; \code{firm_checks} returns a data frame with columns \code{expr}
+  (language), \code{env} (environment), \code{string} (character), \code{msg}
+  (character); \code{firm_args} returns a character vector. (In the absence
+  of the component to be extracted, these functions return \code{NULL}.)
 }
 \description{
-Helper functions are provided to decompose a strictly applied function:
+Helper functions are provided to decompose a firmly applied function:
 \itemize{
-  \item \code{strict_core()}: extracts the underlying \dQuote{nonstrict}
-    function
-  \item \code{strict_checks()}: extracts the checks
-  \item \code{strict_args()}: extracts the names of arguments whose presence
-    is to be checked
+  \item \code{firm_core()}: extracts the underlying \dQuote{unfirm} function
+  \item \code{firm_checks()}: extracts the checks
+  \item \code{firm_args()}: extracts the names of arguments whose presence is
+    to be checked
 }
 }
 \examples{
 f <- function(x, y, ...) NULL
-f_stc <- strictly(f, ~ is.numeric, list(~x, ~ y - x) ~ {. > 0})
+f_expl <- firmly(f, ~ is.numeric, list(~x, ~ y - x) ~ {. > 0})
 
-identical(strict_core(f_stc), f)                    # TRUE
-strict_checks(f_stc)                                # 4 x 4 data frame
-strict_args(f_stc)                                  # NULL
-strict_args(strictly(f_stc, .warn_missing = TRUE))  # "x" "y"
+identical(firm_core(f_expl), f)                  # TRUE
+firm_checks(f_expl)                              # 4 x 4 data frame
+firm_args(f_expl)                                # NULL
+firm_args(firmly(f_expl, .warn_missing = TRUE))  # "x" "y"
 
 }
 \seealso{
-\code{\link{strictly}}
+\code{\link{firmly}}
 }

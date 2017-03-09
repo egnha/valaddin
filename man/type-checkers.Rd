@@ -27,15 +27,15 @@ Each function \code{vld_*} is a function of class
 f <- function(x, y) "Pass"
 
 # Impose a check on x: ensure it's of type "logical"
-f_strict <- strictly(f, vld_logical(~ x))
-f_strict(TRUE, 0)  # "Pass"
-f_strict(1, 0)     # Error: "Not logical: x"
+f_firm <- firmly(f, vld_logical(~x))
+f_firm(TRUE, 0)  # "Pass"
+f_firm(1, 0)     # Error: "Not logical: x"
 
 # To impose the same check on all arguments, apply globalize()
-f_stricter <- strictly(f, globalize(vld_logical))
-f_stricter(TRUE, FALSE)  # "Pass"
-f_stricter(TRUE, 0)      # Error: "Not logical: y"
-f_stricter(1, 0)         # Errors: "Not logical: x", "Not logical: y"
+f_firmer <- firmly(f, globalize(vld_logical))
+f_firmer(TRUE, FALSE)  # "Pass"
+f_firmer(TRUE, 0)      # Error: "Not logical: y"
+f_firmer(1, 0)         # Errors: "Not logical: x", "Not logical: y"
 }
 }
 \alias{vld_atomic}
@@ -74,7 +74,7 @@ Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\href{h
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
- The \emph{Details} section of \link{strictly} explains the notion of \dQuote{scope} in the context of check formulae.
+ The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
 
 Other checkers: \link{misc-checkers}, \link{bare-type-checkers}, \link{scalar-type-checkers}
 }

@@ -32,15 +32,15 @@ Each function \code{vld_*} is a function of class
 f <- function(x, y) "Pass"
 
 # Impose a check on x: ensure it's boolean (i.e., a scalar logical vector)
-f_strict <- strictly(f, vld_boolean(~ x))
-f_strict(TRUE, 0)           # "Pass"
-f_strict(c(TRUE, TRUE), 0)  # Error: "Not boolean: x"
+f_firm <- firmly(f, vld_boolean(~x))
+f_firm(TRUE, 0)           # "Pass"
+f_firm(c(TRUE, TRUE), 0)  # Error: "Not boolean: x"
 
 # To impose the same check on all arguments, apply globalize
-f_stricter <- strictly(f, globalize(vld_boolean))
-f_stricter(TRUE, FALSE)    # "Pass"
-f_stricter(TRUE, 0)        # Error: "Not boolean: y"
-f_stricter(logical(0), 0)  # Errors: "Not boolean: x", "Not boolean: y"
+f_firmer <- firmly(f, globalize(vld_boolean))
+f_firmer(TRUE, FALSE)    # "Pass"
+f_firmer(TRUE, 0)        # Error: "Not boolean: y"
+f_firmer(logical(0), 0)  # Errors: "Not boolean: x", "Not boolean: y"
 }
 }
 \alias{vld_scalar_atomic}
@@ -85,7 +85,7 @@ Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predic
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
- The \emph{Details} section of \link{strictly} explains the notion of \dQuote{scope} in the context of check formulae.
+ The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
 
 Other checkers: \link{misc-checkers}, \link{bare-type-checkers}, \link{type-checkers}
 }
