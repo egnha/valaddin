@@ -49,6 +49,6 @@ test_that("checker error message is derived from predicate name", {
 
     # Every purrr, resp. base, predicate returns FALSE for log, resp. 0L
     bad_arg <- if (.$ns == "purrr") log else 0L
-    expect_error(strictly(f, .$chkr(~ x))(bad_arg), msg)
+    expect_error(firmly(f, .$chkr(~ x))(bad_arg), msg)
   }
 })

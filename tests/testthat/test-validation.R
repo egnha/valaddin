@@ -10,9 +10,9 @@ test_that("function return value exactly reproduced when all checks pass", {
     # Arguments as list of positive numbers (if not empty)
     args <- if (l) as.list(1:l) else list()
     out <- do.call(f, args)
-    f_strict <- strictly(f, .checklist = chklist)
+    f_firm <- firmly(f, .checklist = chklist)
 
-    expect_identical(do.call(f_strict, args), out)
+    expect_identical(do.call(f_firm, args), out)
   }
 })
 
@@ -27,15 +27,15 @@ test_that("'{...}' predicate expression interpreted as lambda function", {
     named = chk ~ predicate,
     anond = chk ~ {if (identical(., TRUE)) . else FALSE}
   )
-  f_strict <- lapply(chks, strictly, .f = f)
+  f_firm <- lapply(chks, firmly, .f = f)
 
   # Pass
-  Reduce(function(out, f.) expect_identical(out, f.(TRUE)), f_strict, f(TRUE))
+  Reduce(function(out, f.) expect_identical(out, f.(TRUE)), f_firm, f(TRUE))
 
   # Fail
   bad_input <- list(FALSE, 1, "A", log, quote({cat("Yo!"); sin(1 + pi)}))
   for (x in bad_input) {
-    for (f. in f_strict) {
+    for (f. in f_firm) {
       expect_error(f.(x), "FALSE")
     }
   }
@@ -43,8 +43,8 @@ test_that("'{...}' predicate expression interpreted as lambda function", {
 
 test_that("one-sided formula produces global check", {
   f <- pass_args(alist(x = , y = , z = 0, ... = , u = y - z, v = ))
-  f_num <- strictly(f, ~is.numeric)
-  f_pos <- strictly(f_num, ~{. > 0})
+  f_num <- firmly(f, ~is.numeric)
+  f_pos <- firmly(f_num, ~{. > 0})
 
   # Pass
   out <- f(1, 2, 3, u = 4, v = 5)
@@ -90,8 +90,8 @@ test_that("one-sided formula produces global check", {
 
 test_that("string formula produces global check with message", {
   f <- pass_args(alist(x = , y = , z = 0, ... = , u = y - z, v = ))
-  f_num <- strictly(f, "Not numeric" ~ is.numeric)
-  f_pos <- strictly(f_num, "Not positive" ~ {. > 0})
+  f_num <- firmly(f, "Not numeric" ~ is.numeric)
+  f_pos <- firmly(f_num, "Not positive" ~ {. > 0})
 
   # Pass
   out <- f(1, 2, 3, u = 4, v = 5)
@@ -142,14 +142,14 @@ test_that("unnamed checks in checklist formula use auto-generated messages", {
 
   non_numeric <- list(NULL, NA, "string", TRUE, sin, quote({cat("Ho!")}))
   for (f in fs) {
-    f_strict <- strictly(f, .checklist = chklist)
+    f_firm <- firmly(f, .checklist = chklist)
 
     for (x in non_numeric) {
       args <- list(x = x, y = 0)
-      expect_error(do.call(f_strict, args, quote = TRUE),
+      expect_error(do.call(f_firm, args, quote = TRUE),
                    "FALSE[^\n]*?is\\.numeric\\(x\\)")
-      expect_n_errors(1, f_strict, args, "FALSE")
-      expect_n_errors(0, f_strict, args, "y not numeric")
+      expect_n_errors(1, f_firm, args, "FALSE")
+      expect_n_errors(0, f_firm, args, "y not numeric")
     }
   }
 })
@@ -163,13 +163,13 @@ test_that("named checks in checklist formula use custom messages", {
 
   non_numeric <- list(NULL, NA, "string", TRUE, sin, quote({cat("Ho!")}))
   for (f in fs) {
-    f_strict <- strictly(f, .checklist = chklist)
+    f_firm <- firmly(f, .checklist = chklist)
 
     for (y in non_numeric) {
       args <- list(x = 0, y = y)
-      expect_error(do.call(f_strict, args, quote = TRUE), errmsg)
-      expect_n_errors(0, f_strict, args, "FALSE")
-      expect_n_errors(1, f_strict, args, errmsg)
+      expect_error(do.call(f_firm, args, quote = TRUE), errmsg)
+      expect_n_errors(0, f_firm, args, "FALSE")
+      expect_n_errors(1, f_firm, args, errmsg)
     }
   }
 })
@@ -190,30 +190,30 @@ test_that("predicate function of list-argument applies to argument lists", {
     list(not_gt("y", "x") ~ list(x, y), not_gt("z", "y") ~ list(y, z)) ~
       purrr::lift(function(a, b) b - a > 0)
   )
-  f_strict <- strictly(f, .checklist = chklist)
+  f_firm <- firmly(f, .checklist = chklist)
 
   set.seed(1)
   for (i in 100) {
     args <- as.list(cumsum(runif(3, 0, 1)))
 
     base <- setup_base(c("x", "y", "z"), args)
-    expect_identical(do.call(f_strict, base$args), base$out)
+    expect_identical(do.call(f_firm, base$args), base$out)
 
     base <- setup_base(c("x", "z", "y"), args)
-    expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
+    expect_error(do.call(f_firm, base$args), not_gt("z", "y"))
 
     base <- setup_base(c("y", "x", "z"), args)
-    expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
+    expect_error(do.call(f_firm, base$args), not_gt("y", "x"))
 
     base <- setup_base(c("z", "x", "y"), args)
-    expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
+    expect_error(do.call(f_firm, base$args), not_gt("z", "y"))
 
     base <- setup_base(c("y", "z", "x"), args)
-    expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
+    expect_error(do.call(f_firm, base$args), not_gt("y", "x"))
 
     base <- setup_base(c("z", "y", "x"), args)
-    expect_error(do.call(f_strict, base$args), not_gt("y", "x"))
-    expect_error(do.call(f_strict, base$args), not_gt("z", "y"))
+    expect_error(do.call(f_firm, base$args), not_gt("y", "x"))
+    expect_error(do.call(f_firm, base$args), not_gt("z", "y"))
   }
 })
 
@@ -229,7 +229,7 @@ test_that("invalid predicate value flagged by precise error of such", {
       is.numeric(x)
     }
   }
-  f_strict <- strictly(f, list(errmsg ~ x) ~ is_numeric_faulty)
+  f_firm <- firmly(f, list(errmsg ~ x) ~ is_numeric_faulty)
 
   set.seed(1)
 
@@ -239,13 +239,13 @@ test_that("invalid predicate value flagged by precise error of such", {
   # Fail because predicate returns FALSE
   bad_x <- list(log, identity, "string", TRUE, quote({cat("Ho!")}), TRUE)
   for (x in bad_x) {
-    expect_error(f_strict(x), errmsg)
+    expect_error(f_firm(x), errmsg)
   }
 
   # Fail because predicate returns invalid value
   # Predicate is_numeric_faulty() leaves these values unchanged
   for (x in list(NULL, NA, logical(0), c(TRUE, TRUE), c(TRUE, NA))) {
-    expect_error(f_strict(x), "not TRUE/FALSE")
+    expect_error(f_firm(x), "not TRUE/FALSE")
   }
 })
 
@@ -260,7 +260,7 @@ test_that("check-eval error when check-formula variable not function variable", 
   named_args <- c("x", "y", "z")
 
   for (f in fs) {
-    f_strict <- strictly(f, .checklist = chklist)
+    f_firm <- firmly(f, .checklist = chklist)
 
     sig <- formals(f)
     l <- length(sig)
@@ -269,17 +269,17 @@ test_that("check-eval error when check-formula variable not function variable", 
 
     for (arg in missing_args) {
       expect_error(
-        do.call(f_strict, args),
+        do.call(f_firm, args),
         sprintf("Error evaluating check.*?object '%s' not found", arg)
       )
     }
-    expect_error(do.call(f_strict, args),
+    expect_error(do.call(f_firm, args),
                  "Error evaluating check.*?object 'a' not found")
-    expect_error(do.call(f_strict, args),
+    expect_error(do.call(f_firm, args),
                  "Error evaluating check.*?object 'b' not found")
     # No other check-evaluation errors
     expect_n_errors(2L + length(missing_args),
-                    f_strict, args, "Error evaluating check")
+                    f_firm, args, "Error evaluating check")
   }
 })
 
@@ -291,20 +291,20 @@ test_that("predicate is evaluated in its ambient formula environment", {
   chk <- list("Not external" ~ x) ~ predicate
 
   for (f in fs) {
-    f_ext <- strictly(f, list("Not external" ~ x) ~ predicate)
+    f_ext <- firmly(f, list("Not external" ~ x) ~ predicate)
     g <- (function() {
       parent <- parent.frame()
       predicate <- function(x) identical(x, "internal")
       list(
-        int  = strictly(f, list("Not internal" ~ x) ~ predicate),
+        int  = firmly(f, list("Not internal" ~ x) ~ predicate),
         # Evaluate in enclosure
-        ext1 = eval(quote(strictly(f, list("Not external" ~ x) ~ predicate)),
+        ext1 = eval(quote(firmly(f, list("Not external" ~ x) ~ predicate)),
                     parent),
         # Evaluate locally but evaluate check in enclosure
-        ext2 = strictly(f, eval(quote(list("Not external" ~ x) ~ predicate),
+        ext2 = firmly(f, eval(quote(list("Not external" ~ x) ~ predicate),
                                 parent)),
         # Evaluate locally but reference check in enclosure
-        ext3 = strictly(f, chk)
+        ext3 = firmly(f, chk)
       )
     })()
 
@@ -328,11 +328,11 @@ test_that("names in checking procedure don't override function arguments", {
            "msg_call", "msg_error", ".chks", ".sig", ".fn", ".warn")
   def_args <- setNames(seq_along(nms), nms)
   f <- eval(call("function", as.pairlist(def_args), quote("Pass")))
-  f_strict <- strictly(f, "Not numeric" ~ is.numeric)
+  f_firm <- firmly(f, "Not numeric" ~ is.numeric)
 
-  # Check that f, f_strict are correctly defined
-  expect_error(f_strict(), NA)
-  expect_identical(f_strict(), f())
+  # Check that f, f_firm are correctly defined
+  expect_error(f_firm(), NA)
+  expect_identical(f_firm(), f())
 
   # ~ 10k possible combinations of arguments, so randomly sample them instead
   subsets <- expand.grid(rep(list(c(TRUE, FALSE)), length(nms)))
@@ -342,6 +342,6 @@ test_that("names in checking procedure don't override function arguments", {
     subset <- t(subsets[i, ])
     args <- as.list(setNames(nm = nms[subset]))
 
-    expect_n_errors(n = length(args), f_strict, args, "Not numeric")
+  expect_n_errors(n = length(args), f_firm, args, "Not numeric")
   }
 })

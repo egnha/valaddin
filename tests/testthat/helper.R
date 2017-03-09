@@ -62,8 +62,8 @@ make_fnc <- function(args, body = quote(NULL), env = parent.frame()) {
 
 # Make a function that simply passes the inputs as a list
 #
-# If the output of strictly() of such a dummy function matches the output of the
-# dummy function, we can be sure that strictly() exactly reproduces the behavior
+# If the output of firmly() of such a dummy function matches the output of the
+# dummy function, we can be sure that firmly() exactly reproduces the behavior
 # of any function with argument signature identical to the dummy function's.
 pass_args <- function(args) {
   body <- substitute({

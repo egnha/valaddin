@@ -33,29 +33,29 @@ test_that("local checker creates checks for supplied arguments", {
   for (f in fs)
     for (chkr in chkrs) {
       # Passing checks
-      expect_error(strictly(f, chkr(~ x))(x = 1, y = "y"), NA)
-      expect_error(strictly(f, chkr(~ x, ~ y))(x = 1, y = 2), NA)
-      expect_error(strictly(f, chkr(~ y - x))(x = 1, y = 2), NA)
+      expect_error(firmly(f, chkr(~ x))(x = 1, y = "y"), NA)
+      expect_error(firmly(f, chkr(~ x, ~ y))(x = 1, y = 2), NA)
+      expect_error(firmly(f, chkr(~ y - x))(x = 1, y = 2), NA)
 
       # Failing checks
-      expect_n_errors(1, strictly(f, chkr(~ x)), list(x = -1, y = "y"), err_fail)
-      expect_n_errors(1, strictly(f, chkr(~ x, ~ y)), list(x = -1, y = 2), err_fail)
-      expect_n_errors(2, strictly(f, chkr(~ x, ~ y)), list(x = -1, y = -2), err_fail)
-      expect_n_errors(1, strictly(f, chkr(~ y - x)), list(x = 2, y = 1), err_fail)
+      expect_n_errors(1, firmly(f, chkr(~ x)), list(x = -1, y = "y"), err_fail)
+      expect_n_errors(1, firmly(f, chkr(~ x, ~ y)), list(x = -1, y = 2), err_fail)
+      expect_n_errors(2, firmly(f, chkr(~ x, ~ y)), list(x = -1, y = -2), err_fail)
+      expect_n_errors(1, firmly(f, chkr(~ y - x)), list(x = 2, y = 1), err_fail)
 
       # Predicate-evaluation failure
       err_eval <- "Error evaluating check"
-      expect_error(strictly(f, chkr(~ x))(x = log("a"), y = "y"), err_eval)
-      expect_error(strictly(f, chkr(~ x, ~ y))(x = -1, y = log("a")), err_eval)
-      expect_error(strictly(f, chkr(~ x, ~ y))(x = log(), y = log("b")), err_eval)
-      expect_error(strictly(f, chkr(~ y - x))(x = 2, y = log("b")), err_eval)
+      expect_error(firmly(f, chkr(~ x))(x = log("a"), y = "y"), err_eval)
+      expect_error(firmly(f, chkr(~ x, ~ y))(x = -1, y = log("a")), err_eval)
+      expect_error(firmly(f, chkr(~ x, ~ y))(x = log(), y = log("b")), err_eval)
+      expect_error(firmly(f, chkr(~ y - x))(x = 2, y = log("b")), err_eval)
 
       # Invalid predicate value
       err_pred <- "not TRUE/FALSE"
-      expect_error(strictly(f, chkr(~ x))(x = integer(), y = "y"), err_pred)
-      expect_error(strictly(f, chkr(~ x, ~ y))(x = -1, y = integer()), err_pred)
-      expect_error(strictly(f, chkr(~ x, ~ y))(x = NA, y = integer()), err_pred)
-      expect_error(strictly(f, chkr(~ y - x))(x = 2, y = NA), err_pred)
+      expect_error(firmly(f, chkr(~ x))(x = integer(), y = "y"), err_pred)
+      expect_error(firmly(f, chkr(~ x, ~ y))(x = -1, y = integer()), err_pred)
+      expect_error(firmly(f, chkr(~ x, ~ y))(x = NA, y = integer()), err_pred)
+      expect_error(firmly(f, chkr(~ y - x))(x = 2, y = NA), err_pred)
     }
 })
 
@@ -64,23 +64,23 @@ test_that("local checker evaluates predicate in global formula environment", {
   chk <- "Not external" ~ predicate
 
   f <- function(x) NULL
-  f_ext <- strictly(f, localize(chk)(~ x))
+  f_ext <- firmly(f, localize(chk)(~ x))
   g <- (function() {
     parent <- parent.frame()
     predicate <- function(x) identical(x, "internal")
     list(
-      int  = strictly(f, localize("Not internal" ~ predicate)(~ x)),
+      int  = firmly(f, localize("Not internal" ~ predicate)(~ x)),
       # Evaluate in enclosure
       ext1 = eval(
-        quote(strictly(f, localize("Not external" ~ predicate)(~ x))),
+        quote(firmly(f, localize("Not external" ~ predicate)(~ x))),
         parent
       ),
       # Evaluate locally but evaluate check in enclosure
-      ext2 = strictly(f, eval(
+      ext2 = firmly(f, eval(
         quote(localize("Not external"  ~ predicate)), parent)(~ x)
         ),
       # Evaluate locally but reference check in enclosure
-      ext3 = strictly(f, localize(chk)(~ x))
+    ext3 = firmly(f, localize(chk)(~ x))
     )
   })()
 
@@ -119,12 +119,12 @@ test_that("local checker raises error if argument not one-sided formula", {
   }
 })
 
-test_that("globalize() inverts localize()", {
+test_that("globalize inverts localize", {
   for (chk in chks_gbl)
     expect_identical(chk, globalize(localize(chk)))
 })
 
-test_that("localize() inverts globalize()", {
+test_that("localize inverts globalize", {
   lcl_chkrs <- lapply(chks_gbl, localize)
 
   for (chkr in lcl_chkrs)
