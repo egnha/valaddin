@@ -53,7 +53,7 @@ new function, and give it a new name (or copy-paste the original function body)
 
 ### valaddin rectifies these shortcomings
 
-valaddin provides a function `strictly()` that takes care of input validation by
+valaddin provides a function `firmly()` that takes care of input validation by
 _transforming_ the existing function, instead of forcing you to write a new one.
 It also helps you by reporting _every_ failing check.
 
@@ -61,7 +61,7 @@ It also helps you by reporting _every_ failing check.
 library(valaddin)
 
 # Check that `x` and `dx` are numeric
-secant <- strictly(secant, list(~x, ~dx) ~ is.numeric)
+secant <- firmly(secant, list(~x, ~dx) ~ is.numeric)
 
 secant(log, 1, .1)
 #> [1] 0.9531018
@@ -75,7 +75,7 @@ secant(log, "1", ".1")
 To add additional checks, just apply the same procedure again:
 
 ```R
-secant <- strictly(secant, list(~x, ~dx) ~ {length(.) == 1L})
+secant <- firmly(secant, list(~x, ~dx) ~ {length(.) == 1L})
 
 secant(log, "1", c(.1, .01))
 #> Error: secant(f = log, x = "1", dx = c(0.1, 0.01))
@@ -86,8 +86,8 @@ secant(log, "1", c(.1, .01))
 Or, alternatively, all in one go:
 
 ```R
-secant <- nonstrictly(secant)  # Get back the original function
-secant <- strictly(secant, list(~x, ~dx) ~ {is.numeric(.) && length(.) == 1L})
+secant <- loosely(secant)  # Get back the original function
+secant <- firmly(secant, list(~x, ~dx) ~ {is.numeric(.) && length(.) == 1L})
 
 secant(log, 1, .1)
 #> [1] 0.9531018
@@ -100,13 +100,13 @@ secant(log, "1", c(.1, .01))
 
 ### Check anything using a simple, consistent syntax
 
-`strictly()` uses a simple formula syntax to specify arbitrary checks—not just 
+`firmly()` uses a simple formula syntax to specify arbitrary checks—not just 
 type checks. Every check is a formula of the form `<where to check> ~ <what to 
 check>`. The "what" part on the right is a _function_ that does a check, while
 the (form of the) "where" part on the left indicates where to apply the
 check—at which _arguments_ or _expressions_ thereof.
 
-valaddin provides a number of conveniences to make checks for `strictly()`
+valaddin provides a number of conveniences to make checks for `firmly()`
 informative and easy to specify.
 
 #### Use custom error messages
@@ -117,7 +117,7 @@ Use a custom error message to clarify the _purpose_ of a check:
 bc <- function(x, y) c(x, y, 1 - x - y)
 
 # Check that `y` is positive
-bc_uhp <- strictly(bc, list("(x, y) not in upper half-plane" ~ y) ~ {. > 0})
+bc_uhp <- firmly(bc, list("(x, y) not in upper half-plane" ~ y) ~ {. > 0})
 
 bc_uhp(.5, .2)
 #> [1] 0.5 0.2 0.3
@@ -132,7 +132,7 @@ bc_uhp(.5, -.2)
 Leave the left-hand side of a check formula blank to apply it to all arguments:
 
 ```R
-bc_num <- strictly(bc, ~ is.numeric)
+bc_num <- firmly(bc, ~ is.numeric)
 
 bc_num(.5, ".2")
 #> Error: bc_num(x = 0.5, y = ".2")
@@ -147,7 +147,7 @@ bc_num(".5", ".2")
 Or fill in a custom error message:
 
 ```R
-bc_num <- strictly(bc, "Not numeric" ~ is.numeric)
+bc_num <- firmly(bc, "Not numeric" ~ is.numeric)
 
 bc_num(.5, ".2")
 #> Error: bc_num(x = 0.5, y = ".2")
@@ -163,7 +163,7 @@ arguments:
 in_triangle <- function(x, y) x >= 0 && y >= 0 && 1 - x - y >= 0
 outside <- "(x, y) not in triangle"
 
-bc_tri <- strictly(bc, list(outside ~ in_triangle(x, y)) ~ isTRUE)
+bc_tri <- firmly(bc, list(outside ~ in_triangle(x, y)) ~ isTRUE)
 
 bc_tri(.5, .2)
 #> [1] 0.5 0.2 0.3
@@ -179,7 +179,7 @@ Alternatively, use the `lift()` function from the
 ```R
 library(purrr)
 
-bc_tri <- strictly(bc, list(outside ~ list(x, y)) ~  purrr::lift(in_triangle))
+bc_tri <- firmly(bc, list(outside ~ list(x, y)) ~  purrr::lift(in_triangle))
 ```
 
 #### Layer checks using the magrittr pipe `%>%`
@@ -191,8 +191,8 @@ Activate checks in stages using the
 library(magrittr)
 
 bc <- bc %>%
-  strictly("Not numeric" ~ is.numeric, "Not scalar" ~ {length(.) == 1L}) %>%
-  strictly(list("(x, y) not in triangle" ~ list(x, y)) ~ in_triangle)
+  firmly("Not numeric" ~ is.numeric, "Not scalar" ~ {length(.) == 1L}) %>%
+  firmly(list("(x, y) not in triangle" ~ list(x, y)) ~ in_triangle)
                    
 bc(.5, .2)
 #> [1] 0.5 0.2 0.3
@@ -217,13 +217,13 @@ package:
 devtools::install_github("egnha/valaddin")
 ```
 
-See the package documentation `?strictly`, `help(p = valaddin)` for detailed 
-information about `strictly()` and its companion functions.
+See the package documentation `?firmly`, `help(p = valaddin)` for detailed 
+information about `firmly()` and its companion functions.
 
 ## Related packages
 
 * [assertthat](https://github.com/hadley/assertthat) provides a handy collection
-of predicate functions that you can use with `strictly()`.
+of predicate functions that you can use with `firmly()`.
 
 * [argufy](https://github.com/gaborcsardi/argufy) takes a different approach to
 input validation, using [roxygen](https://github.com/klutometis/roxygen)
