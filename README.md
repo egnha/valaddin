@@ -10,6 +10,16 @@ that enables you to transform an existing function into a function with input
 validation checks, with minimal fuss, in a manner suitable for both programmatic
 use and interactive sessions.
 
+## Installation
+
+Install from GitHub using the [devtools](https://github.com/hadley/devtools)
+package:
+
+```R
+# install.packages("devtools")
+devtools::install_github("egnha/valaddin")
+```
+
 ## Why use valaddin
 
 ### Fail fast—save time, spare confusion
@@ -207,15 +217,7 @@ bc(".5", 1)
 #> 2) (x, y) not in triangle
 ```
 
-## Installation
-
-Install from GitHub using the [devtools](https://github.com/hadley/devtools)
-package:
-
-```R
-# install.packages("devtools")
-devtools::install_github("egnha/valaddin")
-```
+### Learn more
 
 See the package documentation `?firmly`, `help(p = valaddin)` for detailed 
 information about `firmly()` and its companion functions.
