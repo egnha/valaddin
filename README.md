@@ -26,6 +26,7 @@ devtools::install_github("egnha/valaddin")
 
 Validating the inputs of your functions is good [defensive programming 
 practice](http://adv-r.had.co.nz/Exceptions-Debugging.html#defensive-programming).
+You have more confidence in your function when its input is well-behaved.
 
 Suppose you have a function `secant()`
 
