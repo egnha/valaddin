@@ -238,8 +238,8 @@ comments to specify checks.
 
 * Both [ensurer](https://github.com/smbache/ensurer) and 
 [assertr](https://github.com/ropensci/assertr) provide a means of validating 
-function values. Additionally, ensurer provides a replacement for `function()` 
-that build functions with type-validated arguments.
+function values. Additionally, ensurer provides an experimental replacement for
+`function()` that builds functions with type-validated arguments.
 
 * [typeCheck](https://github.com/jimhester/typeCheck), together with [Types for
 R](https://github.com/jimhester/types), enables the creation of functions with
