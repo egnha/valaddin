@@ -1,17 +1,18 @@
+# Null-default operator
+`%||%` <- purrr::`%||%`
+
 # Pipe operator
 `%>%` <- purrr::`%>%`
 
 # Hush `R CMD check` note (confused by `.` in pipes)
 . <- NULL
 
-# Null-default operator
-`%||%` <- purrr::`%||%`
+# Do nothing, intentionally
+skip <- invisible
 
 is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
 is_error <- function(x) inherits(x, "error")
-
-skip <- function(...) {}
 
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
