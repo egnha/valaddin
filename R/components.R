@@ -42,5 +42,5 @@ firm_checks <- function(x) {
 #' @rdname components
 #' @export
 firm_args <- function(x) {
-  environment(environment(x)$.warn)$.ref_args
+  environment(environment(x)$.warn)$.args
 }

@@ -67,15 +67,20 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
 
 # Warning apparatus -------------------------------------------------------
 
-warn <- function(.ref_args) {
-  force(.ref_args)
+warn <- function(.args) {
+  if (!length(.args)) {
+    return(NULL)
+  }
 
   function(.call) {
-    missing <- setdiff(.ref_args, names(.call[-1L]))
+    missing <- setdiff(.args, names(.call[-1L]))
 
     if (length(missing)) {
-      msg <- paste("Missing required argument(s):",
-                   paste(missing, collapse = ", "))
+      msg <- paste(
+        sprintf("Argument(s) expected but not specified in call %s:",
+                deparse_collapse(.call)),
+        paste(encodeString(missing, quote = "`"), collapse = ", ")
+      )
       warning(msg, call. = FALSE)
     }
 
