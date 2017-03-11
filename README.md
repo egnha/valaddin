@@ -241,10 +241,10 @@ comments to specify checks.
 function values. Additionally, ensurer provides an experimental replacement for
 `function()` that builds functions with type-validated arguments.
 
-* [typeCheck](https://github.com/jimhester/typeCheck), together with [Types for
-R](https://github.com/jimhester/types), enables the creation of functions with
-type-validated arguments by means of special type annotations. This approach is
-"dual" to that of valaddin: whereas valaddin specifies input checks as
+* [typeCheck](https://github.com/jimhester/typeCheck), together with [Types for 
+R](https://github.com/jimhester/types), enables the creation of functions with 
+type-validated arguments by means of special type annotations. This approach is 
+orthogonal to that of valaddin: whereas valaddin specifies input checks as 
 _predicate functions with scope_, typeCheck specifies input checks as _arguments
 with type_.
 
