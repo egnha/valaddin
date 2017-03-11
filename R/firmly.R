@@ -192,13 +192,16 @@ firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
   firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
 }
 
-firm_closure <- function(.f) {
-  structure(.f, class = c("firm_closure", class(.f)))
-}
-
 #' @export
 is_firm <- function(x) {
   purrr::is_function(x) && inherits(x, "firm_closure")
+}
+
+firm_closure <- function(.f) {
+  if (!is_firm(.f)) {
+    class(.f) <- c("firm_closure", class(.f))
+  }
+  .f
 }
 
 #' @export
