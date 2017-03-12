@@ -157,42 +157,40 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
 
 # Functional operators ----------------------------------------------------
 
-firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
-  chks <- c(list(...), .checklist)
 
+firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = character()) {
+  chks <- unname(c(list(...), .checklist))
   if (!is_checklist(chks)) {
-    stop("Invalid argument checks (see ?firmly)", call. = FALSE)
+    stop("Invalid check formula(e)", call. = FALSE)
   }
 
   sig <- formals(.f)
   arg <- nomen(sig)
 
-  is_some_check <-
-    length(chks) && length(arg$nm) ||
-    !is.null(.warn_missing) && any(arg$wo_value)
-  if (!is_some_check) {
+  reason_to_pass <- c(
+    no_validation = !length(chks) && !length(.warn_missing),
+    no_named_arg  = !length(arg$nm)
+  )
+  if (any(reason_to_pass)) {
+    if (!reason_to_pass[["no_validation"]]) {
+      warning("No input validation applied: `.f` has no named argument",
+              call. = FALSE)
+    }
     return(.f)
   }
 
-  is_missing <-
-    is_true(.warn_missing) ||
-    is.null(.warn_missing) && !is.null(firm_args(.f))
-  maybe_warn <- if (is_missing) warn(arg$nm[arg$wo_value]) else skip
-  f_core <- if (is_firm(.f)) firm_core(.f) else .f
-  fn <- call_fn(f_core)
+  is_unknown_arg <- !(.warn_missing %in% arg$nm)
+  if (any(is_unknown_arg)) {
+    err_msg <- "Invalid `.warn_missing`: %s not argument(s) of `.f`"
+    unknown_arg <- quote_collapse(.warn_missing[is_unknown_arg])
+    stop(sprintf(err_msg, unknown_arg), call. = FALSE)
+  }
+
+  fn <- call_fn(if (is_firm(.f)) firm_core(.f) else .f)
   pre_chks <- firm_checks(.f)
+  maybe_warn <- warn(.warn_missing) %||% warn(firm_args(.f)) %||% skip
 
-  if (!length(chks)) {  # .warn_missing is not NULL (so either TRUE or FALSE)
-    if (is.null(pre_chks) && is_false(.warn_missing)) {
-      return(f_core)
-    }
-
-    f <- if (is.null(pre_chks)) {
-      warning_closure(fn, maybe_warn)
-    } else {
-      validating_closure(pre_chks, sig, fn, maybe_warn)
-    }
-  } else {
+  if (length(chks)) {
     assembled_chks <- dplyr::distinct_(
       dplyr::bind_rows(
         pre_chks,
@@ -200,6 +198,13 @@ firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = NULL) {
       )
     )
     f <- validating_closure(assembled_chks, sig, fn, maybe_warn)
+  } else {
+    # .warn_missing not empty
+    f <- if (is.null(pre_chks)) {
+      warning_closure(fn, maybe_warn)
+    } else {
+      validating_closure(pre_chks, sig, fn, maybe_warn)
+    }
   }
 
   firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
@@ -221,8 +226,9 @@ firm_closure <- function(.f) {
 firmly <- firmly_(
   firmly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list("`.warn_missing` neither NULL nor logical scalar" ~ .warn_missing) ~
-    {is.null(.) || purrr::is_scalar_logical(.) && !is.na(.)}
+  list("`.checklist` not a list" ~ .checklist) ~ is.list,
+  list("`.warn_missing` not a character vector" ~ .warn_missing) ~
+    {is.character(.) && !anyNA(.)}
 )
 
 loosely_ <- function(.f, .quiet = FALSE) {
