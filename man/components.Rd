@@ -39,7 +39,7 @@ f_expl <- firmly(f, ~ is.numeric, list(~x, ~ y - x) ~ {. > 0})
 identical(firm_core(f_expl), f)                  # TRUE
 firm_checks(f_expl)                              # 4 x 4 data frame
 firm_args(f_expl)                                # NULL
-firm_args(firmly(f_expl, .warn_missing = TRUE))  # "x" "y"
+firm_args(firmly(f_expl, .warn_missing = "y"))  # "y"
 
 }
 \seealso{
