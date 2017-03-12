@@ -7,9 +7,6 @@
 # Hush `R CMD check` note (confused by `.` in pipes)
 . <- NULL
 
-# Do nothing, intentionally
-skip <- invisible
-
 is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
 

@@ -157,6 +157,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
 
 # Functional operators ----------------------------------------------------
 
+skip <- function(...) invisible()
 
 firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = character()) {
   chks <- unname(c(list(...), .checklist))
