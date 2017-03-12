@@ -89,6 +89,9 @@ warn <- function(.args) {
 }
 
 warning_closure <- function(.fn, .warn) {
+  force(.fn)
+  force(.warn)
+
   function() {
     call <- match.call()
     .warn(call)
@@ -117,6 +120,11 @@ problems <- function(chks, verdict) {
 }
 
 validating_closure <- function(.chks, .sig, .fn, .warn) {
+  force(.chks)
+  force(.sig)
+  force(.fn)
+  force(.warn)
+
   function() {
     call <- match.call()
 
