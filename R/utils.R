@@ -18,6 +18,11 @@ deparse_collapse <- function(x) {
   paste(trimws(deparse(x), which = "both"), collapse = "")
 }
 
+# Typically used to list symbols, such as function argument names
+quote_collapse <- function(xs) {
+  paste(encodeString(xs, quote = "`"), collapse = ", ")
+}
+
 # Collapse a character vector into an enumerated string
 enumerate_many <- function(x, many = 2L) {
   if (length(x) >= many) {
