@@ -1,45 +1,69 @@
 context("Firmly")
 
+fs <- lapply(args_list, pass_args)
+has_args <- purrr::map_lgl(args_list, ~ length(nomen(.)$nm) > 0L)
+fs_with_args <- fs[has_args]
+
 test_that("error raised when .f is not a closure", {
   errmsg <- "`.f` not an interpreted function"
   bad_fns <- list(NULL, NA, log, 1, "A", quote(ls))
 
   for (f in bad_fns) {
-  expect_error(firmly(f), errmsg)
+    expect_error(firmly(f), errmsg)
   }
 })
 
-test_that("error raised when .warn_missing is not NULL/TRUE/FALSE", {
-  f <- function(x) NULL
+test_that("error raised when .warn_missing is not a non-NA character vector", {
+  errmsg <- "`.warn_missing` not a character vector"
+  bad_val <- list(NA, logical(0), logical(2), 1, 0, quote(x), list("x"))
 
-  # No error if .warn_missing NULL/TRUE/FALSE
-  expect_error(firmly(f, .warn_missing = TRUE), NA)
-  expect_error(firmly(f, .warn_missing = FALSE), NA)
-  expect_error(firmly(f, .warn_missing = NULL), NA)
+  for (f in fs) {
+    for (val in bad_val) {
+      expect_error(firmly(f, .warn_missing = val), errmsg)
+    }
+  }
+})
 
-  # Otherwise, error
-  errmsg <- "`.warn_missing` neither NULL nor logical scalar"
-  bad_val <- list(NA, logical(0), logical(2), 1, 0, "TRUE", "FALSE")
-  for (val in bad_val) {
-    expect_error(firmly(function(x) NULL, .warn_missing = val), errmsg)
+test_that("error raised if .warn_missing not in non-empty set of arguments", {
+  err_msg <- "Invalid `\\.warn_missing`: %s not argument\\(s\\) of `\\.f`"
+
+  for (f in fs_with_args) {
+    nm <- nomen(formals(f))$nm
+    expect_error(firmly(f, .warn_missing = "dummy"), sprintf(err_msg, "`dummy`"))
+    expect_error(firmly(f, .warn_missing = c("dummy", nm[1L])),
+                 sprintf(err_msg, "`dummy`"))
+    expect_error(firmly(f, .warn_missing = c("dummy1", "dummy2")),
+                 sprintf(err_msg, "`dummy1`, `dummy2`"))
+
+  }
+})
+
+test_that("error raised when .checklist is not a list", {
+  errmsg <- "`.checklist` not a list"
+  bad_val <- list(NA, logical(0), logical(2), 1, quote(x), letters)
+
+  for (f in fs) {
+    for (val in bad_val) {
+      expect_error(firmly(f, .checklist = val), errmsg)
+    }
   }
 })
 
 test_that("error raised when .checklist is an invalid checklist", {
   f <- function(x, y = 1, ...) NULL
 
-  errmsg <- "Invalid argument checks"
+  errmsg <- "Invalid check formula\\(e\\)"
 
   for (chk in invalid_checks) {
     expect_error(firmly(f, chk), errmsg)
     expect_error(firmly(f, .checklist = list(chk)), errmsg)
-    expect_error(firmly(f, ~{. > 0}, .checklist = list(chk)), errmsg)
-    expect_error(firmly(f, chk, .checklist = list(~{. > 0})), errmsg)
-    expect_error(firmly(f, .checklist = list(~{. > 0}, chk)), errmsg)
+    expect_error(firmly(f, ~ {. > 0}, .checklist = list(chk)), errmsg)
+    expect_error(firmly(f, chk, .checklist = list(~ {. > 0})), errmsg)
+    expect_error(firmly(f, .checklist = list(~ {. > 0}, chk)), errmsg)
   }
 })
 
-test_that("error raised when .checklist is an non-evaluable checklist", {
+test_that("error raised when .checklist is a non-evaluable checklist", {
   f <- function(x, y = 1, ...) NULL
 
   for (chk in invalid_checks) {
@@ -51,23 +75,42 @@ test_that("error raised when .checklist is an non-evaluable checklist", {
   }
 })
 
-test_that("function is unchanged when no checks and .warn_missing is NULL", {
+test_that("function is unchanged when it has no named arguments", {
+  chks <- list(~ is.numeric)
+  fs_wo_arg <- list(function() NULL, function(...) NULL)
+
+  for (f in fs_wo_arg) {
+    expect_identical(suppressWarnings(firmly(f, .checklist = chks)), f)
+    expect_identical(suppressWarnings(firmly(f, .warn_missing = "x")), f)
+    expect_identical(
+      suppressWarnings(firmly(f, .checklist = chks, .warn_missing = "x")),
+      f
+    )
+  }
+})
+
+test_that("warning raised when validation applied to function w/o named args", {
+  warn_msg <- "No input validation applied: `\\.f` has no named argument"
+  fs_wo_arg <- list(function() NULL, function(...) NULL)
+
+  for (f in fs_wo_arg) {
+    expect_warning(firmly(f, ~ is.numeric), warn_msg)
+    expect_warning(firmly(f, .warn_missing = "x"), warn_msg)
+    expect_warning(firmly(f, ~ is.numeric, .warn_missing = "x"), warn_msg)
+  }
+})
+
+test_that("function is unchanged when no validation specified", {
   for (args in args_list) {
     f <-  pass_args(args)
     expect_identical(firmly(f), f)
   }
 })
 
-test_that("function is unchanged when it has no named arguments", {
-  fns <- list(function() NULL, function(...) NULL)
-  chks <- list(~is.numeric, "Negative" ~ {. >= 0}, list(~dummy) ~ is.function)
-
-  for (f in fns) {
-    expect_identical(firmly(f, .checklist = chks), f)
-    expect_identical(firmly(f, .warn_missing = TRUE), f)
-    expect_identical(firmly(f, .warn_missing = FALSE), f)
-    expect_identical(firmly(f, .checklist = chks, .warn_missing = TRUE), f)
-    expect_identical(firmly(f, .checklist = chks, .warn_missing = FALSE), f)
+test_that("no warning raised when no validation specified", {
+  for (args in args_list) {
+    f <-  pass_args(args)
+    expect_warning(firmly(f), NA)
   }
 })
 
@@ -93,8 +136,8 @@ test_that("original function body/environment/attributes are preserved", {
     f <- do.call("structure",
       c(.Data = make_fnc(args_list[[i]], body, env), attr)
     )
-    f_firm1 <- firmly(f, list(~x) ~ is.numeric)
-    f_firm2 <- firmly(f_firm1, .warn_missing = TRUE)
+    f_firm1 <- suppressWarnings(firmly(f, list(~x) ~ is.numeric))
+    f_firm2 <- suppressWarnings(firmly(f_firm1, .warn_missing = "x"))
 
     # Same body
     nms <- nomen(args_list[[i]])$nm
@@ -190,127 +233,48 @@ test_that("existing checks are preserved when adding new checks", {
   }
 })
 
-test_that(".warn_missing = TRUE adds check for args without default value", {
-  f <- function(x, y, z = 0) NULL
-  f_warn  <- firmly(f, .warn_missing = TRUE)
-  f_check <- firmly(f_warn, list("z not numeric" ~ z) ~ is.numeric)
+test_that(".warn_missing adds missing-argument check", {
+  warn_msg <- "Argument\\(s\\) expected but not specified in call"
+  f <- function(x = 0, y = 0, ...) NULL
 
-  # Check applied
-  expect_error(f_check(1, 1, "1"), "z not numeric")
+  seq_arg <- list("x", "y", c("x", "y"))
+  for (args in seq_arg) {
+    f_warn <- firmly(f, .warn_missing = args)
+    f_warn_firm <- firmly(f_warn, ~ is.numeric)
 
-  # No warning if all required arguments supplied
-  expect_warning(f_warn(1, 1), NA)
-  expect_warning(f_check(1, 1), NA)
-
-  args <- list(
-    "x, y" = list(),
-    "y"    = list(x = 1),
-    "x"    = list(y = 1)
-  )
-
-  for (nms in names(args)) {
-    arg <- args[[nms]]
-
-    expect_warning(out <- do.call(f_warn, arg),
-                   paste("Missing required argument\\(s\\):", nms))
-    expect_identical(out, do.call(f, arg))
-
-    # Warning behavior persists in presence of checks
-    expect_warning(out <- do.call(f_check, arg),
-                   paste("Missing required argument\\(s\\):", nms))
-    expect_identical(out, do.call(f, arg))
+    expect_warning(f_warn(u = "part of dots"), warn_msg)
+    expect_warning(f_warn(u = "part of dots"), quote_collapse(args))
+    expect_warning(f_warn_firm(u = "part of dots"), warn_msg)
+    expect_warning(f_warn_firm(u = "part of dots"), quote_collapse(args))
   }
-})
-
-test_that(".warn_missing = FALSE removes missing argument check", {
-  f <- function(x, y, z = 1, ...) NULL
-
-  # .warn_missing = FALSE no effect if no missing argument checks existant
-  expect_warning(f(1), NA)
-  expect_identical(firmly(f, .warn_missing = FALSE), f)
-  expect_warning(firmly(f, .warn_missing = FALSE)(1), NA)
-
-  f_firm <- firmly(f, .warn_missing = TRUE)
-
-  # .warn_missing = FALSE removes missing argument check if existing
-  expect_warning(f_firm(1), "Missing required argument\\(s\\): y")
-  expect_identical(firmly(f_firm, .warn_missing = FALSE), f)
-  expect_warning(firmly(f_firm, .warn_missing = FALSE)(1), NA)
-})
-
-test_that(".warn_missing = NULL preserves missing-argument-check behavior", {
-  f <- function(x, y, z = 1, ...) NULL
-  fns <- list(
-    f,
-    firmly(f, ~is.numeric),
-    firmly(f, ~is.numeric, .warn_missing = TRUE)
-  )
-
-  for (g in fns) {
-    expect_identical(firmly(g, .warn_missing = NULL), g)
-  }
-})
-
-test_that(".warn_missing is ignored when every named arg has default value", {
-  f <- function(x = 1, ...) NULL
-  f_firm <- firmly(f, ~is.numeric)
-
-  expect_identical(firmly(f, .warn_missing = TRUE), f)
-  expect_identical(firmly(f, .warn_missing = FALSE), f)
-  expect_identical(firmly(f, .warn_missing = NULL), f)
-  expect_identical(firmly(f_firm, .warn_missing = TRUE), f_firm)
-  expect_identical(firmly(f_firm, .warn_missing = FALSE), f_firm)
-  expect_identical(firmly(f_firm, .warn_missing = NULL), f_firm)
 })
 
 test_that(".warn_missing value does not change checks", {
-  f0 <- function(x, y, z = 1, ...) x + y + z
-  f1 <- firmly(f0,
-                 list("x not numeric" ~ x, "y not numeric" ~ y) ~ is.numeric)
+  warn_msg <- "Argument\\(s\\) expected but not specified in call"
 
-  # .warn_missing = FALSE doesn't change checks
-  f1_warn_false <- firmly(f1, .warn_missing = FALSE)
+  f <- function(x, y, z = 1, ...) x + y + z
+  ff <- firmly(
+    f,
+    list("x not numeric" ~ x, "y not numeric" ~ y) ~ is.numeric,
+    .warn_missing = "z"
+  )
 
-  set.seed(1)
-  args <- lapply(1:10, function(.) runif(2))
+  # .warn_missing
+  args <- {set.seed(1); lapply(1:10, function(.) runif(2))}
   for (arg in args) {
-    out <- f0(arg[[1L]], arg[[2L]])
-    # Function evaluated normally if checks pass
-    expect_equal(f1(arg[[1L]], arg[[2L]]), out)
-    expect_equal(f1_warn_false(arg[[1L]], arg[[2L]]), out)
+    out <- f(arg[[1L]], arg[[2L]])
+    expect_equal(suppressWarnings(ff(arg[[1L]], arg[[2L]])), out)
   }
 
+  # Checks still performed
   nonnumeric <- list(NULL, "A", log, ls, mtcars, quote(ls), TRUE, FALSE, NA)
   for (val in nonnumeric) {
-    # Checks performed
-    expect_error(f1(x = val, y = 1), "x not numeric")
-    expect_error(f1_warn_false(x = val, y = 1), "x not numeric")
-    expect_error(f1(y = val, x = 1), "y not numeric")
-    expect_error(f1_warn_false(y = val, x = 1), "y not numeric")
+    expect_error(suppressWarnings(ff(x = val, y = 1)), "x not numeric")
+    expect_error(suppressWarnings(ff(y = val, x = 1)), "y not numeric")
   }
-
-  # .warn_missing = TRUE doesn't change checks
-  f1_warn_true <- firmly(f1, .warn_missing = TRUE)
-
-  set.seed(1)
-  args <- lapply(1:10, function(.) runif(2))
-  for (arg in args) {
-    out <- f0(arg[[1L]], arg[[2L]])
-
-    expect_equal(f1_warn_true(arg[[1L]], arg[[2L]]), out)
-  }
-
-  for (val in nonnumeric) {
-    # Checks performed
-    expect_error(f1_warn_true(x = val, y = 1), "x not numeric")
-    expect_error(f1_warn_true(y = val, x = 1), "y not numeric")
-  }
-
   # Check for missing arguments performed
-  expect_warning(purrr::safely(f1_warn_true)(x = 1),
-                 "Missing required argument\\(s\\): y")
-  expect_warning(purrr::safely(f1_warn_true)(y = 1),
-                 "Missing required argument\\(s\\): x")
+  expect_warning(ff(x = 0, y = 1), warn_msg)
+  expect_warning(ff(x = 0, y = 1), "`z`")
 })
 
 test_that("arguments, whether checked or not, are evaluated lazily", {

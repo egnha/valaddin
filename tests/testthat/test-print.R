@@ -28,17 +28,19 @@ test_that("firm closure checks are displayed", {
 })
 
 test_that("firm closure arguments whose absence is checked are displayed", {
-  for (f in fs_firm) {
-    arg <- nomen(formals(f))
-    missing <- arg$nm[arg$wo_value] %>% paste(collapse = ", ")
+  nms <- list("x", "y", c("x", "y"), c("y", "x"))
 
-    f_warn <- firmly(f, .warn_missing = TRUE)
+  for (f in fs) {
+    f_firm <- firmly(f, .checklist = chks)
+    expect_output_p(print(f_firm), "missing arguments:\nNot checked")
 
-    if (missing == "") {
-      expect_output_p(print(f_warn), "missing arguments:\nNot checked")
-    } else {
-      msg <- paste0("missing arguments:\n", missing)
+    for (nm in nms) {
+      f_warn <- firmly(f, .warn_missing = nm)
+      f_firm_warn <- firmly(f_firm, .warn_missing = nm)
+
+      msg <- paste0("missing arguments:\n", paste(nm, collapse = ", "))
       expect_output_p(print(f_warn), msg)
+      expect_output_p(print(f_firm_warn), msg)
     }
   }
 })

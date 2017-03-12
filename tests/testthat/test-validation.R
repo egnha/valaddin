@@ -10,7 +10,7 @@ test_that("function return value exactly reproduced when all checks pass", {
     # Arguments as list of positive numbers (if not empty)
     args <- if (l) as.list(1:l) else list()
     out <- do.call(f, args)
-    f_firm <- firmly(f, .checklist = chklist)
+    f_firm <- suppressWarnings(firmly(f, .checklist = chklist))
 
     expect_identical(do.call(f_firm, args), out)
   }
