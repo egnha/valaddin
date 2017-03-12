@@ -12,7 +12,6 @@ skip <- invisible
 
 is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
-is_error <- function(x) inherits(x, "error")
 
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {

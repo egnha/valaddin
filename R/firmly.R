@@ -100,6 +100,8 @@ warning_closure <- function(.fn, .warn) {
 
 # Validation apparatus ----------------------------------------------------
 
+is_error <- function(x) inherits(x, "error")
+
 problems <- function(chks, verdict) {
   vapply(seq_along(verdict), function(i) {
     x <- verdict[[i]]
