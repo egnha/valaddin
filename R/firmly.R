@@ -127,8 +127,6 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
 
   function() {
     call <- match.call()
-
-    # Warn about missing required arguments (if requested)
     .warn(call)
 
     parent <- parent.frame()
