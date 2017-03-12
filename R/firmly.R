@@ -3,18 +3,6 @@ NULL
 
 # Checking infrastructure -------------------------------------------------
 
-is_void_symb <- function(x) is.symbol(x) && x == substitute()
-
-# Represent non-dot arguments by name and symbol (sig: pairlist)
-nomen <- function(sig) {
-  nm <- setdiff(names(sig), "...") %||% character(0)
-  list(
-    nm       = nm,
-    symb     = lapply(nm, as.symbol),
-    wo_value = vapply(sig[nm], is_void_symb, logical(1), USE.NAMES = FALSE)
-  )
-}
-
 # Make a list of argument-expressions (as formulas), named by error message
 unfurl_args <- function(.errmsg, .arg_nm, .arg_symb, .env) {
   q <- lapply(.arg_symb, ff_new, env = .env)
@@ -156,6 +144,13 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
 }
 
 # Functional operators ----------------------------------------------------
+
+# Represent non-dot arguments by name and symbol
+# sig: pairlist
+nomen <- function(sig) {
+  nm <- setdiff(names(sig), "...") %||% character(0)
+  list(nm = nm, symb = lapply(nm, as.symbol))
+}
 
 skip <- function(...) invisible()
 
