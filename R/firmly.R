@@ -79,7 +79,7 @@ warn <- function(.args) {
       msg <- paste(
         sprintf("Argument(s) expected but not specified in call %s:",
                 deparse_collapse(.call)),
-        paste(encodeString(missing, quote = "`"), collapse = ", ")
+        quote_collapse(missing)
       )
       warning(msg, call. = FALSE)
     }
