@@ -13,38 +13,51 @@
 \item{.checklist}{List of check formulae. These are combined with check
 formulae provided via \code{\dots}.}
 
-\item{.warn_missing}{\code{TRUE} or \code{FALSE}: Should the absence of
-required arguments be checked? (A \dQuote{required argument} is a (named)
-argument without default value.) This question is disregarded if
-\code{.warn_missing} is \code{NULL}.}
+\item{.warn_missing}{Character vector of arguments of \code{.f} whose absence
+should raise a warning.}
 
-\item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning be signaled if
-\code{.f} is not a function created by \code{firmly}?}
+\item{.keep_check, .keep_warning}{\code{TRUE} or \code{FALSE}: Should existing
+checks, resp. missing-argument warnings, be kept?}
+
+\item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning be raised if
+\code{.f} is not a firmly applied function?}
 
 \item{x}{Object to probe.}
 }
 \value{
 \subsection{\code{firmly}}{
-    \code{firmly} does nothing if it has nothing to do: \code{.f} is returned
-    unaltered if \code{.f} has no named arguments to check (i.e., \code{.f}
-    has argument signature \code{function()} or \code{function(...)}).
+    \code{firmly} does nothing when there is nothing to do: \code{.f} is
+    returned, unaltered, when \code{\dots}, \code{.checklist}, and
+    \code{.warn_missing} are empty, or \code{.f} has no named argument.
 
-    Otherwise, \code{firmly} returns a function that behaves
+    Otherwise, \code{firmly} again returns a function that behaves
     \emph{identically} to \code{.f}, with the exception that it validates its
     inputs before being called on them. In particular, \code{firmly} respects
-    lazy evaluation: if all checks pass, then when it comes to calling the
-    underlying function, all arguments, including those that undergo checks,
-    are still lazily evaluated. If any check fails, an error that tabulates
-    every failing check is signaled.
+    lazy evaluation: if all checks pass, then when \code{.f} is called, all
+    arguments, including those that underwent checks, are lazily evaluated.
 
-    Additionally, \code{firmly} preserves the argument signature of
-    \code{.f}, along with its attributes. (Sole exception: the resulting
-    class is \code{"firm_closure"}, which contains the class of \code{.f}.)
+    If any check fails, an error is signaled, which tabulates every failing
+    check.
+
+    \subsection{Formal Arguments and Attributes}{
+      \code{firmly} preserves the formal arguments of \code{.f}, along with
+      its attributes (with the exception that the \code{"class"} attribute
+      gains the component \code{"firm_closure"}, unless it already contains
+      it).
+    }
   }
 
   \subsection{\code{loosely}}{
-    \code{loosely} returns the original function, stripped of any input
-    validation checks imposed by \code{firmly}.
+    \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
+    firmly applied function, or both \code{.keep_check} and
+    \code{.keep_warning} are \code{TRUE}.
+
+    Otherwise, \code{loosely} returns the underlying (original) function,
+    stripped of any input validation checks imposed by \code{firmly}, unless
+    \code{.keep_check} or \code{.keep_warning} override this behavior: if
+    \code{.keep_check}, resp. \code{.keep_warning}, is \code{TRUE},
+    \code{loosely} retains any existing checks, resp. missing-argument
+    warnings.
   }
 }
 \description{
@@ -186,9 +199,9 @@ identical(loosely(secant_vec), secant)  # TRUE
   \link{type-checkers}, \link{misc-checkers}
 }
 \usage{
-firmly(.f, ..., .checklist = list(), .warn_missing = NULL)
+firmly(.f, ..., .checklist = list(), .warn_missing = character())
 
-loosely(.f, .quiet = FALSE)
+loosely(.f, .keep_check = FALSE, .keep_warning = FALSE, .quiet = TRUE)
 
 is_firm(x)
 }
