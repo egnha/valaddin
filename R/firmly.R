@@ -69,7 +69,7 @@ warn <- function(.args) {
                 deparse_collapse(.call)),
         quote_collapse(missing)
       )
-      warning(msg, call. = FALSE)
+      warning_wo_call(msg)
     }
 
     invisible(.call)
@@ -223,7 +223,7 @@ loosely_ <- function(.f, .keep_check = FALSE, .keep_warning = FALSE,
   is_not_firm <- !is_firm(.f)
   if (is_not_firm || .keep_check && .keep_warning) {
     if (is_not_firm && !.quiet) {
-      warning("`.f` not a firmly applied function", call. = FALSE)
+      warning_wo_call("`.f` not a firmly applied function")
     }
     return(.f)
   }

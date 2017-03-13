@@ -11,6 +11,7 @@ is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
 
 stop_wo_call <- function(...) stop(..., call. = FALSE)
+warning_wo_call <- function(...) warning(..., call. = FALSE)
 
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
