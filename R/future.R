@@ -9,7 +9,7 @@
 # Future f_new (available in development version 0.2.0.9000 of lazyeval)
 ff_new <- function(rhs, lhs = NULL, env = parent.frame()) {
   if (!is.environment(env)) {
-    stop("`env` must be an environment", call. = FALSE)
+    stop_wo_call("`env` must be an environment")
   }
 
   f <- if (is.null(lhs)) {
@@ -26,7 +26,7 @@ f_evaluator <- function(fexpr) {
 
   function(f) {
     if (!lazyeval::is_formula(f)) {
-      stop("`f` is not a formula", call. = FALSE)
+      stop_wo_call("`f` is not a formula")
     }
 
     eval(fexpr(f), lazyeval::f_env(f))
@@ -40,7 +40,7 @@ ff_eval_rhs <- f_evaluator(lazyeval::f_rhs)
 # Future-dependent `f_lhs<-`
 `ff_lhs<-` <- function(x, value) {
   if (!lazyeval::is_formula(x)) {
-    stop("`x` is not a formula", call. = FALSE)
+    stop_wo_call("`x` is not a formula")
   }
 
   ff_new(lazyeval::f_rhs(x), value, lazyeval::f_env(x))

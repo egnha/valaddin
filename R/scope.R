@@ -73,7 +73,7 @@ localize_ <- function(chk) {
         vapply(fs[not_onesided], deparse_collapse, character(1)),
         collapse = ", "
       )
-      stop("Not one-sided formula(e) (see ?localize): ", args, call. = FALSE)
+      stop_wo_call("Not one-sided formula(e) (see ?localize): ", args)
     }
 
     lhs <- lapply(fs, function(f) {

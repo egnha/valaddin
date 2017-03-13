@@ -138,7 +138,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
       fail <- !pass
       msg_call  <- sprintf("%s\n", deparse_collapse(call))
       msg_error <- enumerate_many(problems(encl$.chks[fail, ], verdict[fail]))
-      stop(paste0(msg_call, msg_error), call. = FALSE)
+      stop_wo_call(paste0(msg_call, msg_error))
     }
   }
 }
