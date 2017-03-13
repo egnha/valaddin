@@ -7,7 +7,7 @@ test_that("firm_core gets original function of a firmly applied function", {
     nm <- nomen(formals(f))$nm
     if (!length(nm)) {
       # No named argument, so firmly does not create firm closure
-      expect_null(suppressWarnings(firm_core(firmly(f, ~ is.numeric))))
+      expect_null(firm_core(suppressWarnings(firmly(f, ~ is.numeric))))
 
       next
     }
@@ -86,8 +86,9 @@ test_that("firm_args gets missing-arguments for firmly applied function", {
   for (f in fs) {
     nm <- nomen(formals(f))$nm
     if (!length(nm)) {
-      # No named argument, so firmly does not create firm closure
-      expect_null(suppressWarnings(firm_args(firmly(f, .warn_missing = "x"))))
+      # Should raise error when no named argument but .warn_missing given
+      expect_error(firm_args(firmly(f, .warn_missing = "x")),
+                   "Invalid `\\.warn_missing`: `\\.f` has no named argument")
 
       next
     }

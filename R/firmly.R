@@ -156,30 +156,29 @@ skip <- function(...) invisible()
 
 firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = character()) {
   chks <- unname(c(list(...), .checklist))
-  if (!is_checklist(chks)) {
-    stop("Invalid check formula(e)", call. = FALSE)
-  }
-
-  sig <- formals(.f)
-  arg <- nomen(sig)
-
-  reason_to_pass <- c(
-    no_validation = !length(chks) && !length(.warn_missing),
-    no_named_arg  = !length(arg$nm)
-  )
-  if (any(reason_to_pass)) {
-    if (!reason_to_pass[["no_validation"]]) {
-      warning("No input validation applied: `.f` has no named argument",
-              call. = FALSE)
-    }
+  if (!length(chks) && !length(.warn_missing)) {
     return(.f)
   }
 
-  is_unknown_arg <- !(.warn_missing %in% arg$nm)
-  if (any(is_unknown_arg)) {
-    err_msg <- "Invalid `.warn_missing`: %s not argument(s) of `.f`"
-    unknown_arg <- quote_collapse(.warn_missing[is_unknown_arg])
-    stop(sprintf(err_msg, unknown_arg), call. = FALSE)
+  if (!is_checklist(chks)) {
+    stop_wo_call("Invalid check formula(e)")
+  }
+
+  sig <- formals(.f)
+  if (is.null(sig) || identical(names(sig), "...")) {
+    if (length(.warn_missing)) {
+      stop_wo_call("Invalid `.warn_missing`: `.f` has no named argument")
+    }
+    # If .warn_missing is empty, then chks is not
+    warning_wo_call("Check formula(e) not applied: `.f` has no named argument")
+    return(.f)
+  }
+
+  arg <- nomen(sig)
+  arg_unknown <- !(.warn_missing %in% arg$nm)
+  if (any(arg_unknown)) {
+    stop_wo_call(sprintf("Invalid `.warn_missing`: %s not argument(s) of `.f`",
+                         quote_collapse(.warn_missing[arg_unknown])))
   }
 
   fn <- call_fn(if (is_firm(.f)) firm_core(.f) else .f)

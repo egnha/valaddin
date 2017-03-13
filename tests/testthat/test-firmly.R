@@ -38,6 +38,16 @@ test_that("error raised if .warn_missing not in non-empty set of arguments", {
   }
 })
 
+test_that("error raised if .warn_missing non-empty but no named arguments", {
+  err_msg <- "Invalid `\\.warn_missing`: `\\.f` has no named argument"
+  fs_wo_arg <- list(function() NULL, function(...) NULL)
+
+  for (f in fs_wo_arg) {
+    expect_error(firmly(f, .warn_missing = "dummy"), err_msg)
+    expect_error(firmly(f, ~ is.numeric, .warn_missing = "dummy"), err_msg)
+  }
+})
+
 test_that("error raised when .checklist is not a list", {
   errmsg <- "`.checklist` not a list"
   bad_val <- list(NA, logical(0), logical(2), 1, quote(x), letters)
@@ -75,28 +85,21 @@ test_that("error raised when .checklist is a non-evaluable checklist", {
   }
 })
 
-test_that("function is unchanged when it has no named arguments", {
-  chks <- list(~ is.numeric)
+test_that("function is unchanged when no named arguments & no .warn_missing", {
   fs_wo_arg <- list(function() NULL, function(...) NULL)
 
   for (f in fs_wo_arg) {
-    expect_identical(suppressWarnings(firmly(f, .checklist = chks)), f)
-    expect_identical(suppressWarnings(firmly(f, .warn_missing = "x")), f)
-    expect_identical(
-      suppressWarnings(firmly(f, .checklist = chks, .warn_missing = "x")),
-      f
-    )
+    expect_identical(firmly(f), f)
+    expect_identical(suppressWarnings(firmly(f, ~ is.numeric)), f)
   }
 })
 
-test_that("warning raised when validation applied to function w/o named args", {
-  warn_msg <- "No input validation applied: `\\.f` has no named argument"
+test_that("warning raised when no named args and only check formula(e) given", {
+  warn_msg <- "Check formula\\(e\\) not applied: `\\.f` has no named argument"
   fs_wo_arg <- list(function() NULL, function(...) NULL)
 
   for (f in fs_wo_arg) {
     expect_warning(firmly(f, ~ is.numeric), warn_msg)
-    expect_warning(firmly(f, .warn_missing = "x"), warn_msg)
-    expect_warning(firmly(f, ~ is.numeric, .warn_missing = "x"), warn_msg)
   }
 })
 
@@ -125,6 +128,8 @@ test_that("argument signature is preserved", {
 
 test_that("original function body/environment/attributes are preserved", {
   set.seed(1)
+
+  args_list <- args_list[has_args]
 
   len <- sample(length(args_list))
 
