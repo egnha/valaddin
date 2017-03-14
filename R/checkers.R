@@ -63,7 +63,7 @@ chkrs <- do.call("c", unname(chkrs_))
 # "numeric" has conflicting interpretations in base R, so treat it differently
 chkrs$vld_numeric <- localize("Not double/integer" ~ is.numeric)
 chkrs$vld_scalar_numeric <- localize(
-  "Not scalar double/scalar integer" ~ {is.numeric(.) && length(.) == 1L}
+  "Not scalar double/integer" ~ {is.numeric(.) && length(.) == 1L}
 )
 
 # Aliases
