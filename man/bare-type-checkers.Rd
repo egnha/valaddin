@@ -46,7 +46,6 @@ f_firmer(x, 0)         # Errors: "Not bare logical: x", "Not bare logical: y"
 \alias{vld_bare_integer}
 \alias{vld_bare_list}
 \alias{vld_bare_logical}
-\alias{vld_bare_numeric}
 \alias{vld_bare_vector}
 \usage{
 vld_bare_atomic(...)
@@ -60,8 +59,6 @@ vld_bare_integer(...)
 vld_bare_list(...)
 
 vld_bare_logical(...)
-
-vld_bare_numeric(...)
 
 vld_bare_vector(...)
 }

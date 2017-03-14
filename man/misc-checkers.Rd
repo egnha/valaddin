@@ -13,11 +13,12 @@ Check formula of local scope.
 These functions make check formulae of local scope based on the
 correspondingly named \pkg{base} R predicates \code{is.*} (e.g.,
 \code{vld_data_frame} corresponds to the predicate
-\code{\link[base]{is.data.frame}}), with the exception that
-\code{vld_empty}, \code{vld_formula} are based on the
-\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
-predicates \code{\link[purrr]{is_empty}},
-\code{\link[purrr]{is_formula}}.
+\code{\link[base]{is.data.frame}}), with the following exceptions:
+\code{vld_empty}, \code{vld_formula}, is based on the
+\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} predicate
+\code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}, resp., and
+\code{vld_number} is an alias for \code{vld_scalar_numeric}, which is based
+on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}.
 }
 \details{
 Each function \code{vld_*} is a function of class
@@ -53,11 +54,14 @@ h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 \alias{vld_na}
 \alias{vld_name}
 \alias{vld_nan}
+\alias{vld_number}
+\alias{vld_numeric}
 \alias{vld_ordered}
 \alias{vld_pairlist}
 \alias{vld_primitive}
 \alias{vld_raw}
 \alias{vld_recursive}
+\alias{vld_scalar_numeric}
 \alias{vld_symbol}
 \alias{vld_table}
 \alias{vld_unsorted}
@@ -90,6 +94,10 @@ vld_name(...)
 
 vld_nan(...)
 
+vld_number(...)
+
+vld_numeric(...)
+
 vld_ordered(...)
 
 vld_pairlist(...)
@@ -100,6 +108,8 @@ vld_raw(...)
 
 vld_recursive(...)
 
+vld_scalar_numeric(...)
+
 vld_symbol(...)
 
 vld_table(...)
@@ -107,7 +117,7 @@ vld_table(...)
 vld_unsorted(...)
 }
 \seealso{
-Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.call}}, \code{\link[base]{is.complex}}, \code{\link[base]{is.data.frame}}, \code{\link[base]{is.environment}}, \code{\link[base]{is.expression}}, \code{\link[base]{is.factor}}, \code{\link[base]{is.language}}, \code{\link[base]{is.matrix}}, \code{\link[base]{is.na}}, \code{\link[base]{is.name}}, \code{\link[base]{is.nan}}, \code{\link[base]{is.ordered}}, \code{\link[base]{is.pairlist}}, \code{\link[base]{is.primitive}}, \code{\link[base]{is.raw}}, \code{\link[base]{is.recursive}}, \code{\link[base]{is.symbol}}, \code{\link[base]{is.table}}, \code{\link[base]{is.unsorted}}, \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
+Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.call}}, \code{\link[base]{is.complex}}, \code{\link[base]{is.data.frame}}, \code{\link[base]{is.environment}}, \code{\link[base]{is.expression}}, \code{\link[base]{is.factor}}, \code{\link[base]{is.language}}, \code{\link[base]{is.matrix}}, \code{\link[base]{is.na}}, \code{\link[base]{is.name}}, \code{\link[base]{is.nan}}, \code{\link[base]{is.numeric}}, \code{\link[base]{is.ordered}}, \code{\link[base]{is.pairlist}}, \code{\link[base]{is.primitive}}, \code{\link[base]{is.raw}}, \code{\link[base]{is.recursive}}, \code{\link[base]{is.symbol}}, \code{\link[base]{is.table}}, \code{\link[base]{is.unsorted}}, \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 

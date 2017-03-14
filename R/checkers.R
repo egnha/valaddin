@@ -31,6 +31,9 @@ make_vld_chkrs <- function(nms, pattern, sep, ns, env = parent.frame()) {
   chkrs[sort(names(chkrs))]
 }
 
+# purrr::is_*numeric() are deprecated in purrr (>= 0.2.2.9000)
+re_is_not_numeric <- "^is_((?!numeric).)*$"
+
 pkg <- list(
   base = list(
     nms = c(
@@ -45,7 +48,8 @@ pkg <- list(
     ns = "base"
   ),
   purrr = list(
-    nms = grep("^is_", getNamespaceExports("purrr"), value = TRUE),
+    nms = grep(re_is_not_numeric, getNamespaceExports("purrr"),
+               value = TRUE, perl = TRUE),
     pattern = "^is_",
     sep = "_",
     ns = "purrr"
@@ -54,7 +58,13 @@ pkg <- list(
 
 chkrs_ <- pkg %>%
   lapply(function(.) make_vld_chkrs(.$nms, .$pattern, .$sep, .$ns))
-chkrs  <- purrr::flatten(chkrs_)
+chkrs <- do.call("c", unname(chkrs_))
+
+# "numeric" has conflicting interpretations in base R, so treat it differently
+chkrs$vld_numeric <- localize("Not double/integer" ~ is.numeric)
+chkrs$vld_scalar_numeric <- localize(
+  "Not scalar double/scalar integer" ~ {is.numeric(.) && length(.) == 1L}
+)
 
 # Aliases
 replace_msg <- function(chkr, msg) {
@@ -84,11 +94,14 @@ NULL
 
 # Aliases, "Usage"
 nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
-              grep, x = names(chkrs_$purrr), value = TRUE)
-nms$misc <- c(names(chkrs_$base), paste0("vld_", c("empty", "formula")))
+              grep, x = names(chkrs_$purrr), value = TRUE, perl = TRUE)
+nms$misc <- c(
+  names(chkrs_$base),
+  paste0("vld_", c("empty", "formula", "numeric", "scalar_numeric", "number"))
+)
 nms$type <- setdiff(names(chkrs_$purrr), unlist(nms))
 nms <- lapply(nms, function(.) .[order(tolower(.))])
-nms$scalar <- c(nms$scalar, names(chkrs_alias))
+nms$scalar <- c(nms$scalar, setdiff(names(chkrs_alias), "vld_number"))
 
 # "See Also" (required, because @family would overwrite our custom "See Also")
 
@@ -104,7 +117,7 @@ prefix_with <- function(x, text) {
 }
 
 predicates <- list(
-  misc = sprintf(link_extfn, "base", pkg$base$nms) %>%
+  misc = sprintf(link_extfn, "base", sort(c(pkg$base$nms, "is.numeric"))) %>%
     c(sprintf(link_extfn, "purrr", c("is_empty", "is_formula"))) %>%
     paste(collapse = ", "),
   bare   = sprintf(link_purrr, "bare-type", "Bare type"),
@@ -113,13 +126,41 @@ predicates <- list(
 ) %>%
   prefix_with("Corresponding predicates:")
 
-other <- c(
+other <- list(misc = NA, bare = NA, scalar = NA, type = NA)
+other[] <- c(
   "\\code{\\link{globalize}} recovers the underlying check formula of global",
   "scope.\n\n",
   "The \\emph{Details} section of \\link{firmly} explains the notion of",
   "\\dQuote{scope} in the context of check formulae."
 ) %>%
   paste(collapse = " ")
+other$type <- paste(
+  other$type,
+  c(
+    "\\code{\\link{vld_numeric}} does not check according to type, and is not",
+    "based on \\code{purrr::is_numeric} (deprecated since 0.2.2.9000): rather,",
+    "it is based on the predicate \\code{\\link[base]{is.numeric}}, which",
+    "checks whether an object is \\dQuote{numerical} in the sense of",
+    "\\code{\\link[base]{mode}} instead of \\code{\\link[base]{typeof}}.",
+    "In particular, factors are not regarded as \\dQuote{numerical}."
+  ) %>%
+    paste(collapse = " "),
+  sep = "\n\n"
+)
+other$scalar <- paste(
+  other$scalar,
+  c(
+    "\\code{\\link{vld_scalar_numeric}} does not check according to type, and",
+    "is not based on \\code{purrr::is_scalar_numeric}",
+    "(deprecated since 0.2.2.9000): rather, it is based on the predicate",
+    "\\code{function(x) is.numeric(x) && length(x) == 1L}, which checks",
+    "whether an object is \\dQuote{numerical} in the sense of",
+    "\\code{\\link[base]{mode}} instead of \\code{\\link[base]{typeof}}.",
+    "In particular, factors are not regarded as \\dQuote{numerical}."
+  ) %>%
+    paste(collapse = " "),
+  sep = "\n\n"
+)
 
 doc_nms <- c("misc", "bare-type", "scalar-type", "type")
 family <- doc_nms %>%
@@ -130,18 +171,19 @@ family <- doc_nms %>%
   }) %>%
   prefix_with("Other checkers:")
 
-ref <- Map(function(p, f) c(p, other, f), predicates, family)
+ref <- Map(function(p, o, f) c(p, o, f), predicates, other, family)
 
 #' Miscellaneous checkers
 #'
 #' These functions make check formulae of local scope based on the
 #' correspondingly named \pkg{base} R predicates \code{is.*} (e.g.,
 #' \code{vld_data_frame} corresponds to the predicate
-#' \code{\link[base]{is.data.frame}}), with the exception that
-#' \code{vld_empty}, \code{vld_formula} are based on the
-#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
-#' predicates \code{\link[purrr]{is_empty}},
-#' \code{\link[purrr]{is_formula}}.
+#' \code{\link[base]{is.data.frame}}), with the following exceptions:
+#' \code{vld_empty}, \code{vld_formula}, is based on the
+#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} predicate
+#' \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}, resp., and
+#' \code{vld_number} is an alias for \code{vld_scalar_numeric}, which is based
+#' on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}.
 #'
 #' @evalRd rd_alias(nms$misc)
 #' @evalRd rd_usage(nms$misc)

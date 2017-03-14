@@ -49,10 +49,8 @@ f_firmer(logical(0), 0)  # Errors: "Not boolean: x", "Not boolean: y"
 \alias{vld_scalar_integer}
 \alias{vld_scalar_list}
 \alias{vld_scalar_logical}
-\alias{vld_scalar_numeric}
 \alias{vld_scalar_vector}
 \alias{vld_boolean}
-\alias{vld_number}
 \alias{vld_string}
 \alias{vld_singleton}
 \usage{
@@ -68,13 +66,9 @@ vld_scalar_list(...)
 
 vld_scalar_logical(...)
 
-vld_scalar_numeric(...)
-
 vld_scalar_vector(...)
 
 vld_boolean(...)
-
-vld_number(...)
 
 vld_string(...)
 
@@ -86,6 +80,8 @@ Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predic
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
  The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
+
+\code{\link{vld_scalar_numeric}} does not check according to type, and is not based on \code{purrr::is_scalar_numeric} (deprecated since 0.2.2.9000): rather, it is based on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}, which checks whether an object is \dQuote{numerical} in the sense of \code{\link[base]{mode}} instead of \code{\link[base]{typeof}}. In particular, factors are not regarded as \dQuote{numerical}.
 
 Other checkers: \link{misc-checkers}, \link{bare-type-checkers}, \link{type-checkers}
 }

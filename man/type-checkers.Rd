@@ -46,7 +46,6 @@ f_firmer(1, 0)         # Errors: "Not logical: x", "Not logical: y"
 \alias{vld_list}
 \alias{vld_logical}
 \alias{vld_null}
-\alias{vld_numeric}
 \alias{vld_vector}
 \usage{
 vld_atomic(...)
@@ -65,8 +64,6 @@ vld_logical(...)
 
 vld_null(...)
 
-vld_numeric(...)
-
 vld_vector(...)
 }
 \seealso{
@@ -75,6 +72,8 @@ Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\href{h
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
  The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
+
+\code{\link{vld_numeric}} does not check according to type, and is not based on \code{purrr::is_numeric} (deprecated since 0.2.2.9000): rather, it is based on the predicate \code{\link[base]{is.numeric}}, which checks whether an object is \dQuote{numerical} in the sense of \code{\link[base]{mode}} instead of \code{\link[base]{typeof}}. In particular, factors are not regarded as \dQuote{numerical}.
 
 Other checkers: \link{misc-checkers}, \link{bare-type-checkers}, \link{scalar-type-checkers}
 }
