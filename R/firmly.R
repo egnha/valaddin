@@ -3,16 +3,16 @@ NULL
 
 # Checking infrastructure -------------------------------------------------
 
-# Make a list of argument-expressions (as formulas), named by error message
+# Make a list of check items
 unfurl_args <- function(.errmsg, .arg_nm, .arg_symb, .env) {
-  q <- lapply(.arg_symb, ff_new, env = .env)
-  names(q) <- if (is.null(.errmsg)) {
-    character(length(q))
+  chk_items <- lapply(.arg_symb, ff_new, env = .env)
+  names(chk_items) <- if (is.null(.errmsg)) {
+    character(length(chk_items))
   } else {
     paste(.errmsg, .arg_nm, sep = ": ")
   }
 
-  q
+  chk_items
 }
 
 expr_lambda <- function(body) {
@@ -31,23 +31,25 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   predicate <- eval(p_expr, .env)
 
   lhs <- ff_eval_lhs(.chk)
-  q <- if (is.list(lhs)) {
+  chk_items <- if (is.list(lhs)) {
     # .chk: local scope
     do.call(lazyeval::f_list, lhs)
   } else {
     # .chk: global scope (lhs: string/NULL)
     unfurl_args(.errmsg = lhs, .nm, .symb, .env)
   }
-  string <- vapply(q, call_str, FUN.VALUE = character(1L), fn_expr = p_expr)
-  is_empty <- names(q) == ""
-  names(q)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
+  string <- vapply(chk_items, call_str, fn_expr = p_expr,
+                   FUN.VALUE = character(1L))
+  is_empty <- names(chk_items) == ""
+  names(chk_items)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
 
   dplyr::as_data_frame(
     list(
-      expr   = lapply(q, function(.) as.call(c(predicate, lazyeval::f_rhs(.)))),
+      expr   = lapply(chk_items,
+                      function(.) as.call(c(predicate, lazyeval::f_rhs(.)))),
       env    = list(.env),
       string = string,
-      msg    = names(q)
+      msg    = names(chk_items)
     ),
     validate = FALSE
   )
