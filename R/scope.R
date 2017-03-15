@@ -124,7 +124,7 @@ print.check_maker <- function(x, ...) {
 
   cat("\n* Predicate function:\n")
   if (is_lambda(p)) {
-    cat(deparse_collapse(expr_lambda(p)), "\n")
+    cat(deparse_collapse(express_lambda(p)), "\n")
   } else {
     print(p)
   }

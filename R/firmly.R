@@ -1,30 +1,30 @@
 # Checking infrastructure -------------------------------------------------
 
 # Make a list of check items
-unfurl_args <- function(.errmsg, .arg_nm, .arg_symb, .env) {
-  chk_items <- lapply(.arg_symb, ff_new, env = .env)
-  names(chk_items) <- if (is.null(.errmsg)) {
-    character(length(chk_items))
+unfurl <- function(.symb, .nm, .msg, .env) {
+  chk_items <- lapply(.symb, ff_new, env = .env)
+  if (is.null(.msg)) {
+    names(chk_items) <- character(length(chk_items))
   } else {
-    paste(.errmsg, .arg_nm, sep = ": ")
+    names(chk_items) <- paste(.msg, .nm, sep = ": ")
   }
 
   chk_items
 }
 
-expr_lambda <- function(body) {
+express_lambda <- function(body) {
   call("function", as.pairlist(alist(. = )), body)
 }
 
-call_str <- function(chk_item, fn_expr) {
+deparse_call <- function(chk_item, fn_expr) {
   call <- substitute(f(x), list(f = fn_expr, x = lazyeval::f_rhs(chk_item)))
   deparse_collapse(call)
 }
 
-# Expand a check formula into a data frame of checks
+# Assemble a data frame of checks from a check formula
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
-  p_expr <- if (is_lambda(p)) expr_lambda(p) else p
+  p_expr <- if (is_lambda(p)) express_lambda(p) else p
   predicate <- eval(p_expr, .env)
 
   lhs <- ff_eval_lhs(.chk)
@@ -33,12 +33,11 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
     do.call(lazyeval::f_list, lhs)
   } else {
     # .chk: global scope (lhs: string/NULL)
-    unfurl_args(.errmsg = lhs, .nm, .symb, .env)
+    unfurl(.symb, .nm, lhs, .env)
   }
-  string <- vapply(chk_items, call_str, fn_expr = p_expr,
-                   FUN.VALUE = character(1L))
-  is_empty <- names(chk_items) == ""
-  names(chk_items)[is_empty] <- sprintf("FALSE: %s", string[is_empty])
+  string <- vapply(chk_items, deparse_call, character(1), fn_expr = p_expr)
+  is_blank <- names(chk_items) == ""
+  names(chk_items)[is_blank] <- sprintf("FALSE: %s", string[is_blank])
 
   dplyr::as_data_frame(
     list(
