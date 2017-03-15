@@ -63,11 +63,11 @@ vld_bare_logical(...)
 vld_bare_vector(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:bare-type-predicates]{Bare type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
+Corresponding predicates: \link[purrr:bare-type-predicates]{Bare type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
- The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
+The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
 
 Other checkers: \link{misc-checkers}, \link{scalar-type-checkers}, \link{type-checkers}
 }

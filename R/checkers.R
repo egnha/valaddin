@@ -90,6 +90,7 @@ NULL
 # Documentation -----------------------------------------------------------
 
 # Aliases, "Usage"
+
 nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
               grep, x = names(chkrs_$purrr), value = TRUE, perl = TRUE)
 nms$misc <- c(
@@ -100,14 +101,18 @@ nms$type <- setdiff(names(chkrs_$purrr), unlist(nms))
 nms <- lapply(nms, function(.) .[order(tolower(.))])
 nms$scalar <- c(nms$scalar, setdiff(names(chkrs_alias), "vld_number"))
 
-# "See Also" (required, because @family would overwrite our custom "See Also")
+# "See Also" (required because @family would overwrite our custom "See Also")
+
+gather <- function(x) gsub("\n([^\n])", " \\1", x)
+tidy <- function(x) gsub(" \n|\n ", "\n", gsub(" +", " ", x))
+trim <- function(x) trimws(tidy(gather(x)), which = "both")
 
 link_bare  <- "\\link{%s}"
 link_extfn <- "\\code{\\link[%s]{%s}}"
-link_purrr <- c(
-  "\\link[purrr:%s-predicates]{%s predicates}",
-  "(\\href{https://cran.r-project.org/package=purrr}{\\pkg{purrr}})") %>%
-  paste(collapse = " ")
+link_purrr <- trim("
+  \\link[purrr:%s-predicates]{%s predicates}
+  (\\href{https://cran.r-project.org/package=purrr}{\\pkg{purrr}}
+")
 
 prefix_with <- function(x, text) {
   stats::setNames(paste(text, x), names(x)) %>% as.list()
@@ -124,38 +129,30 @@ predicates <- list(
   prefix_with("Corresponding predicates:")
 
 other <- list(misc = NA, bare = NA, scalar = NA, type = NA)
-other[] <- c(
-  "\\code{\\link{globalize}} recovers the underlying check formula of global",
-  "scope.\n\n",
-  "The \\emph{Details} section of \\link{firmly} explains the notion of",
-  "\\dQuote{scope} in the context of check formulae."
-) %>%
-  paste(collapse = " ")
+other[] <- trim("
+  \\code{\\link{globalize}} recovers the underlying check formula of global
+  scope.
+  \n\n
+  The \\emph{Details} section of \\link{firmly} explains the notion of
+  \\dQuote{scope} in the context of check formulae.
+")
+tmpl <- trim("
+  \\code{\\link{vld_%s}} does not check according to type, and is not based on
+  \\code{purrr::%s} (deprecated since 0.2.2.9000); rather, it is based on the
+  predicate \\code{%s}, which checks whether an object is \\dQuote{numerical} in
+  the sense of \\code{\\link[base]{mode}} instead of
+  \\code{\\link[base]{typeof}}. In particular, factors are not regarded as
+  \\dQuote{numerical}.
+")
 other$type <- paste(
   other$type,
-  c(
-    "\\code{\\link{vld_numeric}} does not check according to type, and is not",
-    "based on \\code{purrr::is_numeric} (deprecated since 0.2.2.9000): rather,",
-    "it is based on the predicate \\code{\\link[base]{is.numeric}}, which",
-    "checks whether an object is \\dQuote{numerical} in the sense of",
-    "\\code{\\link[base]{mode}} instead of \\code{\\link[base]{typeof}}.",
-    "In particular, factors are not regarded as \\dQuote{numerical}."
-  ) %>%
-    paste(collapse = " "),
+  sprintf(tmpl, "numeric", "is_numeric", "\\link[base]{is.numeric}"),
   sep = "\n\n"
 )
 other$scalar <- paste(
   other$scalar,
-  c(
-    "\\code{\\link{vld_scalar_numeric}} does not check according to type, and",
-    "is not based on \\code{purrr::is_scalar_numeric}",
-    "(deprecated since 0.2.2.9000): rather, it is based on the predicate",
-    "\\code{function(x) is.numeric(x) && length(x) == 1L}, which checks",
-    "whether an object is \\dQuote{numerical} in the sense of",
-    "\\code{\\link[base]{mode}} instead of \\code{\\link[base]{typeof}}.",
-    "In particular, factors are not regarded as \\dQuote{numerical}."
-  ) %>%
-    paste(collapse = " "),
+  sprintf(tmpl, "scalar_numeric", "is_scalar_numeric",
+          "function(x) is.numeric(x) && length(x) == 1L"),
   sep = "\n\n"
 )
 
