@@ -109,6 +109,11 @@ problems <- function(chks, verdict) {
   }, character(1))
 }
 
+promises <- function(.call, .sig, .env) {
+  .call[[1L]] <- eval(call("function", .sig, quote(environment())))
+  eval(.call, .env)
+}
+
 validating_closure <- function(.chks, .sig, .fn, .warn) {
   force(.chks)
   force(.sig)

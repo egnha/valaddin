@@ -28,7 +28,7 @@ Collate:
     'future.R'
     'checklist.R'
     'components.R'
-    'functions.R'
+    'call.R'
     'firmly.R'
     'scope.R'
     'checkers.R'
