@@ -165,7 +165,7 @@ family <- doc_nms %>%
   }) %>%
   prefix_with("Other checkers:")
 
-ref <- Map(function(p, o, f) c(p, o, f), predicates, other, family)
+ref <- Map(c, predicates, other, family)
 
 #' Miscellaneous checkers
 #'

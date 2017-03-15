@@ -280,7 +280,7 @@ print.firm_closure <- function(x, ...) {
   cat("\n* Check for missing arguments:\n")
   args <- firm_args(x)
   if (!is.null(args) && length(args)) {
-    cat(paste(encodeString(args, quote = "`"), collapse = ", "), "\n")
+    cat(quote_collapse(args), "\n")
   } else {
     cat("Not checked\n")
   }
