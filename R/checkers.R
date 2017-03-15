@@ -1,6 +1,3 @@
-#' @include scope.R
-NULL
-
 localize_nm <- function(nm, what_is, ns, env) {
   msg <- paste("Not", what_is(nm))
   p <- getExportedValue(ns, nm)

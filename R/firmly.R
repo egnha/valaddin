@@ -1,6 +1,3 @@
-#' @include functions.R components.R checklist.R future.R rawrd.R utils.R
-NULL
-
 # Checking infrastructure -------------------------------------------------
 
 # Make a list of check items

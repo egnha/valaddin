@@ -1,6 +1,3 @@
-#' @include firmly.R
-NULL
-
 #' Reuse check formulae
 #'
 #' \code{localize()} makes it easy to reuse check formulae: it converts a check
