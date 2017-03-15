@@ -6,7 +6,7 @@ unfurl <- function(.symb, .nm, .msg, .env) {
   if (is.null(.msg)) {
     names(chk_items) <- character(length(chk_items))
   } else {
-    names(chk_items) <- paste(.msg, .nm, sep = ": ")
+    names(chk_items) <- paste(.msg, encodeString(.nm, quote = "`"), sep = ": ")
   }
 
   chk_items
@@ -280,7 +280,7 @@ print.firm_closure <- function(x, ...) {
   cat("\n* Check for missing arguments:\n")
   args <- firm_args(x)
   if (!is.null(args) && length(args)) {
-    cat(paste(args, collapse = ", "), "\n")
+    cat(paste(encodeString(args, quote = "`"), collapse = ", "), "\n")
   } else {
     cat("Not checked\n")
   }

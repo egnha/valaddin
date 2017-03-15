@@ -38,7 +38,8 @@ test_that("firm closure arguments whose absence is checked are displayed", {
       f_warn <- firmly(f, .warn_missing = nm)
       f_firm_warn <- firmly(f_firm, .warn_missing = nm)
 
-      msg <- paste0("missing arguments:\n", paste(nm, collapse = ", "))
+      msg <- paste0("missing arguments:\n",
+                    paste(encodeString(nm, quote = "`"), collapse = ", "))
       expect_output_p(print(f_warn), msg)
       expect_output_p(print(f_firm_warn), msg)
     }

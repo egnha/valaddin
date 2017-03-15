@@ -106,7 +106,7 @@ test_that("string formula produces global check with message", {
   for (i in seq_along(arg_list)) {
     for (arg in nms[1:i]) {
       expect_error(purrr::lift(f_pos)(arg_list[[i]]),
-                   sprintf("Not positive: %s", arg))
+                   sprintf("Not positive: `%s`", arg))
     }
     # No other errors
     expect_n_errors(i, f_pos, arg_list[[i]], "Not positive")
@@ -120,9 +120,9 @@ test_that("string formula produces global check with message", {
   # Error evaluating check because of invalid input types
   args <- list(1, "y", v = 0)
 
-  expect_error(do.call("f_pos", args), "Not numeric: y")
-  expect_error(do.call("f_pos", args), "Not positive: z")
-  expect_error(do.call("f_pos", args), "Not positive: v")
+  expect_error(do.call("f_pos", args), "Not numeric: `y`")
+  expect_error(do.call("f_pos", args), "Not positive: `z`")
+  expect_error(do.call("f_pos", args), "Not positive: `v`")
   expect_error(do.call("f_pos", args),
                "Error evaluating check.*?is\\.numeric\\(u\\)")
   expect_error(do.call("f_pos", args),
