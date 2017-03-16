@@ -8,7 +8,7 @@
 \arguments{
 \item{.f}{Interpreted function, i.e., a function of type \code{"closure"}.}
 
-\item{\dots}{Check formula(e) (see \emph{Details}).}
+\item{\dots}{Check formula(e) (see \emph{Check Formulae}).}
 
 \item{.checklist}{List of check formulae. These are combined with check
 formulae provided via \code{\dots}.}
@@ -19,56 +19,21 @@ should raise a warning.}
 \item{.keep_check, .keep_warning}{\code{TRUE} or \code{FALSE}: Should existing
 checks, resp. missing-argument warnings, be kept?}
 
-\item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning be raised if
-\code{.f} is not a firmly applied function?}
+\item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning that \code{.f} is
+not a firmly applied function be muffled?}
 
-\item{x}{Object to probe.}
-}
-\value{
-\subsection{\code{firmly}}{
-    \code{firmly} does nothing when there is nothing to do: \code{.f} is
-    returned, unaltered, when \code{\dots}, \code{.checklist}, and
-    \code{.warn_missing} are empty, or \code{.f} has no named argument.
-
-    Otherwise, \code{firmly} again returns a function that behaves
-    \emph{identically} to \code{.f}, with the exception that it validates its
-    inputs before being called on them. In particular, \code{firmly} respects
-    lazy evaluation: if all checks pass, then when \code{.f} is called, all
-    arguments, including those that underwent checks, are lazily evaluated.
-
-    If any check fails, an error is signaled, which tabulates every failing
-    check.
-
-    \subsection{Formal Arguments and Attributes}{
-      \code{firmly} preserves the formal arguments of \code{.f}, along with
-      its attributes (with the exception that the \code{"class"} attribute
-      gains the component \code{"firm_closure"}, unless it already contains
-      it).
-    }
-  }
-
-  \subsection{\code{loosely}}{
-    \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
-    firmly applied function, or both \code{.keep_check} and
-    \code{.keep_warning} are \code{TRUE}.
-
-    Otherwise, \code{loosely} returns the underlying (original) function,
-    stripped of any input validation checks imposed by \code{firmly}, unless
-    \code{.keep_check} or \code{.keep_warning} override this behavior: if
-    \code{.keep_check}, resp. \code{.keep_warning}, is \code{TRUE},
-    \code{loosely} retains any existing checks, resp. missing-argument
-    warnings.
-  }
+\item{x}{Object to test.}
 }
 \description{
 \code{firmly} transforms a function into a function with input validation
 checks. \code{loosely} undoes the application of \code{firmly}, by returning
 the original function, without checks. \code{is_firm} is a predicate function
-that checks whether an object is a firmly applied function, i.e., a function
-created by \code{firmly}.
+that checks whether an object is a firmly applied function, i.e., one created
+by \code{firmly}.
 }
-\details{
-An \strong{input validation check} is specified by a \strong{check
+\section{Check Formulae}{
+
+  An \strong{input validation check} is specified by a \strong{check
   formula}, a special \link[stats]{formula} of the form
   \preformatted{<scope> ~ <predicate>}
   where the right-hand side expresses \emph{what} to check, and the left-hand
@@ -149,6 +114,45 @@ An \strong{input validation check} is specified by a \strong{check
     }
   }
 }
+
+\section{Value}{
+
+  \subsection{\code{firmly}}{
+    \code{firmly} does nothing when there is nothing to do: \code{.f} is
+    returned, unaltered, when both \code{.checklist} and
+    \code{.warn_missing} are empty, or when \code{.f} has no named argument
+    and \code{.warn_missing} is empty.
+
+    Otherwise, \code{firmly} again returns a function that behaves
+    \emph{identically} to \code{.f}, with the exception that it validates its
+    inputs before being called on them. In particular, \code{firmly} respects
+    lazy evaluation: if all checks pass, then when \code{.f} is called, all
+    arguments, including those that underwent checks, are lazily evaluated.
+
+    If any check fails, an error is signaled, which tabulates every failing
+    check.
+
+    \subsection{Formal Arguments and Attributes}{
+      \code{firmly} preserves the formal arguments of \code{.f}, along with
+      its attributes (except that the \code{"class"} attribute gains the
+      component \code{"firm_closure"}, unless it already contains it).
+    }
+  }
+
+  \subsection{\code{loosely}}{
+    \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
+    firmly applied function, or both \code{.keep_check} and
+    \code{.keep_warning} are \code{TRUE}.
+
+    Otherwise, \code{loosely} returns the underlying (original) function,
+    stripped of any input validation checks imposed by \code{firmly}, unless
+    \code{.keep_check} or \code{.keep_warning} overrides this: if
+    \code{.keep_check}, resp. \code{.keep_warning}, is \code{TRUE},
+    \code{loosely} retains any existing checks, resp. missing-argument
+    warnings.
+  }
+}
+
 \examples{
 \dontrun{
 
