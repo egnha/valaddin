@@ -67,7 +67,7 @@ Corresponding predicates: \link[purrr:bare-type-predicates]{Bare type predicates
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
-The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
+The notion of \dQuote{scope} is explained in the \emph{Check Formulae} section of \link{firmly}.
 
 Other checkers: \link{misc-checkers}, \link{scalar-type-checkers}, \link{type-checkers}
 }

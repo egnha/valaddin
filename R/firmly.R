@@ -335,7 +335,7 @@ print.firm_closure <- function(x, ...) {
 #'       \preformatted{list(<check_item>, <check_item>, ...) ~ <predicate>}
 #'   }
 #'
-#'   \subsection{Check formulae of global scope}{
+#'   \subsection{Check Formulae of Global Scope}{
 #'     A \strong{global check formula} is a succinct way of enforcing the
 #'     veracity of the function \code{<predicate>} upon every (named) argument
 #'     of \code{.f}. Each argument for which \code{<predicate>}
@@ -355,7 +355,7 @@ print.firm_closure <- function(x, ...) {
 #'     }
 #'   }
 #'
-#'   \subsection{Check formulae of local scope}{
+#'   \subsection{Check Formulae of Local Scope}{
 #'     A \strong{local check formula} imposes argument-specific conditions. Each
 #'     \strong{check item} \code{<check_item>} is a formula of the form \code{~
 #'     <expression>} (one-sided) or \code{<string> ~ <expression>}; it imposes
@@ -377,7 +377,7 @@ print.firm_closure <- function(x, ...) {
 #'     }
 #'   }
 #'
-#'   \subsection{Anonymous predicate functions}{
+#'   \subsection{Anonymous Predicate Functions}{
 #'     Following the
 #'     \href{https://cran.r-project.org/package=magrittr}{\pkg{magrittr}}
 #'     package, an anonymous (predicate) function of a single argument \code{.}

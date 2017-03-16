@@ -71,7 +71,7 @@ Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\href{h
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
-The \emph{Details} section of \link{firmly} explains the notion of \dQuote{scope} in the context of check formulae.
+The notion of \dQuote{scope} is explained in the \emph{Check Formulae} section of \link{firmly}.
 
 \code{\link{vld_numeric}} does not check according to type, and is not based on \code{purrr::is_numeric} (deprecated since 0.2.2.9000); rather, it is based on the predicate \code{\link[base]{is.numeric}}, which checks whether an object is \dQuote{numerical} in the sense of \code{\link[base]{mode}} instead of \code{\link[base]{typeof}}. In particular, factors are not regarded as \dQuote{numerical}.
 

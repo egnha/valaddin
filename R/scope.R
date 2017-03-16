@@ -6,8 +6,8 @@
 #' generator and returns the underlying check formula (of global scope). These
 #' operations are mutually invertible.
 #'
-#' @seealso The \emph{Details} section of \link{firmly} explains the notion of
-#'   \dQuote{scope} in the context of check formulae.
+#' @seealso The notion of \dQuote{scope} is explained in the \emph{Check
+#'   Formulae} section of \link{firmly}.
 #'
 #'   Ready-made checkers for \link[=type-checkers]{types},
 #'   \link[=bare-type-checkers]{bare types}, \link[=scalar-type-checkers]{scalar

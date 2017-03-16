@@ -133,8 +133,8 @@ other[] <- trim("
   \\code{\\link{globalize}} recovers the underlying check formula of global
   scope.
   \n\n
-  The \\emph{Details} section of \\link{firmly} explains the notion of
-  \\dQuote{scope} in the context of check formulae.
+  The notion of \\dQuote{scope} is explained in the \\emph{Check Formulae}
+  section of \\link{firmly}.
 ")
 tmpl <- trim("
   \\code{\\link{vld_%s}} does not check according to type, and is not based on
