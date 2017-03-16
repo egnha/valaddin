@@ -4,11 +4,11 @@
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/master/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin)
  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Dealing with invalid function inputs is a chronic pain for R users, given R's
-weakly typed nature. _valaddin_ provides pain relief—a lightweight R package
-that enables you to transform an existing function into a function with input
-validation checks, with minimal fuss, in a manner suitable for both programmatic
-use and interactive sessions.
+Dealing with invalid function inputs is a chronic pain for R users, given R's 
+weakly typed nature. _valaddin_ provides pain relief—a lightweight R package 
+that enables you to transform an existing function into a function with input 
+validation checks, _in situ_, in a manner suitable for both programmatic use and
+interactive sessions.
 
 ## Installation
 
