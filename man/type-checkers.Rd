@@ -67,7 +67,7 @@ vld_null(...)
 vld_vector(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 

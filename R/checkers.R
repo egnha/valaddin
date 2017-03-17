@@ -111,7 +111,7 @@ link_bare  <- "\\link{%s}"
 link_extfn <- "\\code{\\link[%s]{%s}}"
 link_purrr <- trim("
   \\link[purrr:%s-predicates]{%s predicates}
-  (\\href{https://cran.r-project.org/package=purrr}{\\pkg{purrr}}
+  (\\href{https://cran.r-project.org/package=purrr}{\\pkg{purrr}})
 ")
 
 prefix_with <- function(x, text) {

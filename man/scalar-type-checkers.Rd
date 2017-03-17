@@ -75,7 +75,7 @@ vld_string(...)
 vld_singleton(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
+Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
