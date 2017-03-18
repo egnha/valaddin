@@ -18,10 +18,10 @@ _valaddin_ is a lightweight R package that enables you to transform an existing
 function into a function with input validation checks. It does so without 
 requiring you to modify the body of the function, in contrast to doing input 
 validation using `stop` or `stopifnot`, and is therefore suitable for both 
-programmatic use and interactive sessions.
+programmatic and interactive use.
 
-This document illustrates the use of valaddin by example. For usage details,
-see the package documentation (`?firmly`).
+This document illustrates the use of valaddin by example. For usage details, see
+the package documentation (`?firmly`).
 
 ## Use cases
 
@@ -455,15 +455,15 @@ diff(as.POSIXct("2017-01-01", "UTC"), as.POSIXct("2016-01-01", "UTC"))
     to input validation, using [roxygen](https://github.com/klutometis/roxygen) 
     comments to specify checks.
 
--   Both [ensurer](https://github.com/smbache/ensurer) and  
+-   Both [ensurer](https://github.com/smbache/ensurer) and
     [assertr](https://github.com/ropensci/assertr) provide a means of validating
     function values. Additionally, ensurer provides an experimental replacement 
     for `function` that builds functions with type-validated arguments.
 
 -   [typeCheck](https://github.com/jimhester/typeCheck), together with
-    Types for R](https://github.com/jimhester/types), enables the creation of 
+    [Types for R](https://github.com/jimhester/types), enables the creation of 
     unctions with type-validated arguments by means of special type annotations.
-    his approach is orthogonal to that of valaddin: whereas valaddin specifies 
+    This approach is orthogonal to that of valaddin: whereas valaddin specifies 
     input checks as _predicate functions with scope_, typeCheck specifies input 
     checks as _arguments with type_.
     

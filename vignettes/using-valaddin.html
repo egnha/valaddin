@@ -74,7 +74,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<p><em>valaddin</em> is a lightweight R package that enables you to transform an existing function into a function with input validation checks. It does so without requiring you to modify the body of the function, in contrast to doing input validation using <code>stop</code> or <code>stopifnot</code>, and is therefore suitable for both programmatic use and interactive sessions.</p>
+<p><em>valaddin</em> is a lightweight R package that enables you to transform an existing function into a function with input validation checks. It does so without requiring you to modify the body of the function, in contrast to doing input validation using <code>stop</code> or <code>stopifnot</code>, and is therefore suitable for both programmatic and interactive use.</p>
 <p>This document illustrates the use of valaddin by example. For usage details, see the package documentation (<code>?firmly</code>).</p>
 <div id="use-cases" class="section level2">
 <h2>Use cases</h2>
@@ -391,9 +391,8 @@ secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class=
 <ul>
 <li><p><a href="https://github.com/hadley/assertthat">assertthat</a> provides a handy collection of predicate functions that you can use with <code>firmly</code>.</p></li>
 <li><p><a href="https://github.com/gaborcsardi/argufy">argufy</a> takes a different approach to input validation, using <a href="https://github.com/klutometis/roxygen">roxygen</a> comments to specify checks.</p></li>
-<li><p>Both <a href="https://github.com/smbache/ensurer">ensurer</a> and<br />
-<a href="https://github.com/ropensci/assertr">assertr</a> provide a means of validating function values. Additionally, ensurer provides an experimental replacement for <code>function</code> that builds functions with type-validated arguments.</p></li>
-<li><p><a href="https://github.com/jimhester/typeCheck">typeCheck</a>, together with Types for R](<a href="https://github.com/jimhester/types" class="uri">https://github.com/jimhester/types</a>), enables the creation of unctions with type-validated arguments by means of special type annotations. his approach is orthogonal to that of valaddin: whereas valaddin specifies input checks as <em>predicate functions with scope</em>, typeCheck specifies input checks as <em>arguments with type</em>.</p></li>
+<li><p>Both <a href="https://github.com/smbache/ensurer">ensurer</a> and <a href="https://github.com/ropensci/assertr">assertr</a> provide a means of validating function values. Additionally, ensurer provides an experimental replacement for <code>function</code> that builds functions with type-validated arguments.</p></li>
+<li><p><a href="https://github.com/jimhester/typeCheck">typeCheck</a>, together with <a href="https://github.com/jimhester/types">Types for R</a>, enables the creation of unctions with type-validated arguments by means of special type annotations. This approach is orthogonal to that of valaddin: whereas valaddin specifies input checks as <em>predicate functions with scope</em>, typeCheck specifies input checks as <em>arguments with type</em>.</p></li>
 </ul>
 </div>
 <div class="footnotes">
