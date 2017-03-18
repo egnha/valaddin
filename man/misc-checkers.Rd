@@ -19,6 +19,10 @@ correspondingly named \pkg{base} R predicates \code{is.*} (e.g.,
 \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}, resp., and
 \code{vld_number} is an alias for \code{vld_scalar_numeric}, which is based
 on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}.
+\cr\cr
+The checker \code{vld_true}, resp. \code{vld_false}, simply enforces the
+veracity, resp. falsity, of an expression. They are all-purpose checkers that
+can specify \emph{arbitrary} input validations.
 }
 \details{
 Each function \code{vld_*} is a function of class
@@ -38,7 +42,14 @@ g(0, 0)          # Error: "Not formula: x"
 h <- firmly(f, vld_empty(~ intersect(x, y)))
 h(letters[1:3], letters[4:5])  # "Pass"
 h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
+
+# vld_true can be used to implement any kind of input validation
+ifelse_f <- firmly(ifelse, vld_true(~ typeof(yes) == typeof(no)))
+(w <- {set.seed(1); rnorm(5)})
+ifelse_f(w > 0, 0, "1")  # Error: Not TRUE: typeof(yes) == typeof(no)
+ifelse_f(w > 0, 0, 1)    # [1] 1 0 1 0 0
 }
+
 }
 \alias{vld_array}
 \alias{vld_call}
@@ -48,6 +59,7 @@ h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 \alias{vld_environment}
 \alias{vld_expression}
 \alias{vld_factor}
+\alias{vld_false}
 \alias{vld_formula}
 \alias{vld_language}
 \alias{vld_matrix}
@@ -64,6 +76,7 @@ h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 \alias{vld_scalar_numeric}
 \alias{vld_symbol}
 \alias{vld_table}
+\alias{vld_true}
 \alias{vld_unsorted}
 \usage{
 vld_array(...)
@@ -81,6 +94,8 @@ vld_environment(...)
 vld_expression(...)
 
 vld_factor(...)
+
+vld_false(...)
 
 vld_formula(...)
 
@@ -113,6 +128,8 @@ vld_scalar_numeric(...)
 vld_symbol(...)
 
 vld_table(...)
+
+vld_true(...)
 
 vld_unsorted(...)
 }

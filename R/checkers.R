@@ -63,6 +63,9 @@ chkrs$vld_scalar_numeric <- localize(
   "Not scalar double/integer" ~ {is.numeric(.) && length(.) == 1L}
 )
 
+chkrs$vld_true  <- localize("Not TRUE" ~ is_true)
+chkrs$vld_false <- localize("Not FALSE" ~ is_false)
+
 # Aliases
 replace_msg <- function(chkr, msg) {
   f <- globalize(chkr)
@@ -95,7 +98,8 @@ nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
               grep, x = names(chkrs_$purrr), value = TRUE, perl = TRUE)
 nms$misc <- c(
   names(chkrs_$base),
-  paste0("vld_", c("empty", "formula", "numeric", "scalar_numeric", "number"))
+  paste0("vld_", c("true", "false", "empty", "formula",
+                   "numeric", "scalar_numeric", "number"))
 )
 nms$type <- setdiff(names(chkrs_$purrr), unlist(nms))
 nms <- lapply(nms, function(.) .[order(tolower(.))])
@@ -178,6 +182,10 @@ ref <- Map(c, predicates, other, family)
 #' \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}, resp., and
 #' \code{vld_number} is an alias for \code{vld_scalar_numeric}, which is based
 #' on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}.
+#' \cr\cr
+#' The checker \code{vld_true}, resp. \code{vld_false}, simply enforces the
+#' veracity, resp. falsity, of an expression. They are all-purpose checkers that
+#' can specify \emph{arbitrary} input validations.
 #'
 #' @evalRd rd_alias(nms$misc)
 #' @evalRd rd_usage(nms$misc)
@@ -200,7 +208,14 @@ ref <- Map(c, predicates, other, family)
 #' h <- firmly(f, vld_empty(~ intersect(x, y)))
 #' h(letters[1:3], letters[4:5])  # "Pass"
 #' h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
+#'
+#' # vld_true can be used to implement any kind of input validation
+#' ifelse_f <- firmly(ifelse, vld_true(~ typeof(yes) == typeof(no)))
+#' (w <- {set.seed(1); rnorm(5)})
+#' ifelse_f(w > 0, 0, "1")  # Error: Not TRUE: typeof(yes) == typeof(no)
+#' ifelse_f(w > 0, 0, 1)    # [1] 1 0 1 0 0
 #' }
+#'
 #' @name misc-checkers
 NULL
 

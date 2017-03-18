@@ -72,7 +72,7 @@ test_that("local checker error message is displayed", {
   # vld_numeric, vld_scalar_numeric have exceptional error messages
   nms_chkrs <- setdiff(
     grep("^vld_", getNamespaceExports("valaddin"), value = TRUE),
-    c("vld_numeric", "vld_scalar_numeric")
+    c("vld_numeric", "vld_scalar_numeric", "vld_true", "vld_false")
   )
   chkrs <- lapply(nms_chkrs, getExportedValue, ns = "valaddin")
   names(chkrs) <- sub("^vld_", "", nms_chkrs)
