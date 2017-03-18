@@ -183,9 +183,9 @@ ref <- Map(c, predicates, other, family)
 #' \code{vld_number} is an alias for \code{vld_scalar_numeric}, which is based
 #' on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}.
 #' \cr\cr
-#' The checker \code{vld_true}, resp. \code{vld_false}, simply enforces the
-#' veracity, resp. falsity, of an expression. They are all-purpose checkers that
-#' can specify \emph{arbitrary} input validations.
+#' The checkers \code{vld_true} and \code{vld_false} simply enforces the
+#' veracity and falsity of an expression. They are all-purpose checkers to
+#' specify \emph{arbitrary} input validations.
 #'
 #' @evalRd rd_alias(nms$misc)
 #' @evalRd rd_usage(nms$misc)
