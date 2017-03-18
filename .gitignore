@@ -4,5 +4,5 @@
 .RData
 .Ruserdata
 scratch/
-*.html
 *.org
+inst/doc

@@ -1,0 +1,469 @@
+---
+title: "Using valaddin"
+author: "Eugene Ha"
+date: "2017-03-18"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using valaddin}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+library(valaddin)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+_valaddin_ is a lightweight R package that enables you to transform an existing 
+function into a function with input validation checks. It does so without 
+requiring you to modify the body of the function, in contrast to doing input 
+validation using `stop` or `stopifnot`, and is therefore suitable for both 
+programmatic use and interactive sessions.
+
+This document illustrates the use of valaddin by example. For usage details,
+see the package documentation (`?firmly`).
+
+## Use cases
+
+The workhorse of valaddin is the function `firmly`, which applies input 
+validation to a function, _in situ_. It can be used to:
+
+### Enforce types for arguments
+
+For example, to require that all arguments of the function
+    
+```{r}
+f <- function(x, h) (sin(x + h) - sin(x)) / h
+```
+
+are numerical, apply `firmly` with the check formula `~ is.numeric`:
+
+```{r}
+ff <- firmly(f, ~ is.numeric)
+```
+
+`ff` behaves just like `f`, but with a constraint on the type of its input:
+
+```{r, error = TRUE, purl = FALSE}
+ff(0.0, 0.1)
+
+ff("0.0", 0.1)
+```
+
+### Enforce constraints on argument values
+
+In the above example, to enforce the additional requirement that `h` is small 
+but non-zero (less than 1 in absolute value, say), apply another check formula
+to `f`:
+
+```{r}
+nearly_cos <-
+  firmly(f, ~ is.numeric, list("abs(h) is too big" ~ abs(h)) ~ {. > 0 && . < 1})
+```
+
+Alternatively, since `ff` already incorporates the type check, simply apply the
+the second check formula to `ff` to get the same result:
+
+```{r, error = TRUE, purl = FALSE}
+nearly_cos <-
+  firmly(ff, list("abs(h) is too big" ~ abs(h)) ~ {. > 0 && . < 1})
+
+nearly_cos(0.0, 0.5)
+
+nearly_cos(0.0, -1.1)
+```
+
+The role of each part of the value-constraining formula is evident:
+
+-   The right-hand side `{. > 0 && . < 1}` is the constraint itself, which
+    expresses conditions on `.`, a placeholder argument.
+
+-   The left-hand side `list("abs(h) is too big" ~ abs(h))` specifies the 
+    expression for the placeholder, namely `abs(h)`, as well as the message to
+    be produced if the constraint is violated.
+    
+### Warn about pitfalls
+
+If the default behavior of a function is problematic, or unexpected, you can use
+`firmly` to warn you. Consider the function `as.POSIXct`, which creates a
+date-time object:
+
+```{r}
+Sys.setenv(TZ = "CET")
+(d <- as.POSIXct("2017-01-01 09:30:00"))
+```
+
+The problem is that `d` is a potentially _ambiguous_ object (with hidden state),
+because it's not assigned an explicit time zone. If you compute the local hour 
+of `d` using `as.POSIXlt`, you get an answer that interprets `d` according to 
+your current time zone; another user—or you, in another country—may get a 
+different result.
+
+- If you're in CET time zone:
+    ```{r}
+    as.POSIXlt(d, tz = "EST")$hour
+    ```
+
+- If you were to change to EST time zone and rerun the code:
+    ```{r}
+    Sys.setenv(TZ = "EST")
+    d <- as.POSIXct("2017-01-01 09:30:00")
+    as.POSIXlt(d, tz = "EST")$hour
+    ```
+
+```{r, include = FALSE}
+Sys.setenv(TZ = "CET")
+```
+
+To warn yourself about this pitfall, you can modify `as.POSIXct` to complain 
+when you've forgotten to specify a time zone:
+
+```{r}
+as.POSIXct <- firmly(as.POSIXct, .warn_missing = "tz")
+```
+
+Now when you call `as.POSIXct`, you get a cautionary reminder:
+
+```{r}
+as.POSIXct("2017-01-01 09:30:00")
+
+as.POSIXct("2017-01-01 09:30:00", tz = "CET")
+```
+
+#### Use `loosely` to access the original function
+
+Though reassigning `as.POSIXct` may seem risky, it is not, for the behavior is 
+unchanged (aside from the extra precaution), and the original `as.POSIXct`
+remains accessible:
+
+-   With a namespace prefix: `base::as.POSIXct`
+-   By applying `loosely` to strip input validation: `loosely(as.POSIXct)`
+
+```{r}
+loosely(as.POSIXct)("2017-01-01 09:30:00")
+
+identical(loosely(as.POSIXct), base::as.POSIXct)
+```
+
+### Decline handouts
+
+R tries to help you express your ideas as concisely as possible. Suppose you 
+want to truncate negative values of a vector `w`:
+
+```{r}
+w <- {set.seed(1); rnorm(5)}
+
+ifelse(w > 0, 0, w)
+```
+
+`ifelse` assumes (correctly) that you intend the `0` to be repeated `r length(w)`
+times, and does that for you, automatically.
+
+Nonetheless, R's good intentions have a darker side:
+
+```{r}
+z <- rep(1, 6)
+pos <- 1:5
+neg <- -6:-1
+
+ifelse(z > 0, pos, neg)
+```
+
+This smells like a coding error. Instead of complaining that `pos` is too short,
+`ifelse` recycles it to line it up with `z`. The result is probably not what you 
+wanted.
+
+In this case, you don't need a helping hand, but rather a firm one:
+
+```{r}
+chk_length_type <- list(
+  "'yes', 'no' differ in length" ~ length(yes) == length(no),
+  "'yes', 'no' differ in type" ~ typeof(yes) == typeof(no)
+) ~ isTRUE
+
+ifelse_f <- firmly(ifelse, chk_length_type)
+```
+
+`ifelse_f` is more pedantic than `ifelse`. But it also saves you from the 
+unintended consequences of invalid inputs.
+
+```{r, error = TRUE, purl = FALSE}
+ifelse_f(w > 0, 0, w)
+ifelse_f(w > 0, rep(0, length(w)), w)
+
+ifelse(z > 0, pos, neg)
+ifelse_f(z > 0, pos, neg)
+
+ifelse(z > 0, as.character(pos), neg)
+ifelse_f(z > 0, as.character(pos), neg)
+```
+
+### Reduce the risks of a lazy evaluation-style
+
+When R calls a function like `f(a, b)`, the value of the argument `a` is not 
+materialized in the body of `f` until it is actually used. Usually, you can 
+safely ignore this as a technicality of R's evaluation model; but in some
+situations, it can be problematic if you're not mindful of it.
+
+Consider a bank that waives fees for students[^1]. A function to make deposits 
+might look like this:
+
+```{r}
+deposit <- function(account, value) {
+  if (is_student(account)) {
+    account$fees <- 0
+  }
+  account$balance <- account$balance + value
+  account
+}
+
+is_student <- function(account) {
+  if (isTRUE(account$is_student)) TRUE else FALSE
+}
+```
+
+Suppose Bob is an account holder, currently not in school:
+
+```{r}
+bobs_acct <- list(balance = 10, fees = 3, is_student = FALSE)
+```
+
+If Bob were to deposit an amount to cover an future fee payment, his account
+balance would be updated to:
+
+```{r}
+deposit(bobs_acct, bobs_acct$fees)$balance
+```
+
+Bob goes back to school and informs the bank, so that his fees will be waived:
+
+```{r}
+bobs_acct$is_student <- TRUE
+```
+
+But now suppose that, somewhere in the bowels of the bank's software, the type
+of Bob's account object is converted from a list to an environment:
+
+```{r}
+bobs_acct <- list2env(bobs_acct)
+```
+
+If Bob were to deposit an amount to cover an future fee payment, his account
+balance would now be updated to:
+
+```{r}
+deposit(bobs_acct, bobs_acct$fees)$balance
+```
+
+Becoming a student has cost Bob money. What happened to the amount deposited?
+
+The culprit is lazy evaluation and the modify-in-place semantics of 
+environments. In the call `deposit(account = bobs_acct, value = bobs_acct$fee)`,
+the value of the argument `value` is only set when it's used, which comes after
+the object `fee` in the environment `bobs_acct` has already been zeroed out.
+
+To minimize such risks, forbid `account` from being an environment:
+
+```{r}
+err_msg <- "`acccount` should not be an environment"
+deposit <- firmly(deposit, list(err_msg ~ account) ~ Negate(is.environment))
+```
+
+This reduces the bank's liability:
+
+```{r, error = TRUE, purl = FALSE}
+bobs_acct <- list2env(list(balance = 10, fees = 3, is_student = TRUE))
+
+deposit(bobs_acct, bobs_acct$fees)$balance
+
+deposit(as.list(bobs_acct), bobs_acct$fees)$balance
+```
+
+[^1]: Adapted from an example in Section 6.3 of Chambers, _Extending R_, CRC
+Press, 2016.
+
+### Prevent self-inflicted wounds
+
+You don't mean to shoot yourself, but sometimes it happens, nonetheless:
+
+```{r}
+x <- "An expensive object"
+save(x, file = "my-precious.rda")
+
+x <- "Oops! A bug or lapse has tarnished your expensive object"
+
+# Many computations later, you again save x, oblivious to the accident ...
+save(x, file = "my-precious.rda")
+```
+
+`firmly` can safeguard you from such mishaps: implement a safety procedure
+
+```{r}
+# Argument `gear` is a list with components:
+# fun: Function name
+# ns : Namespace of `fun`
+# chk: Formula that specify input checks
+
+hardhat <- function(gear, env = .GlobalEnv) {
+  for (. in gear) {
+    safe_fun <- firmly(getFromNamespace(.$fun, .$ns), .$chk)
+    assign(.$fun, safe_fun, envir = env)
+  }
+}
+```
+
+then gather your safety gear
+
+```{r}
+protection <- list(
+  list(
+    fun = "save",
+    ns  = "base",
+    chk = list("Won't overwrite `file`" ~ file) ~ Negate(file.exists)
+  ),
+  list(
+    fun = "load",
+    ns  = "base",
+    chk = list("Won't load objects into current environment" ~ envir) ~
+      {!identical(., parent.frame(2))}
+  )
+)
+```
+
+and put it on
+
+```{r}
+hardhat(protection)
+```
+
+Now `save` and `load` have safety features that prevent you from inadvertently
+destroying your data:
+
+```{r, include = FALSE}
+file.remove("my-precious.rda")
+```
+
+```{r, error = TRUE, purl = FALSE}
+x <- "An expensive object"
+save(x, file = "my-precious.rda")
+
+x <- "Oops! A bug or lapse has tarnished your expensive object"
+
+save(x, file = "my-precious.rda")
+
+# Inspecting x, you notice it's changed, so you try to retrieve the original ...
+x
+load("my-precious.rda")
+
+# Keep calm and carry on
+loosely(load)("my-precious.rda")
+
+x
+```
+
+```{r, include = FALSE}
+file.remove("my-precious.rda")
+```
+
+## Toolbox of input checkers
+
+_valaddin_ provides a collection of over 50 pre-made input checkers to 
+facilitate typical kinds of argument checks. These checkers are prefixed by
+`vld` (for easy look-up in editors and IDE's that support tab-completion).
+
+For example, to create a type-checked version of the function `upper.tri`, which
+returns an upper-triangular logical matrix, apply the checkers `vld_matrix`,
+`vld_boolean` (here "boolean" is shorthand for "logical vector of length 1"):
+
+```{r, error = TRUE, purl = FALSE}
+upper_tri <- firmly(upper.tri, vld_matrix(~x), vld_boolean(~diag))
+
+# upper.tri assumes you mean a vector to be a column matrix
+upper.tri(1:2)
+
+upper_tri(1:2)
+
+# But you actually meant it to be a diagonal matrix, say
+upper_tri(diag(1:2))
+
+upper_tri(diag(1:2), diag = "true")
+
+upper_tri(diag(1:2), TRUE)
+```
+
+### Check anything with `vld_true`
+
+Any input validation can be expressed as an assertion that "this or that must be
+true"; to apply it as such, use `vld_true` (or its complement, `vld_false`).
+
+For example, the above hardening of `ifelse` can redone as:
+
+```{r, error = TRUE, purl = FALSE}
+ifelse_f <-
+  firmly(ifelse,
+         vld_true(~ length(yes) == length(no), ~ typeof(yes) == typeof(no)))
+
+z <- rep(1, 6)
+pos <- 1:5
+neg <- -6:-1
+
+ifelse_f(z > 0, as.character(pos), neg)
+ifelse_f(z > 0, c(pos, 6), neg)
+ifelse_f(z > 0, c(pos, 6L), neg)
+```
+
+### Make your own input checker with `localize`
+
+A check formula such as `~ is.numeric` (or `"Not number" ~ is.numeric`, if you
+want a custom error message) imposes its condition "globally":
+
+```{r, error = TRUE, purl = FALSE}
+diff <- firmly(function(x, y) x - y, ~ is.numeric)
+
+diff(3, 1)
+diff(as.POSIXct("2017-01-01", "UTC"), as.POSIXct("2016-01-01", "UTC"))
+```
+
+With `localize`, you can concentrate a globally applied check formula to 
+specific expressions. The result is a _reusable_ custom checker:
+
+```{r, error = TRUE, purl = FALSE}
+want_numeric <- localize("Not numeric" ~ is.numeric)
+secant <- firmly(function(f, x, h) (f(x + h) - f(x)) / h, want_numeric(~x, ~h))
+
+secant(sin, 0, .1)
+secant(sin, "0", .1)
+```
+
+(In fact, `want_numeric` is equivalent to the pre-built checker `vld_numeric`.)
+
+Conversely, apply `globalize` to impose your localized checker globally:
+
+```{r, error = TRUE, purl = FALSE}
+diff <- firmly(function(x, y) x - y, globalize(want_numeric))
+
+diff(3, 1)
+diff(as.POSIXct("2017-01-01", "UTC"), as.POSIXct("2016-01-01", "UTC"))
+```
+
+## Relation to other packages
+
+-   [assertthat](https://github.com/hadley/assertthat) provides a handy
+    collection of predicate functions that you can use with `firmly`.
+
+-   [argufy](https://github.com/gaborcsardi/argufy) takes a different approach
+    to input validation, using [roxygen](https://github.com/klutometis/roxygen) 
+    comments to specify checks.
+
+-   Both [ensurer](https://github.com/smbache/ensurer) and  
+    [assertr](https://github.com/ropensci/assertr) provide a means of validating
+    function values. Additionally, ensurer provides an experimental replacement 
+    for `function` that builds functions with type-validated arguments.
+
+-   [typeCheck](https://github.com/jimhester/typeCheck), together with
+    Types for R](https://github.com/jimhester/types), enables the creation of 
+    unctions with type-validated arguments by means of special type annotations.
+    his approach is orthogonal to that of valaddin: whereas valaddin specifies 
+    input checks as _predicate functions with scope_, typeCheck specifies input 
+    checks as _arguments with type_.
+    

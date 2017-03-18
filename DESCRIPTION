@@ -18,11 +18,14 @@ Imports:
     purrr (>= 0.2.2)
 Suggests:
     testthat,
-    stringr
+    stringr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
 RoxygenNote: 6.0.1
-Collate: 
+Collate:
     'utils.R'
     'rawrd.R'
     'future.R'
