@@ -336,9 +336,11 @@ x
 <h3>Check anything with <code>vld_true</code></h3>
 <p>Any input validation can be expressed as an assertion that “this or that must be true”; to apply it as such, use <code>vld_true</code> (or its complement, <code>vld_false</code>).</p>
 <p>For example, the above hardening of <code>ifelse</code> can redone as:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ifelse_f &lt;-
-<span class="st">  </span><span class="kw">firmly</span>(ifelse,
-         <span class="kw">vld_true</span>(<span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no), <span class="op">~</span><span class="st"> </span><span class="kw">typeof</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">typeof</span>(no)))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chk_length_type &lt;-<span class="st"> </span><span class="kw">vld_true</span>(
+  <span class="st">&quot;'yes', 'no' differ in length&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no),
+  <span class="st">&quot;'yes', 'no' differ in type&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">typeof</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">typeof</span>(no)
+)
+ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, chk_length_type)
 
 z &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>)
 pos &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">5</span>
@@ -346,11 +348,11 @@ neg &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">6</s
 
 <span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">as.character</span>(pos), neg)
 <span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = as.character(pos), no = neg)</span>
-<span class="co">#&gt; 1) Not TRUE: length(yes) == length(no)</span>
-<span class="co">#&gt; 2) Not TRUE: typeof(yes) == typeof(no)</span>
+<span class="co">#&gt; 1) 'yes', 'no' differ in length</span>
+<span class="co">#&gt; 2) 'yes', 'no' differ in type</span>
 <span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">c</span>(pos, <span class="dv">6</span>), neg)
 <span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = c(pos, 6), no = neg)</span>
-<span class="co">#&gt; Not TRUE: typeof(yes) == typeof(no)</span>
+<span class="co">#&gt; 'yes', 'no' differ in type</span>
 <span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">c</span>(pos, 6L), neg)
 <span class="co">#&gt; [1] 1 2 3 4 5 6</span></code></pre></div>
 </div>

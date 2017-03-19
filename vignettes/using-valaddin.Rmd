@@ -399,9 +399,11 @@ true"; to apply it as such, use `vld_true` (or its complement, `vld_false`).
 For example, the above hardening of `ifelse` can redone as:
 
 ```{r, error = TRUE, purl = FALSE}
-ifelse_f <-
-  firmly(ifelse,
-         vld_true(~ length(yes) == length(no), ~ typeof(yes) == typeof(no)))
+chk_length_type <- vld_true(
+  "'yes', 'no' differ in length" ~ length(yes) == length(no),
+  "'yes', 'no' differ in type" ~ typeof(yes) == typeof(no)
+)
+ifelse_f <- firmly(ifelse, chk_length_type)
 
 z <- rep(1, 6)
 pos <- 1:5
