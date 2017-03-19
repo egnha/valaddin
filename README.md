@@ -17,7 +17,7 @@ package:
 
 ```R
 # install.packages("devtools")
-devtools::install_github("egnha/valaddin")
+devtools::install_github("egnha/valaddin", build_vignettes = TRUE)
 ```
 
 ## Why use valaddin
@@ -101,7 +101,7 @@ secant(log, "1", c(.1, .01))
 Or, alternatively, all in one go:
 
 ```R
-secant <- loosely(secant)  # Get back the original function
+secant <- loosely(secant)  # Retrieves the original function
 secant <- firmly(secant, list(~x, ~dx) ~ {is.numeric(.) && length(.) == 1L})
 
 secant(log, 1, .1)
@@ -172,13 +172,16 @@ bc_num(.5, ".2")
 #### Check conditions with multi-argument dependencies
 
 Use the `isTRUE()` predicate to implement checks depending on multiple
-arguments:
+arguments or, equivalently, the check maker `vld_true()`:
 
 ```R
 in_triangle <- function(x, y) x >= 0 && y >= 0 && 1 - x - y >= 0
 outside <- "(x, y) not in triangle"
 
 bc_tri <- firmly(bc, list(outside ~ in_triangle(x, y)) ~ isTRUE)
+
+# Or more concisely:
+bc_tri <- firmly(bc, vld_true(outside ~ in_triangle(x, y)))
 
 bc_tri(.5, .2)
 #> [1] 0.5 0.2 0.3
@@ -207,7 +210,7 @@ library(magrittr)
 
 bc <- bc %>%
   firmly("Not numeric" ~ is.numeric, "Not scalar" ~ {length(.) == 1L}) %>%
-  firmly(list("(x, y) not in triangle" ~ list(x, y)) ~ in_triangle)
+  firmly(vld_true(outside ~ in_triangle(x, y)))
                    
 bc(.5, .2)
 #> [1] 0.5 0.2 0.3
@@ -225,7 +228,8 @@ bc(".5", 1)
 ### Learn more
 
 See the package documentation `?firmly`, `help(p = valaddin)` for detailed 
-information about `firmly()` and its companion functions.
+information about `firmly()` and its companion functions, and the vignette
+`vignette("valaddin")` for an overview of use cases.
 
 ## Related packages
 
