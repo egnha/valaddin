@@ -286,7 +286,7 @@ Press, 2016.
 
 You don't mean to shoot yourself, but sometimes it happens, nonetheless:
 
-```{r}
+```{r, eval = FALSE}
 x <- "An expensive object"
 save(x, file = "my-precious.rda")
 
@@ -339,30 +339,28 @@ hardhat(protection)
 Now `save` and `load` have safety features that prevent you from inadvertently
 destroying your data:
 
-```{r, include = FALSE}
-file.remove("my-precious.rda")
-```
-
-```{r, error = TRUE, purl = FALSE}
+```{r, eval = FALSE}
 x <- "An expensive object"
 save(x, file = "my-precious.rda")
 
 x <- "Oops! A bug or lapse has tarnished your expensive object"
+#> Error: save(x, file = "my-precious.rda")
+#> Won't overwrite `file`
 
 save(x, file = "my-precious.rda")
 
 # Inspecting x, you notice it's changed, so you try to retrieve the original ...
 x
+#> [1] "Oops! A bug or lapse has tarnished your expensive object"
 load("my-precious.rda")
+#> Error: load(file = "my-precious.rda")
+#> Won't load objects into current environment
 
 # Keep calm and carry on
 loosely(load)("my-precious.rda")
 
 x
-```
-
-```{r, include = FALSE}
-file.remove("my-precious.rda")
+#> [1] "An expensive object"
 ```
 
 ## Toolbox of input checkers

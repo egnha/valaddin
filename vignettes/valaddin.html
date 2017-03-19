@@ -283,10 +283,10 @@ hardhat &lt;-<span class="st"> </span><span class="cf">function</span>(gear, <sp
 <span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)
 
 x &lt;-<span class="st"> &quot;Oops! A bug or lapse has tarnished your expensive object&quot;</span>
-
-<span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)
 <span class="co">#&gt; Error: save(x, file = &quot;my-precious.rda&quot;)</span>
 <span class="co">#&gt; Won't overwrite `file`</span>
+
+<span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)
 
 <span class="co"># Inspecting x, you notice it's changed, so you try to retrieve the original ...</span>
 x
