@@ -20,9 +20,9 @@ correspondingly named \pkg{base} R predicates \code{is.*} (e.g.,
 \code{vld_number} is an alias for \code{vld_scalar_numeric}, which is based
 on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}.
 \cr\cr
-The checkers \code{vld_true} and \code{vld_false} simply enforces the
-veracity and falsity of an expression. They are all-purpose checkers to
-specify \emph{arbitrary} input validations.
+The checkers \code{vld_true} and \code{vld_false} assert that an expression
+is identically \code{TRUE} or \code{FALSE}. They are all-purpose checkers to
+specify \emph{arbitrary} input validation checks.
 }
 \details{
 Each function \code{vld_*} is a function of class
