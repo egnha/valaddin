@@ -15,40 +15,41 @@ globalize(chkr)
 i.e., a formula of the form \code{<string> ~ <predicate>}.}
 
 \item{chkr}{Function of class \code{"check_maker"}, i.e., a function created
-by \code{localize()}.}
+by \code{localize}.}
 }
 \value{
 \code{localize} returns a function of class \code{"check_maker"} of
-  call signature \code{function(...)}; this function takes one-sided formulae
-  as arguments, which are interpreted as expressions to check, and returns
-  the corresponding check formula of local scope, based on the predicate
-  function of the global-scope check formula \code{chk}.
+  call signature \code{function(...)}: the dots are formulae that are either
+  one-sided or have a string LHS (a custom error message), which are
+  interpreted as expressions to check, and the return value is the
+  corresponding check formula of local scope, based on the predicate function
+  of the global-scope check formula \code{chk}.
 
 \code{globalize} returns the global-scope check formula underlying
   the function \code{chkr}.
 }
 \description{
-\code{localize()} makes it easy to reuse check formulae: it converts a check
+\code{localize} makes it easy to reuse check formulae: it converts a check
 formula of global scope into a function that \emph{generates} corresponding
-check formulae of local scope. \code{globalize()} takes such a check-formula
+check formulae of local scope. \code{globalize} takes such a check-formula
 generator and returns the underlying check formula (of global scope). These
 operations are mutually invertible.
 }
 \examples{
 chk_pos_gbl <- "Not positive" ~ {. > 0}
 chk_pos_lcl <- localize(chk_pos_gbl)
-chk_pos_lcl(~x, ~x - y)
-# list("Not positive: x" ~ x, "Not positive: x - y" ~ x - y) ~ {. > 0}
+chk_pos_lcl(~x, "y not greater than x" ~ x - y)
+# list("Not positive: x" ~ x, "y not greater than x" ~ x - y) ~ {. > 0}
 
 \dontrun{
 
 pass <- function(x, y) "Pass"
 
 # Impose local positivity checks
-f <- firmly(pass, chk_pos_lcl(~x, ~x - y))
+f <- firmly(pass, chk_pos_lcl(~x, "y not greater than x" ~ x - y))
 f(2, 1)  # "Pass"
-f(2, 2)  # Error: "Not positive: x - y"
-f(0, 1)  # Errors: "Not positive: x", "Not positive: x - y"
+f(2, 2)  # Error: "y not greater than x"
+f(0, 1)  # Errors: "Not positive: x", "y not greater than x"
 
 # Or just check positivity of x
 g <- firmly(pass, chk_pos_lcl(~x))
@@ -58,8 +59,8 @@ g(0, 0)  # Error: "Not positive: x"
 # In contrast, chk_pos_gbl checks positivity for all arguments
 h <- firmly(pass, chk_pos_gbl)
 h(2, 2)  # "Pass"
-h(1, 0)  # Error: "Not positive: y"
-h(0, 0)  # Errors: "Not positive: x", "Not positive: y"
+h(1, 0)  # Error: "Not positive: `y`"
+h(0, 0)  # Errors: "Not positive: `x`", "Not positive: `y`"
 
 # Alternatively, globalize the localized checker
 h2 <- firmly(pass, globalize(chk_pos_lcl))
@@ -69,6 +70,7 @@ all.equal(h, h2)  # TRUE
 # localize() and globalize() are mutual inverses
 identical(globalize(localize(chk_pos_gbl)), chk_pos_gbl)  # TRUE
 all.equal(localize(globalize(chk_pos_lcl)), chk_pos_lcl)  # TRUE
+
 }
 \seealso{
 The notion of \dQuote{scope} is explained in the \emph{Check

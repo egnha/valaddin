@@ -59,6 +59,20 @@ test_that("local checker creates checks for supplied arguments", {
     }
 })
 
+test_that("local checker uses custom error message, when provided", {
+  f <- function(x, y) "Pass"
+
+  for (chk in chks_gbl[-1L]) {
+    chkr <- localize(chk)
+    ff <- firmly(f, chkr(~x, "y not bigger than x" ~ y - x))
+
+    expect_error(ff(0, 1), "Not positive: x")
+    expect_error(ff(0, 0), "Not positive: x")
+    expect_error(ff(0, 0), "y not bigger than x")
+    expect_error(ff(2, 1), "y not bigger than x")
+  }
+})
+
 test_that("local checker evaluates predicate in global formula environment", {
   predicate <- function(x) identical(x, "external")
   chk <- "Not external" ~ predicate
@@ -97,15 +111,14 @@ test_that("local checker evaluates predicate in global formula environment", {
   expect_error(g$int(x = "external"), "Not internal")
 })
 
-test_that("local checker raises error if argument not one-sided formula", {
-  not_f_onesided <- list(
+test_that("local checker raises error if arg not onesided/LHS-string formula", {
+  not_onesided_lhs_string <- list(
     "string",
     1,
     NULL,
     list(),
     logical(0),
     NA,
-    "string" ~ x,
     list(~ x),
     list("string" ~ x),
     quote(x)
@@ -114,8 +127,8 @@ test_that("local checker raises error if argument not one-sided formula", {
   for (chk in chks_gbl) {
     chkr <- localize(chk)
     expect_error(chkr(xxx), "object 'xxx' not found")
-    for (x in not_f_onesided)
-      expect_error(chkr(x), "Not one-sided formula")
+    for (x in not_onesided_lhs_string)
+      expect_error(chkr(x), "LHS of formula\\(e\\) not empty or string")
   }
 })
 
