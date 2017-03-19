@@ -396,7 +396,7 @@ upper_tri(diag(1:2), TRUE)
 Any input validation can be expressed as an assertion that "this or that must be
 true"; to apply it as such, use `vld_true` (or its complement, `vld_false`).
 
-For example, the above hardening of `ifelse` can redone as:
+For example, the above hardening of `ifelse` can be redone as:
 
 ```{r, error = TRUE, purl = FALSE}
 chk_length_type <- vld_true(

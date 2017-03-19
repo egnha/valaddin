@@ -335,7 +335,7 @@ x
 <div id="check-anything-with-vld_true" class="section level3">
 <h3>Check anything with <code>vld_true</code></h3>
 <p>Any input validation can be expressed as an assertion that “this or that must be true”; to apply it as such, use <code>vld_true</code> (or its complement, <code>vld_false</code>).</p>
-<p>For example, the above hardening of <code>ifelse</code> can redone as:</p>
+<p>For example, the above hardening of <code>ifelse</code> can be redone as:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chk_length_type &lt;-<span class="st"> </span><span class="kw">vld_true</span>(
   <span class="st">&quot;'yes', 'no' differ in length&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no),
   <span class="st">&quot;'yes', 'no' differ in type&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">typeof</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">typeof</span>(no)
