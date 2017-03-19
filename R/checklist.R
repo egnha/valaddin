@@ -69,10 +69,10 @@ is_lhs_checkitem <- function(x) {
   }
 }
 
+is_check_expr <- function(x) {
+  purrr::is_formula(x) && (is_onesided(x) || is_string(ff_eval_lhs(x)))
+}
+
 is_flist <- function(x) {
-  is.list(x) &&
-    length(x) != 0L &&
-    all(vapply(x, function(.) {
-      purrr::is_formula(.) && (is_onesided(.) || is_string(ff_eval_lhs(.)))
-    }, logical(1)))
+  is.list(x) && length(x) && all(vapply(x, is_check_expr, logical(1)))
 }
