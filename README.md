@@ -183,6 +183,9 @@ bc_tri <- firmly(bc, list(outside ~ in_triangle(x, y)) ~ isTRUE)
 # Or more concisely:
 bc_tri <- firmly(bc, vld_true(outside ~ in_triangle(x, y)))
 
+# Or more concisely still, by relying on an auto-generated error message:
+# bc_tri <- firmly(bc, vld_true(~ in_triangle(x, y)))
+
 bc_tri(.5, .2)
 #> [1] 0.5 0.2 0.3
 
@@ -208,7 +211,9 @@ Activate checks in stages using the
 ```R
 library(magrittr)
 
-bc <- bc %>%
+bc <- {
+function(x, y) c(x, y, 1 - x - y)
+} %>%
   firmly("Not numeric" ~ is.numeric, "Not scalar" ~ {length(.) == 1L}) %>%
   firmly(vld_true(outside ~ in_triangle(x, y)))
                    
@@ -233,16 +238,18 @@ information about `firmly()` and its companion functions, and the vignette
 
 ## Related packages
 
-* [assertthat](https://github.com/hadley/assertthat) provides a handy collection
-of predicate functions that you can use with `firmly()`.
+* [assertive](https://bitbucket.org/richierocks/assertive),
+[assertthat](https://github.com/hadley/assertthat), and
+[checkmate](https://github.com/mllg/checkmate) provide handy collections of 
+predicate functions that you can use in conjunction with `firmly()`.
 
 * [argufy](https://github.com/gaborcsardi/argufy) takes a different approach to
 input validation, using [roxygen](https://github.com/klutometis/roxygen)
 comments to specify checks.
 
-* Both [ensurer](https://github.com/smbache/ensurer) and 
+* [ensurer](https://github.com/smbache/ensurer) and 
 [assertr](https://github.com/ropensci/assertr) provide a means of validating 
-function values. Additionally, ensurer provides an experimental replacement for
+function values. Additionally, ensurer provides an experimental replacement for 
 `function()` that builds functions with type-validated arguments.
 
 * [typeCheck](https://github.com/jimhester/typeCheck), together with [Types for 

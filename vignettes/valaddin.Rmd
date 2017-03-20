@@ -367,7 +367,7 @@ x
 
 _valaddin_ provides a collection of over 50 pre-made input checkers to 
 facilitate typical kinds of argument checks. These checkers are prefixed by
-`vld` (for easy look-up in editors and IDE's that support tab-completion).
+`vld` (for easy look-up in editors and IDE's that support auto-completion).
 
 For example, to create a type-checked version of the function `upper.tri`, which
 returns an upper-triangular logical matrix, apply the checkers `vld_matrix`,
@@ -448,16 +448,18 @@ diff(as.POSIXct("2017-01-01", "UTC"), as.POSIXct("2016-01-01", "UTC"))
 
 ## Relation to other packages
 
--   [assertthat](https://github.com/hadley/assertthat) provides a handy
-    collection of predicate functions that you can use with `firmly`.
+-   [assertive](https://bitbucket.org/richierocks/assertive),
+    [assertthat](https://github.com/hadley/assertthat), and
+    [checkmate](https://github.com/mllg/checkmate) provide handy collections of 
+    predicate functions that you can use in conjunction with `firmly`.
 
 -   [argufy](https://github.com/gaborcsardi/argufy) takes a different approach
     to input validation, using [roxygen](https://github.com/klutometis/roxygen) 
     comments to specify checks.
 
--   Both [ensurer](https://github.com/smbache/ensurer) and
+-   [ensurer](https://github.com/smbache/ensurer) and 
     [assertr](https://github.com/ropensci/assertr) provide a means of validating
-    function values. Additionally, ensurer provides an experimental replacement 
+    function values. Additionally, ensurer provides an experimental replacement
     for `function` that builds functions with type-validated arguments.
 
 -   [typeCheck](https://github.com/jimhester/typeCheck), together with

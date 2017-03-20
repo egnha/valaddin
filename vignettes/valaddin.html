@@ -304,7 +304,7 @@ x
 </div>
 <div id="toolbox-of-input-checkers" class="section level2">
 <h2>Toolbox of input checkers</h2>
-<p><em>valaddin</em> provides a collection of over 50 pre-made input checkers to facilitate typical kinds of argument checks. These checkers are prefixed by <code>vld</code> (for easy look-up in editors and IDE’s that support tab-completion).</p>
+<p><em>valaddin</em> provides a collection of over 50 pre-made input checkers to facilitate typical kinds of argument checks. These checkers are prefixed by <code>vld</code> (for easy look-up in editors and IDE’s that support auto-completion).</p>
 <p>For example, to create a type-checked version of the function <code>upper.tri</code>, which returns an upper-triangular logical matrix, apply the checkers <code>vld_matrix</code>, <code>vld_boolean</code> (here “boolean” is shorthand for “logical vector of length 1”):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">upper_tri &lt;-<span class="st"> </span><span class="kw">firmly</span>(upper.tri, <span class="kw">vld_matrix</span>(<span class="op">~</span>x), <span class="kw">vld_boolean</span>(<span class="op">~</span>diag))
 
@@ -391,9 +391,9 @@ secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class=
 <div id="relation-to-other-packages" class="section level2">
 <h2>Relation to other packages</h2>
 <ul>
-<li><p><a href="https://github.com/hadley/assertthat">assertthat</a> provides a handy collection of predicate functions that you can use with <code>firmly</code>.</p></li>
+<li><p><a href="https://bitbucket.org/richierocks/assertive">assertive</a>, <a href="https://github.com/hadley/assertthat">assertthat</a>, and <a href="https://github.com/mllg/checkmate">checkmate</a> provide handy collections of predicate functions that you can use in conjunction with <code>firmly</code>.</p></li>
 <li><p><a href="https://github.com/gaborcsardi/argufy">argufy</a> takes a different approach to input validation, using <a href="https://github.com/klutometis/roxygen">roxygen</a> comments to specify checks.</p></li>
-<li><p>Both <a href="https://github.com/smbache/ensurer">ensurer</a> and <a href="https://github.com/ropensci/assertr">assertr</a> provide a means of validating function values. Additionally, ensurer provides an experimental replacement for <code>function</code> that builds functions with type-validated arguments.</p></li>
+<li><p><a href="https://github.com/smbache/ensurer">ensurer</a> and <a href="https://github.com/ropensci/assertr">assertr</a> provide a means of validating function values. Additionally, ensurer provides an experimental replacement for <code>function</code> that builds functions with type-validated arguments.</p></li>
 <li><p><a href="https://github.com/jimhester/typeCheck">typeCheck</a>, together with <a href="https://github.com/jimhester/types">Types for R</a>, enables the creation of unctions with type-validated arguments by means of special type annotations. This approach is orthogonal to that of valaddin: whereas valaddin specifies input checks as <em>predicate functions with scope</em>, typeCheck specifies input checks as <em>arguments with type</em>.</p></li>
 </ul>
 </div>
