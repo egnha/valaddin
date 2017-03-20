@@ -468,4 +468,3 @@ diff(as.POSIXct("2017-01-01", "UTC"), as.POSIXct("2016-01-01", "UTC"))
     This approach is orthogonal to that of valaddin: whereas valaddin specifies 
     input checks as _predicate functions with scope_, typeCheck specifies input 
     checks as _arguments with type_.
-    
