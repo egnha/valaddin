@@ -59,13 +59,12 @@ by \code{firmly}.
   }
 
   \subsection{Check Formulae of Global Scope}{
-    A \strong{global check formula} is a succinct way of enforcing the
-    veracity of the function \code{<predicate>} upon every (named) argument
-    of \code{.f}. Each argument for which \code{<predicate>}
-    \emph{fails}—evaluates to \code{FALSE} or is itself not
-    evaluable—produces an error message, which is auto-generated, unless a
-    custom error message is supplied by specifying the string
-    \code{<string>}.
+    A \strong{global check formula} is a succinct way of asserting that the
+    function \code{<predicate>} returns \code{TRUE} when called on each
+    (named) argument of \code{.f}. Each argument for which \code{<predicate>}
+    \emph{fails}—returns \code{FALSE} or is itself not evaluable—produces an
+    error message, which is auto-generated, unless a custom error message is
+    supplied by specifying the string \code{<string>}.
 
     \subsection{Example}{
       The condition that all (named) arguments of a function must be
@@ -124,18 +123,16 @@ by \code{firmly}.
     and \code{.warn_missing} is empty.
 
     Otherwise, \code{firmly} again returns a function that behaves
-    \emph{identically} to \code{.f}, with the exception that it validates its
-    inputs before being called on them. In particular, \code{firmly} respects
-    lazy evaluation: if all checks pass, then when \code{.f} is called, all
-    arguments, including those that underwent checks, are lazily evaluated.
-
-    If any check fails, an error is signaled, which tabulates every failing
-    check.
+    \emph{identically} to \code{.f}, but also performs input validation:
+    before a call to \code{.f} is attempted, its inputs are checked, and if
+    any check fails, an error halts further execution with a message
+    tabulating every failing check. If all checks pass, \code{.f} is still
+    evaluates its arguments lazily.
 
     \subsection{Formal Arguments and Attributes}{
-      \code{firmly} preserves the formal arguments of \code{.f}, along with
-      its attributes (except that the \code{"class"} attribute gains the
-      component \code{"firm_closure"}, unless it already contains it).
+      \code{firmly} preserves the attributes and formal arguments of
+      \code{.f} (except that the \code{"class"} attribute gains the component
+      \code{"firm_closure"}, unless it already contains it).
     }
   }
 
@@ -146,10 +143,10 @@ by \code{firmly}.
 
     Otherwise, \code{loosely} returns the underlying (original) function,
     stripped of any input validation checks imposed by \code{firmly}, unless
-    \code{.keep_check} or \code{.keep_warning} overrides this: if
-    \code{.keep_check}, resp. \code{.keep_warning}, is \code{TRUE},
+    one of the flags \code{.keep_check}, \code{.keep_warning} is switched on:
+    if \code{.keep_check}, resp. \code{.keep_warning}, is \code{TRUE},
     \code{loosely} retains any existing checks, resp. missing-argument
-    warnings.
+    warnings, of \code{.f}.
   }
 }
 
@@ -198,9 +195,24 @@ identical(loosely(secant_vec), secant)  # TRUE
 
 }
 \seealso{
-\link{scope-changing}, \link{checklist}, \link{components},
-  \link{bare-type-checkers}, \link{scalar-type-checkers},
-  \link{type-checkers}, \link{misc-checkers}
+\code{firmly} is enhanced by a number of helper functions:
+  \itemize{
+    \item To verify that your check formulae are syntactically correct, use
+      the predicates \code{\link{is_check_formula}},
+      \code{\link{is_checklist}}.
+    \item To make your own reusable input checkers, use
+      \code{\link{localize}}.
+    \item Pre-made input checkers are provided to facilitate argument checks
+      for \link[=type-checkers]{types}, \link[=bare-type-checkers]{bare
+      types}, \link[=scalar-type-checkers]{scalar types}, and
+      \link[=misc-checkers]{other} common data structures and input
+      assumptions. All these functions are prefixed by \code{vld} (for easy
+      look-up in editors and IDE's that support auto-completion).
+    \item To access the components of a firmly applied function, use
+      \code{\link{firm_core}}, \code{\link{firm_checks}},
+      \code{\link{firm_args}} (or simply \code{\link[base]{print}} the
+      function).
+  }
 }
 \usage{
 firmly(.f, ..., .checklist = list(), .warn_missing = character())
