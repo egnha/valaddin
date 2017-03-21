@@ -1,7 +1,7 @@
 ---
 title: "Using valaddin"
 author: "Eugene Ha"
-date: "2017-03-18"
+date: "2017-03-21"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using valaddin}
@@ -52,36 +52,30 @@ ff("0.0", 0.1)
 
 ### Enforce constraints on argument values
 
-In the above example, to enforce the additional requirement that `h` is small 
-but non-zero (less than 1 in absolute value, say), apply another check formula
-to `f`:
-
-```{r}
-nearly_cos <-
-  firmly(f, ~ is.numeric, list("abs(h) is too big" ~ abs(h)) ~ {. > 0 && . < 1})
-```
-
-Alternatively, since `ff` already incorporates the type check, simply apply the
-the second check formula to `ff` to get the same result:
+For example, you can use `firmly` to put a cap on potentially long running
+computations:
 
 ```{r, error = TRUE, purl = FALSE}
-nearly_cos <-
-  firmly(ff, list("abs(h) is too big" ~ abs(h)) ~ {. > 0 && . < 1})
+fib <- function(n) {
+  if (n <= 1) return(1L)
+  Recall(n - 1) + Recall(n - 2)
+}
 
-nearly_cos(0.0, 0.5)
+capped_fib <- firmly(fib, list("n capped at 30" ~ ceiling(n)) ~ {. <= 30L})
 
-nearly_cos(0.0, -1.1)
+capped_fib(10)
+capped_fib(50)
 ```
 
 The role of each part of the value-constraining formula is evident:
 
--   The right-hand side `{. > 0 && . < 1}` is the constraint itself, which
-    expresses conditions on `.`, a placeholder argument.
+-   The right-hand side `{. <= 30L}` is the constraint itself, which expresses
+    a condition on `.`, a placeholder argument.
 
--   The left-hand side `list("abs(h) is too big" ~ abs(h))` specifies the 
-    expression for the placeholder, namely `abs(h)`, as well as the message to
+-   The left-hand side `list("n capped at 30" ~ ceiling(n))` specifies the 
+    expression for the placeholder, namely `ceiling(n)`, along with a message to
     be produced if the constraint is violated.
-    
+
 ### Warn about pitfalls
 
 If the default behavior of a function is problematic, or unexpected, you can use
@@ -99,12 +93,14 @@ of `d` using `as.POSIXlt`, you get an answer that interprets `d` according to
 your current time zone; another user—or you, in another country—may get a 
 different result.
 
-- If you're in CET time zone:
+-   If you're in CET time zone:
+
     ```{r}
     as.POSIXlt(d, tz = "EST")$hour
     ```
 
-- If you were to change to EST time zone and rerun the code:
+-    If you were to change to EST time zone and rerun the code:
+
     ```{r}
     Sys.setenv(TZ = "EST")
     d <- as.POSIXct("2017-01-01 09:30:00")

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Eugene Ha" />
 
-<meta name="date" content="2017-03-18" />
+<meta name="date" content="2017-03-21" />
 
 <title>Using valaddin</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Using valaddin</h1>
 <h4 class="author"><em>Eugene Ha</em></h4>
-<h4 class="date"><em>2017-03-18</em></h4>
+<h4 class="date"><em>2017-03-21</em></h4>
 
 
 
@@ -95,23 +95,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="enforce-constraints-on-argument-values" class="section level3">
 <h3>Enforce constraints on argument values</h3>
-<p>In the above example, to enforce the additional requirement that <code>h</code> is small but non-zero (less than 1 in absolute value, say), apply another check formula to <code>f</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nearly_cos &lt;-
-<span class="st">  </span><span class="kw">firmly</span>(f, <span class="op">~</span><span class="st"> </span>is.numeric, <span class="kw">list</span>(<span class="st">&quot;abs(h) is too big&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">abs</span>(h)) <span class="op">~</span><span class="st"> </span>{. <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;&amp;</span><span class="st"> </span>. <span class="op">&lt;</span><span class="st"> </span><span class="dv">1</span>})</code></pre></div>
-<p>Alternatively, since <code>ff</code> already incorporates the type check, simply apply the the second check formula to <code>ff</code> to get the same result:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nearly_cos &lt;-
-<span class="st">  </span><span class="kw">firmly</span>(ff, <span class="kw">list</span>(<span class="st">&quot;abs(h) is too big&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">abs</span>(h)) <span class="op">~</span><span class="st"> </span>{. <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;&amp;</span><span class="st"> </span>. <span class="op">&lt;</span><span class="st"> </span><span class="dv">1</span>})
+<p>For example, you can use <code>firmly</code> to put a cap on potentially long running computations:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fib &lt;-<span class="st"> </span><span class="cf">function</span>(n) {
+  <span class="cf">if</span> (n <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1</span>) <span class="kw">return</span>(1L)
+  <span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span><span class="dv">2</span>)
+}
 
-<span class="kw">nearly_cos</span>(<span class="fl">0.0</span>, <span class="fl">0.5</span>)
-<span class="co">#&gt; [1] 0.9588511</span>
+capped_fib &lt;-<span class="st"> </span><span class="kw">firmly</span>(fib, <span class="kw">list</span>(<span class="st">&quot;n capped at 30&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">ceiling</span>(n)) <span class="op">~</span><span class="st"> </span>{. <span class="op">&lt;=</span><span class="st"> </span>30L})
 
-<span class="kw">nearly_cos</span>(<span class="fl">0.0</span>, <span class="op">-</span><span class="fl">1.1</span>)
-<span class="co">#&gt; Error: nearly_cos(x = 0, h = -1.1)</span>
-<span class="co">#&gt; abs(h) is too big</span></code></pre></div>
+<span class="kw">capped_fib</span>(<span class="dv">10</span>)
+<span class="co">#&gt; [1] 89</span>
+<span class="kw">capped_fib</span>(<span class="dv">50</span>)
+<span class="co">#&gt; Error: capped_fib(n = 50)</span>
+<span class="co">#&gt; n capped at 30</span></code></pre></div>
 <p>The role of each part of the value-constraining formula is evident:</p>
 <ul>
-<li><p>The right-hand side <code>{. &gt; 0 &amp;&amp; . &lt; 1}</code> is the constraint itself, which expresses conditions on <code>.</code>, a placeholder argument.</p></li>
-<li><p>The left-hand side <code>list(&quot;abs(h) is too big&quot; ~ abs(h))</code> specifies the expression for the placeholder, namely <code>abs(h)</code>, as well as the message to be produced if the constraint is violated.</p></li>
+<li><p>The right-hand side <code>{. &lt;= 30L}</code> is the constraint itself, which expresses a condition on <code>.</code>, a placeholder argument.</p></li>
+<li><p>The left-hand side <code>list(&quot;n capped at 30&quot; ~ ceiling(n))</code> specifies the expression for the placeholder, namely <code>ceiling(n)</code>, along with a message to be produced if the constraint is violated.</p></li>
 </ul>
 </div>
 <div id="warn-about-pitfalls" class="section level3">

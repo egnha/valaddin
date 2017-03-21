@@ -9,10 +9,6 @@ f <- function(x, h) (sin(x + h) - sin(x)) / h
 ff <- firmly(f, ~ is.numeric)
 
 ## ------------------------------------------------------------------------
-nearly_cos <-
-  firmly(f, ~ is.numeric, list("abs(h) is too big" ~ abs(h)) ~ {. > 0 && . < 1})
-
-## ------------------------------------------------------------------------
 Sys.setenv(TZ = "CET")
 (d <- as.POSIXct("2017-01-01 09:30:00"))
 
