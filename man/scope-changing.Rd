@@ -41,6 +41,10 @@ chk_pos_lcl <- localize(chk_pos_gbl)
 chk_pos_lcl(~x, "y not greater than x" ~ x - y)
 # list("Not positive: x" ~ x, "y not greater than x" ~ x - y) ~ {. > 0}
 
+# localize and globalize are mutual inverses
+identical(globalize(localize(chk_pos_gbl)), chk_pos_gbl)  # TRUE
+all.equal(localize(globalize(chk_pos_lcl)), chk_pos_lcl)  # TRUE
+
 \dontrun{
 
 pass <- function(x, y) "Pass"
@@ -65,11 +69,20 @@ h(0, 0)  # Errors: "Not positive: `x`", "Not positive: `y`"
 # Alternatively, globalize the localized checker
 h2 <- firmly(pass, globalize(chk_pos_lcl))
 all.equal(h, h2)  # TRUE
-}
 
-# localize() and globalize() are mutual inverses
-identical(globalize(localize(chk_pos_gbl)), chk_pos_gbl)  # TRUE
-all.equal(localize(globalize(chk_pos_lcl)), chk_pos_lcl)  # TRUE
+# Use localize to make parameterized checkers
+want_lte <- function(n, ...) {
+  err_msg <- paste("Not <=", as.character(n))
+  localize(err_msg ~ {. <= n})(...)
+}
+fib <- function(n) {
+  if (n <= 1L) return(1L)
+  Recall(n - 1) + Recall(n - 2)
+}
+capped_fib <- firmly(fib, want_lte(30, ~ ceiling(n)))
+capped_fib(19)  # 6765
+capped_fib(31)  # Error: "Not <= 30: ceiling(n)"
+}
 
 }
 \seealso{
