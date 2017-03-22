@@ -4,7 +4,9 @@
 \alias{bare-type-checkers}
 \title{Bare type checkers}
 \arguments{
-\item{\dots}{One-sided formulae that specify the expressions to check.}
+\item{\dots}{Check items, i.e., formulae that are one-sided or have a string
+as left-hand side (see \emph{Check Formulae of Local Scope} in the
+documentation page \link{firmly}). These are the expressions to check.}
 }
 \value{
 Check formula of local scope.
@@ -30,14 +32,19 @@ f <- function(x, y) "Pass"
 # Impose a check on x: ensure it's a bare logical object (i.e., has no class)
 f_firm <- firmly(f, vld_bare_logical(~x))
 x <- structure(TRUE, class = "boolean")
-f_firm(TRUE, 0)  # "Pass"
+f_firm(TRUE, 0)  # [1] "Pass"
 f_firm(x, 0)     # Error: "Not bare logical: x"
+
+# Use a custom error message
+msg <- "x should be a logical vector without attributes"
+f_firm <- firmly(f, vld_bare_logical(msg ~ x))
+f_firm(x, 0)     # Error: "x should be a logical vector without attributes"
 
 # To impose the same check on all arguments, apply globalize()
 f_firmer <- firmly(f, globalize(vld_bare_logical))
-f_firmer(TRUE, FALSE)  # "Pass"
-f_firmer(TRUE, 0)      # Error: "Not bare logical: y"
-f_firmer(x, 0)         # Errors: "Not bare logical: x", "Not bare logical: y"
+f_firmer(TRUE, FALSE)  # [1] "Pass"
+f_firmer(TRUE, 0)      # Error: "Not bare logical: `y`"
+f_firmer(x, 0)         # Errors: "Not bare logical: `x`", "Not bare logical: `y`"
 }
 }
 \alias{vld_bare_atomic}
@@ -67,7 +74,7 @@ Corresponding predicates: \link[purrr:bare-type-predicates]{Bare type predicates
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
-The notion of \dQuote{scope} is explained in the \emph{Check Formulae} section of \link{firmly}.
+The notions of \dQuote{scope} and \dQuote{check item} are explained in the \emph{Check Formulae} section of \link{firmly}.
 
 Other checkers: \link{misc-checkers}, \link{scalar-type-checkers}, \link{type-checkers}
 }

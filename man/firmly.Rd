@@ -6,12 +6,13 @@
 \alias{is_firm}
 \title{Apply a function firmly}
 \arguments{
-\item{.f}{Interpreted function, i.e., a function of type \code{"closure"}.}
+\item{.f}{Interpreted function (of type \code{"closure"}), i.e., not a
+primitive function.}
 
-\item{\dots}{Check formula(e) (see \emph{Check Formulae}).}
+\item{\dots}{Input-validation check formula(e).}
 
-\item{.checklist}{List of check formulae. These are combined with check
-formulae provided via \code{\dots}.}
+\item{.checklist}{List of check formulae. (These are combined with check
+formulae provided via \code{\dots}.)}
 
 \item{.warn_missing}{Character vector of arguments of \code{.f} whose absence
 should raise a warning.}
@@ -27,9 +28,9 @@ not a firmly applied function be muffled?}
 \description{
 \code{firmly} transforms a function into a function with input validation
 checks. \code{loosely} undoes the application of \code{firmly}, by returning
-the original function, without checks. \code{is_firm} is a predicate function
-that checks whether an object is a firmly applied function, i.e., one created
-by \code{firmly}.
+the original function (without checks). \code{is_firm} is a predicate
+function that checks whether an object is a firmly applied function, i.e.,
+a function created by \code{firmly}.
 }
 \section{Check Formulae}{
 
@@ -43,16 +44,16 @@ by \code{firmly}.
   i.e, a one-argument function that returns either \code{TRUE} or
   \code{FALSE}. It is the condition to check/enforce. The left-hand side
   \code{<scope>} is an expression specifying what the condition is to be
-  applied to: whether the condition is to be applied to all \emph{named}
-  arguments of \code{.f} (the case of \dQuote{global scope}), or whether the
-  condition is to be selectively applied to certain expressions of the
-  arguments (the case of \dQuote{local scope}).
+  applied to: whether the condition is to be applied to all
+  (non-\code{\dots}) arguments of \code{.f} (the case of \dQuote{global
+  scope}), or whether the condition is to be selectively applied to certain
+  expressions of the arguments (the case of \dQuote{local scope}).
 
-  Thus according to \strong{scope}, there are two classes of check formulae:
+  According to \strong{scope}, there are two classes of check formulae:
   \itemize{
     \item \strong{Check formulae of global scope}
       \preformatted{<string> ~ <predicate>}
-      \preformatted{~ <predicate>}
+      \preformatted{~<predicate>}
 
     \item \strong{Check formulae of local scope}
       \preformatted{list(<check_item>, <check_item>, ...) ~ <predicate>}
@@ -61,15 +62,16 @@ by \code{firmly}.
   \subsection{Check Formulae of Global Scope}{
     A \strong{global check formula} is a succinct way of asserting that the
     function \code{<predicate>} returns \code{TRUE} when called on each
-    (named) argument of \code{.f}. Each argument for which \code{<predicate>}
-    \emph{fails}—returns \code{FALSE} or is itself not evaluable—produces an
-    error message, which is auto-generated, unless a custom error message is
-    supplied by specifying the string \code{<string>}.
+    (non-\code{\dots}) argument of \code{.f}. Each argument for which
+    \code{<predicate>} \emph{fails}—returns \code{FALSE} or is itself not
+    evaluable—produces an error message, which is auto-generated unless a
+    custom error message is supplied by specifying the string
+    \code{<string>}.
 
     \subsection{Example}{
-      The condition that all (named) arguments of a function must be
-      numerical can be enforced by the check formula
-      \preformatted{~ is.numeric}
+      The condition that all (non-\code{\dots}) arguments of a function must
+      be numerical can be enforced by the check formula
+      \preformatted{~is.numeric}
       or
       \preformatted{"Not numeric" ~ is.numeric}
       if the custom error message \code{"Not numeric"} is to be used (in lieu
@@ -84,14 +86,14 @@ by \code{firmly}.
     the condition that the function \code{<predicate>} is \code{TRUE} for the
     expression \code{<expression>}. As for global check formulae, each check
     item for which \code{<predicate>} fails produces an error message, which
-    is auto-generated, unless a custom error message is supplied by a string
+    is auto-generated unless a custom error message is supplied by a string
     as part of the left-hand side of the check item (formula).
 
     \subsection{Example}{
       The condition that \code{x} and \code{y} must differ for the function
       \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
       check formula
-      \preformatted{list(~ x - y) ~ function(.) abs(.) > 0}
+      \preformatted{list(~x - y) ~ function(.) abs(.) > 0}
       or
       \preformatted{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
       if the custom error message \code{"x, y must differ"} is to be used (in
@@ -108,8 +110,8 @@ by \code{firmly}.
 
     \subsection{Example}{
       The (onsided, global) check formula
-      \preformatted{~ {. > 0}}
-      is equivalent to the check formula \code{~ function(.) {. > 0}}
+      \preformatted{~{. > 0}}
+      is equivalent to the check formula \code{~function(.) {. > 0}}
     }
   }
 }
@@ -118,16 +120,16 @@ by \code{firmly}.
 
   \subsection{\code{firmly}}{
     \code{firmly} does nothing when there is nothing to do: \code{.f} is
-    returned, unaltered, when both \code{.checklist} and
-    \code{.warn_missing} are empty, or when \code{.f} has no named argument
-    and \code{.warn_missing} is empty.
+    returned, unaltered, when both \code{.checklist} and \code{.warn_missing}
+    are empty, or when \code{.f} has no named argument and
+    \code{.warn_missing} is empty.
 
     Otherwise, \code{firmly} again returns a function that behaves
     \emph{identically} to \code{.f}, but also performs input validation:
     before a call to \code{.f} is attempted, its inputs are checked, and if
     any check fails, an error halts further execution with a message
-    tabulating every failing check. If all checks pass, \code{.f} is still
-    evaluates its arguments lazily.
+    tabulating every failing check. (If all checks pass, the call to
+    \code{.f} respects lazy evaluation, as usual.)
 
     \subsection{Formal Arguments and Attributes}{
       \code{firmly} preserves the attributes and formal arguments of
@@ -135,7 +137,6 @@ by \code{firmly}.
       \code{"firm_closure"}, unless it already contains it).
     }
   }
-
   \subsection{\code{loosely}}{
     \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
     firmly applied function, or both \code{.keep_check} and
@@ -148,70 +149,120 @@ by \code{firmly}.
     \code{loosely} retains any existing checks, resp. missing-argument
     warnings, of \code{.f}.
   }
+  \subsection{\code{is_firm}}{
+    \code{is_firm} returns \code{TRUE} if \code{x} is a firmly applied
+    function (i.e., has class \code{"firm_closure"}), and \code{FALSE},
+    otherwise.
+  }
 }
 
 \examples{
 \dontrun{
 
-secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
+dlog <- function(x, h) (log(x + h) - log(x)) / h
 
-# Ensure that `f` is a function
-secant_firm <- firmly(secant, list("`f` not a function" ~ f) ~ is.function)
-secant_firm(log, 1, .1)    # 0.9531018
-secant_firm("log", 1, .1)  # Error: "`f` not a function"
+# Require all arguments to be numeric (auto-generated error message)
+dlog_fm <- firmly(dlog, ~is.numeric)
+dlog_fm(1, .1)    # [1] 0.9531018
+dlog_fm("1", .1)  # Error: "FALSE: is.numeric(x)"
 
-# Ensure that `x` and `dx` are numerical (possibly non-scalars)
-secant_vec <- firmly(secant_firm, list(~x, ~dx) ~ is.numeric)
-secant_vec(log, c(1, 2), .1)  # 0.9531018 0.4879016
-secant_vec("log", 1, .1)      # Error: "`f` not a function" (as before)
-secant_vec(log, "1", .1)      # Error: "FALSE: is.numeric(x)"
-secant_vec("log", "1", .1)    # Two errors
+# Require all arguments to be numeric (custom error message)
+dlog_fm <- firmly(dlog, "Not numeric" ~ is.numeric)
+dlog_fm("1", .1)  # Error: "Not numeric: `x`"
 
-# Ensure that `dx` is a numerical scalar
-secant_scalar <- firmly(secant_firm, list(~dx) ~ purrr::is_scalar_numeric)
-secant_scalar(log, c(1, 2), .1)    # 0.9531018 0.4879016 (as before)
-secant_scalar(log, 1, c(.1, .05))  # Error: "FALSE: purrr::is_scalar_numeric(dx)"
-secant_scalar(log, 1, ".1" / 2)    # Error evaluating check
+# Alternatively, "globalize" a localized checker (see ?localize, ?globalize)
+dlog_fm <- firmly(dlog, globalize(vld_numeric))
+dlog_fm("1", .1)  # Error: "Not double/integer: `x`"
 
-# Use purrr::lift() for predicate functions with multi-argument dependencies
-f <- function(f, l, r) secant(f, l, dx = r - l)
-is_monotone <- function(x, y) y - x > 0
-secant_right <- firmly(f, list(~list(l, r)) ~ purrr::lift(is_monotone))
-secant_right(log, 1, 1.1)  # 0.9531018
-secant_right(log, 1, .9)   # Error: "FALSE: purrr::lift(is_monotone)(list(l, r))"
+# Predicate functions can be specified anonymously or by name
+dlog_fm <- firmly(dlog, list(~x, ~x + h, ~abs(h)) ~ function(x) x > 0)
+dlog_fm <- firmly(dlog, list(~x, ~x + h, ~abs(h)) ~ {. > 0})
+is_positive <- function(x) x > 0
+dlog_fm <- firmly(dlog, list(~x, ~x + h, ~abs(h)) ~ is_positive)
+dlog_fm(1, 0)  # Error: "FALSE: is_positive(abs(h))"
 
-# Alternatively, secant_right() can be implemented with a unary check
-secant_right2 <- firmly(f, list(~ r - l) ~ {. > 0})
-all.equal(secant_right(log, 1, 1.1), secant_right2(log, 1, 1.1))  # TRUE
-secant_right2(log, 1, .9)  # Error (as before)
+# Describe checks individually using custom error messages
+dlog_fm <-
+  firmly(dlog,
+         list("x not positive" ~ x, ~x + h, "Division by 0 (=h)" ~ abs(h)) ~
+           is_positive)
+dlog_fm(-1, 0)
+# Errors: "x not positive", "FALSE: is_positive(x + h)", "Division by 0 (=h)"
 
-# firmly won't force any argument not involved in a check
-g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
-g(c("a", "b"), stop("Not signaled"))  # "Pass"
+# Specify checks more succinctly by using a (localized) custom checker
+req_positive <- localize("Not positive" ~ is_positive)
+dlog_fm <- firmly(dlog, req_positive(~x, ~x + h, ~abs(h)))
+dlog_fm(1, 0)  # Error: "Not positive: abs(h)"
+
+# Combine multiple checks
+dlog_fm <- firmly(dlog,
+                  "Not numeric" ~ is.numeric,
+                  list(~x, ~x + h, "Division by 0" ~ abs(h)) ~ {. > 0})
+dlog_fm("1", 0)  # Errors: "Not numeric: `x`", check-eval error, "Division by 0"
+
+# Any check can be expressed using isTRUE
+err_msg <- "x, h differ in length"
+dlog_fm <- firmly(dlog, list(err_msg ~ length(x) - length(h)) ~ {. == 0L})
+dlog_fm(1:2, 0:2)  # Error: "x, h differ in length"
+dlog_fm <- firmly(dlog, list(err_msg ~ length(x) == length(h)) ~ isTRUE)
+dlog_fm(1:2, 0:2)  # Error: "x, h differ in length"
+
+# More succinctly, use vld_true
+dlog_fm <- firmly(dlog, vld_true(~length(x) == length(h), ~all(abs(h) > 0)))
+dlog_fm(1:2, 0:2)
+# Errors: "Not TRUE: length(x) == length(h)", "Not TRUE: all(abs(h) > 0)"
+
+dlog_fm(1:2, 1:2)  # [1] 0.6931472 0.3465736
 
 # loosely recovers the underlying function
-identical(loosely(secant_vec), secant)  # TRUE
+identical(loosely(dlog_fm), dlog)  # [1] TRUE
+
+# Use .warn_missing when you want to ensure an argument is explicitly given
+# (see vignette("valaddin") for an elaboration of this particular example)
+as_POSIXct <- firmly(as.POSIXct, .warn_missing = "tz")
+Sys.setenv(TZ = "EST")
+as_POSIXct("2017-01-01 03:14:16")  # [1] "2017-01-01 03:14:16 EST"
+                                   # Warning: "Argument(s) expected ... `tz`"
+as_POSIXct("2017-01-01 03:14:16", tz = "UTC")  # [1] "2017-01-01 03:14:16 UTC"
+loosely(as_POSIXct)("2017-01-01 03:14:16")     # [1] "2017-01-01 03:14:16 EST"
+
+# Use firmly to constrain undesirable behavior, e.g., long-running computations
+fib <- function(n) {
+  if (n <= 1L) return(1L)
+  Recall(n - 1) + Recall(n - 2)
+}
+fib <- firmly(fib, list("`n` capped at 30" ~ ceiling(n)) ~ {. <= 30L})
+fib(21)  # [1] 17711 (NB: Validation done only once, not for every recursive call)
+fib(31)  # Error: `n` capped at 30
+
+# Apply fib unrestricted
+loosely(fib)(31)  # [1] 2178309 (may take several seconds to finish)
+
+# firmly won't force an argument that's not involved in checks
+g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
+g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
 }
 
 }
 \seealso{
 \code{firmly} is enhanced by a number of helper functions:
   \itemize{
-    \item To verify that your check formulae are syntactically correct, use
-      the predicates \code{\link{is_check_formula}},
-      \code{\link{is_checklist}}.
-    \item To make your own reusable input checkers, use
+    \item To verify that a check formula is syntactically correct, use the
+      predicates \code{\link{is_check_formula}}, \code{\link{is_checklist}}.
+    \item To make custom check-formula generators, use
       \code{\link{localize}}.
-    \item Pre-made input checkers are provided to facilitate argument checks
-      for \link[=type-checkers]{types}, \link[=bare-type-checkers]{bare
-      types}, \link[=scalar-type-checkers]{scalar types}, and
+    \item Pre-made check-formula generators are provided to facilitate
+      argument checks for \link[=type-checkers]{types},
+      \link[=bare-type-checkers]{bare types},
+      \link[=scalar-type-checkers]{scalar types}, and
       \link[=misc-checkers]{other} common data structures and input
-      assumptions. All these functions are prefixed by \code{vld} (for easy
-      look-up in editors and IDE's that support auto-completion).
+      assumptions. These functions are prefixed by \code{vld_}, for
+      convenient browsing and look-up in editors and IDE's that support name
+      completion.
     \item To access the components of a firmly applied function, use
       \code{\link{firm_core}}, \code{\link{firm_checks}},
       \code{\link{firm_args}} (or simply \code{\link[base]{print}} the
-      function).
+      function to display its components).
   }
 }
 \usage{

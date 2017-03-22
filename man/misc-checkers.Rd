@@ -4,7 +4,9 @@
 \alias{misc-checkers}
 \title{Miscellaneous checkers}
 \arguments{
-\item{\dots}{One-sided formulae that specify the expressions to check.}
+\item{\dots}{Check items, i.e., formulae that are one-sided or have a string
+as left-hand side (see \emph{Check Formulae of Local Scope} in the
+documentation page \link{firmly}). These are the expressions to check.}
 }
 \value{
 Check formula of local scope.
@@ -34,19 +36,24 @@ Each function \code{vld_*} is a function of class
 f <- function(x, y) "Pass"
 
 # Impose the condition that x is a formula
-g <- firmly(f, vld_formula(~ x))
-g(z ~ a + b, 0)  # "Pass"
+g <- firmly(f, vld_formula(~x))
+g(z ~ a + b, 0)  # [1] "Pass"
 g(0, 0)          # Error: "Not formula: x"
 
 # Impose the condition that x and y are disjoint (assuming they are vectors)
-h <- firmly(f, vld_empty(~ intersect(x, y)))
-h(letters[1:3], letters[4:5])  # "Pass"
+h <- firmly(f, vld_empty(~intersect(x, y)))
+h(letters[1:3], letters[4:5])  # [1] "Pass"
 h(letters[1:3], letters[3:5])  # Error: "Not empty: intersect(x, y)"
 
+# Use a custom error message
+h <- firmly(f, vld_empty("x, y must be disjoint" ~ intersect(x, y)))
+h(letters[1:3], letters[3:5])  # Error: "x, y must be disjoint"
+
 # vld_true can be used to implement any kind of input validation
-ifelse_f <- firmly(ifelse, vld_true(~ typeof(yes) == typeof(no)))
+ifelse_f <- firmly(ifelse, vld_true(~typeof(yes) == typeof(no)))
 (w <- {set.seed(1); rnorm(5)})
-ifelse_f(w > 0, 0, "1")  # Error: Not TRUE: typeof(yes) == typeof(no)
+# [1] -0.6264538  0.1836433 -0.8356286  1.5952808  0.3295078
+ifelse_f(w > 0, 0, "1")  # Error: "Not TRUE: typeof(yes) == typeof(no)"
 ifelse_f(w > 0, 0, 1)    # [1] 1 0 1 0 0
 }
 
@@ -138,7 +145,7 @@ Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.cal
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
-The notion of \dQuote{scope} is explained in the \emph{Check Formulae} section of \link{firmly}.
+The notions of \dQuote{scope} and \dQuote{check item} are explained in the \emph{Check Formulae} section of \link{firmly}.
 
 Other checkers: \link{bare-type-checkers}, \link{scalar-type-checkers}, \link{type-checkers}
 }

@@ -3,7 +3,7 @@
 \docType{package}
 \name{valaddin}
 \alias{valaddin-package}
-\title{valaddin: Validate Function Inputs}
+\title{valaddin: Functional Input Validation}
 \description{
 \emph{valaddin} provides a functional operator, \code{\link{firmly}}, that
 enhances functions with input validation. You supply a function \code{f}
@@ -21,8 +21,8 @@ legibility, reusability, and reliability of your code:
     boilerplate.
   \item Reduce duplication by reusing common checks across functions with
     common input requirements.
-  \item Vary the strictness of a function according to need and circumstance.
   \item Make function outputs more predictable by constraining their inputs.
+  \item Vary the strictness of a function according to need and circumstance.
 }
 }
 \details{

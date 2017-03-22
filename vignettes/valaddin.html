@@ -12,7 +12,7 @@
 
 <meta name="author" content="Eugene Ha" />
 
-<meta name="date" content="2017-03-21" />
+<meta name="date" content="2017-03-22" />
 
 <title>Using valaddin</title>
 
@@ -70,12 +70,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Using valaddin</h1>
 <h4 class="author"><em>Eugene Ha</em></h4>
-<h4 class="date"><em>2017-03-21</em></h4>
+<h4 class="date"><em>2017-03-22</em></h4>
 
 
 
 <p><em>valaddin</em> is a lightweight R package that enables you to transform an existing function into a function with input validation checks. It does so without requiring you to modify the body of the function, in contrast to doing input validation using <code>stop</code> or <code>stopifnot</code>, and is therefore suitable for both programmatic and interactive use.</p>
-<p>This document illustrates the use of valaddin by example. For usage details, see the package documentation (<code>?firmly</code>).</p>
+<p>This document illustrates the use of valaddin, by example. For usage details, see the main documentation page, <code>?firmly</code>.</p>
 <div id="use-cases" class="section level2">
 <h2>Use cases</h2>
 <p>The workhorse of valaddin is the function <code>firmly</code>, which applies input validation to a function, <em>in situ</em>. It can be used to:</p>
@@ -83,9 +83,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h3>Enforce types for arguments</h3>
 <p>For example, to require that all arguments of the function</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span><span class="cf">function</span>(x, h) (<span class="kw">sin</span>(x <span class="op">+</span><span class="st"> </span>h) <span class="op">-</span><span class="st"> </span><span class="kw">sin</span>(x)) <span class="op">/</span><span class="st"> </span>h</code></pre></div>
-<p>are numerical, apply <code>firmly</code> with the check formula <code>~ is.numeric</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ff &lt;-<span class="st"> </span><span class="kw">firmly</span>(f, <span class="op">~</span><span class="st"> </span>is.numeric)</code></pre></div>
-<p><code>ff</code> behaves just like <code>f</code>, but with a constraint on the type of its input:</p>
+<p>are numerical, apply <code>firmly</code> with the check formula <code>~is.numeric</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ff &lt;-<span class="st"> </span><span class="kw">firmly</span>(f, <span class="op">~</span>is.numeric)</code></pre></div>
+<p><code>ff</code> behaves just like <code>f</code>, but with a constraint on the type of its arguments:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ff</span>(<span class="fl">0.0</span>, <span class="fl">0.1</span>)
 <span class="co">#&gt; [1] 0.9983342</span>
 
@@ -95,7 +95,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="enforce-constraints-on-argument-values" class="section level3">
 <h3>Enforce constraints on argument values</h3>
-<p>For example, you can use <code>firmly</code> to put a cap on potentially long running computations:</p>
+<p>For example, use <code>firmly</code> to put a cap on potentially long-running computations:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fib &lt;-<span class="st"> </span><span class="cf">function</span>(n) {
   <span class="cf">if</span> (n <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1</span>) <span class="kw">return</span>(1L)
   <span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span><span class="dv">2</span>)
@@ -110,8 +110,8 @@ capped_fib &lt;-<span class="st"> </span><span class="kw">firmly</span>(fib, <sp
 <span class="co">#&gt; n capped at 30</span></code></pre></div>
 <p>The role of each part of the value-constraining formula is evident:</p>
 <ul>
-<li><p>The right-hand side <code>{. &lt;= 30L}</code> is the constraint itself, which expresses a condition on <code>.</code>, a placeholder argument.</p></li>
-<li><p>The left-hand side <code>list(&quot;n capped at 30&quot; ~ ceiling(n))</code> specifies the expression for the placeholder, namely <code>ceiling(n)</code>, along with a message to be produced if the constraint is violated.</p></li>
+<li><p>The right-hand side <code>{. &lt;= 30L}</code> is the constraint itself, expressed as a condition on <code>.</code>, a placeholder argument.</p></li>
+<li><p>The left-hand side <code>list(&quot;n capped at 30&quot; ~ ceiling(n))</code> specifies the expression for the placeholder, namely <code>ceiling(n)</code>, along with a message to produce if the constraint is violated.</p></li>
 </ul>
 </div>
 <div id="warn-about-pitfalls" class="section level3">
@@ -120,7 +120,7 @@ capped_fib &lt;-<span class="st"> </span><span class="kw">firmly</span>(fib, <sp
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Sys.setenv</span>(<span class="dt">TZ =</span> <span class="st">&quot;CET&quot;</span>)
 (d &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>))
 <span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></code></pre></div>
-<p>The problem is that <code>d</code> is a potentially <em>ambiguous</em> object (with hidden state), because it’s not assigned an explicit time zone. If you compute the local hour of <code>d</code> using <code>as.POSIXlt</code>, you get an answer that interprets <code>d</code> according to your current time zone; another user—or you, in another country—may get a different result.</p>
+<p>The problem is that <code>d</code> is a potentially <em>ambiguous</em> object (with hidden state), because it’s not assigned a time zone, explicitly. If you compute the local hour of <code>d</code> using <code>as.POSIXlt</code>, you get an answer that interprets <code>d</code> according to your current time zone; another user—or you, in another country, in the future—may get a different result.</p>
 <ul>
 <li><p>If you’re in CET time zone:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.POSIXlt</span>(d, <span class="dt">tz =</span> <span class="st">&quot;EST&quot;</span>)<span class="op">$</span>hour
@@ -141,6 +141,7 @@ d &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="
 
 <span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>, <span class="dt">tz =</span> <span class="st">&quot;CET&quot;</span>)
 <span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></code></pre></div>
+<p><strong>NB</strong>: The missing-argument warning is implemented by wrapping functions. The underlying function <code>base::as.POSIXct</code> is called <em>unmodified</em>.</p>
 <div id="use-loosely-to-access-the-original-function" class="section level4">
 <h4>Use <code>loosely</code> to access the original function</h4>
 <p>Though reassigning <code>as.POSIXct</code> may seem risky, it is not, for the behavior is unchanged (aside from the extra precaution), and the original <code>as.POSIXct</code> remains accessible:</p>
@@ -178,7 +179,7 @@ neg &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">6</s
 ) <span class="op">~</span><span class="st"> </span>isTRUE
 
 ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, chk_length_type)</code></pre></div>
-<p><code>ifelse_f</code> is more pedantic than <code>ifelse</code>. But it also saves you from the unintended consequences of invalid inputs.</p>
+<p><code>ifelse_f</code> is more pedantic than <code>ifelse</code>. But it also spares you the consequences of invalid inputs:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">0</span>, w)
 <span class="co">#&gt; Error: ifelse_f(test = w &gt; 0, yes = 0, no = w)</span>
 <span class="co">#&gt; 'yes', 'no' differ in length</span>
@@ -200,8 +201,8 @@ ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, ch
 </div>
 <div id="reduce-the-risks-of-a-lazy-evaluation-style" class="section level3">
 <h3>Reduce the risks of a lazy evaluation-style</h3>
-<p>When R calls a function like <code>f(a, b)</code>, the value of the argument <code>a</code> is not materialized in the body of <code>f</code> until it is actually used. Usually, you can safely ignore this as a technicality of R’s evaluation model; but in some situations, it can be problematic if you’re not mindful of it.</p>
-<p>Consider a bank that waives fees for students<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. A function to make deposits might look like this:</p>
+<p>When R make a function call, say, <code>f(a)</code>, the <em>value</em> of the argument <code>a</code> is not materialized in the body of <code>f</code> until it is actually needed. Usually, you can safely ignore this as a technicality of R’s evaluation model; but in some situations, it can be problematic if you’re not mindful of it.</p>
+<p>Consider a bank that waives fees for students. A function to make deposits might look like this<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">deposit &lt;-<span class="st"> </span><span class="cf">function</span>(account, value) {
   <span class="cf">if</span> (<span class="kw">is_student</span>(account)) {
     account<span class="op">$</span>fees &lt;-<span class="st"> </span><span class="dv">0</span>
@@ -230,7 +231,7 @@ is_student &lt;-<span class="st"> </span><span class="cf">function</span>(accoun
 <p>To minimize such risks, forbid <code>account</code> from being an environment:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">err_msg &lt;-<span class="st"> &quot;`acccount` should not be an environment&quot;</span>
 deposit &lt;-<span class="st"> </span><span class="kw">firmly</span>(deposit, <span class="kw">list</span>(err_msg <span class="op">~</span><span class="st"> </span>account) <span class="op">~</span><span class="st"> </span><span class="kw">Negate</span>(is.environment))</code></pre></div>
-<p>This reduces the bank’s liability:</p>
+<p>This makes Bob a happy customer, and reduces the bank’s liability:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bobs_acct &lt;-<span class="st"> </span><span class="kw">list2env</span>(<span class="kw">list</span>(<span class="dt">balance =</span> <span class="dv">10</span>, <span class="dt">fees =</span> <span class="dv">3</span>, <span class="dt">is_student =</span> <span class="ot">TRUE</span>))
 
 <span class="kw">deposit</span>(bobs_acct, bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance
@@ -262,7 +263,7 @@ hardhat &lt;-<span class="st"> </span><span class="cf">function</span>(gear, <sp
     <span class="kw">assign</span>(.<span class="op">$</span>fun, safe_fun, <span class="dt">envir =</span> env)
   }
 }</code></pre></div>
-<p>then gather your safety gear</p>
+<p>gather your safety gear</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">protection &lt;-<span class="st"> </span><span class="kw">list</span>(
   <span class="kw">list</span>(
     <span class="dt">fun =</span> <span class="st">&quot;save&quot;</span>,
@@ -276,9 +277,9 @@ hardhat &lt;-<span class="st"> </span><span class="cf">function</span>(gear, <sp
 <span class="st">      </span>{<span class="op">!</span><span class="kw">identical</span>(., <span class="kw">parent.frame</span>(<span class="dv">2</span>))}
   )
 )</code></pre></div>
-<p>and put it on</p>
+<p>then put it on</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hardhat</span>(protection)</code></pre></div>
-<p>Now <code>save</code> and <code>load</code> have safety features that prevent you from inadvertently destroying your data:</p>
+<p>Now <code>save</code> and <code>load</code> engage safety features that prevent you from inadvertently destroying your data:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> &quot;An expensive object&quot;</span>
 <span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)
 
@@ -300,11 +301,12 @@ x
 
 x
 <span class="co">#&gt; [1] &quot;An expensive object&quot;</span></code></pre></div>
+<p><strong>NB</strong>: Input validation is implemented by wrapping functions; thus, if the arguments are valid, the underlying functions <code>base::save</code>, <code>base::load</code> are called <em>unmodified</em>.</p>
 </div>
 </div>
 <div id="toolbox-of-input-checkers" class="section level2">
 <h2>Toolbox of input checkers</h2>
-<p><em>valaddin</em> provides a collection of over 50 pre-made input checkers to facilitate typical kinds of argument checks. These checkers are prefixed by <code>vld</code> (for easy look-up in editors and IDE’s that support auto-completion).</p>
+<p><em>valaddin</em> provides a collection of over 50 pre-made input checkers to facilitate typical kinds of argument checks. These checkers are prefixed by <code>vld_</code>, for convenient browsing and look-up in editors and IDE’s that support name completion.</p>
 <p>For example, to create a type-checked version of the function <code>upper.tri</code>, which returns an upper-triangular logical matrix, apply the checkers <code>vld_matrix</code>, <code>vld_boolean</code> (here “boolean” is shorthand for “logical vector of length 1”):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">upper_tri &lt;-<span class="st"> </span><span class="kw">firmly</span>(upper.tri, <span class="kw">vld_matrix</span>(<span class="op">~</span>x), <span class="kw">vld_boolean</span>(<span class="op">~</span>diag))
 
@@ -318,7 +320,7 @@ x
 <span class="co">#&gt; Error: upper_tri(x = 1:2)</span>
 <span class="co">#&gt; Not matrix: x</span>
 
-<span class="co"># But you actually meant it to be a diagonal matrix, say</span>
+<span class="co"># But say you actually meant (1, 2) to be a diagonal matrix</span>
 <span class="kw">upper_tri</span>(<span class="kw">diag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>))
 <span class="co">#&gt;       [,1]  [,2]</span>
 <span class="co">#&gt; [1,] FALSE  TRUE</span>
@@ -334,7 +336,7 @@ x
 <span class="co">#&gt; [2,] FALSE TRUE</span></code></pre></div>
 <div id="check-anything-with-vld_true" class="section level3">
 <h3>Check anything with <code>vld_true</code></h3>
-<p>Any input validation can be expressed as an assertion that “this or that must be true”; to apply it as such, use <code>vld_true</code> (or its complement, <code>vld_false</code>).</p>
+<p>Any input validation can be expressed as an assertion that “such and such must be true”; to apply it as such, use <code>vld_true</code> (or its complement, <code>vld_false</code>).</p>
 <p>For example, the above hardening of <code>ifelse</code> can be redone as:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chk_length_type &lt;-<span class="st"> </span><span class="kw">vld_true</span>(
   <span class="st">&quot;'yes', 'no' differ in length&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no),
@@ -359,48 +361,58 @@ neg &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">6</s
 <div id="make-your-own-input-checker-with-localize" class="section level3">
 <h3>Make your own input checker with <code>localize</code></h3>
 <p>A check formula such as <code>~ is.numeric</code> (or <code>&quot;Not number&quot; ~ is.numeric</code>, if you want a custom error message) imposes its condition “globally”:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">diff &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="op">~</span><span class="st"> </span>is.numeric)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">difference &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="op">~</span><span class="st"> </span>is.numeric)
 
-<span class="kw">diff</span>(<span class="dv">3</span>, <span class="dv">1</span>)
+<span class="kw">difference</span>(<span class="dv">3</span>, <span class="dv">1</span>)
 <span class="co">#&gt; [1] 2</span>
-<span class="kw">diff</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))
-<span class="co">#&gt; Error: diff(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;,&quot;UTC&quot;))</span>
+<span class="kw">difference</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))
+<span class="co">#&gt; Error: difference(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;,&quot;UTC&quot;))</span>
 <span class="co">#&gt; 1) FALSE: is.numeric(x)</span>
 <span class="co">#&gt; 2) FALSE: is.numeric(y)</span></code></pre></div>
 <p>With <code>localize</code>, you can concentrate a globally applied check formula to specific expressions. The result is a <em>reusable</em> custom checker:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">want_numeric &lt;-<span class="st"> </span><span class="kw">localize</span>(<span class="st">&quot;Not numeric&quot;</span> <span class="op">~</span><span class="st"> </span>is.numeric)
-secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(f, x, h) (<span class="kw">f</span>(x <span class="op">+</span><span class="st"> </span>h) <span class="op">-</span><span class="st"> </span><span class="kw">f</span>(x)) <span class="op">/</span><span class="st"> </span>h, <span class="kw">want_numeric</span>(<span class="op">~</span>x, <span class="op">~</span>h))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chk_numeric &lt;-<span class="st"> </span><span class="kw">localize</span>(<span class="st">&quot;Not numeric&quot;</span> <span class="op">~</span><span class="st"> </span>is.numeric)
+secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(f, x, h) (<span class="kw">f</span>(x <span class="op">+</span><span class="st"> </span>h) <span class="op">-</span><span class="st"> </span><span class="kw">f</span>(x)) <span class="op">/</span><span class="st"> </span>h, <span class="kw">chk_numeric</span>(<span class="op">~</span>x, <span class="op">~</span>h))
 
 <span class="kw">secant</span>(sin, <span class="dv">0</span>, .<span class="dv">1</span>)
 <span class="co">#&gt; [1] 0.9983342</span>
 <span class="kw">secant</span>(sin, <span class="st">&quot;0&quot;</span>, .<span class="dv">1</span>)
 <span class="co">#&gt; Error: secant(f = sin, x = &quot;0&quot;, h = 0.1)</span>
 <span class="co">#&gt; Not numeric: x</span></code></pre></div>
-<p>(In fact, <code>want_numeric</code> is equivalent to the pre-built checker <code>vld_numeric</code>.)</p>
+<p>(In fact, <code>chk_numeric</code> is equivalent to the pre-built checker <code>vld_numeric</code>.)</p>
 <p>Conversely, apply <code>globalize</code> to impose your localized checker globally:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">diff &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="kw">globalize</span>(want_numeric))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">difference &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="kw">globalize</span>(chk_numeric))
 
-<span class="kw">diff</span>(<span class="dv">3</span>, <span class="dv">1</span>)
+<span class="kw">difference</span>(<span class="dv">3</span>, <span class="dv">1</span>)
 <span class="co">#&gt; [1] 2</span>
-<span class="kw">diff</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))
-<span class="co">#&gt; Error: diff(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;,&quot;UTC&quot;))</span>
+<span class="kw">difference</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))
+<span class="co">#&gt; Error: difference(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;,&quot;UTC&quot;))</span>
 <span class="co">#&gt; 1) Not numeric: `x`</span>
 <span class="co">#&gt; 2) Not numeric: `y`</span></code></pre></div>
 </div>
 </div>
-<div id="relation-to-other-packages" class="section level2">
-<h2>Relation to other packages</h2>
+<div id="related-packages" class="section level2">
+<h2>Related packages</h2>
+<div id="packages-that-enhance-valaddin" class="section level3">
+<h3>Packages that enhance valaddin</h3>
 <ul>
-<li><p><a href="https://bitbucket.org/richierocks/assertive">assertive</a>, <a href="https://github.com/hadley/assertthat">assertthat</a>, and <a href="https://github.com/mllg/checkmate">checkmate</a> provide handy collections of predicate functions that you can use in conjunction with <code>firmly</code>.</p></li>
-<li><p><a href="https://github.com/gaborcsardi/argufy">argufy</a> takes a different approach to input validation, using <a href="https://github.com/klutometis/roxygen">roxygen</a> comments to specify checks.</p></li>
-<li><p><a href="https://github.com/smbache/ensurer">ensurer</a> and <a href="https://github.com/ropensci/assertr">assertr</a> provide a means of validating function values. Additionally, ensurer provides an experimental replacement for <code>function</code> that builds functions with type-validated arguments.</p></li>
-<li><p><a href="https://github.com/jimhester/typeCheck">typeCheck</a>, together with <a href="https://github.com/jimhester/types">Types for R</a>, enables the creation of functions with type-validated arguments by means of special type annotations. This approach is orthogonal to that of valaddin: whereas valaddin specifies input checks as <em>predicate functions with scope</em>, typeCheck specifies input checks as <em>arguments with type</em>.</p></li>
+<li><p><a href="https://bitbucket.org/richierocks/assertive">assertive</a>, <a href="https://github.com/hadley/assertthat">assertthat</a>, and <a href="https://github.com/mllg/checkmate">checkmate</a> provide extensive collections of predicate functions that you can use in conjunction with <code>firmly</code> and <code>localize</code>.</p></li>
+<li><p><a href="https://github.com/smbache/ensurer">ensurer</a> and <a href="https://github.com/ropensci/assertr">assertr</a> provide a means of validating function <em>values</em>; this is complementary to functional input validation, which is what valaddin provides. Additionally, ensurer provides an experimental replacement for <code>function</code> that builds functions with type-validated arguments.</p></li>
 </ul>
+</div>
+<div id="other-approaches-to-input-validation" class="section level3">
+<h3>Other approaches to input validation</h3>
+<ul>
+<li><p><a href="https://github.com/gaborcsardi/argufy">argufy</a> takes a different approach to input validation, using <a href="https://github.com/klutometis/roxygen">roxygen</a> comments to specify checks.</p></li>
+<li><p><a href="https://github.com/smbache/ensurer">ensurer</a> provides an experimental replacement for <code>function</code> that builds functions with type-validated arguments.</p></li>
+<li><p><a href="https://github.com/jimhester/typeCheck">typeCheck</a>, together with <a href="https://github.com/jimhester/types">Types for R</a>, enable the creation of functions with type-validated arguments by means of special type annotations. This approach is orthogonal to that of valaddin: whereas valaddin specifies input checks as <em>predicate functions with scope</em> (predicates are primary), typeCheck specifies input checks as <em>arguments with type</em> (arguments are primary).</p></li>
+</ul>
+</div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Adapted from an example in Section 6.3 of Chambers, <em>Extending R</em>, CRC Press, 2016.<a href="#fnref1">↩</a></p></li>
+<li id="fn1"><p>The inspiration to use <code>~</code> as a quoting operator came from the vignette <a href="https://cran.r-project.org/web/packages/lazyeval/vignettes/lazyeval.html">Non-standard evaluation</a>, by Hadley Wickham.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Adapted from an example in Section 6.3 of Chambers, <em>Extending R</em>, CRC Press, 2016. For the sake of the example, ignore the fact that logic to handle fees does not belong in a function for deposits!<a href="#fnref2">↩</a></p></li>
 </ol>
 </div>
 

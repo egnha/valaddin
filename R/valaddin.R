@@ -1,4 +1,4 @@
-#' valaddin: Validate Function Inputs
+#' valaddin: Functional Input Validation
 #'
 #' \emph{valaddin} provides a functional operator, \code{\link{firmly}}, that
 #' enhances functions with input validation. You supply a function \code{f}
@@ -16,8 +16,8 @@
 #'     boilerplate.
 #'   \item Reduce duplication by reusing common checks across functions with
 #'     common input requirements.
-#'   \item Vary the strictness of a function according to need and circumstance.
 #'   \item Make function outputs more predictable by constraining their inputs.
+#'   \item Vary the strictness of a function according to need and circumstance.
 #' }
 #'
 #' @details For an example-oriented overview of valaddin, see

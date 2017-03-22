@@ -6,7 +6,10 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 f <- function(x, h) (sin(x + h) - sin(x)) / h
 
 ## ------------------------------------------------------------------------
-ff <- firmly(f, ~ is.numeric)
+ff <- firmly(f, ~is.numeric)
+
+## ---- include = FALSE----------------------------------------------------
+tz_original <- Sys.getenv("TZ", unset = NA)
 
 ## ------------------------------------------------------------------------
 Sys.setenv(TZ = "CET")
@@ -21,7 +24,11 @@ d <- as.POSIXct("2017-01-01 09:30:00")
 as.POSIXlt(d, tz = "EST")$hour
 
 ## ---- include = FALSE----------------------------------------------------
-Sys.setenv(TZ = "CET")
+if (is.na(tz_original)) {
+  Sys.unsetenv("TZ")
+} else {
+  Sys.setenv(TZ = tz_original)
+}
 
 ## ------------------------------------------------------------------------
 as.POSIXct <- firmly(as.POSIXct, .warn_missing = "tz")

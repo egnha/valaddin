@@ -4,7 +4,9 @@
 \alias{type-checkers}
 \title{Type checkers}
 \arguments{
-\item{\dots}{One-sided formulae that specify the expressions to check.}
+\item{\dots}{Check items, i.e., formulae that are one-sided or have a string
+as left-hand side (see \emph{Check Formulae of Local Scope} in the
+documentation page \link{firmly}). These are the expressions to check.}
 }
 \value{
 Check formula of local scope.
@@ -28,14 +30,18 @@ f <- function(x, y) "Pass"
 
 # Impose a check on x: ensure it's of type "logical"
 f_firm <- firmly(f, vld_logical(~x))
-f_firm(TRUE, 0)  # "Pass"
+f_firm(TRUE, 0)  # [1] "Pass"
 f_firm(1, 0)     # Error: "Not logical: x"
+
+# Use a custom error message
+f_firm <- firmly(f, vld_logical("x should be a logical vector" ~ x))
+f_firm(1, 0)     # Error: "x should be a logical vector"
 
 # To impose the same check on all arguments, apply globalize()
 f_firmer <- firmly(f, globalize(vld_logical))
-f_firmer(TRUE, FALSE)  # "Pass"
-f_firmer(TRUE, 0)      # Error: "Not logical: y"
-f_firmer(1, 0)         # Errors: "Not logical: x", "Not logical: y"
+f_firmer(TRUE, FALSE)  # [1] "Pass"
+f_firmer(TRUE, 0)      # Error: "Not logical: `y`"
+f_firmer(1, 0)         # Errors: "Not logical: `x`", "Not logical: `y`"
 }
 }
 \alias{vld_atomic}
@@ -71,7 +77,7 @@ Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\href{h
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
-The notion of \dQuote{scope} is explained in the \emph{Check Formulae} section of \link{firmly}.
+The notions of \dQuote{scope} and \dQuote{check item} are explained in the \emph{Check Formulae} section of \link{firmly}.
 
 \code{\link{vld_numeric}} does not check according to type, and is not based on \code{purrr::is_numeric} (deprecated since 0.2.2.9000); rather, it is based on the predicate \code{\link[base]{is.numeric}}, which checks whether an object is \dQuote{numerical} in the sense of \code{\link[base]{mode}} instead of \code{\link[base]{typeof}}. In particular, factors are not regarded as \dQuote{numerical}.
 
