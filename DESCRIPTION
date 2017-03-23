@@ -1,9 +1,7 @@
 Package: valaddin
-Title: Validate Function Inputs
-Version: 0.0.0.9000
-Authors@R: person(
-    "Eugene", "Ha", email = "eha@posteo.de", role = c("aut", "cre")
-    )
+Title: Functional Input Validation
+Version: 0.1.0
+Authors@R: person("Eugene", "Ha", email = "eha@posteo.de", role = c("aut", "cre"))
 Description: A set of basic tools to transform functions into functions with
     input validation checks, in a manner suitable for both programmatic and
     interactive use.
@@ -24,7 +22,6 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
-RoxygenNote: 6.0.1
 Collate:
     'utils.R'
     'rawrd.R'
@@ -36,3 +33,4 @@ Collate:
     'scope.R'
     'checkers.R'
     'valaddin.R'
+RoxygenNote: 6.0.1

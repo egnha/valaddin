@@ -4,3 +4,4 @@
 ^.*\.yml$
 ^.*\.org$
 ^LICENSE\.md$
+^cran-comments\.md$
