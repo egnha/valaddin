@@ -1,3 +1,22 @@
+## Resubmission (23-03-2017)
+
+This is a resubmission to fix the following issue:
+
+> Found the following (possibly) invalid URLs:
+>  URL: https://cran.r-project.org/web/packages/lazyeval/vignettes/lazyeval.html
+>    From: inst/doc/valaddin.html
+>    Status: 200
+>    Message: OK
+>    CRAN URL not in canonical form
+>  The canonical URL of the CRAN page for a package is 
+>    https://CRAN.R-project.org/package=pkgname
+
+As requested, I have normalized the problematic link to
+
+https://cran.r-project.org/package=lazyeval/vignettes/lazyeval.html
+
+No other changes were made.
+
 ## Test environments
 
 * OS X El Capitan 10.11.6: R 3.3.2

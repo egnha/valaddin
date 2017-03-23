@@ -52,7 +52,7 @@ ff("0.0", 0.1)
 
 [^1]: The inspiration to use `~` as a quoting operator came from the vignette 
 [Non-standard 
-evaluation](https://cran.r-project.org/web/packages/lazyeval/vignettes/lazyeval.html),
+evaluation](https://cran.r-project.org/package=lazyeval/vignettes/lazyeval.html),
 by Hadley Wickham.
 
 ### Enforce constraints on argument values
