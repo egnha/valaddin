@@ -5,3 +5,5 @@
 ^.*\.org$
 ^LICENSE\.md$
 ^cran-comments\.md$
+^README\.Rmd$
+^README-.*\.png$
