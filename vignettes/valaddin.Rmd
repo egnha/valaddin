@@ -474,11 +474,8 @@ difference(as.POSIXct("2017-01-01", "UTC"), as.POSIXct("2016-01-01", "UTC"))
     `localize`.
     
 -   [ensurer](https://github.com/smbache/ensurer) and 
-    [assertr](https://github.com/ropensci/assertr) provide a means of validating
-    function _values_; this is complementary to functional input validation,
-    which is what valaddin provides. Additionally, ensurer provides an
-    experimental replacement for `function` that builds functions with
-    type-validated arguments.
+    [assertr](https://github.com/ropensci/assertr) provide ways to validate
+    function _values_.
 
 ### Other approaches to input validation
 

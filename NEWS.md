@@ -2,6 +2,8 @@
 
 ## 0.1.0.9000
 
+* Minor edits to vignette
+
 ## 0.1.0
 
 * First stable release:
