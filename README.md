@@ -16,7 +16,7 @@ Install from [CRAN](https://cran.r-project.org/package=valaddin)
 install.packages("valaddin")
 ```
 
-or from GitHub (using the [devtools](https://github.com/hadley/devtools) package)
+or get the development version from GitHub using the [devtools](https://github.com/hadley/devtools) package
 
 ``` r
 # install.packages("devtools")
