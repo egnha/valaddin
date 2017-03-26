@@ -61,8 +61,8 @@ For example, use `firmly` to put a cap on potentially long-running computations:
 
 ```{r, error = TRUE, purl = FALSE}
 fib <- function(n) {
-  if (n <= 1) return(1L)
-  Recall(n - 1) + Recall(n - 2)
+  if (n <= 1L) return(1L)
+  Recall(n - 1L) + Recall(n - 2L)
 }
 
 capped_fib <- firmly(fib, list("n capped at 30" ~ ceiling(n)) ~ {. <= 30L})
@@ -164,7 +164,7 @@ want to truncate negative values of a vector `w`:
 ```{r}
 w <- {set.seed(1); rnorm(5)}
 
-ifelse(w > 0, 0, w)
+ifelse(w > 0, w, 0)
 ```
 
 `ifelse` assumes (correctly) that you intend the `0` to be repeated `r length(w)`
@@ -199,8 +199,8 @@ ifelse_f <- firmly(ifelse, chk_length_type)
 consequences of invalid inputs:
 
 ```{r, error = TRUE, purl = FALSE}
-ifelse_f(w > 0, 0, w)
-ifelse_f(w > 0, rep(0, length(w)), w)
+ifelse_f(w > 0, w, 0)
+ifelse_f(w > 0, w, rep(0, length(w)))
 
 ifelse(z > 0, pos, neg)
 ifelse_f(z > 0, pos, neg)

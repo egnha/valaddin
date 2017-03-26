@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -97,8 +97,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h3>Enforce constraints on argument values</h3>
 <p>For example, use <code>firmly</code> to put a cap on potentially long-running computations:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fib &lt;-<span class="st"> </span><span class="cf">function</span>(n) {
-  <span class="cf">if</span> (n <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1</span>) <span class="kw">return</span>(1L)
-  <span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span><span class="dv">2</span>)
+  <span class="cf">if</span> (n <span class="op">&lt;=</span><span class="st"> </span>1L) <span class="kw">return</span>(1L)
+  <span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span>1L) <span class="op">+</span><span class="st"> </span><span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span>2L)
 }
 
 capped_fib &lt;-<span class="st"> </span><span class="kw">firmly</span>(fib, <span class="kw">list</span>(<span class="st">&quot;n capped at 30&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">ceiling</span>(n)) <span class="op">~</span><span class="st"> </span>{. <span class="op">&lt;=</span><span class="st"> </span>30L})
@@ -161,8 +161,8 @@ d &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="
 <p>R tries to help you express your ideas as concisely as possible. Suppose you want to truncate negative values of a vector <code>w</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">w &lt;-<span class="st"> </span>{<span class="kw">set.seed</span>(<span class="dv">1</span>); <span class="kw">rnorm</span>(<span class="dv">5</span>)}
 
-<span class="kw">ifelse</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">0</span>, w)
-<span class="co">#&gt; [1] -0.6264538  0.0000000 -0.8356286  0.0000000  0.0000000</span></code></pre></div>
+<span class="kw">ifelse</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="dv">0</span>)
+<span class="co">#&gt; [1] 0.0000000 0.1836433 0.0000000 1.5952808 0.3295078</span></code></pre></div>
 <p><code>ifelse</code> assumes (correctly) that you intend the <code>0</code> to be repeated 5 times, and does that for you, automatically.</p>
 <p>Nonetheless, R’s good intentions have a darker side:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">z &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>)
@@ -180,11 +180,11 @@ neg &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">6</s
 
 ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, chk_length_type)</code></pre></div>
 <p><code>ifelse_f</code> is more pedantic than <code>ifelse</code>. But it also spares you the consequences of invalid inputs:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">0</span>, w)
-<span class="co">#&gt; Error: ifelse_f(test = w &gt; 0, yes = 0, no = w)</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="dv">0</span>)
+<span class="co">#&gt; Error: ifelse_f(test = w &gt; 0, yes = w, no = 0)</span>
 <span class="co">#&gt; 'yes', 'no' differ in length</span>
-<span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(w)), w)
-<span class="co">#&gt; [1] -0.6264538  0.0000000 -0.8356286  0.0000000  0.0000000</span>
+<span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(w)))
+<span class="co">#&gt; [1] 0.0000000 0.1836433 0.0000000 1.5952808 0.3295078</span>
 
 <span class="kw">ifelse</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, pos, neg)
 <span class="co">#&gt; [1] 1 2 3 4 5 1</span>
