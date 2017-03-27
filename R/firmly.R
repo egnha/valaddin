@@ -102,10 +102,12 @@ promises <- function(.call, .sig, .env) {
 }
 
 validating_closure <- function(.chks, .sig, .fn, .warn) {
-  force(.chks)
   force(.sig)
   force(.fn)
   force(.warn)
+
+  expr <- .chks$expr
+  env  <- .chks$env
 
   function() {
     call <- match.call()
@@ -122,7 +124,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
           error = identity
         )
       },
-      encl$.chks$expr, encl$.chks$env
+      encl$expr, encl$env
     )
     pass <- vapply(verdict, is_true, logical(1))
 
