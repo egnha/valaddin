@@ -1,16 +1,24 @@
 # Call signature of a function (specified by name)
 call_sig <- function(x, ...) {
   stopifnot(is.character(x))
+  is_op <- grepl("^%.+%$", x)
+  x[ is_op] <- vapply(x[ is_op], call_sig_op, character(1), USE.NAMES = FALSE)
+  x[!is_op] <- vapply(x[!is_op], call_sig_fn, character(1), USE.NAMES = FALSE)
+  x
+}
 
-  call_sig_ <- function(nm) {
-    f <- get(nm, mode = "function", ...)
-    sig_raw <- deparse(call("function", formals(f), quote(expr = )))
-    sig <- paste(trimws(sig_raw, which = "left"), collapse = "")
+call_sig_fn <- function(nm) {
+  f <- get(nm, mode = "function")
+  sig_raw <- deparse(call("function", formals(f), quote(expr = )))
+  sig <- paste(trimws(sig_raw, which = "left"), collapse = "")
+  sub("^function", nm, trimws(sig, which = "both"))
+}
 
-    sub("^function", nm, trimws(sig, which = "both"))
-  }
-
-  vapply(x, call_sig_, FUN.VALUE = character(1), USE.NAMES = FALSE)
+call_sig_op <- function(nm) {
+  op <- get(nm, mode = "function")
+  args <- names(formals(op))
+  nm_esc_pct <- gsub("%", "\\\\%", nm)
+  paste(args[1L], nm_esc_pct, args[2L])
 }
 
 # Convert a string-valued function into a vectorized function that joins strings
