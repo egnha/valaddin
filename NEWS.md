@@ -2,7 +2,12 @@
 
 ## 0.1.0.9000
 
-* Minor edits to vignette
+* A new operator `%firmly%` provides an alternative way to write checks next to
+  function headers (#21, suggested by @MilkWasABadChoice). For example, writing
+  `list(~is.numeric, ~{. > 0}) %firmly% function(a, b) a + b` is equivalent to
+  writing `firmly(~is.numeric, ~{. > 0}, .f = function(a, b) a + b)`.
+
+* Minor edits to vignette.
 
 ## 0.1.0
 
@@ -13,8 +18,8 @@
     + Localized base-R- and purrr-predicate checkers: `vld_*`
     
 * `vld_numeric`, `vld_scalar_numeric` are based on `base::is.numeric`, since the
-corresponding predicates in purrr will be deprecated starting from version 
-0.2.2.9000 ([#12](https://github.com/egnha/valaddin/issues/12))
+  corresponding predicates in purrr will be deprecated starting from version 
+  0.2.2.9000 ([#12](https://github.com/egnha/valaddin/issues/12)).
 
 * Fulfills aim of purrr proposal 
-[#275](https://github.com/hadley/purrr/issues/275) (closed)
+  [#275](https://github.com/hadley/purrr/issues/275) (closed).
