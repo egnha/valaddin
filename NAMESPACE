@@ -2,6 +2,7 @@
 
 S3method(print,check_maker)
 S3method(print,firm_closure)
+export("%firmly%")
 export(firm_args)
 export(firm_checks)
 export(firm_core)

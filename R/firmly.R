@@ -254,6 +254,11 @@ firmly <- firmly_(
 )
 
 #' @export
+`%firmly%` <- function(.checklist, .f) {
+  firmly(.f, .checklist = .checklist)
+}
+
+#' @export
 loosely <- firmly(
   loosely_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
@@ -300,9 +305,14 @@ print.firm_closure <- function(x, ...) {
 #' the original function (without checks). \code{is_firm} is a predicate
 #' function that checks whether an object is a firmly applied function, i.e.,
 #' a function created by \code{firmly}.
+#' \cr\cr
+#' The operator \code{\%firmly\%} provides a succinct way to specify checks
+#' before the function. Since this allows you to keep checks next to the
+#' arguments they validate, it is the recommended way of using \code{firmly} in
+#' scripts and packages.
 #'
-#' @aliases firmly loosely is_firm
-#' @evalRd rd_usage(c("firmly", "loosely", "is_firm"))
+#' @aliases firmly %firmly% loosely is_firm
+#' @evalRd rd_usage(c("firmly", "%firmly%", "loosely", "is_firm"))
 #'
 #' @param .f Interpreted function (of type \code{"closure"}), i.e., not a
 #'   primitive function.
@@ -418,6 +428,10 @@ print.firm_closure <- function(x, ...) {
 #'       \code{.f} (except that the \code{"class"} attribute gains the component
 #'       \code{"firm_closure"}, unless it already contains it).
 #'     }
+#'   }
+#'   \subsection{\code{\%firmly\%}}{
+#'     \code{\%firmly\%} applies the checks in \code{.checklist} to \code{.f}
+#'     (using \code{firmly}).
 #'   }
 #'   \subsection{\code{loosely}}{
 #'     \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
@@ -542,6 +556,28 @@ print.firm_closure <- function(x, ...) {
 #' # firmly won't force an argument that's not involved in checks
 #' g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
 #' g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
+#'
+#' # In scripts and packages, it is recommended to use the operator %firmly%
+#' vec_add1 <- list(
+#'   ~is.numeric,
+#'   list(~length(x) == length(y)) ~ isTRUE
+#' ) %firmly%
+#'   function(x, y) {
+#'     x + y
+#'   }
+#'
+#' # Or use firmly with the .checklist argument (slightly more verbose)
+#' vec_add2 <- firmly(
+#'   .checklist = list(
+#'     ~is.numeric,
+#'     list(~length(x) == length(y)) ~ isTRUE
+#'   ),
+#'   function(x, y) {
+#'     x + y
+#'   }
+#' )
+#'
+#' all.equal(vec_add1, vec_add2)  # [1] TRUE
 #' }
 #'
 #' @name firmly

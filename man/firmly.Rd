@@ -2,6 +2,7 @@
 % Please edit documentation in R/firmly.R
 \name{firmly}
 \alias{firmly}
+\alias{\%firmly\%}
 \alias{loosely}
 \alias{is_firm}
 \title{Apply a function firmly}
@@ -31,6 +32,11 @@ checks. \code{loosely} undoes the application of \code{firmly}, by returning
 the original function (without checks). \code{is_firm} is a predicate
 function that checks whether an object is a firmly applied function, i.e.,
 a function created by \code{firmly}.
+\cr\cr
+The operator \code{\%firmly\%} provides a succinct way to specify checks
+before the function. Since this allows you to keep checks next to the
+arguments they validate, it is the recommended way of using \code{firmly} in
+scripts and packages.
 }
 \section{Check Formulae}{
 
@@ -137,6 +143,10 @@ a function created by \code{firmly}.
       \code{"firm_closure"}, unless it already contains it).
     }
   }
+  \subsection{\code{\%firmly\%}}{
+    \code{\%firmly\%} applies the checks in \code{.checklist} to \code{.f}
+    (using \code{firmly}).
+  }
   \subsection{\code{loosely}}{
     \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
     firmly applied function, or both \code{.keep_check} and
@@ -241,6 +251,28 @@ loosely(fib)(31)  # [1] 2178309 (may take several seconds to finish)
 # firmly won't force an argument that's not involved in checks
 g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
 g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
+
+# In scripts and packages, it is recommended to use the operator \%firmly\%
+vec_add1 <- list(
+  ~is.numeric,
+  list(~length(x) == length(y)) ~ isTRUE
+) \%firmly\%
+  function(x, y) {
+    x + y
+  }
+
+# Or use firmly with the .checklist argument (slightly more verbose)
+vec_add2 <- firmly(
+  .checklist = list(
+    ~is.numeric,
+    list(~length(x) == length(y)) ~ isTRUE
+  ),
+  function(x, y) {
+    x + y
+  }
+)
+
+all.equal(vec_add1, vec_add2)  # [1] TRUE
 }
 
 }
@@ -267,6 +299,8 @@ g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
 }
 \usage{
 firmly(.f, ..., .checklist = list(), .warn_missing = character())
+
+.checklist \%firmly\% .f
 
 loosely(.f, .keep_check = FALSE, .keep_warning = FALSE, .quiet = TRUE)
 
