@@ -215,35 +215,6 @@ firm_closure <- function(.f) {
   .f
 }
 
-loosely_ <- function(.f, .keep_check = FALSE, .keep_warning = FALSE,
-                     .quiet = TRUE) {
-  .f <- match.fun(.f)
-  is_not_firm <- !is_firm(.f)
-  if (is_not_firm || .keep_check && .keep_warning) {
-    if (is_not_firm && !.quiet) {
-      warning_wo_call("`.f` not a firmly applied function")
-    }
-    return(.f)
-  }
-
-  f_core <- firm_core(.f)
-  f_chks <- if (.keep_check) firm_checks(.f) else NULL
-  f_args <- if (.keep_warning) firm_args(.f) else NULL
-
-  if (is.null(f_chks) && is.null(f_args)) {
-    return(f_core)
-  }
-
-  sig <- formals(.f)
-  f <- if (is.null(f_chks)) {
-    warning_closure(call_fn(f_core), warn(f_args))
-  } else {
-    validating_closure(f_chks, sig, call_fn(f_core), skip)
-  }
-
-  firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
-}
-
 #' @export
 firmly <- firmly_(
   firmly_,
@@ -259,15 +230,42 @@ firmly <- firmly_(
 }
 
 #' @export
-loosely <- firmly(
-  loosely_,
+loosely <- list(
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
   list(
     "`.keep_check` not TRUE/FALSE"   ~ .keep_check,
     "`.keep_warning` not TRUE/FALSE" ~ .keep_warning,
     "`.quiet` not TRUE/FALSE"        ~ .quiet
   ) ~ {is_true(.) || is_false(.)}
-)
+) %firmly%
+  function(.f, .keep_check = FALSE, .keep_warning = FALSE,
+           .quiet = TRUE) {
+    .f <- match.fun(.f)
+    is_not_firm <- !is_firm(.f)
+    if (is_not_firm || .keep_check && .keep_warning) {
+      if (is_not_firm && !.quiet) {
+        warning_wo_call("`.f` not a firmly applied function")
+      }
+      return(.f)
+    }
+
+    f_core <- firm_core(.f)
+    f_chks <- if (.keep_check) firm_checks(.f) else NULL
+    f_args <- if (.keep_warning) firm_args(.f) else NULL
+
+    if (is.null(f_chks) && is.null(f_args)) {
+      return(f_core)
+    }
+
+    sig <- formals(.f)
+    f <- if (is.null(f_chks)) {
+      warning_closure(call_fn(f_core), warn(f_args))
+    } else {
+      validating_closure(f_chks, sig, call_fn(f_core), skip)
+    }
+
+    firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
+  }
 
 # Printing ----------------------------------------------------------------
 
