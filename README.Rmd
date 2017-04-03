@@ -223,8 +223,9 @@ ways:
     bc(".5", 1)
     ```
 
--   Use the magrittr `%>%` operator to deliver input checks, by capturing them
-    as a list with `firmly()`'s `.checklist` argument:
+-   Use the [magrittr](https://github.com/tidyverse/magrittr) `%>%` operator to
+    deliver input checks, by capturing them as a list with `firmly()`'s
+    `.checklist` argument:
 
     ```{r, message = FALSE}
     library(magrittr)

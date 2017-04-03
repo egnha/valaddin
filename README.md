@@ -216,7 +216,7 @@ To make your functions more intelligible, declare your input assumptions and mov
     #> 2) (x, y) not in triangle
     ```
 
--   Use the magrittr `%>%` operator to deliver input checks, by capturing them as a list with `firmly()`'s `.checklist` argument:
+-   Use the [magrittr](https://github.com/tidyverse/magrittr) `%>%` operator to deliver input checks, by capturing them as a list with `firmly()`'s `.checklist` argument:
 
     ``` r
     library(magrittr)
