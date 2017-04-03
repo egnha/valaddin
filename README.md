@@ -184,40 +184,78 @@ bc_tri(.5, .6)
 Alternatively, use the `lift()` function from the [purrr](https://github.com/hadley/purrr) package:
 
 ``` r
-library(purrr)
-
 bc_tri <- firmly(bc, list(outside ~ list(x, y)) ~  purrr::lift(in_triangle))
 ```
 
-#### Layer checks using the magrittr pipe `%>%`
+### Make your code more intelligible
 
-Activate checks in stages using the [magrittr](https://github.com/tidyverse/magrittr) pipe `%>%`:
+To make your functions more intelligible, declare your input assumptions and move the core logic to the fore. You can do this using `firmly()`, in several ways:
 
-``` r
-library(magrittr)
+-   Precede the function header with input checks, by explicitly assigning the function to `firmly()`'s `.f` argument:
 
-bc <- {
-  function(x, y) c(x, y, 1 - x - y)
-} %>%
-  firmly("Not numeric" ~ is.numeric, "Not scalar" ~ {length(.) == 1L}) %>%
-  firmly(vld_true(outside ~ in_triangle(x, y)))
-                   
-bc(.5, .2)
-#> [1] 0.5 0.2 0.3
+    ``` r
+    bc <- firmly(
+      ~is.numeric,
+      ~{length(.) == 1L},
+      vld_true(outside ~ in_triangle(x, y)),
+      .f = function(x, y) {
+        c(x, y, 1 - x - y)
+      }
+    )
 
-bc(.5, c(.2, .1))
-#> Error: bc(x = 0.5, y = c(0.2, 0.1))
-#> Not scalar: `y`
+    bc(.5, .2)
+    #> [1] 0.5 0.2 0.3
 
-bc(".5", 1)
-#> Error: bc(x = ".5", y = 1)
-#> 1) Not numeric: `x`
-#> 2) (x, y) not in triangle
-```
+    bc(.5, c(.2, .1))
+    #> Error: bc(x = 0.5, y = c(0.2, 0.1))
+    #> FALSE: (function(.) {length(.) == 1L})(y)
+
+    bc(".5", 1)
+    #> Error: bc(x = ".5", y = 1)
+    #> 1) FALSE: is.numeric(x)
+    #> 2) (x, y) not in triangle
+    ```
+
+-   Use the magrittr `%>%` operator to deliver input checks, by capturing them as a list with `firmly()`'s `.checklist` argument:
+
+    ``` r
+    library(magrittr)
+
+    bc2 <- list(
+      ~is.numeric,
+      ~{length(.) == 1L},
+      vld_true(outside ~ in_triangle(x, y))
+    ) %>%
+      firmly(function(x, y) {
+        c(x, y, 1 - x - y)
+      },
+      .checklist = .)
+
+    all.equal(bc, bc2)
+    #> [1] TRUE
+    ```
+
+-   Use the `%firmly%` operator (available in the development version):
+
+    ``` r
+    `%firmly%` <- function(chks, f) firmly(f, .checklist = chks)
+
+    bc3 <- list(
+      ~is.numeric,
+      ~{length(.) == 1L},
+      vld_true(outside ~ in_triangle(x, y))
+    ) %firmly%
+      function(x, y) {
+        c(x, y, 1 - x - y)
+      }
+
+    all.equal(bc, bc3)
+    #> [1] TRUE
+    ```
 
 ### Learn more
 
-See the package documentation `?firmly`, `help(p = valaddin)` for detailed information about `firmly()` and its companion functions, and the vignette `vignette("valaddin")` for an overview of use cases.
+See the package documentation `?firmly`, `help(p = valaddin)` for detailed information about `firmly()` and its companion functions, and the [vignette](https://cran.r-project.org/package=valaddin/vignettes/valaddin.html) for an overview of use cases.
 
 Related packages
 ----------------
