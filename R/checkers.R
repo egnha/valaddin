@@ -53,18 +53,21 @@ pkg <- list(
   )
 )
 
-chkrs_ <- pkg %>%
-  lapply(function(.) make_vld_chkrs(.$nms, .$pattern, .$sep, .$ns))
+# Use for-loop so that local checkers pick up package namespace environment
+chkrs_ <- vector("list", length(pkg))
+for (nm in names(pkg)) {
+  p <- pkg[[nm]]
+  chkrs_[[nm]] <- make_vld_chkrs(p$nms, p$pattern, p$sep, p$ns)
+}
 chkrs <- do.call("c", unname(chkrs_))
 
 # "numeric" has conflicting interpretations in base R, so treat it differently
-chkrs$vld_numeric <- localize("Not double/integer" ~ is.numeric)
-chkrs$vld_scalar_numeric <- localize(
-  "Not scalar double/integer" ~ {is.numeric(.) && length(.) == 1L}
-)
+chkrs$vld_numeric <- localize(ff_new(is.numeric, "Not double/integer"))
+chkrs$vld_scalar_numeric <- localize(ff_new(
+  quote({is.numeric(.) && length(.) == 1L}), "Not scalar double/integer"))
 
-chkrs$vld_true  <- localize("Not TRUE" ~ is_true)
-chkrs$vld_false <- localize("Not FALSE" ~ is_false)
+chkrs$vld_true  <- localize(ff_new(is_true, "Not TRUE"))
+chkrs$vld_false <- localize(ff_new(is_false, "Not FALSE"))
 
 # Aliases
 replace_msg <- function(chkr, msg) {

@@ -52,3 +52,10 @@ test_that("checker error message is derived from predicate name", {
     expect_error(firmly(f, .$chkr(~ x))(bad_arg), msg)
   }
 })
+
+test_that("environment of check formula is package namespace environment", {
+  env <- getNamespace("valaddin")
+  for (. in chkrs) {
+    expect_identical(lazyeval::f_env(.$chkr(~x)), env)
+  }
+})
