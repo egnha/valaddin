@@ -2,7 +2,7 @@
 % Please edit documentation in R/firmly.R
 \name{firmly}
 \alias{firmly}
-\alias{\%firmly\%}
+\alias{\%secure\%}
 \alias{loosely}
 \alias{is_firm}
 \title{Apply a function firmly}
@@ -33,7 +33,7 @@ the original function (without checks). \code{is_firm} is a predicate
 function that checks whether an object is a firmly applied function, i.e.,
 a function created by \code{firmly}.
 \cr\cr
-The operator \code{\%firmly\%} provides a succinct way to immediately precede
+The operator \code{\%secure\%} provides a succinct way to immediately precede
 a function header with input checks. Since this allows you to keep the checks
 together with the arguments they validate, it is the recommended way of using
 \code{firmly} in scripts and packages.
@@ -252,11 +252,11 @@ loosely(fib)(31)  # [1] 2178309 (may take several seconds to finish)
 g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
 g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
 
-# In scripts and packages, it is recommended to use the operator \%firmly\%
+# In scripts and packages, it is recommended to use the operator \%secure\%
 vec_add <- list(
   ~is.numeric,
   list(~length(x) == length(y)) ~ isTRUE
-) \%firmly\%
+) \%secure\%
   function(x, y) {
     x + y
   }
@@ -298,7 +298,7 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
 \usage{
 firmly(.f, ..., .checklist = list(), .warn_missing = character())
 
-.checklist \%firmly\% .f
+.checklist \%secure\% .f
 
 loosely(.f, .keep_check = FALSE, .keep_warning = FALSE, .quiet = TRUE)
 

@@ -225,7 +225,7 @@ firmly <- firmly_(
 )
 
 #' @export
-`%firmly%` <- function(.checklist, .f) {
+`%secure%` <- function(.checklist, .f) {
   firmly(.f, .checklist = .checklist)
 }
 
@@ -237,7 +237,7 @@ loosely <- list(
     "`.keep_warning` not TRUE/FALSE" ~ .keep_warning,
     "`.quiet` not TRUE/FALSE"        ~ .quiet
   ) ~ {is_true(.) || is_false(.)}
-) %firmly%
+) %secure%
   function(.f, .keep_check = FALSE, .keep_warning = FALSE,
            .quiet = TRUE) {
     .f <- match.fun(.f)
@@ -304,13 +304,13 @@ print.firm_closure <- function(x, ...) {
 #' function that checks whether an object is a firmly applied function, i.e.,
 #' a function created by \code{firmly}.
 #' \cr\cr
-#' The operator \code{\%firmly\%} provides a succinct way to immediately precede
+#' The operator \code{\%secure\%} provides a succinct way to immediately precede
 #' a function header with input checks. Since this allows you to keep the checks
 #' together with the arguments they validate, it is the recommended way of using
 #' \code{firmly} in scripts and packages.
 #'
-#' @aliases firmly %firmly% loosely is_firm
-#' @evalRd rd_usage(c("firmly", "%firmly%", "loosely", "is_firm"))
+#' @aliases firmly %secure% loosely is_firm
+#' @evalRd rd_usage(c("firmly", "%secure%", "loosely", "is_firm"))
 #'
 #' @param .f Interpreted function (of type \code{"closure"}), i.e., not a
 #'   primitive function.
@@ -555,11 +555,11 @@ print.firm_closure <- function(x, ...) {
 #' g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
 #' g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
 #'
-#' # In scripts and packages, it is recommended to use the operator %firmly%
+#' # In scripts and packages, it is recommended to use the operator %secure%
 #' vec_add <- list(
 #'   ~is.numeric,
 #'   list(~length(x) == length(y)) ~ isTRUE
-#' ) %firmly%
+#' ) %secure%
 #'   function(x, y) {
 #'     x + y
 #'   }

@@ -12,10 +12,10 @@
   the package namespace environment. (Previously, such check formulae got their
   own environment, though there was no need for such separation.)
 
-* A new operator `%firmly%` provides an alternative way to write checks next to
+* A new operator `%secure%` provides an alternative way to write checks next to
   function headers ([#21](https://github.com/egnha/valaddin/issues/21),
   suggested by @MilkWasABadChoice). For example, writing
-  `list(~is.numeric, ~{. > 0}) %firmly% function(a, b) a + b` is equivalent to
+  `list(~is.numeric, ~{. > 0}) %secure% function(a, b) a + b` is equivalent to
   writing `firmly(~is.numeric, ~{. > 0}, .f = function(a, b) a + b)`.
 
 * Minor edits to vignette.

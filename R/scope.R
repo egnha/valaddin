@@ -86,7 +86,7 @@ is_check_maker <- function(x) {
 localize <- list(
   list("`chk` must be a formula of the form <string> ~ <predicate>" ~ chk) ~
     is_gbl_check_formula
-) %firmly%
+) %secure%
   function(chk) {
     .msg <- ff_eval_lhs(chk)
     .rhs <- lazyeval::f_rhs(chk)
@@ -126,7 +126,7 @@ localize <- list(
 globalize <- list(
   list("`chkr` must be a local checker function (see ?localize)" ~ chkr) ~
     is_check_maker
-) %firmly%
+) %secure%
   function(chkr) {
     environment(chkr)$chk
   }
