@@ -60,7 +60,7 @@ test_that("environment of check formula is package namespace environment", {
   }
 })
 
-test_that("vld_closure only validates functions that are closures", {
+test_that("vld_closure only validates closures, not functions in general", {
   f <- firmly(function(x) NULL, vld_closure(~x))
 
   # Closures
@@ -78,7 +78,7 @@ test_that("vld_closure only validates functions that are closures", {
   }
 })
 
-test_that("vld_function validations functions, both primitive and closures", {
+test_that("vld_function validates functions, both primitive and closures", {
   f <- firmly(function(x) NULL, vld_function(~x))
 
   # Functions, both primitive and non-primitive
