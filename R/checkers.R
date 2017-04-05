@@ -29,7 +29,8 @@ make_vld_chkrs <- function(nms, pattern, sep, ns, env = parent.frame()) {
 }
 
 # purrr::is_*numeric() are deprecated in purrr (>= 0.2.2.9000)
-re_is_not_numeric <- "^is_((?!numeric).)*$"
+# purrr::is_function detects closures not functions in general
+re_exclude <- "^is_(?!.*(numeric|function)).*$"
 
 pkg <- list(
   base = list(
@@ -38,14 +39,15 @@ pkg <- list(
       "is.environment", "is.expression",  "is.factor",      "is.language",
       "is.matrix",      "is.na",          "is.name",        "is.nan",
       "is.ordered",     "is.pairlist",    "is.primitive",   "is.raw",
-      "is.recursive",   "is.symbol",      "is.table",       "is.unsorted"
+      "is.recursive",   "is.symbol",      "is.table",       "is.unsorted",
+      "is.function"
     ),
     pattern = "^is\\.",
     sep = "\\.",
     ns = "base"
   ),
   purrr = list(
-    nms = grep(re_is_not_numeric, getNamespaceExports("purrr"),
+    nms = grep(re_exclude, getNamespaceExports("purrr"),
                value = TRUE, perl = TRUE),
     pattern = "^is_",
     sep = "_",
@@ -65,8 +67,8 @@ chkrs <- do.call("c", unname(chkrs_))
 chkrs$vld_numeric <- localize(ff_new(is.numeric, "Not double/integer"))
 chkrs$vld_scalar_numeric <- localize(ff_new(
   quote({is.numeric(.) && length(.) == 1L}), "Not scalar double/integer"))
-
-chkrs$vld_true  <- localize(ff_new(is_true, "Not TRUE"))
+chkrs$vld_closure <- localize(ff_new(purrr::is_function, "Not closure"))
+chkrs$vld_true <- localize(ff_new(is_true, "Not TRUE"))
 chkrs$vld_false <- localize(ff_new(is_false, "Not FALSE"))
 
 # Aliases
@@ -75,7 +77,6 @@ replace_msg <- function(chkr, msg) {
   ff_lhs(f) <- msg
   localize(f)
 }
-
 chkrs_alias <- list(
   "Not boolean"   = chkrs$vld_scalar_logical,
   "Not number"    = chkrs$vld_scalar_numeric,
@@ -86,7 +87,6 @@ chkrs_alias <- list(
   `names<-`(replace(names(.), "^Not ", "vld_"))
 
 chkrs <- c(chkrs, chkrs_alias)
-
 for (nm in names(chkrs))
   assign(nm, chkrs[[nm]])
 
@@ -104,7 +104,7 @@ nms$misc <- c(
   paste0("vld_", c("true", "false", "empty", "formula",
                    "numeric", "scalar_numeric", "number"))
 )
-nms$type <- setdiff(names(chkrs_$purrr), unlist(nms))
+nms$type <- setdiff(c(names(chkrs_$purrr), "vld_closure"), unlist(nms))
 nms <- lapply(nms, function(.) .[order(tolower(.))])
 nms$scalar <- c(nms$scalar, setdiff(names(chkrs_alias), "vld_number"))
 
@@ -233,10 +233,11 @@ NULL
 #'
 #' These functions make check formulae of local scope based on the
 #' correspondingly named \link[purrr:type-predicates]{type predicate} from the
-#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
-#' package. For example, \code{vld_atomic} creates check formulae (of local
-#' scope) for the \pkg{purrr} predicate function
-#' \code{\link[purrr]{is_atomic}}.
+#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} package, with
+#' the exception that \code{vld_closure} corresponds to the (inaptly named)
+#' \pkg{purrr} predicate \code{\link[purrr]{is_function}}. For example,
+#' \code{vld_atomic} creates check formulae (of local scope) for the \pkg{purrr}
+#' predicate function \code{\link[purrr]{is_atomic}}.
 #'
 #' @evalRd rd_alias(nms$type)
 #' @evalRd rd_usage(nms$type)

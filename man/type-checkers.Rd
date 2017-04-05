@@ -14,10 +14,11 @@ Check formula of local scope.
 \description{
 These functions make check formulae of local scope based on the
 correspondingly named \link[purrr:type-predicates]{type predicate} from the
-\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
-package. For example, \code{vld_atomic} creates check formulae (of local
-scope) for the \pkg{purrr} predicate function
-\code{\link[purrr]{is_atomic}}.
+\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} package, with
+the exception that \code{vld_closure} corresponds to the (inaptly named)
+\pkg{purrr} predicate \code{\link[purrr]{is_function}}. For example,
+\code{vld_atomic} creates check formulae (of local scope) for the \pkg{purrr}
+predicate function \code{\link[purrr]{is_atomic}}.
 }
 \details{
 Each function \code{vld_*} is a function of class
@@ -46,8 +47,8 @@ f_firmer(1, 0)         # Errors: "Not logical: `x`", "Not logical: `y`"
 }
 \alias{vld_atomic}
 \alias{vld_character}
+\alias{vld_closure}
 \alias{vld_double}
-\alias{vld_function}
 \alias{vld_integer}
 \alias{vld_list}
 \alias{vld_logical}
@@ -58,9 +59,9 @@ vld_atomic(...)
 
 vld_character(...)
 
-vld_double(...)
+vld_closure(...)
 
-vld_function(...)
+vld_double(...)
 
 vld_integer(...)
 

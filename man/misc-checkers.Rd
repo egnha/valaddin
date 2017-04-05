@@ -68,6 +68,7 @@ ifelse_f(w > 0, 0, 1)    # [1] 1 0 1 0 0
 \alias{vld_factor}
 \alias{vld_false}
 \alias{vld_formula}
+\alias{vld_function}
 \alias{vld_language}
 \alias{vld_matrix}
 \alias{vld_na}
@@ -106,6 +107,8 @@ vld_false(...)
 
 vld_formula(...)
 
+vld_function(...)
+
 vld_language(...)
 
 vld_matrix(...)
@@ -141,7 +144,7 @@ vld_true(...)
 vld_unsorted(...)
 }
 \seealso{
-Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.call}}, \code{\link[base]{is.complex}}, \code{\link[base]{is.data.frame}}, \code{\link[base]{is.environment}}, \code{\link[base]{is.expression}}, \code{\link[base]{is.factor}}, \code{\link[base]{is.language}}, \code{\link[base]{is.matrix}}, \code{\link[base]{is.na}}, \code{\link[base]{is.name}}, \code{\link[base]{is.nan}}, \code{\link[base]{is.numeric}}, \code{\link[base]{is.ordered}}, \code{\link[base]{is.pairlist}}, \code{\link[base]{is.primitive}}, \code{\link[base]{is.raw}}, \code{\link[base]{is.recursive}}, \code{\link[base]{is.symbol}}, \code{\link[base]{is.table}}, \code{\link[base]{is.unsorted}}, \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
+Corresponding predicates: \code{\link[base]{is.array}}, \code{\link[base]{is.call}}, \code{\link[base]{is.complex}}, \code{\link[base]{is.data.frame}}, \code{\link[base]{is.environment}}, \code{\link[base]{is.expression}}, \code{\link[base]{is.factor}}, \code{\link[base]{is.function}}, \code{\link[base]{is.language}}, \code{\link[base]{is.matrix}}, \code{\link[base]{is.na}}, \code{\link[base]{is.name}}, \code{\link[base]{is.nan}}, \code{\link[base]{is.numeric}}, \code{\link[base]{is.ordered}}, \code{\link[base]{is.pairlist}}, \code{\link[base]{is.primitive}}, \code{\link[base]{is.raw}}, \code{\link[base]{is.recursive}}, \code{\link[base]{is.symbol}}, \code{\link[base]{is.table}}, \code{\link[base]{is.unsorted}}, \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 

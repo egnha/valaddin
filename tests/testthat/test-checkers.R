@@ -59,3 +59,39 @@ test_that("environment of check formula is package namespace environment", {
     expect_identical(lazyeval::f_env(.$chkr(~x)), env)
   }
 })
+
+test_that("vld_closure only validates functions that are closures", {
+  f <- firmly(function(x) NULL, vld_closure(~x))
+
+  # Closures
+  closures <- list(f, function(x) log(x))
+  for (x in closures) {
+    expect_true(typeof(x) == "closure")
+    expect_error(f(x), NA)
+  }
+
+  # Non-closures
+  non_closures <- list(log, 0L, 1, NULL, NA, letters)
+  for (x in non_closures) {
+    expect_false(typeof(x) == "closure")
+    expect_error(f(x), "Not closure")
+  }
+})
+
+test_that("vld_function validations functions, both primitive and closures", {
+  f <- firmly(function(x) NULL, vld_function(~x))
+
+  # Functions, both primitive and non-primitive
+  fns <- list(f, function(x) log(x), log)
+  for (x in fns) {
+    expect_true(is.function(x))
+    expect_error(f(x), NA)
+  }
+
+  # Non-functions
+  non_fns <- list(0L, 1, NULL, NA, letters)
+  for (x in non_fns) {
+    expect_false(is.function(x))
+    expect_error(f(x), "Not function")
+  }
+})
