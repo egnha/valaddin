@@ -274,7 +274,7 @@ print.firm_closure <- function(x, ...) {
   cat("<firm_closure>\n")
 
   cat("\n* Core function:\n")
-  print(firm_core(x))
+  print.default(firm_core(x))
 
   cat("\n* Checks (<predicate>:<error message>):\n")
   calls <- firm_checks(x)

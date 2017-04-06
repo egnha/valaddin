@@ -15,7 +15,7 @@ fs_firm <- lapply(fs, firmly, .checklist = chks)
 
 test_that("firm closure original function body is displayed", {
   for (i in seq_along(fs)) {
-    original_fn <- capture_output(print(fs[[i]]))
+    original_fn <- capture_output(print.default(fs[[i]]))
     expect_output_p(print(fs_firm[[i]]), original_fn)
   }
 })
@@ -60,7 +60,7 @@ test_that("local checker predicate is displayed", {
 
   for (f in fmls) {
     pred <- lazyeval::f_rhs(f)
-    out <- paste(header, capture_output(pred), sep = "\n")
+    out <- paste(header, capture_output(print.default(pred)), sep = "\n")
 
     expect_output_p(print(localize(f)), out)
   }

@@ -142,7 +142,7 @@ print.check_maker <- function(x, ...) {
   if (is_lambda(p)) {
     cat(deparse_collapse(express_lambda(p)), "\n")
   } else {
-    print(p)
+    print.default(p)
   }
 
   cat("\n* Error message:\n")
