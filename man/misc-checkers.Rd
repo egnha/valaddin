@@ -58,6 +58,8 @@ ifelse_f(w > 0, 0, 1)    # [1] 1 0 1 0 0
 }
 
 }
+\alias{vld_all}
+\alias{vld_any}
 \alias{vld_array}
 \alias{vld_call}
 \alias{vld_complex}
@@ -87,6 +89,10 @@ ifelse_f(w > 0, 0, 1)    # [1] 1 0 1 0 0
 \alias{vld_true}
 \alias{vld_unsorted}
 \usage{
+vld_all(...)
+
+vld_any(...)
+
 vld_array(...)
 
 vld_call(...)

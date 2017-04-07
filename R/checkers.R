@@ -68,8 +68,10 @@ chkrs$vld_numeric <- localize(ff_new(is.numeric, "Not double/integer"))
 chkrs$vld_scalar_numeric <- localize(ff_new(
   quote({is.numeric(.) && length(.) == 1L}), "Not scalar double/integer"))
 chkrs$vld_closure <- localize(ff_new(purrr::is_function, "Not closure"))
-chkrs$vld_true <- localize(ff_new(is_true, "Not TRUE"))
+chkrs$vld_true  <- localize(ff_new(is_true, "Not TRUE"))
 chkrs$vld_false <- localize(ff_new(is_false, "Not FALSE"))
+chkrs$vld_all <- localize(ff_new(all, "Not all TRUE"))
+chkrs$vld_any <- localize(ff_new(any, "None TRUE"))
 
 # Aliases
 replace_msg <- function(chkr, msg) {
@@ -101,7 +103,7 @@ nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
               grep, x = names(chkrs_$purrr), value = TRUE, perl = TRUE)
 nms$misc <- c(
   names(chkrs_$base),
-  paste0("vld_", c("true", "false", "empty", "formula",
+  paste0("vld_", c("true", "false", "empty", "formula", "all", "any",
                    "numeric", "scalar_numeric", "number"))
 )
 nms$type <- setdiff(c(names(chkrs_$purrr), "vld_closure"), unlist(nms))
