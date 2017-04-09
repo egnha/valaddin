@@ -143,8 +143,8 @@ together with the arguments they validate, it is the recommended way of using
       \code{"firm_closure"}, unless it already contains it).
     }
   }
-  \subsection{\code{\%firmly\%}}{
-    \code{\%firmly\%} applies the checks in \code{.checklist} to \code{.f}
+  \subsection{\code{\%secure\%}}{
+    \code{\%secure\%} applies the checks in \code{.checklist} to \code{.f}
     (using \code{firmly}).
   }
   \subsection{\code{loosely}}{
