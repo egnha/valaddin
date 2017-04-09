@@ -76,7 +76,7 @@ pass_args <- function(args) {
 
 # Expect exactly n errors matching pattern
 expect_n_errors <- function(n, f, args, pattern) {
-  do.call(purrr::safely(f), args, quote = TRUE) %>% {
+  suppressWarnings(do.call(purrr::safely(f), args, quote = TRUE)) %>% {
     stringr::str_count(.$error, pattern)
   } %>%
     expect_equal(n)
