@@ -106,8 +106,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
   force(.fn)
   force(.warn)
 
-  expr <- .chks$expr
-  env  <- .chks$env
+  exprs <- purrr::transpose(.chks[, c("expr", "env")])
 
   function() {
     call <- match.call()
@@ -116,20 +115,13 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
     parent <- parent.frame()
     encl <- parent.env(environment())
     env <- promises(call, encl$.sig, parent)
-    verdict <- Map(
-      function(expr, env_chk) {
-        parent.env(env) <- env_chk
-        tryCatch(
-          suppressWarnings(eval(expr, env, env)),
-          error = identity
-        )
-      },
-      encl$expr, encl$env
+    verdict <- lapply(encl$exprs, function(.)
+      tryCatch(eval(.$expr, `parent.env<-`(env, .$env)), error = identity)
     )
     pass <- vapply(verdict, is_true, logical(1))
 
     if (all(pass)) {
-      eval(.fn(call), parent, parent)
+      eval(.fn(call), parent)
     } else {
       fail <- !pass
       msg_call  <- sprintf("%s\n", deparse_collapse(call))
