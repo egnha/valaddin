@@ -121,7 +121,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
     pass <- vapply(verdict, is_true, logical(1))
 
     if (all(pass)) {
-      eval(.fn(call), parent)
+      eval(encl$.fn(call), parent)
     } else {
       fail <- !pass
       msg_call  <- sprintf("%s\n", deparse_collapse(call))
