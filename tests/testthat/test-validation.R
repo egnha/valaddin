@@ -284,17 +284,32 @@ test_that("check-eval error when check-formula variable not function variable", 
   }
 })
 
-test_that("warnings that arise when validating inputs are not suppressed", {
-  f <- suppressWarnings
-  ff <- firmly(f, ~is.numeric)
+test_that("warnings that arise when validating inputs are suppressed", {
+  is_numeric <- function(x) {
+    out <- tryCatch(is.numeric(x), warning = identity)
+    if (inherits(out, "warning")) {
+      message(conditionMessage(out))
+      suppressWarnings(is.numeric(x))
+    } else {
+      out
+    }
+  }
+  f <- function(x) NULL
+  ff <- firmly(f, ~is_numeric)
 
-  # No error and no warning in evaluation core function
+  # No error or warning or messages when evaluating core function
   expect_error(f(log(-1)), NA)
   expect_warning(f(log(-1)), NA)
+  expect_message(f(log(-1)), NA)
 
-  # Still no error when evaluating core function, but validation raises warning
-  expect_error(suppressWarnings(ff(log(-1))), NA)
-  expect_warning(ff(log(-1)), "NaNs produced")
+  # Still no error when validating inputs
+  expect_error(ff(log(-1)), NA)
+
+  # Warning created when validating inputs captured as a message
+  expect_message(ff(log(-1)), "NaNs produced")
+
+  # However, the warning itself is suppressed
+  expect_warning(ff(log(-1)), NA)
 })
 
 test_that("predicate is evaluated in its ambient formula environment", {

@@ -115,9 +115,9 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
     parent <- parent.frame()
     encl <- parent.env(environment())
     env <- promises(call, encl$.sig, parent)
-    verdict <- lapply(encl$exprs, function(.)
+    verdict <- suppressWarnings(lapply(encl$exprs, function(.)
       tryCatch(eval(.$expr, `parent.env<-`(env, .$env)), error = identity)
-    )
+    ))
     pass <- vapply(verdict, is_true, logical(1))
 
     if (all(pass)) {
