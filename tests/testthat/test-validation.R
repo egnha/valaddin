@@ -75,13 +75,13 @@ test_that("one-sided formula produces global check", {
   # Error evaluating check because of invalid input types
   args <- list(1, "y", v = 0)
 
-  expect_error(suppressWarnings(do.call("f_pos", args)),
+  expect_error(do.call("f_pos", args),
                "FALSE[^\n]*?is\\.numeric\\(y\\)")
-  expect_error(suppressWarnings(do.call("f_pos", args)),
+  expect_error(do.call("f_pos", args),
                "FALSE[^\n]*?function\\(.\\) \\{\\. > 0\\}\\)\\(z\\)")
-  expect_error(suppressWarnings(do.call("f_pos", args)),
+  expect_error(do.call("f_pos", args),
                "FALSE[^\n]*?function\\(.\\) \\{\\. > 0\\}\\)\\(v\\)")
-  expect_error(suppressWarnings(do.call("f_pos", args)),
+  expect_error(do.call("f_pos", args),
                "Error evaluating check.*?\\{\\. > 0\\}\\)\\(u\\)")
 
   # No other errors
@@ -121,12 +121,12 @@ test_that("string formula produces global check with message", {
   # Error evaluating check because of invalid input types
   args <- list(1, "y", v = 0)
 
-  expect_error(suppressWarnings(do.call("f_pos", args)), "Not numeric: `y`")
-  expect_error(suppressWarnings(do.call("f_pos", args)), "Not positive: `z`")
-  expect_error(suppressWarnings(do.call("f_pos", args)), "Not positive: `v`")
-  expect_error(suppressWarnings(do.call("f_pos", args)),
+  expect_error(do.call("f_pos", args), "Not numeric: `y`")
+  expect_error(do.call("f_pos", args), "Not positive: `z`")
+  expect_error(do.call("f_pos", args), "Not positive: `v`")
+  expect_error(do.call("f_pos", args),
                "Error evaluating check.*?is\\.numeric\\(u\\)")
-  expect_error(suppressWarnings(do.call("f_pos", args)),
+  expect_error(do.call("f_pos", args),
                "Error evaluating check.*?function\\(\\.\\) \\{\\. > 0\\}\\)\\(u\\)")
 
   # No other errors
@@ -240,7 +240,7 @@ test_that("invalid predicate value flagged by precise error of such", {
   # Fail because predicate returns FALSE
   bad_x <- list(log, identity, "string", TRUE, quote({cat("Ho!")}), TRUE)
   for (x in bad_x) {
-    expect_error(suppressWarnings(f_firm(x)), errmsg)
+    expect_error(f_firm(x), errmsg)
   }
 
   # Fail because predicate returns invalid value
