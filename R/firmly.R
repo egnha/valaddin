@@ -106,7 +106,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
   force(.fn)
   force(.warn)
 
-  exprs <- purrr::transpose(.chks[, c("expr", "env")])
+  exprs <- purrr::transpose(.chks[c("expr", "env")])
 
   function() {
     call <- match.call()
