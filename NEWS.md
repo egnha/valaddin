@@ -25,6 +25,12 @@
   
 ### Minor improvements and bug fixes
 
+* If a function happened to have a callable argument named `.fn`, that function
+  would be called upon the passing of checks, instead of the original core 
+  function. This bug has been fixed by explicitly referencing the core function
+  in the enclosing environment (commit
+  [96f8533](https://github.com/egnha/valaddin/commit/96f853340e77190a744e4ead4486f222fe7e0879)).
+
 * Reduced use of assignment, subsetting and warning suppression speeds up 
   `firmly` to within an order of magnitude of the speed of input validation
   using `stopifnot`.
