@@ -284,6 +284,19 @@ test_that("check-eval error when check-formula variable not function variable", 
   }
 })
 
+test_that("warnings that arise when validating inputs are not suppressed", {
+  f <- suppressWarnings
+  ff <- firmly(f, ~is.numeric)
+
+  # No error and no warning in evaluation core function
+  expect_error(f(log(-1)), NA)
+  expect_warning(f(log(-1)), NA)
+
+  # Still no error when evaluating core function, but validation raises warning
+  expect_error(suppressWarnings(ff(log(-1))), NA)
+  expect_warning(ff(log(-1)), "NaNs produced")
+})
+
 test_that("predicate is evaluated in its ambient formula environment", {
   has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
   fs <- lapply(args_list[has_xy], pass_args)
