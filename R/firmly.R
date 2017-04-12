@@ -143,7 +143,6 @@ nomen <- function(sig) {
 skip <- function(...) invisible()
 
 firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = character()) {
-  .f <- match.fun(.f)
   chks <- unname(c(list(...), .checklist))
 
   if (!length(chks) && !length(.warn_missing)) {
@@ -233,7 +232,6 @@ loosely <- list(
 ) %secure%
   function(.f, .keep_check = FALSE, .keep_warning = FALSE,
            .quiet = TRUE) {
-    .f <- match.fun(.f)
     is_not_firm <- !is_firm(.f)
     if (is_not_firm || .keep_check && .keep_warning) {
       if (is_not_firm && !.quiet) {
