@@ -352,25 +352,35 @@ test_that("predicate is evaluated in its ambient formula environment", {
 })
 
 test_that("names in checking procedure don't override function arguments", {
-  # Names in execution environment of validating_closure()
+  # Bindings in execution/enclosing environment of validating_closure()
   nms <- c("call", "parent", "encl", "env", "verdict", "pass", "fail",
-           "msg_call", "msg_error", ".chks", ".sig", ".fn", ".warn")
-  def_args <- setNames(seq_along(nms), nms)
-  f <- eval(call("function", as.pairlist(def_args), quote("Pass")))
-  f_firm <- firmly(f, "Not numeric" ~ is.numeric)
+           "msg_call", "msg_error", ".chks", ".sig", ".warn", "exprs")
 
-  # Check that f, f_firm are correctly defined
-  expect_error(f_firm(), NA)
-  expect_identical(f_firm(), f())
+  sum_args <- parse(text = paste(nms, collapse = "+"))
+  f <- function() {
+    # Ensure that no arguments have type "logical"
+    args <- as.list(match.call()[-1])
+    stopifnot(vapply(args, Negate(is.logical), logical(1)))
 
-  # ~ 10k possible combinations of arguments, so randomly sample them instead
-  subsets <- expand.grid(rep(list(c(TRUE, FALSE)), length(nms)))
-  rows <- {set.seed(1); sample.int(nrow(subsets), 100L)}
-  for (i in rows) {
-    # Make invalid argument list (i.e., non-numeric)
-    subset <- t(subsets[i, ])
-    args <- as.list(setNames(nm = nms[subset]))
-
-    expect_n_errors(n = length(args), f_firm, args, "Not numeric")
+    eval(sum_args)
   }
+
+  # All arguments get an positive integer default value, except .fn
+  wrong_fn <- function(x) "Wrong function called"
+  def_args_nonfn <- seq_along(nms)
+  def_args <- c(alist(.fn = wrong_fn), stats::setNames(def_args_nonfn, nms))
+  formals(f) <- as.pairlist(def_args)
+
+  f_firm <- firmly(
+    f,
+    list(~.fn) ~ is.function,
+    lapply(nms, function(.) eval(parse(text = paste0("~", .)))) ~ is.numeric
+  )
+
+  # Verify that f_firm() generates no errors and has correct value
+  expect_error(f_firm(), NA)
+  expect_identical(f_firm(), sum(def_args_nonfn))
+
+  # Verify that f_firm() does not (accidentally) call .fn
+  expect_false(identical(f_firm(), wrong_fn()))
 })
