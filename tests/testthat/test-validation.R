@@ -382,5 +382,5 @@ test_that("names in checking procedure don't override function arguments", {
   expect_identical(f_firm(), sum(def_args_nonfn))
 
   # Verify that f_firm() does not (accidentally) call .fn
-  expect_false(identical(f_firm(), wrong_fn()))
+  expect_false(isTRUE(all.equal(f_firm(), wrong_fn())))
 })
