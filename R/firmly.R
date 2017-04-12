@@ -201,7 +201,8 @@ is_firm <- function(x) {
 }
 
 firm_closure <- function(.f) {
-  if (!is_firm(.f)) {
+  .f <- match.fun(.f)
+  if (!inherits(.f, "firm_closure")) {
     class(.f) <- c("firm_closure", class(.f))
   }
   .f
