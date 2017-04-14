@@ -220,8 +220,10 @@ firmly <- firmly_(
   firmly_,
   list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
   list("`.checklist` not a list" ~ .checklist) ~ is.list,
-  list("`.warn_missing` not a character vector" ~ .warn_missing) ~
-    {is.character(.) && !anyNA(.)}
+  list(
+    "`.warn_missing` not a character vector" ~ .warn_missing,
+    "`.error` not a character vector" ~ .error
+  ) ~ {is.character(.) && !anyNA(.)}
 )
 
 #' @export
