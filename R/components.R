@@ -9,6 +9,8 @@
 #'   \item \code{firm_args()} extracts the names of arguments whose presence is
 #'     to be checked, i.e., those specified by the \code{.warn_missing} switch
 #'     of \code{\link{firmly}}.
+#'   \item \code{firm_error()} extracts the subclass of the error condition that
+#'     is signaled if an input validation error occurs.
 #' }
 #'
 #' @param x Object to decompose.
@@ -19,6 +21,7 @@
 #'       (language), \code{env} (environment), \code{string} (character),
 #'       \code{msg} (character).
 #'     \item \code{firm_args} returns a character vector.
+#'     \item \code{firm_error} returns a character vector.
 #'   }
 #'   In the absence of the component to be extracted, these functions return
 #'   \code{NULL}.
@@ -52,4 +55,10 @@ firm_checks <- function(x) {
 #' @export
 firm_args <- function(x) {
   environment(environment(x)$.warn)$.args
+}
+
+#' @rdname components
+#' @export
+firm_error <- function(x) {
+  environment(x)$.error
 }

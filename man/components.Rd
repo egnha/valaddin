@@ -5,6 +5,7 @@
 \alias{firm_core}
 \alias{firm_checks}
 \alias{firm_args}
+\alias{firm_error}
 \title{Decompose a firmly applied function}
 \usage{
 firm_core(x)
@@ -12,6 +13,8 @@ firm_core(x)
 firm_checks(x)
 
 firm_args(x)
+
+firm_error(x)
 }
 \arguments{
 \item{x}{Object to decompose.}
@@ -24,6 +27,7 @@ If \code{x} is a firmly applied function:
       (language), \code{env} (environment), \code{string} (character),
       \code{msg} (character).
     \item \code{firm_args} returns a character vector.
+    \item \code{firm_error} returns a character vector.
   }
   In the absence of the component to be extracted, these functions return
   \code{NULL}.
@@ -38,6 +42,8 @@ Decompose a firmly applied function (i.e., a function created by
   \item \code{firm_args()} extracts the names of arguments whose presence is
     to be checked, i.e., those specified by the \code{.warn_missing} switch
     of \code{\link{firmly}}.
+  \item \code{firm_error()} extracts the subclass of the error condition that
+    is signaled if an input validation error occurs.
 }
 }
 \examples{
