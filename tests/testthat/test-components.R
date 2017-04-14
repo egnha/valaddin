@@ -115,3 +115,29 @@ test_that("firm_args returns NULL for non-firmly applied functions", {
     expect_null(firm_args(f))
   }
 })
+
+test_that("firm_error gets error subclass for firmly applied functions", {
+  for (f in fs) {
+    nm <- nomen(formals(f))$nm
+    if (!length(nm)) {
+      # No named argument, so firmly does not create firm closure
+      expect_null(firm_error(suppressWarnings(firmly(f, ~ is.numeric))))
+
+      next
+    }
+
+    f_firm <- firmly(f, ~ is.numeric, .error = c("customError", "simpleError"))
+    f_warn <- firmly(f, .warn_missing = nm, .error = "customError")
+    f_firm_warn <- firmly(f_firm, .warn_missing = nm, .error = "newError")
+
+    expect_identical(firm_error(f_firm), c("customError", "simpleError"))
+    expect_identical(firm_error(f_warn), "customError")
+    expect_identical(firm_error(f_firm_warn), "newError")
+  }
+})
+
+test_that("firm_error returns NULL for non-firmly applied functions", {
+  for (f in fs) {
+    expect_null(firm_error(f))
+  }
+})
