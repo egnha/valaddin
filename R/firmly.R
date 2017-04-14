@@ -74,7 +74,8 @@ warning_closure <- function(.fn, .warn) {
     .warn(call)
 
     parent <- parent.frame()
-    eval(.fn(call), parent, parent)
+    encl <- parent.env(environment())
+    eval(encl$.fn(call), parent)
   }
 }
 
