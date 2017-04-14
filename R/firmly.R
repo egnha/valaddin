@@ -101,11 +101,18 @@ promises <- function(.call, .sig, .env) {
   eval(.call, .env)
 }
 
-validating_closure <- function(.chks, .sig, .fn, .warn) {
+validating_closure <- function(.chks, .sig, .fn, .warn, .error) {
   force(.sig)
   force(.fn)
   force(.warn)
+  force(.error)
 
+  error <- function(message, call = sys.call(-1)) {
+    structure(
+      list(message = message, call = call),
+      class = c(.error, "error", "condition")
+    )
+  }
   exprs <- purrr::transpose(.chks[c("expr", "env")])
 
   function() {
@@ -126,7 +133,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn) {
       fail <- !pass
       msg_call  <- sprintf("%s\n", deparse_collapse(call))
       msg_error <- enumerate_many(problems(encl$.chks[fail, ], verdict[fail]))
-      stop_wo_call(paste0(msg_call, msg_error))
+      stop(encl$error(paste0(msg_call, msg_error)))
     }
   }
 }
@@ -142,7 +149,8 @@ nomen <- function(sig) {
 
 skip <- function(...) invisible()
 
-firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = character()) {
+firmly_ <- function(.f, ..., .checklist = list(),
+                    .warn_missing = character(), .error = "simpleError") {
   chks <- unname(c(list(...), .checklist))
 
   if (!length(chks) && !length(.warn_missing)) {
@@ -181,13 +189,13 @@ firmly_ <- function(.f, ..., .checklist = list(), .warn_missing = character()) {
         lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
       )
     )
-    f <- validating_closure(assembled_chks, sig, fn, maybe_warn)
+    f <- validating_closure(assembled_chks, sig, fn, maybe_warn, .error)
   } else {
     # .warn_missing not empty
     f <- if (is.null(pre_chks)) {
       warning_closure(fn, maybe_warn)
     } else {
-      validating_closure(pre_chks, sig, fn, maybe_warn)
+      validating_closure(pre_chks, sig, fn, maybe_warn, .error)
     }
   }
 

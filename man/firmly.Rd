@@ -296,7 +296,7 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
   }
 }
 \usage{
-firmly(.f, ..., .checklist = list(), .warn_missing = character())
+firmly(.f, ..., .checklist = list(), .warn_missing = character(), .error = "simpleError")
 
 .checklist \%secure\% .f
 
