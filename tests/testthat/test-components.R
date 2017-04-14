@@ -126,13 +126,24 @@ test_that("firm_error gets error subclass for firmly applied functions", {
       next
     }
 
-    f_firm <- firmly(f, ~ is.numeric, .error = c("customError", "simpleError"))
-    f_warn <- firmly(f, .warn_missing = nm, .error = "customError")
-    f_firm_warn <- firmly(f_firm, .warn_missing = nm, .error = "newError")
+    f_firm1 <- firmly(f, ~is.numeric)
+    f_firm2 <- firmly(f, ~is.numeric, .error = c("customError", "simpleError"))
+    f_firm3 <- firmly(f_firm2, ~{. > 0})
+    f_firm4 <- firmly(f_firm3, .error = "newError")
+    f_firm5 <- firmly(f, .error = "customError")
+    f_firm_warn1 <- firmly(f_firm1, .warn_missing = nm, .error = "newError")
+    f_firm_warn2 <- firmly(f_firm1, .warn_missing = nm)
+    # .error is ignored if there are no checks
+    f_warn_only <- firmly(f, .warn_missing = nm, .error = "customError")
 
-    expect_identical(firm_error(f_firm), c("customError", "simpleError"))
-    expect_identical(firm_error(f_warn), "customError")
-    expect_identical(firm_error(f_firm_warn), "newError")
+    expect_identical(firm_error(f_firm1), "simpleError")
+    expect_identical(firm_error(f_firm2), c("customError", "simpleError"))
+    expect_identical(firm_error(f_firm3), c("customError", "simpleError"))
+    expect_identical(firm_error(f_firm4), "newError")
+    expect_identical(firm_error(f_firm5), NULL)
+    expect_identical(firm_error(f_firm_warn1), "newError")
+    expect_identical(firm_error(f_firm_warn2), "simpleError")
+    expect_identical(firm_error(f_warn_only), NULL)
   }
 })
 

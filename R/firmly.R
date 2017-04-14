@@ -150,10 +150,10 @@ nomen <- function(sig) {
 skip <- function(...) invisible()
 
 firmly_ <- function(.f, ..., .checklist = list(),
-                    .warn_missing = character(), .error = "simpleError") {
+                    .warn_missing = character(), .error = character()) {
   chks <- unname(c(list(...), .checklist))
 
-  if (!length(chks) && !length(.warn_missing)) {
+  if (!length(chks) && !length(.warn_missing) && !length(.error)) {
     return(.f)
   }
 
@@ -166,8 +166,11 @@ firmly_ <- function(.f, ..., .checklist = list(),
     if (length(.warn_missing)) {
       stop_wo_call("Invalid `.warn_missing`: `.f` has no named argument")
     }
-    # If .warn_missing is empty, then chks is not
-    warning_wo_call("Check formula(e) not applied: `.f` has no named argument")
+
+    # Either chks or .error is non-empty
+    if (length(chks)) {
+      warning_wo_call("Check formula(e) not applied: `.f` has no named argument")
+    }
     return(.f)
   }
 
@@ -181,6 +184,7 @@ firmly_ <- function(.f, ..., .checklist = list(),
   fn <- call_fn(if (is_firm(.f)) firm_core(.f) else .f)
   pre_chks <- firm_checks(.f)
   maybe_warn <- warn(.warn_missing) %||% warn(firm_args(.f)) %||% skip
+  error <- .error %||% firm_error(.f) %||% "simpleError"
 
   if (length(chks)) {
     assembled_chks <- dplyr::distinct_(
@@ -189,13 +193,13 @@ firmly_ <- function(.f, ..., .checklist = list(),
         lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
       )
     )
-    f <- validating_closure(assembled_chks, sig, fn, maybe_warn, .error)
+    f <- validating_closure(assembled_chks, sig, fn, maybe_warn, error)
   } else {
-    # .warn_missing not empty
+    # .warn_missing or .error is non-empty
     f <- if (is.null(pre_chks)) {
       warning_closure(fn, maybe_warn)
     } else {
-      validating_closure(pre_chks, sig, fn, maybe_warn, .error)
+      validating_closure(pre_chks, sig, fn, maybe_warn, error)
     }
   }
 
