@@ -1,5 +1,7 @@
-# Null-default operator
-`%||%` <- purrr::`%||%`
+# Empty-default operator
+`%||%` <- function(x, y) {
+  if (is.null(x) || length(x) == 0L) y else x
+}
 
 # Pipe operator
 `%>%` <- purrr::`%>%`
