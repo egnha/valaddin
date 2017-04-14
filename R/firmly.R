@@ -262,7 +262,7 @@ loosely <- list(
     f <- if (is.null(f_chks)) {
       warning_closure(call_fn(f_core), warn(f_args))
     } else {
-      validating_closure(f_chks, sig, call_fn(f_core), skip)
+      validating_closure(f_chks, sig, call_fn(f_core), skip, firm_error(.f))
     }
 
     firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
