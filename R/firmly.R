@@ -107,9 +107,9 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error) {
   force(.warn)
   force(.error)
 
-  error <- function(message, call = sys.call(-1)) {
+  error <- function(message) {
     structure(
-      list(message = message, call = call),
+      list(message = message, call = NULL),
       class = c(.error, "error", "condition")
     )
   }
