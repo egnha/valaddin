@@ -318,8 +318,10 @@ print.firm_closure <- function(x, ...) {
 #' @param \dots Input-validation check formula(e).
 #' @param .checklist List of check formulae. (These are combined with check
 #'   formulae provided via \code{\dots}.)
-#' @param .warn_missing Character vector of arguments of \code{.f} whose absence
-#'   should raise a warning.
+#' @param .warn_missing Arguments of \code{.f} whose absence should raise a
+#'   warning (character).
+#' @param .error Subclass of the error condition to be raised if an input
+#'   validation error occurs (character).
 #' @param .keep_check,.keep_warning \code{TRUE} or \code{FALSE}: Should existing
 #'   checks, resp. missing-argument warnings, be kept?
 #' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning that \code{.f} is

@@ -15,8 +15,11 @@ primitive function.}
 \item{.checklist}{List of check formulae. (These are combined with check
 formulae provided via \code{\dots}.)}
 
-\item{.warn_missing}{Character vector of arguments of \code{.f} whose absence
-should raise a warning.}
+\item{.warn_missing}{Arguments of \code{.f} whose absence should raise a
+warning (character).}
+
+\item{.error}{Subclass of the error condition to be raised if an input
+validation error occurs (character).}
 
 \item{.keep_check, .keep_warning}{\code{TRUE} or \code{FALSE}: Should existing
 checks, resp. missing-argument warnings, be kept?}
