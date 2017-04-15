@@ -18,7 +18,7 @@ formulae provided via \code{\dots}.)}
 \item{.warn_missing}{Arguments of \code{.f} whose absence should raise a
 warning (character).}
 
-\item{.error}{Subclass of the error condition to be raised if an input
+\item{.error_class}{Subclass of the error condition to be raised if an input
 validation error occurs (character).}
 
 \item{.keep_check, .keep_warning}{\code{TRUE} or \code{FALSE}: Should existing
@@ -299,7 +299,7 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
   }
 }
 \usage{
-firmly(.f, ..., .checklist = list(), .warn_missing = character(), .error = character())
+firmly(.f, ..., .checklist = list(), .warn_missing = character(), .error_class = character())
 
 .checklist \%secure\% .f
 

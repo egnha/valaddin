@@ -101,16 +101,16 @@ promises <- function(.call, .sig, .env) {
   eval(.call, .env)
 }
 
-validating_closure <- function(.chks, .sig, .fn, .warn, .error) {
+validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
   force(.sig)
   force(.fn)
   force(.warn)
-  force(.error)
+  force(.error_class)
 
   error <- function(message) {
     structure(
       list(message = message, call = NULL),
-      class = c(.error, "error", "condition")
+      class = c(.error_class, "error", "condition")
     )
   }
   exprs <- purrr::transpose(.chks[c("expr", "env")])
@@ -150,10 +150,10 @@ nomen <- function(sig) {
 skip <- function(...) invisible()
 
 firmly_ <- function(.f, ..., .checklist = list(),
-                    .warn_missing = character(), .error = character()) {
+                    .warn_missing = character(), .error_class = character()) {
   chks <- unname(c(list(...), .checklist))
 
-  if (!length(chks) && !length(.warn_missing) && !length(.error)) {
+  if (!length(chks) && !length(.warn_missing) && !length(.error_class)) {
     return(.f)
   }
 
@@ -167,7 +167,7 @@ firmly_ <- function(.f, ..., .checklist = list(),
       stop_wo_call("Invalid `.warn_missing`: `.f` has no named argument")
     }
 
-    # Either chks or .error is non-empty
+    # Either chks or .error_class is non-empty
     if (length(chks)) {
       warning_wo_call("Check formula(e) not applied: `.f` has no named argument")
     }
@@ -184,7 +184,7 @@ firmly_ <- function(.f, ..., .checklist = list(),
   fn <- call_fn(if (is_firm(.f)) firm_core(.f) else .f)
   pre_chks <- firm_checks(.f)
   maybe_warn <- warn(.warn_missing) %||% warn(firm_args(.f)) %||% skip
-  error <- .error %||% firm_error(.f) %||% "simpleError"
+  error <- .error_class %||% firm_error(.f) %||% "simpleError"
 
   if (length(chks)) {
     assembled_chks <- dplyr::distinct_(
@@ -195,7 +195,7 @@ firmly_ <- function(.f, ..., .checklist = list(),
     )
     f <- validating_closure(assembled_chks, sig, fn, maybe_warn, error)
   } else {
-    # .warn_missing or .error is non-empty
+    # .warn_missing or .error_class is non-empty
     f <- if (is.null(pre_chks)) {
       warning_closure(fn, maybe_warn)
     } else {
@@ -226,7 +226,7 @@ firmly <- firmly_(
   list("`.checklist` not a list" ~ .checklist) ~ is.list,
   list(
     "`.warn_missing` not a character vector" ~ .warn_missing,
-    "`.error` not a character vector" ~ .error
+    "`.error_class` not a character vector" ~ .error_class
   ) ~ {is.character(.) && !anyNA(.)}
 )
 
@@ -324,7 +324,7 @@ print.firm_closure <- function(x, ...) {
 #'   formulae provided via \code{\dots}.)
 #' @param .warn_missing Arguments of \code{.f} whose absence should raise a
 #'   warning (character).
-#' @param .error Subclass of the error condition to be raised if an input
+#' @param .error_class Subclass of the error condition to be raised if an input
 #'   validation error occurs (character).
 #' @param .keep_check,.keep_warning \code{TRUE} or \code{FALSE}: Should existing
 #'   checks, resp. missing-argument warnings, be kept?

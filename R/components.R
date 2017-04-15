@@ -60,5 +60,5 @@ firm_args <- function(x) {
 #' @rdname components
 #' @export
 firm_error <- function(x) {
-  environment(x)$.error
+  environment(x)$.error_class
 }
