@@ -1,17 +1,28 @@
 # Call signature of a function (specified by name)
-call_sig <- function(x, ...) {
+call_sig <- function(x, width) {
   stopifnot(is.character(x))
   is_op <- grepl("^%.+%$", x)
   x[ is_op] <- vapply(x[ is_op], call_sig_op, character(1), USE.NAMES = FALSE)
-  x[!is_op] <- vapply(x[!is_op], call_sig_fn, character(1), USE.NAMES = FALSE)
+  x[!is_op] <- vapply(x[!is_op], call_sig_fn, character(1),
+                      USE.NAMES = FALSE, width = width)
   x
 }
 
-call_sig_fn <- function(nm) {
+call_sig_fn <- function(nm, width) {
   f <- get(nm, mode = "function")
-  sig_raw <- deparse(call("function", formals(f), quote(expr = )))
-  sig <- paste(trimws(sig_raw, which = "left"), collapse = "")
-  sub("^function", nm, trimws(sig, which = "both"))
+  spaces <- paste(character(nchar(nm) + 1L), collapse = " ")
+
+  call_sig <- deparse(call("function", formals(f), quote(expr = ))) %>%
+    paste(collapse = "") %>%
+    sub("^function", nm, .)
+  call_sig_fmt <- parse(text = call_sig, keep.source = FALSE)[[1L]] %>%
+    deparse(width.cutoff = width) %>%
+    trimws(which = "both") %>% {
+      `[<-`(., -1L, value = paste(spaces, .[-1L]))
+    } %>%
+    paste(collapse = "\n")
+
+  call_sig_fmt
 }
 
 call_sig_op <- function(nm) {
@@ -56,12 +67,14 @@ NULL
 rd_alias <- vec_strjoin(rd_markup("alias"))
 
 #' @rdname rd_markup
-#' @param \dots Arguments to pass to \code{\link[base]{get}}.
+#' @param width Width cutoff attempt, cf. \code{\link{deparse}}.
 #' @examples
 #' rd_usage("ls")
 #' rd_usage(c("firmly", "loosely"), pos = "package:valaddin")
 #' @noRd
-rd_usage <- purrr::compose(rd_markup("usage", join = "\n\n", sep = "\n"), call_sig)
+rd_usage <- function(x, width = 60L) {
+  rd_markup("usage", join = "\n\n", sep = "\n")(call_sig(x, width))
+}
 
 #' @rdname rd_markup
 #' @examples
