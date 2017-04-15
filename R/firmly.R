@@ -290,6 +290,14 @@ print.firm_closure <- function(x, ...) {
     cat("None\n")
   }
 
+  cat("\n* Error (sub)class for check errors:\n")
+  subclass <- firm_error(x)
+  if (!is.null(subclass)) {
+    cat(paste(subclass, collapse = ", "), "\n")
+  } else {
+    cat("None\n")
+  }
+
   cat("\n* Check for missing arguments:\n")
   args <- firm_args(x)
   if (!is.null(args) && length(args)) {

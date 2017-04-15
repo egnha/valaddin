@@ -27,6 +27,20 @@ test_that("firm closure checks are displayed", {
   }
 })
 
+test_that("firm closure error subclass is displayed", {
+  for (f in fs_firm) {
+    g <- firmly(f, .error_class = c("extraSpecialError", "specialError"))
+
+    expect_output_p(print(f), "check errors:\nsimpleError")
+    expect_output_p(print(g), "check errors:\nextraSpecialError, specialError")
+  }
+
+  expect_output_p(
+    print(firmly(function(x) x, .warn_missing = "x")),
+    "check errors:\nNone"
+  )
+})
+
 test_that("firm closure arguments whose absence is checked are displayed", {
   nms <- list("x", "y", c("x", "y"), c("y", "x"))
 
