@@ -184,7 +184,7 @@ firmly_ <- function(.f, ..., .checklist = list(),
   fn <- call_fn(if (is_firm(.f)) firm_core(.f) else .f)
   pre_chks <- firm_checks(.f)
   maybe_warn <- warn(.warn_missing) %||% warn(firm_args(.f)) %||% skip
-  error <- .error_class %||% firm_error(.f) %||% "simpleError"
+  error_class <- .error_class %||% firm_error(.f) %||% "simpleError"
 
   if (length(chks)) {
     assembled_chks <- dplyr::distinct_(
@@ -193,13 +193,13 @@ firmly_ <- function(.f, ..., .checklist = list(),
         lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
       )
     )
-    f <- validating_closure(assembled_chks, sig, fn, maybe_warn, error)
+    f <- validating_closure(assembled_chks, sig, fn, maybe_warn, error_class)
   } else {
     # .warn_missing or .error_class is non-empty
     f <- if (is.null(pre_chks)) {
       warning_closure(fn, maybe_warn)
     } else {
-      validating_closure(pre_chks, sig, fn, maybe_warn, error)
+      validating_closure(pre_chks, sig, fn, maybe_warn, error_class)
     }
   }
 
