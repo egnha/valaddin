@@ -312,6 +312,46 @@ test_that("warnings that arise when validating inputs are suppressed", {
   expect_warning(ff(log(-1)), NA)
 })
 
+test_that("default input validation error subclass is 'simpleError'", {
+  f <- firmly(function(x) x, ~is.numeric)
+  error_class <- class(tryCatch(f("0"), error = identity))
+  expect_identical(error_class, c("simpleError", "error", "condition"))
+})
+
+test_that("input validation error is signaled by error subclass .error_class", {
+  error_classes <- list(
+    character(),
+    "specialError",
+    c("extraSpecialError", "specialError")
+  )
+
+  for (subclass in error_classes) {
+    f <- firmly(function(x) x, ~is.numeric, .error_class = subclass)
+
+    expect_identical(
+      class(tryCatch(f("0"), error = identity)),
+      c(subclass %||% "simpleError", "error", "condition")
+    )
+  }
+})
+
+test_that("error subclass changes only when .error_class is given", {
+  get_error_class <- function(expr) class(tryCatch(expr, error = identity))
+  errorfy <- function(x) c(x, "error", "condition")
+
+  f <- firmly(function(x) x, ~is.numeric)
+  g <- firmly(f, ~{. > 0})
+  h <- firmly(g, .error_class = "newError")
+  i <- firmly(h, .warn_missing = "x")
+  j <- firmly(i, ~{log(.) > 1}, .error_class = "newerError")
+
+  expect_identical(get_error_class(f("0")), errorfy("simpleError"))
+  expect_identical(get_error_class(g("0")), errorfy("simpleError"))
+  expect_identical(get_error_class(h("0")), errorfy("newError"))
+  expect_identical(get_error_class(i("0")), errorfy("newError"))
+  expect_identical(get_error_class(j("0")), errorfy("newerError"))
+})
+
 test_that("predicate is evaluated in its ambient formula environment", {
   has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
   fs <- lapply(args_list[has_xy], pass_args)
