@@ -121,8 +121,37 @@ test_that("argument signature is preserved", {
   for (args in args_list) {
     f <- make_fnc(args)
 
-    expect_identical(formals(f), as.pairlist(args))
-    expect_identical(formals(firmly(f)), formals(f))
+    sig <- formals(f)
+    expect_identical(sig, as.pairlist(args))
+    expect_identical(formals(firmly(f)), sig)
+
+    # If there are named arguments, check all possible combination or arguments
+    if (length(setdiff(names(args), "..."))) {
+      nm <- names(args)[names(args) != "..."][[1L]]
+      sig %>%
+        expect_identical(
+          formals(firmly(f, ~is.numeric))
+        ) %>%
+        expect_identical(
+          formals(firmly(f, .warn_missing = nm))
+        ) %>%
+        expect_identical(
+          formals(firmly(f, .error_class = "customError"))
+        ) %>%
+        expect_identical(
+          formals(firmly(f, ~is.numeric, .warn_missing = nm))
+        ) %>%
+        expect_identical(
+          formals(firmly(f, ~is.numeric, .error_class = "customError"))
+        ) %>%
+        expect_identical(
+          formals(firmly(f, .warn_missing = nm, .error_class = "customError"))
+        ) %>%
+        expect_identical(
+          formals(firmly(f, ~is.numeric, .warn_missing = nm,
+                         .error_class = "customError"))
+        )
+    }
   }
 })
 
