@@ -24,6 +24,17 @@ test_that("error raised when .warn_missing is not a non-NA character vector", {
   }
 })
 
+test_that("error raised when .error_class is not a non-NA character vector", {
+  errmsg <- "`.error_class` not a character vector"
+  bad_val <- list(NA, logical(0), logical(2), 1, 0, quote(x), list("x"))
+
+  for (f in fs) {
+    for (val in bad_val) {
+      expect_error(firmly(f, .error_class = val), errmsg)
+    }
+  }
+})
+
 test_that("error raised if .warn_missing not in non-empty set of arguments", {
   err_msg <- "Invalid `\\.warn_missing`: %s not argument\\(s\\) of `\\.f`"
 
