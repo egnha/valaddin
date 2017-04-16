@@ -25,6 +25,10 @@
   
 ### Minor improvements and bug fixes
 
+* `firmly()` gets a new option, `.error_class`, that enables you to customize
+  the subclass of the error object that is signaled when an input validation
+  error occurs ([#25](https://github.com/egnha/valaddin/issues/25)).
+
 * If a function happened to have a callable argument named `.fn`, that function
   would be called upon the passing of checks, instead of the original core 
   function. This bug has been fixed by explicitly referencing the core function
