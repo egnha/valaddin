@@ -21,6 +21,9 @@ warning (character).}
 \item{.error_class}{Subclass of the error condition to be raised if an input
 validation error occurs (character).}
 
+\item{checks}{List of check formulae, optionally containing the named
+(character) vectors \code{.warn_missing}, \code{.error_class}.}
+
 \item{.keep_check, .keep_warning}{\code{TRUE} or \code{FALSE}: Should existing
 checks, resp. missing-argument warnings, be kept?}
 
@@ -36,10 +39,9 @@ the original function (without checks). \code{is_firm} is a predicate
 function that checks whether an object is a firmly applied function, i.e.,
 a function created by \code{firmly}.
 \cr\cr
-The operator \code{\%secure\%} provides a succinct way to immediately precede
-a function header with input checks. Since this allows you to keep the checks
-together with the arguments they validate, it is the recommended way of using
-\code{firmly} in scripts and packages.
+Use \code{\%secure\%} to apply \code{firmly} as an operator. Since this
+allows you to keep checks and arguments adjacent, it is the preferred way to
+use \code{firmly} in scripts and packages.
 }
 \section{Check Formulae}{
 
@@ -140,6 +142,14 @@ together with the arguments they validate, it is the recommended way of using
     tabulating every failing check. (If all checks pass, the call to
     \code{.f} respects lazy evaluation, as usual.)
 
+    \subsection{Subclass of the input-validation error object}{
+      The subclass of the error object is \code{.error_class}, unless
+      \code{.error_class} is \code{character()}. In the latter case, the
+      subclass of the error object is that of the existing error object, if
+      \code{.f} is itself a firmly applied function, or it is
+      \code{"simpleError"}, otherwise.
+    }
+
     \subsection{Formal Arguments and Attributes}{
       \code{firmly} preserves the attributes and formal arguments of
       \code{.f} (except that the \code{"class"} attribute gains the component
@@ -147,8 +157,10 @@ together with the arguments they validate, it is the recommended way of using
     }
   }
   \subsection{\code{\%secure\%}}{
-    \code{\%secure\%} applies the checks in \code{.checklist} to \code{.f}
-    (using \code{firmly}).
+    \code{\%secure\%} applies the check formula(e) in the list \code{check}
+    to \code{.f}, using \code{firmly}. The \code{.warn_missing} and
+    \code{.error_class} arguments of \code{firmly} may be specified as named
+    components of \code{check}.
   }
   \subsection{\code{loosely}}{
     \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
@@ -258,7 +270,8 @@ g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
 # In scripts and packages, it is recommended to use the operator \%secure\%
 vec_add <- list(
   ~is.numeric,
-  list(~length(x) == length(y)) ~ isTRUE
+  list(~length(x) == length(y)) ~ isTRUE,
+  .error_class = "inputError"
 ) \%secure\%
   function(x, y) {
     x + y
@@ -270,7 +283,8 @@ vec_add2 <- firmly(
   list(~length(x) == length(y)) ~ isTRUE,
   .f = function(x, y) {
     x + y
-  }
+  },
+  .error_class = "inputError"
 )
 
 all.equal(vec_add, vec_add2)  # [1] TRUE
@@ -294,12 +308,13 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
       completion.
     \item To access the components of a firmly applied function, use
       \code{\link{firm_core}}, \code{\link{firm_checks}},
-      \code{\link{firm_args}} (or simply \code{\link[base]{print}} the
-      function to display its components).
+      \code{\link{firm_error}}, \code{\link{firm_args}}, (or simply
+      \code{\link[base]{print}} the function to display its components).
   }
 }
 \usage{
-firmly(.f, ..., .checklist = list(), .warn_missing = character(), .error_class = character())
+firmly(.f, ..., .checklist = list(), .warn_missing = character(),
+       .error_class = character())
 
 checks \%secure\% .f
 
