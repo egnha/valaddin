@@ -297,7 +297,7 @@ print.firm_closure <- function(x, ...) {
     cat("None\n")
   }
 
-  cat("\n* Error (sub)class for check errors:\n")
+  cat("\n* Error subclass for check errors:\n")
   subclass <- firm_error(x)
   if (!is.null(subclass)) {
     cat(paste(subclass, collapse = ", "), "\n")
