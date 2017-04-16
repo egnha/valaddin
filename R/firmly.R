@@ -232,8 +232,14 @@ firmly <- firmly_(
 )
 
 #' @export
-`%secure%` <- function(.checklist, .f) {
-  firmly(.f, .checklist = .checklist)
+`%secure%` <- function(checks, .f) {
+  nms <- names(checks) %||% character(length(checks))
+  firmly(
+    .f,
+    .checklist    = checks[!nms %in% c(".warn_missing", ".error_class")],
+    .warn_missing = checks[[".warn_missing"]] %||% character(),
+    .error_class  = checks[[".error_class"]] %||% character()
+  )
 }
 
 #' @export

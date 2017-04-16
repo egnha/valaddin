@@ -301,7 +301,7 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
 \usage{
 firmly(.f, ..., .checklist = list(), .warn_missing = character(), .error_class = character())
 
-.checklist \%secure\% .f
+checks \%secure\% .f
 
 loosely(.f, .keep_check = FALSE, .keep_warning = FALSE, .quiet = TRUE)
 
