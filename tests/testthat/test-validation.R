@@ -416,11 +416,16 @@ test_that("names in checking procedure don't override function arguments", {
     list(~.fn) ~ is.function,
     lapply(nms, function(.) eval(parse(text = paste0("~", .)))) ~ is.numeric
   )
+  f_warn <- firmly(f, .warn_missing = names(def_args))
 
-  # Verify that f_firm() generates no errors and has correct value
+  # Verify that f_firm(), f_warn() generate no errors and has correct value
   expect_error(f_firm(), NA)
-  expect_identical(f_firm(), sum(def_args_nonfn))
+  expect_error(do.call("f_warn", def_args), NA)
+  sum(def_args_nonfn) %>%
+    expect_identical(f_firm()) %>%
+    expect_identical(do.call("f_warn", def_args))
 
-  # Verify that f_firm() does not (accidentally) call .fn
+  # Verify that f_firm(), f_warn() do not (accidentally) call .fn
   expect_false(isTRUE(all.equal(f_firm(), wrong_fn())))
+  expect_false(isTRUE(all.equal(do.call("f_warn", def_args), wrong_fn())))
 })

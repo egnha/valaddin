@@ -1,17 +1,43 @@
 # Call signature of a function (specified by name)
-call_sig <- function(x, ...) {
+call_sig <- function(x, width) {
   stopifnot(is.character(x))
   is_op <- grepl("^%.+%$", x)
   x[ is_op] <- vapply(x[ is_op], call_sig_op, character(1), USE.NAMES = FALSE)
-  x[!is_op] <- vapply(x[!is_op], call_sig_fn, character(1), USE.NAMES = FALSE)
+  x[!is_op] <- vapply(x[!is_op], call_sig_fn, character(1), USE.NAMES = FALSE,
+                      width = width)
   x
 }
 
-call_sig_fn <- function(nm) {
-  f <- get(nm, mode = "function")
-  sig_raw <- deparse(call("function", formals(f), quote(expr = )))
-  sig <- paste(trimws(sig_raw, which = "left"), collapse = "")
-  sub("^function", nm, trimws(sig, which = "both"))
+call_sig_fn <- function(nm, width) {
+  # Allowed range of values for width.cutoff parameter of deparse()
+  stopifnot(width >= 20L, width <= 500L)
+
+  sig <- formals(get(nm, mode = "function"))
+  expr <- deparse(call("function", sig, quote(expr = ))) %>%
+    paste(collapse = "") %>%
+    sub("^function", nm, .) %>%
+    {parse(text = ., keep.source = FALSE)[[1L]]}
+  indent <- paste(rep(" ", nchar(nm)), collapse = "")
+
+  paste(deparse_lines(expr, indent, width), collapse = "\n")
+}
+
+# The inaptly named "width.cutoff" of deparse() is a _lower_ bound for lengths
+deparse_lines <- function(expr, indent, width) {
+  w <- width
+  exceed_width <- TRUE
+  while (exceed_width) {
+    x <- deparse_reindent(expr, indent, w)
+    exceed_width <- any(vapply(x, nchar, integer(1)) > width)
+    w <- w - 1L
+  }
+  x
+}
+deparse_reindent <- function(expr, indent, width) {
+  expr %>%
+    deparse(width.cutoff = width) %>%
+    trimws(which = "both") %>%
+    {`[<-`(., -1L, value = paste(indent, .[-1L]))}
 }
 
 call_sig_op <- function(nm) {
@@ -56,12 +82,14 @@ NULL
 rd_alias <- vec_strjoin(rd_markup("alias"))
 
 #' @rdname rd_markup
-#' @param \dots Arguments to pass to \code{\link[base]{get}}.
+#' @param width Width cutoff attempt, cf. \code{\link{deparse}}.
 #' @examples
 #' rd_usage("ls")
 #' rd_usage(c("firmly", "loosely"), pos = "package:valaddin")
 #' @noRd
-rd_usage <- purrr::compose(rd_markup("usage", join = "\n\n", sep = "\n"), call_sig)
+rd_usage <- function(x, width = 80L) {
+  rd_markup("usage", join = "\n\n", sep = "\n")(call_sig(x, width))
+}
 
 #' @rdname rd_markup
 #' @examples
