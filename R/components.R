@@ -3,14 +3,14 @@
 #' Decompose a firmly applied function (i.e., a function created by
 #' \code{\link{firmly}}):
 #' \itemize{
-#'   \item \code{firm_core()} extracts the underlying \dQuote{core}
+#'   \item \code{firm_core} extracts the underlying \dQuote{core}
 #'     function—the function that is called when all arguments are valid.
-#'   \item \code{firm_checks()} extracts the checks.
-#'   \item \code{firm_args()} extracts the names of arguments whose presence is
-#'     to be checked, i.e., those specified by the \code{.warn_missing} switch
-#'     of \code{\link{firmly}}.
-#'   \item \code{firm_error()} extracts the subclass of the error condition that
-#'     is signaled if an input validation error occurs.
+#'   \item \code{firm_checks} extracts the checks.
+#'   \item \code{firm_args} extracts the names of arguments whose presence is to
+#'     be checked, i.e., those specified by the \code{.warn_missing} switch of
+#'     \code{\link{firmly}}.
+#'   \item \code{firm_error} extracts the subclass of the error condition that
+#'     is signaled when an input validation error occurs.
 #' }
 #'
 #' @param x Object to decompose.
