@@ -9,25 +9,30 @@ call_sig <- function(x, width) {
 }
 
 call_sig_fn <- function(nm, width) {
+  # Allowed range of values for width.cutoff parameter of deparse()
+  stopifnot(width >= 20L, width <= 500L)
+
   sig <- formals(get(nm, mode = "function"))
   expr <- deparse(call("function", sig, quote(expr = ))) %>%
     paste(collapse = "") %>%
     sub("^function", nm, .) %>%
     {parse(text = ., keep.source = FALSE)[[1L]]}
-
-  # The inaptly named "width.cutoff" of deparse() is a _lower_ bound for lengths
-  w <- width
   indent <- paste(rep(" ", nchar(nm)), collapse = "")
-  exceed_width <- TRUE
-  while (exceed_width) {
-    call_sig <- deparse_reindent(expr, indent, w)
-    exceed_width <- any(vapply(call_sig, nchar, integer(1)) > width)
-    w <- w - 1L
-  }
 
-  paste(call_sig, collapse = "\n")
+  paste(deparse_lines(expr, indent, width), collapse = "\n")
 }
 
+# The inaptly named "width.cutoff" of deparse() is a _lower_ bound for lengths
+deparse_lines <- function(expr, indent, width) {
+  w <- width
+  exceed_width <- TRUE
+  while (exceed_width) {
+    x <- deparse_reindent(expr, indent, w)
+    exceed_width <- any(vapply(x, nchar, integer(1)) > width)
+    w <- w - 1L
+  }
+  x
+}
 deparse_reindent <- function(expr, indent, width) {
   expr %>%
     deparse(width.cutoff = width) %>%
