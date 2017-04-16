@@ -6,11 +6,11 @@
 #'   \item \code{firm_core} extracts the underlying \dQuote{core}
 #'     function—the function that is called when all arguments are valid.
 #'   \item \code{firm_checks} extracts the checks.
+#'   \item \code{firm_error} extracts the subclass of the error condition that
+#'     is signaled when an input validation error occurs.
 #'   \item \code{firm_args} extracts the names of arguments whose presence is to
 #'     be checked, i.e., those specified by the \code{.warn_missing} switch of
 #'     \code{\link{firmly}}.
-#'   \item \code{firm_error} extracts the subclass of the error condition that
-#'     is signaled when an input validation error occurs.
 #' }
 #'
 #' @param x Object to decompose.
@@ -20,8 +20,8 @@
 #'     \item \code{firm_checks} returns a data frame with columns \code{expr}
 #'       (language), \code{env} (environment), \code{string} (character),
 #'       \code{msg} (character).
-#'     \item \code{firm_args} returns a character vector.
 #'     \item \code{firm_error} returns a character vector.
+#'     \item \code{firm_args} returns a character vector.
 #'   }
 #'   In the absence of the component to be extracted, these functions return
 #'   \code{NULL}.
@@ -33,6 +33,7 @@
 #'
 #' identical(firm_core(f_fm), f)                  # [1] TRUE
 #' firm_checks(f_fm)                              # 4 x 4 data frame (tibble)
+#' firm_error(f_fm)                               # [1] "simpleError"
 #' firm_args(f_fm)                                # NULL
 #' firm_args(firmly(f_fm, .warn_missing = "y"))   # [1] "y"
 #'
@@ -53,12 +54,12 @@ firm_checks <- function(x) {
 
 #' @rdname components
 #' @export
-firm_args <- function(x) {
-  environment(environment(x)$.warn)$.args
+firm_error <- function(x) {
+  environment(x)$.error_class
 }
 
 #' @rdname components
 #' @export
-firm_error <- function(x) {
-  environment(x)$.error_class
+firm_args <- function(x) {
+  environment(environment(x)$.warn)$.args
 }
