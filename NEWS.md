@@ -32,9 +32,12 @@
 * If a formal argument happened to coincide with the name of an object 
   in the input validation procedure (`valaddin:::validating_closure()`), that 
   formal argument could be inadvertently invoked in place of that object. This 
-  bug has been fixed by referring to explicit environment bindings (the
-  enclosing environment or the base namespace). See commit 
-  [abae548](https://github.com/egnha/valaddin/commit/abae5480392a6fbf81b6faafcfd097dd6a936829).
+  bug has been fixed by referencing bindings in the enclosing environment. 
+  (However, doing something truly ill-advised, such as duping a base R function,
+  will still go unsupervised.) See commits 
+  [abae548](https://github.com/egnha/valaddin/commit/abae5480392a6fbf81b6faafcfd097dd6a936829)
+  and 
+  [dcfdcaf](https://github.com/egnha/valaddin/commit/dcfdcaf24966007794949f66e5108030d17f520f).
 
 * Reduced use of assignment, subsetting and warning suppression speeds up 
   `firmly` to within an order of magnitude of the speed of input validation
