@@ -70,12 +70,11 @@ warning_closure <- function(.fn, .warn) {
   force(.warn)
 
   function() {
-    call <- match.call()
-    .warn(call)
+    call <- base::match.call()
+    encl <- base::parent.env(base::environment())
+    encl$.warn(call)
 
-    parent <- parent.frame()
-    encl <- parent.env(environment())
-    eval(encl$.fn(call), parent)
+    base::eval.parent(encl$.fn(call))
   }
 }
 
@@ -108,33 +107,42 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
   force(.warn)
   force(.error_class)
 
+  exprs <- purrr::transpose(.chks[c("expr", "env")])
   error <- function(message) {
     structure(
       list(message = message, call = NULL),
       class = c(.error_class, "error", "condition")
     )
   }
-  exprs <- purrr::transpose(.chks[c("expr", "env")])
+
+  # Local bindings to avoid (unlikely) clashes with formal arguments
+  deparse_collapse <- match.fun("deparse_collapse")
+  enumerate_many   <- match.fun("enumerate_many")
+  problems         <- match.fun("problems")
+  promises         <- match.fun("promises")
 
   function() {
-    call <- match.call()
-    .warn(call)
+    call <- base::match.call()
+    encl <- base::parent.env(base::environment())
+    encl$.warn(call)
 
-    parent <- parent.frame()
-    encl <- parent.env(environment())
-    env <- promises(call, encl$.sig, parent)
-    verdict <- suppressWarnings(lapply(encl$exprs, function(.)
-      tryCatch(eval(.$expr, `parent.env<-`(env, .$env)), error = identity)
+    parent <- base::parent.frame()
+    env <- encl$promises(call, encl$.sig, parent)
+    verdict <- base::suppressWarnings(base::lapply(encl$exprs, function(.)
+      base::tryCatch(base::eval(.$expr, base::`parent.env<-`(env, .$env)),
+                     error = base::identity)
     ))
-    pass <- vapply(verdict, is_true, logical(1))
+    pass <- base::vapply(verdict, base::isTRUE, base::logical(1))
 
-    if (all(pass)) {
-      eval(encl$.fn(call), parent)
+    if (base::all(pass)) {
+      base::eval(encl$.fn(call), parent)
     } else {
       fail <- !pass
-      msg_call  <- sprintf("%s\n", deparse_collapse(call))
-      msg_error <- enumerate_many(problems(encl$.chks[fail, ], verdict[fail]))
-      stop(encl$error(paste0(msg_call, msg_error)))
+      msg_call  <- base::sprintf("%s\n", encl$deparse_collapse(call))
+      msg_error <- encl$enumerate_many(
+        encl$problems(encl$.chks[fail, ], verdict[fail])
+      )
+      base::stop(encl$error(base::paste0(msg_call, msg_error)))
     }
   }
 }

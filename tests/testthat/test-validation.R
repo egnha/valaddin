@@ -391,41 +391,51 @@ test_that("predicate is evaluated in its ambient formula environment", {
   }
 })
 
-test_that("names in checking procedure don't override function arguments", {
+test_that("formal arguments don't override names in validation procedure", {
   # Bindings in execution/enclosing environment of validating_closure()
-  nms <- c("call", "parent", "encl", "env", "verdict", "pass", "fail",
-           "msg_call", "msg_error", ".chks", ".sig", ".warn", "exprs")
+  nms    <- c("call", "parent", "encl", "env", "verdict", "pass", "fail",
+              "msg_call", "msg_error", ".chks", ".sig", "exprs")
+  nms_fn <- c(".fn", ".warn", "deparse_collapse", "enumerate_many", "error",
+              "problems", "promises")
 
   sum_args <- parse(text = paste(nms, collapse = "+"))
   f <- function() {
-    # Ensure that no arguments have type "logical"
+    # Ensure that no arguments have are logical (thus are coercible to numeric)
     args <- as.list(match.call()[-1])
     stopifnot(vapply(args, Negate(is.logical), logical(1)))
-
     eval(sum_args)
   }
 
-  # All arguments get an positive integer default value, except .fn
-  wrong_fn <- function(x) "Wrong function called"
-  def_args_nonfn <- seq_along(nms)
-  def_args <- c(alist(.fn = wrong_fn), stats::setNames(def_args_nonfn, nms))
+  # All function arguments get the function wrong_fn as default value
+  wrong_fn <- function(...) {
+    message("This function shouldn't have been called!")
+  }
+  def_args_fn <- stats::setNames(vector("list", length(nms_fn)), nms_fn)
+  def_args_fn[] <- list(quote(wrong_fn))
+
+  # All non-function arguments get an positive integer default value
+  def_args_nonfn <- stats::setNames(seq_along(nms), nms)
+  def_args <- c(def_args_fn, def_args_nonfn)
   formals(f) <- as.pairlist(def_args)
 
-  f_firm <- firmly(
-    f,
-    list(~.fn) ~ is.function,
-    lapply(nms, function(.) eval(parse(text = paste0("~", .)))) ~ is.numeric
-  )
+  make_checkfml <- function(.) eval(parse(text = paste0("~", .)))
+  f_firm <- firmly(f,
+                   lapply(nms_fn, make_checkfml) ~ is.function,
+                   lapply(nms, make_checkfml) ~ is.numeric)
   f_warn <- firmly(f, .warn_missing = names(def_args))
 
-  # Verify that f_firm(), f_warn() generate no errors and has correct value
+  # Verify that f_firm(), f_warn() generate no errors and return correct value
   expect_error(f_firm(), NA)
   expect_error(do.call("f_warn", def_args), NA)
   sum(def_args_nonfn) %>%
     expect_identical(f_firm()) %>%
     expect_identical(do.call("f_warn", def_args))
 
-  # Verify that f_firm(), f_warn() do not (accidentally) call .fn
-  expect_false(isTRUE(all.equal(f_firm(), wrong_fn())))
-  expect_false(isTRUE(all.equal(do.call("f_warn", def_args), wrong_fn())))
+  # Verify that f_firm(), f_warn() do not call its function arguments
+  msg <- capture_messages(wrong_fn())
+  expect_gt(length(msg), 0)        # msg is non-empty string
+  expect_message(wrong_fn(), msg)  # wrong_fn() produces msg when called
+  # f_firm(), f_warn() produce no message, so wrong_fn() wasn't called
+  expect_message(f_firm(), NA)
+  expect_message(do.call("f_warn", def_args), NA)
 })
