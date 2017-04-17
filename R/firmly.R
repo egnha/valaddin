@@ -70,11 +70,11 @@ warning_closure <- function(.fn, .warn) {
   force(.warn)
 
   function() {
-    call <- base::match.call()
-    encl <- base::parent.env(base::environment())
+    call <- match.call()
+    encl <- parent.env(environment())
     encl$.warn(call)
 
-    base::eval.parent(encl$.fn(call))
+    eval.parent(encl$.fn(call))
   }
 }
 
@@ -122,27 +122,26 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
   promises         <- match.fun("promises")
 
   function() {
-    call <- base::match.call()
-    encl <- base::parent.env(base::environment())
+    call <- match.call()
+    encl <- parent.env(environment())
     encl$.warn(call)
 
-    parent <- base::parent.frame()
+    parent <- parent.frame()
     env <- encl$promises(call, encl$.sig, parent)
-    verdict <- base::suppressWarnings(base::lapply(encl$exprs, function(.)
-      base::tryCatch(base::eval(.$expr, base::`parent.env<-`(env, .$env)),
-                     error = base::identity)
+    verdict <- suppressWarnings(lapply(encl$exprs, function(.)
+      tryCatch(eval(.$expr, `parent.env<-`(env, .$env)), error = identity)
     ))
-    pass <- base::vapply(verdict, base::isTRUE, base::logical(1))
+    pass <- vapply(verdict, isTRUE, logical(1))
 
-    if (base::all(pass)) {
-      base::eval(encl$.fn(call), parent)
+    if (all(pass)) {
+      eval(encl$.fn(call), parent)
     } else {
       fail <- !pass
-      msg_call  <- base::sprintf("%s\n", encl$deparse_collapse(call))
+      msg_call  <- sprintf("%s\n", encl$deparse_collapse(call))
       msg_error <- encl$enumerate_many(
         encl$problems(encl$.chks[fail, ], verdict[fail])
       )
-      base::stop(encl$error(base::paste0(msg_call, msg_error)))
+      stop(encl$error(paste0(msg_call, msg_error)))
     }
   }
 }
