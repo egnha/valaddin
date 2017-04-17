@@ -29,11 +29,12 @@
   the subclass of the error object that is signaled when an input validation
   error occurs ([#25](https://github.com/egnha/valaddin/issues/25)).
 
-* If a function happened to have a callable argument named `.fn`, that function
-  would be called upon the passing of checks, instead of the original core 
-  function. This bug has been fixed by explicitly referencing the core function
-  in the enclosing environment (commit
-  [96f8533](https://github.com/egnha/valaddin/commit/96f853340e77190a744e4ead4486f222fe7e0879)).
+* If a formal argument happened to coincide with the name of an object 
+  in the input validation procedure (`valaddin:::validating_closure()`), that 
+  formal argument could be inadvertently invoked in place of that object. This 
+  bug has been fixed by referring to explicit environment bindings (the
+  enclosing environment or the base namespace). See commit 
+  [abae548](https://github.com/egnha/valaddin/commit/abae5480392a6fbf81b6faafcfd097dd6a936829).
 
 * Reduced use of assignment, subsetting and warning suppression speeds up 
   `firmly` to within an order of magnitude of the speed of input validation
