@@ -17,7 +17,12 @@ warning_wo_call <- function(...) warning(..., call. = FALSE)
 
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
-  paste(trimws(deparse(x), which = "both"), collapse = "")
+  d <- deparse(x)
+  if (length(d) > 1L) {
+    paste(trimws(d, which = "both"), collapse = "")
+  } else {
+    d
+  }
 }
 
 # Typically used to list symbols, such as function argument names
