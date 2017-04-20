@@ -7,16 +7,6 @@ deparse_call <- function(chk_item, fn_expr) {
   deparse_collapse(call)
 }
 
-# Call a function against a given call signature
-call_fn <- function(.f) {
-  force(.f)
-
-  function(.call) {
-    .call[[1L]] <- .f
-    .call
-  }
-}
-
 # Rewire the argument signature of a function
 with_sig <- function(.f, .sig, .attrs) {
   formals(.f)    <- .sig

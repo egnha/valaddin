@@ -74,7 +74,7 @@ warning_closure <- function(.fn, .warn) {
     encl <- parent.env(environment())
     encl$.warn(call)
 
-    eval.parent(encl$.fn(call))
+    eval.parent(`[[<-`(call, 1L, encl$.fn))
   }
 }
 
@@ -134,7 +134,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
     pass <- vapply(verdict, isTRUE, logical(1))
 
     if (all(pass)) {
-      eval(encl$.fn(call), parent)
+      eval(`[[<-`(call, 1L, encl$.fn), parent)
     } else {
       fail <- !pass
       msg_call  <- sprintf("%s\n", encl$deparse_collapse(call))
@@ -187,7 +187,7 @@ firmly_ <- function(.f, ..., .checklist = list(),
                          quote_collapse(.warn_missing[arg_unknown])))
   }
 
-  fn <- call_fn(if (is_firm(.f)) firm_core(.f) else .f)
+  fn <- if (is_firm(.f)) firm_core(.f) else .f
   pre_chks <- firm_checks(.f)
   maybe_warn <- warn(.warn_missing) %||% warn(firm_args(.f)) %||% skip
   error_class <- .error_class %||% firm_error(.f) %||% "simpleError"
@@ -276,9 +276,9 @@ loosely <- list(
 
     sig <- formals(.f)
     f <- if (is.null(f_chks)) {
-      warning_closure(call_fn(f_core), warn(f_args))
+      warning_closure(f_core, warn(f_args))
     } else {
-      validating_closure(f_chks, sig, call_fn(f_core), skip, firm_error(.f))
+      validating_closure(f_chks, sig, f_core, skip, firm_error(.f))
     }
 
     firm_closure(with_sig(f, sig, .attrs = attributes(.f)))

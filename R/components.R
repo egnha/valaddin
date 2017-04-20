@@ -43,7 +43,7 @@ NULL
 #' @rdname components
 #' @export
 firm_core <- function(x) {
-  environment(environment(x)$.fn)$.f
+  environment(x)$.fn
 }
 
 #' @rdname components
