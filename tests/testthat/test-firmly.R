@@ -116,8 +116,29 @@ test_that("warning raised when no named args and only check formula(e) given", {
 
 test_that("function is unchanged when no validation specified", {
   for (args in args_list) {
-    f <-  pass_args(args)
+    f <- pass_args(args)
     expect_identical(firmly(f), f)
+  }
+})
+
+test_that("function unchanged when no validation & .error_class inapplicable", {
+  # When no validation (checks or .warn_missing) is given, and .f has no checks,
+  # then .error_class is inapplicable.
+
+  for (args in args_list) {
+    f <- pass_args(args)
+
+    expect_null(firm_checks(f))
+    expect_identical(firmly(f, .error_class = "customError"), f)
+
+    named_args <- setdiff(names(args), "...")
+    if (length(named_args)) {
+      f_warn <- firmly(f, .warn_missing = named_args[[1L]])
+
+      expect_true(is_firm(f_warn))
+      expect_null(firm_checks(f_warn))
+      expect_identical(firmly(f_warn, .error_class = "customError"), f_warn)
+    }
   }
 })
 

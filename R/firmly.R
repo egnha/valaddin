@@ -161,7 +161,8 @@ firmly_ <- function(.f, ..., .checklist = list(),
                     .warn_missing = character(), .error_class = character()) {
   chks <- unname(c(list(...), .checklist))
 
-  if (!length(chks) && !length(.warn_missing) && !length(.error_class)) {
+  error_class_inapplicable <- is.null(firm_checks(.f))
+  if (!length(chks) && !length(.warn_missing) && error_class_inapplicable) {
     return(.f)
   }
 
@@ -170,19 +171,16 @@ firmly_ <- function(.f, ..., .checklist = list(),
   }
 
   sig <- formals(.f)
-  if (is.null(sig) || identical(names(sig), "...")) {
+  arg <- nomen(sig)
+  if (!length(arg$nm)) {
     if (length(.warn_missing)) {
       stop_wo_call("Invalid `.warn_missing`: `.f` has no named argument")
     }
-
-    # Either chks or .error_class is non-empty
-    if (length(chks)) {
-      warning_wo_call("Check formula(e) not applied: `.f` has no named argument")
-    }
+    # No arguments, so assume .error_class inapplicable, hence chks non-empty
+    warning_wo_call("Check formula(e) not applied: `.f` has no named argument")
     return(.f)
   }
 
-  arg <- nomen(sig)
   arg_unknown <- !(.warn_missing %in% arg$nm)
   if (any(arg_unknown)) {
     stop_wo_call(sprintf("Invalid `.warn_missing`: %s not argument(s) of `.f`",
