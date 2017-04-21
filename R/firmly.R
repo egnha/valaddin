@@ -73,7 +73,6 @@ warning_closure <- function(.fn, .warn) {
     call <- match.call()
     encl <- parent.env(environment())
     encl$.warn(call)
-
     eval.parent(`[[<-`(call, 1L, encl$.fn))
   }
 }
@@ -125,16 +124,14 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
     call <- match.call()
     encl <- parent.env(environment())
     encl$.warn(call)
-
-    parent <- parent.frame()
-    env <- encl$promises(call, encl$.sig, parent)
+    env <- encl$promises(call, encl$.sig, parent.frame())
     verdict <- suppressWarnings(lapply(encl$exprs, function(.)
       tryCatch(eval(.$expr, `parent.env<-`(env, .$env)), error = identity)
     ))
     pass <- vapply(verdict, isTRUE, logical(1))
 
     if (all(pass)) {
-      eval(`[[<-`(call, 1L, encl$.fn), parent)
+      eval.parent(`[[<-`(call, 1L, encl$.fn))
     } else {
       fail <- !pass
       msg_call  <- sprintf("%s\n", encl$deparse_collapse(call))

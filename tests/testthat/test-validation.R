@@ -393,7 +393,7 @@ test_that("predicate is evaluated in its ambient formula environment", {
 
 test_that("formal arguments don't override names in validation procedure", {
   # Bindings in execution/enclosing environment of validating_closure()
-  nms    <- c("call", "parent", "encl", "env", "verdict", "pass", "fail",
+  nms    <- c("call", "encl", "env", "verdict", "pass", "fail",
               "msg_call", "msg_error", ".chks", ".sig", "exprs")
   nms_fn <- c(".fn", ".warn", "deparse_collapse", "enumerate_many", "error",
               "problems", "promises")
