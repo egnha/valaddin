@@ -247,8 +247,6 @@ ways:
     version):
 
     ```{r}
-    `%secure%` <- function(chks, f) firmly(f, .checklist = chks)
-    
     bc3 <- list(
       ~is.numeric,
       ~{length(.) == 1L},

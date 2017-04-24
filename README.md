@@ -238,8 +238,6 @@ To make your functions more intelligible, declare your input assumptions and mov
 -   Better yet, use the `%secure%` operator (available in the development version):
 
     ``` r
-    `%secure%` <- function(chks, f) firmly(f, .checklist = chks)
-
     bc3 <- list(
       ~is.numeric,
       ~{length(.) == 1L},
