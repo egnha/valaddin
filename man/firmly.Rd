@@ -21,8 +21,9 @@ warning (character).}
 \item{.error_class}{Subclass of the error condition to be raised if an input
 validation error occurs (character).}
 
-\item{checks}{List of check formulae, optionally containing the named
-(character) vectors \code{.warn_missing}, \code{.error_class}.}
+\item{.checks}{List of check formulae, optionally containing character
+vectors named \code{.warn_missing}, \code{.error_class}, corresponding to
+the similarly named arguments.}
 
 \item{.keep_check, .keep_warning}{\code{TRUE} or \code{FALSE}: Should existing
 checks, resp. missing-argument warnings, be kept?}
@@ -157,10 +158,10 @@ use \code{firmly} in scripts and packages.
     }
   }
   \subsection{\code{\%secure\%}}{
-    \code{\%secure\%} applies the check formula(e) in the list \code{check}
+    \code{\%secure\%} applies the check formula(e) in the list \code{.checks}
     to \code{.f}, using \code{firmly}. The \code{.warn_missing} and
     \code{.error_class} arguments of \code{firmly} may be specified as named
-    components of \code{check}.
+    components of \code{.checks}.
   }
   \subsection{\code{loosely}}{
     \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
@@ -316,7 +317,7 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
 firmly(.f, ..., .checklist = list(), .warn_missing = character(),
        .error_class = character())
 
-checks \%secure\% .f
+.checks \%secure\% .f
 
 loosely(.f, .keep_check = FALSE, .keep_warning = FALSE, .quiet = TRUE)
 

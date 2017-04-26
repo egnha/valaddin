@@ -234,13 +234,13 @@ firmly <- firmly_(
 )
 
 #' @export
-`%secure%` <- function(checks, .f) {
-  nms <- names(checks) %||% character(length(checks))
+`%secure%` <- function(.checks, .f) {
+  nms <- names(.checks) %||% character(length(.checks))
   firmly(
     .f,
-    .checklist    = checks[!nms %in% c(".warn_missing", ".error_class")],
-    .warn_missing = checks[[".warn_missing"]] %||% character(),
-    .error_class  = checks[[".error_class"]] %||% character()
+    .checklist    = .checks[!nms %in% c(".warn_missing", ".error_class")],
+    .warn_missing = .checks[[".warn_missing"]] %||% character(),
+    .error_class  = .checks[[".error_class"]] %||% character()
   )
 }
 
@@ -342,12 +342,13 @@ print.firm_closure <- function(x, ...) {
 #'   warning (character).
 #' @param .error_class Subclass of the error condition to be raised if an input
 #'   validation error occurs (character).
-#' @param checks List of check formulae, optionally containing the named
-#'   (character) vectors \code{.warn_missing}, \code{.error_class}.
 #' @param .keep_check,.keep_warning \code{TRUE} or \code{FALSE}: Should existing
 #'   checks, resp. missing-argument warnings, be kept?
 #' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning that \code{.f} is
 #'   not a firmly applied function be muffled?
+#' @param .checks List of check formulae, optionally containing character
+#'   vectors named \code{.warn_missing}, \code{.error_class}, corresponding to
+#'   the similarly named arguments.
 #' @param x Object to test.
 #'
 #' @section Check Formulae:
@@ -461,10 +462,10 @@ print.firm_closure <- function(x, ...) {
 #'     }
 #'   }
 #'   \subsection{\code{\%secure\%}}{
-#'     \code{\%secure\%} applies the check formula(e) in the list \code{check}
+#'     \code{\%secure\%} applies the check formula(e) in the list \code{.checks}
 #'     to \code{.f}, using \code{firmly}. The \code{.warn_missing} and
 #'     \code{.error_class} arguments of \code{firmly} may be specified as named
-#'     components of \code{check}.
+#'     components of \code{.checks}.
 #'   }
 #'   \subsection{\code{loosely}}{
 #'     \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
