@@ -340,15 +340,15 @@ print.firm_closure <- function(x, ...) {
 #'   formulae provided via \code{\dots}.)
 #' @param .warn_missing Arguments of \code{.f} whose absence should raise a
 #'   warning (character).
-#' @param .error_class Subclass of the error condition to be raised if an input
-#'   validation error occurs (character).
-#' @param .keep_check,.keep_warning \code{TRUE} or \code{FALSE}: Should existing
-#'   checks, resp. missing-argument warnings, be kept?
-#' @param .quiet \code{TRUE} or \code{FALSE}: Should a warning that \code{.f} is
-#'   not a firmly applied function be muffled?
+#' @param .error_class Subclass of the error condition to be raised when an
+#'   input validation error occurs (character).
 #' @param .checks List of check formulae, optionally containing character
 #'   vectors named \code{.warn_missing}, \code{.error_class}, corresponding to
 #'   the similarly named arguments.
+#' @param .keep_check,.keep_warning Should existing checks, resp.
+#'   missing-argument warnings, be kept?
+#' @param .quiet Should a warning that \code{.f} is not a firmly applied
+#'   function be muffled?
 #' @param x Object to test.
 #'
 #' @section Check Formulae:

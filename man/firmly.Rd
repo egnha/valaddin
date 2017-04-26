@@ -18,18 +18,18 @@ formulae provided via \code{\dots}.)}
 \item{.warn_missing}{Arguments of \code{.f} whose absence should raise a
 warning (character).}
 
-\item{.error_class}{Subclass of the error condition to be raised if an input
-validation error occurs (character).}
+\item{.error_class}{Subclass of the error condition to be raised when an
+input validation error occurs (character).}
 
 \item{.checks}{List of check formulae, optionally containing character
 vectors named \code{.warn_missing}, \code{.error_class}, corresponding to
 the similarly named arguments.}
 
-\item{.keep_check, .keep_warning}{\code{TRUE} or \code{FALSE}: Should existing
-checks, resp. missing-argument warnings, be kept?}
+\item{.keep_check, .keep_warning}{Should existing checks, resp.
+missing-argument warnings, be kept?}
 
-\item{.quiet}{\code{TRUE} or \code{FALSE}: Should a warning that \code{.f} is
-not a firmly applied function be muffled?}
+\item{.quiet}{Should a warning that \code{.f} is not a firmly applied
+function be muffled?}
 
 \item{x}{Object to test.}
 }
