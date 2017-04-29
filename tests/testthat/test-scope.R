@@ -147,7 +147,7 @@ test_that("localize inverts globalize", {
 test_that("globalize(x) raises error when x not local checker", {
   # A local checker is a function of class "check_maker"
   nonlc <- list(
-    structure(NULL, class = "check_maker"),
+    structure(list(), class = "check_maker"),
     `class<-`(localize("Not numeric" ~ is.numeric), NULL)
   )
 
