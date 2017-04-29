@@ -106,7 +106,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
   force(.warn)
   force(.error_class)
 
-  exprs <- purrr::transpose(.chks[c("expr", "env")])
+  exprs <- apply(.chks[c("expr", "env")], 1L, identity)
   error <- function(message) {
     structure(
       list(message = message, call = NULL),
@@ -209,9 +209,10 @@ firmly_ <- function(.f, ..., .checklist = list(),
   firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
 }
 
+is_closure <- function(x) typeof(x) == "closure"
 #' @export
 is_firm <- function(x) {
-  purrr::is_function(x) && inherits(x, "firm_closure")
+  is_closure(x) && inherits(x, "firm_closure")
 }
 
 firm_closure <- function(.f) {
@@ -225,7 +226,7 @@ firm_closure <- function(.f) {
 #' @export
 firmly <- firmly_(
   firmly_,
-  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
+  list("`.f` not an interpreted function" ~ .f) ~ is_closure,
   list("`.checklist` not a list" ~ .checklist) ~ is.list,
   list(
     "`.warn_missing` not a character vector" ~ .warn_missing,

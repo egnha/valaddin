@@ -65,7 +65,7 @@
 NULL
 
 is_check_maker <- function(x) {
-  purrr::is_function(x) && inherits(x, "check_maker")
+  is_closure(x) && inherits(x, "check_maker")
 }
 
 #' @rdname input-validators

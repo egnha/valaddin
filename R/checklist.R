@@ -28,7 +28,7 @@ NULL
 #' @rdname checklist
 #' @export
 is_check_formula <- function(x) {
-  purrr::is_formula(x) && is_rhs_function(x) && is_lhs_checkitem(x)
+  inherits(x, "formula") && is_rhs_function(x) && is_lhs_checkitem(x)
 }
 
 #' @rdname checklist
@@ -43,7 +43,7 @@ is_string <- function(x) {
 }
 
 is_gbl_check_formula <- function(x) {
-  purrr::is_formula(x) && is_rhs_function(x) && is_string(ff_eval_lhs(x))
+  inherits(x, "formula") && is_rhs_function(x) && is_string(ff_eval_lhs(x))
 }
 
 is_rhs_function <- function(x) {
@@ -62,7 +62,7 @@ is_onesided <- function(x) {
 }
 
 is_f_onesided <- function(x) {
-  purrr::is_formula(x) && is_onesided(x)
+  inherits(x, "formula") && is_onesided(x)
 }
 
 is_lhs_checkitem <- function(x) {
@@ -73,7 +73,7 @@ is_lhs_checkitem <- function(x) {
 }
 
 is_check_expr <- function(x) {
-  purrr::is_formula(x) && (is_onesided(x) || is_string(ff_eval_lhs(x)))
+  inherits(x, "formula") && (is_onesided(x) || is_string(ff_eval_lhs(x)))
 }
 
 is_flist <- function(x) {
