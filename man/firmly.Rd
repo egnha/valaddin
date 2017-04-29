@@ -28,9 +28,6 @@ the similarly named arguments.}
 \item{.keep_check, .keep_warning}{Should existing checks, resp.
 missing-argument warnings, be kept?}
 
-\item{.quiet}{Should a warning that \code{.f} is not a firmly applied
-function be muffled?}
-
 \item{x}{Object to test.}
 }
 \description{
@@ -319,7 +316,7 @@ firmly(.f, ..., .checklist = list(), .warn_missing = character(),
 
 .checks \%secure\% .f
 
-loosely(.f, .keep_check = FALSE, .keep_warning = FALSE, .quiet = TRUE)
+loosely(.f, .keep_check = FALSE, .keep_warning = FALSE)
 
 is_firm(x)
 }

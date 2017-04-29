@@ -245,41 +245,27 @@ firmly <- firmly_(
 }
 
 #' @export
-loosely <- list(
-  list("`.f` not an interpreted function" ~ .f) ~ purrr::is_function,
-  list(
-    "`.keep_check` not TRUE/FALSE"   ~ .keep_check,
-    "`.keep_warning` not TRUE/FALSE" ~ .keep_warning,
-    "`.quiet` not TRUE/FALSE"        ~ .quiet
-  ) ~ {is_true(.) || is_false(.)}
-) %secure%
-  function(.f, .keep_check = FALSE, .keep_warning = FALSE,
-           .quiet = TRUE) {
-    is_not_firm <- !is_firm(.f)
-    if (is_not_firm || .keep_check && .keep_warning) {
-      if (is_not_firm && !.quiet) {
-        warning_wo_call("`.f` not a firmly applied function")
-      }
-      return(.f)
-    }
-
-    f_core <- firm_core(.f)
-    f_chks <- if (.keep_check) firm_checks(.f) else NULL
-    f_args <- if (.keep_warning) firm_args(.f) else NULL
-
-    if (is.null(f_chks) && is.null(f_args)) {
-      return(f_core)
-    }
-
-    sig <- formals(.f)
-    f <- if (is.null(f_chks)) {
-      warning_closure(f_core, warn(f_args))
-    } else {
-      validating_closure(f_chks, sig, f_core, skip, firm_error(.f))
-    }
-
-    firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
+loosely <- function(.f, .keep_check = FALSE, .keep_warning = FALSE) {
+  if (!inherits(.f, "firm_closure") || .keep_check && .keep_warning) {
+    return(.f)
   }
+
+  f_chks <- if (.keep_check) firm_checks(.f) else NULL
+  f_args <- if (.keep_warning) firm_args(.f) else NULL
+
+  if (is.null(f_chks) && is.null(f_args)) {
+    return(firm_core(.f))
+  }
+
+  sig <- formals(.f)
+  f <- if (is.null(f_chks)) {
+    warning_closure(firm_core(.f), warn(f_args))
+  } else {
+    validating_closure(f_chks, sig, firm_core(.f), skip, firm_error(.f))
+  }
+
+  firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
+}
 
 # Printing ----------------------------------------------------------------
 
@@ -347,8 +333,6 @@ print.firm_closure <- function(x, ...) {
 #'   the similarly named arguments.
 #' @param .keep_check,.keep_warning Should existing checks, resp.
 #'   missing-argument warnings, be kept?
-#' @param .quiet Should a warning that \code{.f} is not a firmly applied
-#'   function be muffled?
 #' @param x Object to test.
 #'
 #' @section Check Formulae:
