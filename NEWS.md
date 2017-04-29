@@ -25,6 +25,14 @@
   
 ### Minor improvements and bug fixes
 
+* Since `loosely()` is typically used to obviate the overhead of input 
+  validation, calling it should itself impose as little overhead as possible
+  ([#28](https://github.com/egnha/valaddin/issues/28)). Therefore, `loosely()`
+  has been streamlined: it no longer checks its inputs. Calling it is now on par
+  with calling `firm_core()`.
+  
+* The `.quiet` argument has been dropped from `loosely()`.
+
 * `firmly()` gets a new option, `.error_class`, that enables you to customize
   the subclass of the error object that is signaled when an input validation
   error occurs ([#25](https://github.com/egnha/valaddin/issues/25)).
