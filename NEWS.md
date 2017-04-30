@@ -33,8 +33,6 @@
   has been streamlined: it no longer checks its inputs. Calling it is now on par
   with calling `firm_core()`.
   
-* The `.quiet` argument has been dropped from `loosely()`.
-
 * `firmly()` gets a new option, `.error_class`, that enables you to customize
   the subclass of the error object that is signaled when an input validation
   error occurs ([#25](https://github.com/egnha/valaddin/issues/25)).
@@ -62,6 +60,12 @@
   spurious indentation ([#23](https://github.com/egnha/valaddin/issues/23)).
 
 * Minor edits to vignette.
+
+### Deprecated
+
+* The `.quiet` argument has been dropped from `loosely()`. (If desired, the
+  behavior of that option can be replicated by signaling an appropriate warning 
+  prior to calling `loosely()`.)
 
 ## 0.1.0
 
