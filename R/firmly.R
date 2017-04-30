@@ -91,36 +91,30 @@ problems <- function(chks, verdict) {
   }, character(1))
 }
 
-promises <- function(.call, .sig, .env) {
-  .call[[1L]] <- eval(call("function", .sig, quote(environment())))
-  eval(.call, .env)
-}
-
 validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
-  force(.sig)
   force(.fn)
   force(.warn)
   force(.error_class)
 
-  exprs <- lapply(.chks, `[`, c("expr", "env"))
   error <- function(message) {
     structure(
       list(message = message, call = NULL),
       class = c(.error_class, "error", "condition")
     )
   }
+  exprs <- lapply(.chks, `[`, c("expr", "env"))
+  promises <- eval(call("function", .sig, quote(environment())))
 
   # Local bindings to avoid (unlikely) clashes with formal arguments
   deparse_collapse <- match.fun("deparse_collapse")
   enumerate_many   <- match.fun("enumerate_many")
   problems         <- match.fun("problems")
-  promises         <- match.fun("promises")
 
   function() {
     call <- match.call()
     encl <- parent.env(environment())
     encl$.warn(call)
-    env <- encl$promises(call, encl$.sig, parent.frame())
+    env <- eval.parent(`[[<-`(call, 1L, encl$promises))
     verdict <- suppressWarnings(lapply(encl$exprs, function(.)
       tryCatch(eval(.$expr, `parent.env<-`(env, .$env)), error = identity)
     ))
