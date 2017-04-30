@@ -25,6 +25,8 @@
   
 ### Minor improvements and bug fixes
 
+* dplyr is no longer required.
+
 * Since `loosely()` is typically used to obviate the overhead of input 
   validation, calling it should itself impose as little overhead as possible
   ([#28](https://github.com/egnha/valaddin/issues/28)). Therefore, `loosely()`
