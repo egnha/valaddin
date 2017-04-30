@@ -62,15 +62,16 @@ test_that("firm_checks gets checks for firmly applied function", {
     # No checks if we only check for missing arguments
     expect_null(firm_checks(ffs[1L]))
 
-    # Checks in chks are correctly encoded in chks_df
+    # Checks in chks are correctly encoded in fc
     for (ff in ffs[-1L]) {
-      chks_df <- firm_checks(ff)
+      fc <- firm_checks(ff)
 
       # Exactly four checks
-      expect_equal(nrow(chks_df), 4L)
+      expect_equal(length(fc), 4L)
 
       for (msg in names(exprs)) {
-        expect_identical(chks_df[chks_df$msg == msg, ]$expr[[1L]], exprs[[msg]])
+        has_msg <- lapply(fc, `[[`, "msg") == msg
+        expect_identical(lapply(fc[has_msg], `[[`, "expr")[[1L]], exprs[[msg]])
       }
     }
   }
