@@ -30,15 +30,13 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   is_blank <- names(chk_items) == ""
   names(chk_items)[is_blank] <- sprintf("FALSE: %s", string[is_blank])
 
-  dplyr::as_data_frame(
+  lapply(seq_along(chk_items), function(.)
     list(
-      expr   = lapply(chk_items,
-                      function(.) as.call(c(predicate, lazyeval::f_rhs(.)))),
-      env    = list(.env),
-      string = string,
-      msg    = names(chk_items)
-    ),
-    validate = FALSE
+      expr   = as.call(c(predicate, lazyeval::f_rhs(chk_items[[.]]))),
+      env    = .env,
+      string = string[.],
+      msg    = names(chk_items)[.]
+    )
   )
 }
 
@@ -85,12 +83,12 @@ problems <- function(chks, verdict) {
   vapply(seq_along(verdict), function(i) {
     x <- verdict[[i]]
     if (is_false(x)) {
-      chks$msg[[i]]
+      chks[[i]]$msg
     } else if (is_error(x)) {
-      sprintf("Error evaluating check %s: %s", chks$string[[i]], x$message)
+      sprintf("Error evaluating check %s: %s", chks[[i]]$string, x$message)
     } else {
       sprintf("Predicate value %s not TRUE/FALSE: %s",
-              chks$string[[i]], deparse_collapse(x))
+              chks[[i]]$string, deparse_collapse(x))
     }
   }, character(1))
 }
@@ -106,7 +104,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
   force(.warn)
   force(.error_class)
 
-  exprs <- apply(.chks[c("expr", "env")], 1L, identity)
+  exprs <- lapply(.chks, `[`, c("expr", "env"))
   error <- function(message) {
     structure(
       list(message = message, call = NULL),
@@ -136,7 +134,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
       fail <- !pass
       msg_call  <- sprintf("%s\n", encl$deparse_collapse(call))
       msg_error <- encl$enumerate_many(
-        encl$problems(encl$.chks[fail, ], verdict[fail])
+        encl$problems(encl$.chks[fail], verdict[fail])
       )
       stop(encl$error(paste0(msg_call, msg_error)))
     }
@@ -190,11 +188,9 @@ firmly_ <- function(.f, ..., .checklist = list(),
   error_class <- .error_class %||% firm_error(.f) %||% "simpleError"
 
   if (length(chks)) {
-    assembled_chks <- dplyr::distinct_(
-      dplyr::bind_rows(
-        pre_chks,
-        lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)
-      )
+    assembled_chks <- unique(
+      do.call("c", c(list(pre_chks),
+                     lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)))
     )
     f <- validating_closure(assembled_chks, sig, fn, maybe_warn, error_class)
   } else {
@@ -279,8 +275,10 @@ print.firm_closure <- function(x, ...) {
 
   cat("\n* Checks (<predicate>:<error message>):\n")
   calls <- firm_checks(x)
-  if (!is.null(calls) && nrow(calls)) {
-    labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
+  if (length(calls)) {
+    string <- lapply(calls, `[[`, "string")
+    msg    <- lapply(calls, `[[`, "msg")
+    labels <- paste0(string, ":\n", encodeString(msg, quote = "\""))
     cat(enumerate_many(labels))
   } else {
     cat("None\n")
