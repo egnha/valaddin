@@ -99,3 +99,10 @@ test_that("local checker error message is displayed", {
     expect_output_p(print(chkrs[[nm]]), out)
   }
 })
+
+# Error messages ----------------------------------------------------------
+
+test_that("input validation error prints call with full names", {
+  name_of_fun <- firmly(function(x, y, ...) NULL, list(~x) ~ is.numeric)
+  expect_error(name_of_fun("1"), "name_of_fun\\(x = \"1\"\\)\n")
+})

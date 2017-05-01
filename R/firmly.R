@@ -124,11 +124,11 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
       eval.parent(`[[<-`(call, 1L, encl$.fn))
     } else {
       fail <- !pass
-      msg_call  <- sprintf("%s\n", encl$deparse_collapse(call))
+      msg_call  <- encl$deparse_collapse(match.call())
       msg_error <- encl$enumerate_many(
         encl$problems(encl$.chks[fail], verdict[fail])
       )
-      stop(encl$error(paste0(msg_call, msg_error)))
+      stop(encl$error(paste(msg_call, msg_error, sep = "\n")))
     }
   }
 }
