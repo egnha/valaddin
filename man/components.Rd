@@ -23,7 +23,7 @@ firm_args(x)
 If \code{x} is a firmly applied function:
   \itemize{
     \item \code{firm_core} returns a function.
-    \item \code{firm_checks} returns a data frame with columns \code{expr}
+    \item \code{firm_checks} returns a list with components \code{expr}
       (language), \code{env} (environment), \code{string} (character),
       \code{msg} (character).
     \item \code{firm_error} returns a character vector.
@@ -51,7 +51,7 @@ f <- function(x, y, ...) NULL
 f_fm <- firmly(f, ~is.numeric, list(~x, ~y - x) ~ {. > 0})
 
 identical(firm_core(f_fm), f)                  # [1] TRUE
-firm_checks(f_fm)                              # 4 x 4 data frame (tibble)
+firm_checks(f_fm)                              # List of 4
 firm_error(f_fm)                               # [1] "simpleError"
 firm_args(f_fm)                                # NULL
 firm_args(firmly(f_fm, .warn_missing = "y"))   # [1] "y"
