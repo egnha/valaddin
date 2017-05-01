@@ -27,7 +27,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
     unfurl(.symb, .nm, lhs, .env)
   }
   string <- vapply(chk_items, deparse_call, character(1), fn_expr = p_expr)
-  is_blank <- names(chk_items) == ""
+  is_blank <- !nzchar(names(chk_items))
   names(chk_items)[is_blank] <- sprintf("FALSE: %s", string[is_blank])
 
   lapply(seq_along(chk_items), function(.)
