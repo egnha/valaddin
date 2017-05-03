@@ -12,6 +12,19 @@ unfurl <- function(.symb, .nm, .msg, .env) {
   chk_items
 }
 
+checks_df <- function(pred, items, env, string) {
+  n <- length(items)
+  x <- list(
+    expr   = lapply(items, function(.) as.call(c(pred, lazyeval::f_rhs(.)))),
+    env    = `[<-`(vector("list", n), list(env)),
+    string = string,
+    msg    = names(items)
+  )
+  class(x) <- "data.frame"
+  attr(x, "row.names") <- .set_row_names(n)
+  x
+}
+
 # Assemble a data frame of checks from a check formula
 assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p <- lazyeval::f_rhs(.chk)
@@ -30,14 +43,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   is_blank <- !nzchar(names(chk_items))
   names(chk_items)[is_blank] <- sprintf("FALSE: %s", string[is_blank])
 
-  lapply(seq_along(chk_items), function(.)
-    list(
-      expr   = as.call(c(predicate, lazyeval::f_rhs(chk_items[[.]]))),
-      env    = .env,
-      string = string[.],
-      msg    = names(chk_items)[.]
-    )
-  )
+  checks_df(predicate, chk_items, .env, string)
 }
 
 # Warning apparatus -------------------------------------------------------
@@ -81,12 +87,12 @@ problems <- function(chks, verdict) {
   vapply(seq_along(verdict), function(i) {
     x <- verdict[[i]]
     if (is_false(x)) {
-      chks[[i]]$msg
+      chks$msg[[i]]
     } else if (inherits(x, "error")) {
-      sprintf("Error evaluating check %s: %s", chks[[i]]$string, x$message)
+      sprintf("Error evaluating check %s: %s", chks$string[[i]], x$message)
     } else {
       sprintf("Predicate value %s not TRUE/FALSE: %s",
-              chks[[i]]$string, deparse_collapse(x))
+              chks$string[[i]], deparse_collapse(x))
     }
   }, character(1))
 }
@@ -102,7 +108,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
       class = c(.error_class, "error", "condition")
     )
   }
-  exprs <- lapply(.chks, `[`, c("expr", "env"))
+  exprs <- unname(apply(.chks[c("expr", "env")], 1L, identity))
   promises <- eval(call("function", .sig, quote(environment())))
 
   # Local bindings to avoid (unlikely) clashes with formal arguments
@@ -126,7 +132,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
       fail <- !pass
       msg_call  <- encl$deparse_collapse(match.call())
       msg_error <- encl$enumerate_many(
-        encl$problems(encl$.chks[fail], verdict[fail])
+        encl$problems(encl$.chks[fail, ], verdict[fail])
       )
       stop(encl$error(paste(msg_call, msg_error, sep = "\n")))
     }
@@ -181,8 +187,9 @@ firmly_ <- function(.f, ..., .checklist = list(),
 
   if (length(chks)) {
     assembled_chks <- unique(
-      do.call("c", c(list(pre_chks),
-                     lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)))
+      do.call("rbind",
+              c(list(pre_chks),
+                lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)))
     )
     f <- validating_closure(assembled_chks, sig, fn, maybe_warn, error_class)
   } else {
@@ -268,9 +275,7 @@ print.firm_closure <- function(x, ...) {
   cat("\n* Checks (<predicate>:<error message>):\n")
   calls <- firm_checks(x)
   if (length(calls)) {
-    string <- lapply(calls, `[[`, "string")
-    msg    <- lapply(calls, `[[`, "msg")
-    labels <- paste0(string, ":\n", encodeString(msg, quote = "\""))
+    labels <- paste0(calls$string, ":\n", encodeString(calls$msg, quote = "\""))
     cat(enumerate_many(labels))
   } else {
     cat("None\n")

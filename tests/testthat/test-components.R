@@ -67,11 +67,10 @@ test_that("firm_checks gets checks for firmly applied function", {
       fc <- firm_checks(ff)
 
       # Exactly four checks
-      expect_equal(length(fc), 4L)
+      expect_equal(nrow(fc), 4L)
 
       for (msg in names(exprs)) {
-        has_msg <- lapply(fc, `[[`, "msg") == msg
-        expect_identical(lapply(fc[has_msg], `[[`, "expr")[[1L]], exprs[[msg]])
+        expect_identical(fc[fc$msg == msg, "expr"][[1L]], exprs[[msg]])
       }
     }
   }

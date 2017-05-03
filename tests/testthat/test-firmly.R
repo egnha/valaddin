@@ -4,11 +4,8 @@ fs <- lapply(args_list, pass_args)
 has_args <- purrr::map_lgl(args_list, ~ length(nomen(.)$nm) > 0L)
 fs_with_args <- fs[has_args]
 
-sort_checks <- function(..f) {
-  firm_checks(..f) %>% {
-    .[order(vapply(., `[[`, "string", FUN.VALUE = character(1)))]
-  }
-}
+sort_checks_df <- function(x) x[order(x[["string"]]), , drop = FALSE]
+sort_checks <- function(f) sort_checks_df(firm_checks(f))
 
 test_that("error raised when .f is not a closure", {
   errmsg <- "`.f` not an interpreted function"
@@ -255,7 +252,7 @@ test_that("checks in ... are combined with .checklist", {
   calls <- sort_checks(f_firm)
 
   # 4 checks: One global check on 3 arguments, plus a check on 1 argument
-  expect_identical(length(calls), 4L)
+  expect_identical(nrow(calls), 4L)
 
   f_firm2 <- firmly(f, chk1, .checklist = list(chk2))
   expect_identical(sort_checks(f_firm2), calls)
@@ -285,8 +282,8 @@ test_that("existing checks are preserved when adding new checks", {
     chks_g <- firm_checks(g)
 
     # Checks of f subset of checks of g
-    chks_f_g <- unique(c(chks_g, chks_f))
-    expect_identical(sort_checks(chks_f_g), sort_checks(chks_g))
+    chks_f_g <- unique(rbind(chks_g, chks_f))
+    expect_identical(sort_checks_df(chks_f_g), sort_checks_df(chks_g))
 
     # All previous checks checked
     expect_error(g("1", 1), "Not numeric: `x`")
