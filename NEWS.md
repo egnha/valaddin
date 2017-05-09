@@ -25,8 +25,14 @@
   
 ### Minor improvements and bug fixes
 
-* Fixed the lexical scope of promises in input-validation expressions, cf.
-  [#32](https://github.com/egnha/valaddin/issues/32).
+* When evaluating input-validation expressions, the lexical scope of promises is
+  now completely isolated from the lexical scope of (check formula) predicate
+  functions ([#32](https://github.com/egnha/valaddin/issues/32)). With this fix,
+  `firmly()` and `%secure%` are now safe to use in package namespace 
+  environments. Previously, it was possible for a predicate function to be
+  hijacked by a homonymous promise, or for an input validation to fail for an
+  argument with default value, if that default value was inaccessible from the
+  parent frame.
 
 * dplyr is no longer required.
 
