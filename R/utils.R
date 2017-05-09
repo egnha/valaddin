@@ -19,7 +19,7 @@ warning_wo_call <- function(...) warning(..., call. = FALSE)
 deparse_collapse <- function(x) {
   d <- deparse(x)
   if (length(d) > 1L) {
-    paste(trimws(d, which = "both"), collapse = "")
+    paste(trimws(gsub("\\s+", " ", d), which = "left"), collapse = "")
   } else {
     d
   }
