@@ -25,6 +25,9 @@
   
 ### Minor improvements and bug fixes
 
+* Fixed the lexical scope of promises in input-validation expressions, cf.
+  [#32](https://github.com/egnha/valaddin/issues/32).
+
 * dplyr is no longer required.
 
 * Since `loosely()` is typically used to obviate the overhead of input 
