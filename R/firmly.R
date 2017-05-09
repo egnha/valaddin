@@ -97,10 +97,34 @@ problems <- function(chks, verdict) {
   }, character(1))
 }
 
-validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
+#' @importFrom stats runif setNames
+NULL
+
+validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
   force(.fn)
   force(.warn)
   force(.error_class)
+
+  # Input-validation environment
+  PROM.ENV <- sprintf("__PROM.ENV__%.12f", stats::runif(1L))
+  make_promises <- eval(call("function", .sig, quote(environment())))
+  ve <- new.env(parent = emptyenv())
+  promises <- function(call, env_call) {
+    ve[[PROM.ENV]] <- eval(`[[<-`(call, 1L, make_promises), env_call)
+    parent.env(ve[[PROM.ENV]]) <- environment(.fn)
+    ve
+  }
+
+  # Ensure that promises in validation expressions are from ve[["PROM.ENV"]]
+  subs <- lapply(stats::setNames(nm = .nm), function(.)
+    substitute(get(., e), list(. = ., e = as.name(PROM.ENV)))
+  )
+  exprs <- lapply(seq_len(nrow(.chks)), function(i) {
+    expr <- .chks$expr[[i]]
+    # 'expr' is a call, so its second component is the call arguments
+    expr[[2L]] <- eval(substitute(substitute(., subs), list(. = expr[[2L]])))
+    list(expr = expr, env = .chks$env[[i]])
+  })
 
   error <- function(message) {
     structure(
@@ -108,8 +132,6 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
       class = c(.error_class, "error", "condition")
     )
   }
-  exprs <- unname(apply(.chks[c("expr", "env")], 1L, identity))
-  promises <- eval(call("function", .sig, quote(environment())))
 
   # Local bindings to avoid (unlikely) clashes with formal arguments
   deparse_collapse <- match.fun("deparse_collapse")
@@ -120,7 +142,7 @@ validating_closure <- function(.chks, .sig, .fn, .warn, .error_class) {
     call <- match.call()
     encl <- parent.env(environment())
     encl$.warn(call)
-    env <- eval.parent(`[[<-`(call, 1L, encl$promises))
+    env <- encl$promises(call, parent.frame())
     verdict <- suppressWarnings(lapply(encl$exprs, function(.)
       tryCatch(eval(.$expr, `parent.env<-`(env, .$env)), error = identity)
     ))
@@ -186,18 +208,18 @@ firmly_ <- function(.f, ..., .checklist = list(),
   error_class <- .error_class %||% firm_error(.f) %||% "simpleError"
 
   if (length(chks)) {
-    assembled_chks <- unique(
+    asm_chks <- unique(
       do.call("rbind",
               c(list(pre_chks),
                 lapply(chks, assemble, .nm = arg$nm, .symb = arg$symb)))
     )
-    f <- validating_closure(assembled_chks, sig, fn, maybe_warn, error_class)
+    f <- validating_closure(asm_chks, sig, arg$nm, fn, maybe_warn, error_class)
   } else {
     # .warn_missing or .error_class is non-empty
     f <- if (is.null(pre_chks)) {
       warning_closure(fn, maybe_warn)
     } else {
-      validating_closure(pre_chks, sig, fn, maybe_warn, error_class)
+      validating_closure(pre_chks, sig, arg$nm, fn, maybe_warn, error_class)
     }
   }
 
@@ -257,7 +279,8 @@ loosely <- function(.f, .keep_check = FALSE, .keep_warning = FALSE) {
   f <- if (is.null(f_chks)) {
     warning_closure(firm_core(.f), warn(f_args))
   } else {
-    validating_closure(f_chks, sig, firm_core(.f), skip, firm_error(.f))
+    validating_closure(f_chks, sig, nomen(sig)$nm,
+                       firm_core(.f), skip, firm_error(.f))
   }
 
   firm_closure(with_sig(f, sig, .attrs = attributes(.f)))
