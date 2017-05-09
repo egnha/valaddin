@@ -439,3 +439,82 @@ test_that("formal arguments don't override names in validation procedure", {
   expect_message(f_firm(), NA)
   expect_message(do.call("f_warn", def_args), NA)
 })
+
+context("Input-validation environment")
+
+test_that("default values of arguments can be validated", {
+  foo <- (function() {
+    internal <- "internal"
+    function(y, x = internal) NULL
+  })()
+  parent.env(environment(foo)) <- baseenv()
+
+  foo_firm_chr <- (function(f) firmly(f, list(~x) ~ is.character))(foo)
+  foo_firm_num <- (function(f) firmly(f, list(~x) ~ is.numeric))(foo)
+
+  expect_error(foo_firm_chr(), NA)
+  expect_error(foo_firm_num(), "FALSE: is.numeric\\(x\\)")
+})
+
+test_that("checking a missing argument raises an error", {
+  foo <- firmly(function(x) NULL, ~is.character)
+
+  expect_error(foo("x"), NA)
+  expect_error(foo(), "Error evaluating check.*?argument \"x\" is missing")
+})
+
+test_that("promise names don't collide with names in predicate environment", {
+  foo <- (function() {
+    a <- 1
+    function(x, y = a) list(x, y)
+  })()
+  parent.env(environment(foo)) <- baseenv()
+
+  foo_firm <- (function() {
+    x <- "x in predicate environment"
+    y <- "y in predicate environment"
+    a <- "a in predicate environment"
+    predicate <- function(x) is.numeric(x)
+    firmly(foo, ~predicate)
+  })()
+
+  # Verify that 'x' is a promise, not the 'x' in environment(foo_firm)
+  expect_error(foo(0), NA)
+  expect_error(foo_firm(environment(foo_firm)$x), "FALSE: predicate\\(x\\)")
+
+  # Verify that 'y' is a promise, not the 'y' in environment(foo_firm)
+  expect_error(foo(0, 1), NA)
+  expect_error(foo_firm(0, environment(foo_firm)$y), "FALSE: predicate\\(y\\)")
+
+  # Objects in environment(foo_firm) won't substitute missing promises
+  expect_error(foo_firm(), "Error evaluating check.*?argument \"x\" is missing")
+})
+
+test_that("promise with same name as predicate doesn't hijack predicate", {
+  p <- function(x) is.function(x)
+  foo <- function(p) NULL
+  foo_firm <- firmly(foo, list("Argument 'p' is not a function" ~ p) ~ p)
+
+  # 'p' as an argument is a promise
+  expect_error(foo_firm(p), NA)
+  expect_error(foo_firm(1), "Argument 'p' is not a function")
+
+  # Verify that the predicate function 'p' is not the argument 'p'
+  expect_error(foo_firm(function(...) FALSE), NA)
+})
+
+test_that("non-promise objects in validation expression come from predicate", {
+  a <- ""
+  foo <- function(x) x
+
+  foo_firm <- (function() {
+    a <- "Non-empty string"
+    firmly(foo, list(~paste0(x, a)) ~ {identical(., "Non-empty string")})
+  })()
+
+  # 'a' is empty
+  expect_false(nzchar(a))
+
+  # But non-empty 'a' from predicate is used in validation expression
+  expect_error(foo_firm(""), NA)
+})
