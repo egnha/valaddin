@@ -1,9 +1,9 @@
-context("Printing")
-
 # Like expect_output(), but accepts expectation strings with less escaping
 expect_output_p <- perlize(expect_output)
 
 # firm_closure ----------------------------------------------------------
+
+context("Printing firm closures")
 
 has_xy <- map_lgl(args_list, ~ all(c("x", "y") %in% names(.)))
 fs <- lapply(args_list[has_xy], pass_args)
@@ -62,6 +62,8 @@ test_that("firm closure arguments whose absence is checked are displayed", {
 
 # check_maker -------------------------------------------------------------
 
+context("Printing check makers")
+
 test_that("local checker predicate is displayed", {
   header <- "* Predicate function:"
 
@@ -102,7 +104,21 @@ test_that("local checker error message is displayed", {
 
 # Error messages ----------------------------------------------------------
 
-test_that("input validation error prints call with full names", {
-  name_of_fun <- firmly(function(x, y, ...) NULL, list(~x) ~ is.numeric)
-  expect_error(name_of_fun("1"), "name_of_fun\\(x = \"1\"\\)\n")
+context("Printing error messages")
+
+test_that("call displays all default values", {
+  foo <- firmly(function(x, y = 1, z = f(x, y), w, ..., a = 2) NULL,
+                list(~x) ~ is.numeric)
+  expect_error(foo("1"), 'foo\\(x = "1", y = 1, z = f\\(x, y\\), a = 2\\)')
+})
+
+test_that("call does not display arguments without value", {
+  foo <- firmly(function(x, y = 1, absent) NULL, list(~x) ~ is.numeric)
+  errmsg <- tryCatch(foo("1"), error = conditionMessage)
+  expect_false("absent" %in% errmsg)
+})
+
+test_that("call displays all arguments with supplied value", {
+  foo <- firmly(function(x, y, z) NULL, list(~x) ~ is.numeric)
+  expect_error(foo("1", z = 0), 'foo\\(x = "1", z = 0\\)')
 })

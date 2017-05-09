@@ -124,6 +124,11 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
     list(expr = expr, env = .chks$env[[i]])
   })
 
+  deparse_call <- function(call) {
+    .sig[names(call[-1L])] <- call[-1L]
+    .sig <- .sig[!vapply(.sig, identical, logical(1), quote(expr =))]
+    deparse_collapse(as.call(c(call[[1L]], .sig)))
+  }
   error <- function(message) {
     structure(
       list(message = message, call = NULL),
@@ -132,7 +137,6 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
   }
 
   # Local bindings to avoid (unlikely) clashes with formal arguments
-  deparse_collapse <- match.fun("deparse_collapse")
   enumerate_many   <- match.fun("enumerate_many")
   problems         <- match.fun("problems")
 
@@ -150,7 +154,7 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
       eval.parent(`[[<-`(call, 1L, encl$.fn))
     } else {
       fail <- !pass
-      msg_call  <- encl$deparse_collapse(call)
+      msg_call  <- encl$deparse_call(call)
       msg_error <- encl$enumerate_many(
         encl$problems(encl$.chks[fail, ], verdict[fail])
       )
