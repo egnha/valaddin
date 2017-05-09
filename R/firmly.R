@@ -98,8 +98,6 @@ problems <- function(chks, verdict) {
 }
 
 #' @importFrom stats runif setNames
-NULL
-
 validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
   force(.fn)
   force(.warn)
@@ -152,7 +150,7 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
       eval.parent(`[[<-`(call, 1L, encl$.fn))
     } else {
       fail <- !pass
-      msg_call  <- encl$deparse_collapse(match.call())
+      msg_call  <- encl$deparse_collapse(call)
       msg_error <- encl$enumerate_many(
         encl$problems(encl$.chks[fail, ], verdict[fail])
       )
