@@ -29,6 +29,7 @@ Collate:
     'components.R'
     'call.R'
     'firmly.R'
+    'validate.R'
     'scope.R'
     'checkers.R'
     'valaddin.R'
