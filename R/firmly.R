@@ -126,7 +126,7 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
 
   deparse_w_defval <- function(call) {
     .sig[names(call[-1L])] <- call[-1L]
-    .sig <- .sig[!vapply(.sig, identical, logical(1), quote(expr =))]
+    .sig <- .sig[!vapply(.sig, identical, logical(1), quote(expr = ))]
     deparse_collapse(as.call(c(call[[1L]], .sig)))
   }
   error <- function(message) {
@@ -137,8 +137,8 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
   }
 
   # Local bindings to avoid (unlikely) clashes with formal arguments
-  enumerate_many   <- match.fun("enumerate_many")
-  problems         <- match.fun("problems")
+  enumerate_many <- match.fun("enumerate_many")
+  problems <- match.fun("problems")
 
   function() {
     call <- match.call()
