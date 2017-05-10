@@ -124,7 +124,7 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
     list(expr = expr, env = .chks$env[[i]])
   })
 
-  deparse_call <- function(call) {
+  deparse_w_defval <- function(call) {
     .sig[names(call[-1L])] <- call[-1L]
     .sig <- .sig[!vapply(.sig, identical, logical(1), quote(expr =))]
     deparse_collapse(as.call(c(call[[1L]], .sig)))
@@ -154,7 +154,7 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
       eval.parent(`[[<-`(call, 1L, encl$.fn))
     } else {
       fail <- !pass
-      msg_call  <- encl$deparse_call(call)
+      msg_call  <- encl$deparse_w_defval(call)
       msg_error <- encl$enumerate_many(
         encl$problems(encl$.chks[fail, ], verdict[fail])
       )
