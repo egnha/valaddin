@@ -4,12 +4,12 @@
 
 ### Operator for input validation
 
-* A new operator `%secure%` provides an alternative way to write checks next to
+* A new operator `%checkin%` provides an alternative way to write checks next to
   function headers ([#21](https://github.com/egnha/valaddin/issues/21),
   suggested by @MilkWasABadChoice). For example, writing
-  `list(~is.numeric, ~{. > 0}) %secure% function(a, b) a + b` is equivalent to
+  `list(~is.numeric, ~{. > 0}) %checkin% function(a, b) a + b` is equivalent to
   writing `firmly(~is.numeric, ~{. > 0}, .f = function(a, b) a + b)`. Using the
-  `%secure%` operator is the recommended way to apply input validation in
+  `%checkin%` operator is the recommended way to apply input validation in
   scripts and packages.
   
 ### New functions
@@ -61,7 +61,7 @@
 * When evaluating input-validation expressions, the lexical scope of promises is
   now completely isolated from the lexical scope of (check formula) predicate
   functions ([#32](https://github.com/egnha/valaddin/issues/32)). With this fix,
-  `firmly()` and `%secure%` are now safe to use in package namespace 
+  `firmly()` and `%checkin%` are now safe to use in package namespace 
   environments. Previously, it was possible for a predicate function to be
   hijacked by a homonymous promise, or for an input validation to fail for an
   argument with default value, if that default value was inaccessible from the
