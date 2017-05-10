@@ -23,16 +23,7 @@
   corresponds to the base R predicate `is.function` 
   ([#18](https://github.com/egnha/valaddin/issues/18)).
   
-### Minor improvements and bug fixes
-
-* When evaluating input-validation expressions, the lexical scope of promises is
-  now completely isolated from the lexical scope of (check formula) predicate
-  functions ([#32](https://github.com/egnha/valaddin/issues/32)). With this fix,
-  `firmly()` and `%secure%` are now safe to use in package namespace 
-  environments. Previously, it was possible for a predicate function to be
-  hijacked by a homonymous promise, or for an input validation to fail for an
-  argument with default value, if that default value was inaccessible from the
-  parent frame.
+### Minor improvements
 
 * dplyr is no longer required.
 
@@ -45,16 +36,6 @@
 * `firmly()` gets a new option, `.error_class`, that enables you to customize
   the subclass of the error object that is signaled when an input validation
   error occurs ([#25](https://github.com/egnha/valaddin/issues/25)).
-
-* If a formal argument happened to coincide with the name of an object 
-  in the input validation procedure (`valaddin:::validating_closure()`), that 
-  formal argument could be inadvertently invoked in place of that object. This 
-  bug has been fixed by referencing bindings in the enclosing environment. 
-  (However, doing something truly ill-advised, such as duping a base R function,
-  will still go unsupervised.) See commits 
-  [abae548](https://github.com/egnha/valaddin/commit/abae5480392a6fbf81b6faafcfd097dd6a936829)
-  and 
-  [dcfdcaf](https://github.com/egnha/valaddin/commit/dcfdcaf24966007794949f66e5108030d17f520f).
 
 * Reduced use of assignment, subsetting and warning suppression speeds up 
   `firmly` to within an order of magnitude of the speed of input validation
@@ -69,6 +50,32 @@
   spurious indentation ([#23](https://github.com/egnha/valaddin/issues/23)).
 
 * Minor edits to vignette.
+
+### Bug fixes
+
+* Validation error messages now display all arguments with specified or default
+  value ([#33](https://github.com/egnha/valaddin/issues/33)). Previously, only
+  specified arguments were shown, even when the source of a validation failure
+  was an invalid default value.
+
+* When evaluating input-validation expressions, the lexical scope of promises is
+  now completely isolated from the lexical scope of (check formula) predicate
+  functions ([#32](https://github.com/egnha/valaddin/issues/32)). With this fix,
+  `firmly()` and `%secure%` are now safe to use in package namespace 
+  environments. Previously, it was possible for a predicate function to be
+  hijacked by a homonymous promise, or for an input validation to fail for an
+  argument with default value, if that default value was inaccessible from the
+  parent frame.
+  
+* If a formal argument happened to coincide with the name of an object 
+  in the input validation procedure (`valaddin:::validating_closure()`), that 
+  formal argument could be inadvertently invoked in place of that object. This 
+  bug has been fixed by referencing bindings in the enclosing environment. 
+  (However, doing something truly ill-advised, such as duping a base R function,
+  will still go unsupervised.) See commits 
+  [abae548](https://github.com/egnha/valaddin/commit/abae5480392a6fbf81b6faafcfd097dd6a936829)
+  and 
+  [dcfdcaf](https://github.com/egnha/valaddin/commit/dcfdcaf24966007794949f66e5108030d17f520f).
 
 ### Deprecated
 
