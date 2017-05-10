@@ -235,14 +235,14 @@ To make your functions more intelligible, declare your input assumptions and mov
     #> [1] TRUE
     ```
 
--   Better yet, use the `%secure%` operator (available in the development version):
+-   Better yet, use the `%checkin%` operator (available in the development version):
 
     ``` r
     bc3 <- list(
       ~is.numeric,
       ~{length(.) == 1L},
       vld_true(outside ~ in_triangle(x, y))
-    ) %secure%
+    ) %checkin%
       function(x, y) {
         c(x, y, 1 - x - y)
       }

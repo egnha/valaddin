@@ -254,7 +254,7 @@ firmly <- firmly_(
 )
 
 #' @export
-`%secure%` <- function(.checks, .f) {
+`%checkin%` <- function(.checks, .f) {
   nms <- names(.checks) %||% character(length(.checks))
   firmly(
     .f,
@@ -333,15 +333,14 @@ print.firm_closure <- function(x, ...) {
 #' function that checks whether an object is a firmly applied function, i.e.,
 #' a function created by \code{firmly}.
 #' \cr\cr
-#' Use \code{\%secure\%} to apply \code{firmly} as an operator. Since this
+#' Use \code{\%checkin\%} to apply \code{firmly} as an operator. Since this
 #' allows you to keep checks and arguments adjacent, it is the preferred way to
 #' use \code{firmly} in scripts and packages.
 #'
-#' @aliases firmly %secure% loosely is_firm
-#' @evalRd rd_usage(c("firmly", "%secure%", "loosely", "is_firm"))
+#' @aliases firmly %checkin% loosely is_firm
+#' @evalRd rd_usage(c("firmly", "%checkin%", "loosely", "is_firm"))
 #'
-#' @param .f Interpreted function (of type \code{"closure"}), i.e., not a
-#'   primitive function.
+#' @param .f Interpreted function, i.e., closure.
 #' @param \dots Input-validation check formula(e).
 #' @param .checklist List of check formulae. (These are combined with check
 #'   formulae provided via \code{\dots}.)
@@ -466,8 +465,8 @@ print.firm_closure <- function(x, ...) {
 #'       \code{"firm_closure"}, unless it already contains it).
 #'     }
 #'   }
-#'   \subsection{\code{\%secure\%}}{
-#'     \code{\%secure\%} applies the check formula(e) in the list \code{.checks}
+#'   \subsection{\code{\%checkin\%}}{
+#'     \code{\%checkin\%} applies the check formula(e) in the list \code{.checks}
 #'     to \code{.f}, using \code{firmly}. The \code{.warn_missing} and
 #'     \code{.error_class} arguments of \code{firmly} may be specified as named
 #'     components of \code{.checks}.
@@ -596,12 +595,12 @@ print.firm_closure <- function(x, ...) {
 #' g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
 #' g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
 #'
-#' # In scripts and packages, it is recommended to use the operator %secure%
+#' # In scripts and packages, it is recommended to use the operator %checkin%
 #' vec_add <- list(
 #'   ~is.numeric,
 #'   list(~length(x) == length(y)) ~ isTRUE,
 #'   .error_class = "inputError"
-#' ) %secure%
+#' ) %checkin%
 #'   function(x, y) {
 #'     x + y
 #'   }

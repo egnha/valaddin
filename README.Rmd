@@ -243,7 +243,7 @@ ways:
     all.equal(bc, bc2)
     ```
 
--   Better yet, use the `%secure%` operator (available in the development
+-   Better yet, use the `%checkin%` operator (available in the development
     version):
 
     ```{r}
@@ -251,7 +251,7 @@ ways:
       ~is.numeric,
       ~{length(.) == 1L},
       vld_true(outside ~ in_triangle(x, y))
-    ) %secure%
+    ) %checkin%
       function(x, y) {
         c(x, y, 1 - x - y)
       }

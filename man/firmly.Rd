@@ -2,13 +2,12 @@
 % Please edit documentation in R/firmly.R
 \name{firmly}
 \alias{firmly}
-\alias{\%secure\%}
+\alias{\%checkin\%}
 \alias{loosely}
 \alias{is_firm}
 \title{Apply a function firmly}
 \arguments{
-\item{.f}{Interpreted function (of type \code{"closure"}), i.e., not a
-primitive function.}
+\item{.f}{Interpreted function, i.e., closure.}
 
 \item{\dots}{Input-validation check formula(e).}
 
@@ -37,7 +36,7 @@ the original function (without checks). \code{is_firm} is a predicate
 function that checks whether an object is a firmly applied function, i.e.,
 a function created by \code{firmly}.
 \cr\cr
-Use \code{\%secure\%} to apply \code{firmly} as an operator. Since this
+Use \code{\%checkin\%} to apply \code{firmly} as an operator. Since this
 allows you to keep checks and arguments adjacent, it is the preferred way to
 use \code{firmly} in scripts and packages.
 }
@@ -154,8 +153,8 @@ use \code{firmly} in scripts and packages.
       \code{"firm_closure"}, unless it already contains it).
     }
   }
-  \subsection{\code{\%secure\%}}{
-    \code{\%secure\%} applies the check formula(e) in the list \code{.checks}
+  \subsection{\code{\%checkin\%}}{
+    \code{\%checkin\%} applies the check formula(e) in the list \code{.checks}
     to \code{.f}, using \code{firmly}. The \code{.warn_missing} and
     \code{.error_class} arguments of \code{firmly} may be specified as named
     components of \code{.checks}.
@@ -265,12 +264,12 @@ loosely(fib)(31)  # [1] 2178309 (may take several seconds to finish)
 g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
 g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
 
-# In scripts and packages, it is recommended to use the operator \%secure\%
+# In scripts and packages, it is recommended to use the operator \%checkin\%
 vec_add <- list(
   ~is.numeric,
   list(~length(x) == length(y)) ~ isTRUE,
   .error_class = "inputError"
-) \%secure\%
+) \%checkin\%
   function(x, y) {
     x + y
   }
@@ -314,7 +313,7 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
 firmly(.f, ..., .checklist = list(), .warn_missing = character(),
        .error_class = character())
 
-.checks \%secure\% .f
+.checks \%checkin\% .f
 
 loosely(.f, .keep_check = FALSE, .keep_warning = FALSE)
 
