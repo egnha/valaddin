@@ -43,23 +43,23 @@ NULL
 #' @rdname components
 #' @export
 firm_core <- function(x) {
-  environment(x)$.fn
+  .subset2(environment(x), ".fn")
 }
 
 #' @rdname components
 #' @export
 firm_checks <- function(x) {
-  environment(x)$.chks
+  .subset2(environment(x), ".chks")
 }
 
 #' @rdname components
 #' @export
 firm_error <- function(x) {
-  environment(x)$.error_class
+  .subset2(environment(x), ".error_class")
 }
 
 #' @rdname components
 #' @export
 firm_args <- function(x) {
-  environment(environment(x)$.warn)$.args
+  .subset2(environment(.subset2(environment(x), ".warn")), ".args")
 }
