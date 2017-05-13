@@ -518,3 +518,25 @@ test_that("non-promise objects in validation expression come from predicate", {
   # But non-empty 'a' from predicate is used in validation expression
   expect_error(foo_firm(""), NA)
 })
+
+test_that("non-promises in check item are scoped in calling environment", {
+  # Create and bind a check formula in an isolated environment
+  e1 <- new.env(parent = baseenv())
+  evalq(chk <- list("x not equal 1" ~ x - a) ~ {isTRUE(all.equal(., 0))}, e1)
+
+  # Create and bind a function in an isolated environment
+  e2 <- new.env(parent = baseenv())
+  evalq(f <- function(x) NULL, e2)
+
+  # Name in the check iten of e1$chk
+  a <- 1
+  foo <- firmly(e2$f, e1$chk)
+
+  # Verify that `a` is inaccessible from the environments of e1$chk, e2$f
+  expect_false(exists("a", envir = attr(e1$chk, ".Environment"), inherits = TRUE))
+  expect_false(exists("a", envir = environment(e2$f), inherits = TRUE))
+
+  # Verify that `a` nonetheless is correctly found during input validation
+  expect_error(foo(1), NA)
+  expect_error(foo(0), "x not equal 1")
+})
