@@ -104,7 +104,7 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
   force(.error_class)
 
   # Input-validation environment
-  PROM.ENV <- sprintf("__PROM.ENV__%.12f", stats::runif(1L))
+  PROM.ENV <- sprintf("__PROM.ENV__%.12f", runif(1L))
   make_promises <- eval(call("function", .sig, quote(environment())))
   ve <- new.env(parent = emptyenv())
   promises <- function(call, env_call) {
@@ -114,7 +114,7 @@ validating_closure <- function(.chks, .sig, .nm, .fn, .warn, .error_class) {
   }
 
   # Ensure that promises in validation expressions are from ve[["PROM.ENV"]]
-  subs <- lapply(stats::setNames(nm = .nm), function(.)
+  subs <- lapply(setNames(nm = .nm), function(.)
     substitute(get(., e), list(. = ., e = as.name(PROM.ENV)))
   )
   exprs <- lapply(seq_len(nrow(.chks)), function(i) {
