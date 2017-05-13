@@ -443,10 +443,10 @@ test_that("formal arguments don't override names in validation procedure", {
 context("Input-validation environment")
 
 test_that("default values of arguments can be validated", {
-  foo <- (function() {
+  foo <- local({
     internal <- "internal"
     function(y, x = internal) NULL
-  })()
+  })
   parent.env(environment(foo)) <- baseenv()
 
   foo_firm_chr <- (function(f) firmly(f, list(~x) ~ is.character))(foo)
@@ -464,19 +464,19 @@ test_that("checking a missing argument raises an error", {
 })
 
 test_that("promise names don't collide with names in predicate environment", {
-  foo <- (function() {
+  foo <- local({
     a <- 1
     function(x, y = a) list(x, y)
-  })()
+  })
   parent.env(environment(foo)) <- baseenv()
 
-  foo_firm <- (function() {
+  foo_firm <- local({
     x <- "x in predicate environment"
     y <- "y in predicate environment"
     a <- "a in predicate environment"
     predicate <- function(x) is.numeric(x)
     firmly(foo, ~predicate)
-  })()
+  })
 
   # Verify that 'x' is a promise, not the 'x' in environment(foo_firm)
   expect_error(foo(0), NA)
@@ -507,10 +507,10 @@ test_that("non-promise objects in validation expression come from predicate", {
   a <- ""
   foo <- function(x) x
 
-  foo_firm <- (function() {
+  foo_firm <- local({
     a <- "Non-empty string"
     firmly(foo, list(~paste0(x, a)) ~ {identical(., "Non-empty string")})
-  })()
+  })
 
   # 'a' is empty
   expect_false(nzchar(a))
