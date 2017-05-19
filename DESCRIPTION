@@ -30,6 +30,7 @@ Collate:
     'components.R'
     'call.R'
     'firmly.R'
+    'firmly-quosure.R'
     'validate.R'
     'scope.R'
     'checkers.R'

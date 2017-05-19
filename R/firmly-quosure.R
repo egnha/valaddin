@@ -1,0 +1,26 @@
+assemble_checks <- function(chk, nm, symb) {}
+
+validate <- function(f, chks, sig, nm) {}
+
+vld_ <- function(..., checklist = NULL) {
+  quo_chks <- c(rlang::quos(...), checklist)
+  function(f) {
+    sig <- formals(f)
+    arg <- nomen(sig)
+    chks <- lapply(quo_chks, assemble_checks, nm = arg$nm, symb = arg$symb)
+    validate(f, chks, sig, arg$nm)
+  }
+}
+
+firmly_q <- function(f, ..., checklist = NULL) {
+  vld_(..., checklist = checklist)(f)
+}
+
+# msg <- "Not positive"
+# a <- 1
+# quos(
+#   is.numeric,
+#   quos(is.numeric, x, y),
+#   !!msg := quos({. > 0}, x, !!local_msg := y - !!a),
+#   "Error message" = quos(is.character, x, y, paste(z, !!a))
+# )
