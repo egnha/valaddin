@@ -1,6 +1,14 @@
 assemble_checks <- function(chk, nm, symb) {}
 
 validate <- function(f, chks, sig, nm) {}
+safely_nm <- function(exprs, ..., fill) {
+  prefix <- list(...)
+  n <- max(unlist(lapply(exprs, function(e) rapply(as.list(e), nchar))))
+  setNames(
+    paste(prefix, paste(character(n), collapse = fill), sep = fill),
+    prefix
+  )
+}
 
 vld_ <- function(..., checklist = NULL) {
   quo_chks <- c(rlang::quos(...), checklist)
