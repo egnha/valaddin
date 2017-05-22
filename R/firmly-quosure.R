@@ -139,7 +139,7 @@ vld_ <- function(..., checklist = NULL) {
   }
 }
 
-firmly_q <- function(f, ..., checklist = NULL) {
+q_firmly <- function(f, ..., checklist = NULL) {
   vld_(..., checklist = checklist)(f)
 }
 
