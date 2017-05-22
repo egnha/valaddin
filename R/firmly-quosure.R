@@ -64,7 +64,7 @@ express_check <- function(exprs, nm_pred, nm_arg, nm_env) {
   get_arg <- lapply(nm_arg, function(.)
     # use get0, instead of `[[`, because it raises missing-argument error
     rlang::expr(
-      get0(UQ(.), envir = UQ(sym_env[["prom"]]), inherits = FALSE)
+      get0(UQ(.), envir = UQ(sym_env[["prom"]]))
     )
   )
   names(get_arg) <- nm_arg
