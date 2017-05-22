@@ -36,16 +36,19 @@ validation_df <- function(q, exprs, msgs) {
   d
 }
 
-parse_check <- function(quo_chk, nm_arg, sym_arg) {
+parse_check <- function(quo_chk, syms) {
   q <- lambda(quo_chk[[1]])
+
   if (length(quo_chk) == 1) {
-    exprs <- lapply(sym_arg, rlang::new_quosure, env = emptyenv())
+    exprs <- lapply(syms, rlang::new_quosure, env = emptyenv())
   } else {
     exprs <- quo_chk[-1]
   }
+
   msgs <- names(exprs) %||% character(length(exprs))
   not_named <- !nzchar(msgs)
   msgs[not_named] <- default_msg(q, exprs[not_named], names(quo_chk)[1])
+
   validation_df(q, exprs, msgs)
 }
 
