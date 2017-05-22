@@ -59,7 +59,27 @@ safely_rename <- function(..., avoid) {
   setNames(paste(nms, filler, sep = "_"), nms)
 }
 
+express_check <- function(exprs, nm_pred, nm_arg, nm_env) {
+  sym_env <- lapply(nm_env, as.symbol)
+  get_arg <- lapply(nm_arg, function(.)
+    # use get0, instead of `[[`, because it raises missing-argument error
+    rlang::expr(
+      get0(UQ(.), envir = UQ(sym_env[["prom"]]), inherits = FALSE)
+    )
   )
+  names(get_arg) <- nm_arg
+  lapply(seq_along(exprs), function(i) {
+    expr <- eval(rlang::expr(substitute(UQ(exprs[[i]]), get_arg)))
+    expr <- rlang::expr(
+      UQ(sym_env[["pred"]])[[UQ(nm_pred[[i]])]](UQE(expr))
+    )
+    list(
+      expr = expr,
+      env  = rlang::get_env(exprs[[i]])
+    )
+  })
+}
+
 }
 
 vld_ <- function(..., checklist = NULL) {
