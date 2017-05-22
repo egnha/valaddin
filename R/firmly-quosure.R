@@ -130,12 +130,14 @@ validation_closure <- function(f, chks, sig, nm_arg) {
 }
 
 vld_ <- function(..., checklist = NULL) {
-  quo_chks <- c(rlang::quos(...), checklist)
+  chks <- c(rlang::quos(...), checklist)
   function(f) {
     sig <- formals(f)
     arg <- nomen(sig)
-    chks <- lapply(quo_chks, assemble_checks, nm = arg$nm, symb = arg$symb)
-    validate(f, chks, sig, arg$nm)
+    # data frame of checks
+    # unique should only be applied to the expressions
+    chks <- rbind(lapply(chks, parse_check, syms = arg$symb))
+    validation_closure(f, chks, sig, arg$nm)
   }
 }
 
