@@ -91,6 +91,42 @@ bind_predicates <- function(preds, env) {
   nm_pred
 }
 
+validation_closure <- function(f, chks, sig, nm_arg) {
+  env_pred <- new.env(parent = emptyenv())
+
+  nm_pred <- bind_predicates(chks[["pred"]], env_pred)
+  nm_env  <- safely_rename("prom", "pred", avoid = chks[["expr"]])
+
+  make_promises <- eval(call("function", sig, quote(environment())))
+  ve <- new.env(parent = emptyenv())
+  ve[[nm_env[["pred"]]]] <- env_pred
+  new_validation_env <- function(call, env) {
+    ve[[nm_env[["prom"]]]] <- eval(`[[<-`(call, 1L, make_promises), env)
+    parent.env(ve[[nm_env[["prom"]]]]) <- environment(f)
+    ve
+  }
+
+  exprs <- express_check(chks[["expr"]], nm_pred, nm_arg, nm_env)
+
+  function() {
+    mc <- match.call()
+    encl <- parent.env(parent.frame())
+    ve <- encl[["new_validation_env"]](mc, parent.frame())
+    # Make version that catches the first error, like stopifnot()
+    verdict <- suppressWarnings(
+      lapply(encl[["exprs"]], function(.)
+        tryCatch(eval(.[["expr"]], `parent.env<-`(ve, .[["env"]])),
+                 error = identity)
+      )
+    )
+    pass <- vapply(verdict, isTRUE, logical(1))
+
+    if (all(pass)) {
+      eval(`[[<-`(call, 1L, encl[["f"]]), parent.frame())
+    } else {
+      stop("!")
+    }
+  }
 }
 
 vld_ <- function(..., checklist = NULL) {
