@@ -80,6 +80,17 @@ express_check <- function(exprs, nm_pred, nm_arg, nm_env) {
   })
 }
 
+bind_predicates <- function(preds, env) {
+  u_preds <- unique(preds)
+  nm_pred <- character(length(preds))
+  for (i in seq_along(u_preds)) {
+    nm <- sprintf("pred_%s", i)
+    assign(nm, rlang::eval_tidy(u_preds[[i]]), envir = env)
+    nm_pred[vapply(preds, identical, logical(1), y = u_preds[[i]])] <- nm
+  }
+  nm_pred
+}
+
 }
 
 vld_ <- function(..., checklist = NULL) {
