@@ -49,12 +49,13 @@ parse_check <- function(quo_chk, nm_arg, sym_arg) {
   validation_df(q, exprs, msgs)
 }
 
-safely_name <- function(exprs, ..., fill) {
+safely_rename <- function(..., avoid) {
   nms <- list(...)
-  n <- max(unlist(lapply(exprs, function(e) rapply(as.list(e), nchar))))
-  setNames(
-    paste(nms, paste(character(n), collapse = fill), sep = fill),
-    nms
+  n <- max(unlist(lapply(avoid, function(expr) rapply(as.list(expr), nchar))))
+  filler <- paste(character(n), collapse = "_")
+  setNames(paste(nms, filler, sep = "_"), nms)
+}
+
   )
 }
 
