@@ -1,3 +1,14 @@
+# Variation of rlang::as_function
+lambda <- function(q) {
+  bdy <- rlang::get_expr(q)
+  if (is_lambda(bdy)) {
+    expr <- call("function", as.pairlist(alist(.x = , .y = , . = .x)), bdy)
+    rlang::new_quosure(expr, rlang::get_env(q))
+  } else {
+    q
+  }
+}
+
 q_deparse_call <- function(q, args) {
   rlang::quo_text(rlang::expr(UQE(q)(UQ(args))))
 }
