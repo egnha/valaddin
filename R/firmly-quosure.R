@@ -107,6 +107,14 @@ safely_rename <- function(..., avoid) {
 
 express_check <- function(exprs, nm_pred, nm_arg, nm_env) {
   sym_env <- lapply(nm_env, as.symbol)
+bind_predicates <- function(preds, nm, env) {
+  names(preds) <- paste0(nm, seq_along(preds))
+  for (n in names(preds)) {
+    assign(n, rlang::eval_tidy(preds[[n]]), envir = env)
+  }
+  names(preds)
+}
+
   get_arg <- lapply(nm_arg, function(.)
     # use get0, instead of `[[`, because it raises missing-argument error
     rlang::expr(
@@ -124,17 +132,6 @@ express_check <- function(exprs, nm_pred, nm_arg, nm_env) {
       env  = rlang::get_env(exprs[[i]])
     )
   })
-}
-
-bind_predicates <- function(preds, env) {
-  u_preds <- unique(preds)
-  nm_pred <- character(length(preds))
-  for (i in seq_along(u_preds)) {
-    nm <- sprintf("pred_%s", i)
-    assign(nm, rlang::eval_tidy(u_preds[[i]]), envir = env)
-    nm_pred[vapply(preds, identical, logical(1), y = u_preds[[i]])] <- nm
-  }
-  nm_pred
 }
 
 validation_closure <- function(f, chks, sig, nm_arg) {
