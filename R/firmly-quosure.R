@@ -169,14 +169,32 @@ validation_closure <- function(f, chks, sig, nm_arg) {
 
     if (all(pass)) {
       eval(`[[<-`(call, 1L, encl[["f"]]), parent.frame())
+q_problems <- function(chks, verdict, env) {
+  vapply(seq_along(verdict), function(i) {
+    x <- verdict[[i]]
+    if (is_false(x)) {
+      error_message(chks$msg[[i]], chks$expr[[i]], env,
+                    message_false(chks$call[[i]]))
+    } else if (inherits(x, "error")) {
+      sprintf("Error evaluating check %s: %s", chks$call[[i]], x$message)
     } else {
-      stop("!")
+      sprintf("Predicate value %s not TRUE/FALSE: %s",
+              chks$call[[i]], deparse_collapse(x))
     }
-  }
+  }, character(1))
 }
 
+error_message <- function(msg, quo, env, fallback_msg) {
+  env_msg <- new.env(parent = env)
+  env_msg[["msg"]] <- msg
+  tryCatch({
+    env[["."]] <- capture_expr(rlang::get_expr(quo), env)
+    glue::glue(msg, .envir = env_msg)
+  }, error = function(e) fallback_msg)
 }
 
+capture_expr <- function(expr, env) {
+  deparse_collapse(eval(expr, env))
 }
 
 # msg <- "Not positive"
