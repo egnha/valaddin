@@ -188,12 +188,3 @@ error_message <- function(msg, quo, env, fallback_msg) {
 capture_expr <- function(expr, env) {
   deparse_collapse(eval(expr, env))
 }
-
-# msg <- "Not positive"
-# a <- 1
-# quos(
-#   is.numeric,
-#   quos(is.numeric, x, y),
-#   !!msg := quos({. > 0}, x, !!local_msg := y - !!a),
-#   "Error message" = quos(is.character, x, y, paste(z, !!a))
-# )
