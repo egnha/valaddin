@@ -105,8 +105,6 @@ safely_rename <- function(..., avoid) {
   setNames(paste(nms, filler, sep = "_"), nms)
 }
 
-express_check <- function(exprs, nm_pred, nm_arg, nm_env) {
-  sym_env <- lapply(nm_env, as.symbol)
 bind_predicates <- function(preds, nm, env) {
   names(preds) <- paste0(nm, seq_along(preds))
   for (n in names(preds)) {
@@ -115,18 +113,15 @@ bind_predicates <- function(preds, nm, env) {
   names(preds)
 }
 
+express_check <- function(exprs, nm_pred, nm_arg, nm_prom) {
   get_arg <- lapply(nm_arg, function(.)
-    # use get0, instead of `[[`, because it raises missing-argument error
-    rlang::expr(
-      get0(UQ(.), envir = UQ(sym_env[["prom"]]))
-    )
+    # use get0, instead of `[[`, because get0 raises missing-argument error
+    rlang::expr(get0(UQ(.), envir = UQ(as.name(nm_prom))))
   )
   names(get_arg) <- nm_arg
   lapply(seq_along(exprs), function(i) {
     expr <- eval(rlang::expr(substitute(UQ(exprs[[i]]), get_arg)))
-    expr <- rlang::expr(
-      UQ(sym_env[["pred"]])[[UQ(nm_pred[[i]])]](UQE(expr))
-    )
+    expr <- rlang::expr(UQ(as.name(nm_pred[[i]]))(UQE(expr)))
     list(
       expr = expr,
       env  = rlang::get_env(exprs[[i]])
