@@ -130,37 +130,59 @@ express_check <- function(exprs, nm_pred, nm_arg, nm_prom) {
 }
 
 validation_closure <- function(f, chks, sig, nm_arg) {
-  env_pred <- new.env(parent = emptyenv())
+  nm_safe <- safely_rename("prom", "pred", avoid = chks[["expr"]])
 
-  nm_pred <- bind_predicates(chks[["pred"]], env_pred)
-  nm_env  <- safely_rename("prom", "pred", avoid = chks[["expr"]])
-
-  make_promises <- eval(call("function", sig, quote(environment())))
   ve <- new.env(parent = emptyenv())
-  ve[[nm_env[["pred"]]]] <- env_pred
+  nm_pred <- bind_predicates(chks[["pred"]], nm_safe[["pred"]], ve)
+  make_promises <- eval(call("function", sig, quote(environment())))
   new_validation_env <- function(call, env) {
-    ve[[nm_env[["prom"]]]] <- eval(`[[<-`(call, 1L, make_promises), env)
-    parent.env(ve[[nm_env[["prom"]]]]) <- environment(f)
+    ve[[nm_safe[["prom"]]]] <- eval(`[[<-`(call, 1L, make_promises), env)
+    parent.env(ve[[nm_safe[["prom"]]]]) <- environment(f)
     ve
   }
 
-  exprs <- express_check(chks[["expr"]], nm_pred, nm_arg, nm_env)
+  exprs <- express_check(chks[["expr"]], nm_pred, nm_arg, nm_safe[["prom"]])
 
-  function() {
-    mc <- match.call()
-    encl <- parent.env(parent.frame())
-    ve <- encl[["new_validation_env"]](mc, parent.frame())
-    # Make version that catches the first error, like stopifnot()
-    verdict <- suppressWarnings(
-      lapply(encl[["exprs"]], function(.)
-        tryCatch(eval(.[["expr"]], `parent.env<-`(ve, .[["env"]])),
-                 error = identity)
+  # Local bindings to avoid (unlikely) clashes with formal arguments
+  enumerate_many <- match.fun("enumerate_many")
+  q_problems <- match.fun("q_problems")
+  deparse_w_defval <- function(call) {
+    sig[names(call[-1L])] <- call[-1L]
+    sig <- sig[!vapply(sig, identical, logical(1), quote(expr = ))]
+    deparse_collapse(as.call(c(call[[1L]], sig)))
+  }
+
+  `formals<-`(
+    value = sig,
+    function() {
+      call <- match.call()
+      encl <- parent.env(environment())
+      ve <- encl[["new_validation_env"]](call, parent.frame())
+      # Make version that catches the first error, like stopifnot()
+      verdict <- suppressWarnings(
+        lapply(encl[["exprs"]], function(.)
+          tryCatch(
+            eval(.[["expr"]], `parent.env<-`(ve, .[["env"]])),
+            error = identity
+          )
+        )
       )
-    )
-    pass <- vapply(verdict, isTRUE, logical(1))
+      pass <- vapply(verdict, isTRUE, logical(1))
+      if (all(pass)) {
+        eval(`[[<-`(call, 1L, encl[["f"]]), parent.frame())
+      } else {
+        fail <- !pass
+        msg_call  <- encl[["deparse_w_defval"]](call)
+        msg_error <- encl[["enumerate_many"]](
+          encl[["q_problems"]](encl[["chks"]][fail, ], verdict[fail],
+                               ve[[encl[["nm_safe"]][["prom"]]]])
+        )
+        stop(paste(msg_call, msg_error, sep = "\n"), call. = FALSE)
+      }
+    }
+  )
+}
 
-    if (all(pass)) {
-      eval(`[[<-`(call, 1L, encl[["f"]]), parent.frame())
 q_problems <- function(chks, verdict, env) {
   vapply(seq_along(verdict), function(i) {
     x <- verdict[[i]]
