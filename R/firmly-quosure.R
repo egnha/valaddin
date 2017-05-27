@@ -1,3 +1,27 @@
+#' @importFrom rlang quos
+#' @export
+rlang::quos
+
+#' @export
+q_firmly <- function(f, ..., checklist = NULL) {
+  vld(..., checklist = checklist)(f)
+}
+
+#' @export
+vld <- function(..., checklist = NULL) {
+  chks <- c(rlang::quos(...), checklist)
+  function(f) {
+    sig <- formals(f)
+    arg <- nomen(sig)
+    msgs <- names(chks) %||% character(length(chks))
+    chks <- do.call(
+      "rbind",
+      Map(function(., ..) parse_check(., .., arg$symb), chks, msgs)
+    )
+    validation_closure(f, chks, sig, arg$nm)
+  }
+}
+
 # Variation of rlang::as_function
 lambda <- function(q) {
   bdy <- rlang::get_expr(q)
@@ -129,20 +153,8 @@ validation_closure <- function(f, chks, sig, nm_arg) {
   }
 }
 
-vld_ <- function(..., checklist = NULL) {
-  chks <- c(rlang::quos(...), checklist)
-  function(f) {
-    sig <- formals(f)
-    arg <- nomen(sig)
-    # data frame of checks
-    # unique should only be applied to the expressions
-    chks <- rbind(lapply(chks, parse_check, syms = arg$symb))
-    validation_closure(f, chks, sig, arg$nm)
-  }
 }
 
-q_firmly <- function(f, ..., checklist = NULL) {
-  vld_(..., checklist = checklist)(f)
 }
 
 # msg <- "Not positive"
