@@ -49,7 +49,8 @@ brace_val <- function(x) {
 }
 
 is_double_brace <- function(ht) {
-  if ((l <- length(ht)) == 1L) {
+  l <- length(ht)
+  if (l == 1L) {
     FALSE
   } else {
     all(
