@@ -77,7 +77,7 @@ default_msg <- function(msg, qs, calls) {
 #' #> The value of 'x' is {.}
 #' @noRd
 glue_esc_dot <- function(text, q) {
-  glue::glue(glue::glue(text, . = "{{.}}"), . = rlang::quo_text(q))
+  glue::glue(relevel_braces(text), . = rlang::quo_text(q))
 }
 
 message_false <- function(calls) {
