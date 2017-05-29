@@ -24,16 +24,38 @@ vld <- function(..., checklist = NULL) {
 
 parse_check <- function(chk, msg, syms) {
   chk_ <- rlang::eval_tidy(chk)
-  is_local <- rlang::is_quosures(chk_)
-  if (is_local) {
-    pred <- lambda(chk_[[1L]])
-    qs <- chk_[-1L]
+  if (rlang::is_formula(chk_)) {
+    env <- rlang::get_env(chk)
+    chk <- rlang::new_quosure(rlang::f_lhs(chk_), env)
+    rhs <- rlang::f_rhs(chk_)
+    if (is_quos(rhs)) {
+      qs <- rlang::eval_tidy(rhs)
+    } else {
+      qs <- rlang::new_quosure(rhs, env)
+    }
   } else {
-    pred <- lambda(chk)
     qs <- lapply(syms, rlang::new_quosure, env = baseenv())
   }
+  pred <- lambda(chk)
   text <- deparse_check(pred, qs, msg)
   validation_df(pred, qs, text)
+}
+
+validation_df <- function(pred, exprs, text) {
+  n <- length(exprs)
+  d <- list(
+    pred = `[<-`(vector("list", n), list(pred)),
+    expr = exprs,
+    call = text$call,
+    msg  = text$msg
+  )
+  class(d) <- "data.frame"
+  attr(d, "row.names") <- .set_row_names(n)
+  d
+}
+
+is_quos <- function(expr) {
+  is.call(expr) && identical(expr[[1L]], as.symbol("quos"))
 }
 
 # Variation of rlang::as_function
@@ -83,19 +105,6 @@ glue_esc_dot <- function(text, q) {
 message_false <- function(calls) {
   ws <- ifelse(grepl("\n", calls), "\n", " ")
   paste0("FALSE:", ws, calls)
-}
-
-validation_df <- function(pred, exprs, text) {
-  n <- length(exprs)
-  d <- list(
-    pred = `[<-`(vector("list", n), list(pred)),
-    expr = exprs,
-    call = text$call,
-    msg  = text$msg
-  )
-  class(d) <- "data.frame"
-  attr(d, "row.names") <- .set_row_names(n)
-  d
 }
 
 safely_rename <- function(..., avoid) {
