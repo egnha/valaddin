@@ -73,8 +73,8 @@ default_msg <- function(msg, qs, calls) {
 #' @param text Text to interpolate.
 #' @return Glue object.
 #' @examples
-#' glue_esc_dot("The value of '{{.}}' is {.}", rlang::quo(x))
-#' #> The value of 'x' is {.}
+#' glue_esc_dot("The length of {{sQuote(.)}} is {length(.)}.", rlang::quo(x))
+#' # The length of ‘x’ is {length(.)}.
 #' @noRd
 glue_esc_dot <- function(text, q) {
   glue::glue(relevel_braces(text), . = rlang::quo_text(q))
