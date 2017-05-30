@@ -49,15 +49,9 @@ brace_val <- function(x) {
 }
 
 is_double_brace <- function(ht) {
-  l <- length(ht)
-  if (l == 1L) {
+  if (length(ht) <= 2L) {
     FALSE
   } else {
-    all(
-      # begins/ends with double braces
-      ht[c(1L, 2L, l - 1L, l)] == c(1L, 2L, 2L, 1L),
-      # second/penultimate brace not part of nested brace group
-      sum(ht == 1L) == 2L
-    )
+    sum(ht == 1L) == 2L
   }
 }
