@@ -96,22 +96,26 @@ deparse_call <- function(q, arg) {
 
 default_msg <- function(msg, qs, calls) {
   if (nzchar(msg)) {
-    vapply(qs, glue_esc_dot, character(1), text = msg)
+    vapply(qs, glue_opp, character(1), text = msg)
   } else {
     message_false(calls)
   }
 }
 
-#' Glue-interpolate escaped dots
+#' Glue strings, oppositely
 #'
+#' `glue_opp()` is an opposite version of [glue::glue()] for a designated
+#' expression (`.`): expressions in double curly braces are interpolated, while
+#' those in single curly braces are literally interpreted.
+#'
+#' @noRd
 #' @param dot Quosure or expression.
 #' @param text Text to interpolate.
 #' @return Glue object.
 #' @examples
-#' glue_esc_dot("The length of {{sQuote(.)}} is {length(.)}.", dot = quote(x))
+#' glue_opp("The length of {{sQuote(.)}} is {length(.)}.", dot = quote(x))
 #' # The length of ‘x’ is {length(.)}.
-#' @noRd
-glue_esc_dot <- function(text, dot) {
+glue_opp <- function(text, dot) {
   glue::glue(relevel_braces(text), . = rlang::quo_text(dot))
 }
 
