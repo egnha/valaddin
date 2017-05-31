@@ -89,7 +89,7 @@ deparse_check <- function(pred, qs, msg) {
   list(call = calls, msg = msgs)
 }
 
-deparse_call <- function(arg, q) {
+deparse_call <- function(q, arg) {
   call <- rlang::quo_expr(rlang::expr(UQE(q)(UQ(arg))))
   deparse_collapse(call)
 }
