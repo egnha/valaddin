@@ -81,11 +81,11 @@ lambda <- function(q) {
   }
 }
 
-deparse_check <- function(pred, qs, msg) {
+deparse_check <- function(pred, qs, default) {
   calls <- vapply(qs, deparse_call, character(1), q = pred)
   msgs <- names(qs) %||% character(length(qs))
   not_named <- !nzchar(msgs)
-  msgs[not_named] <- default_msg(msg, qs[not_named], calls[not_named])
+  msgs[not_named] <- generate_message(default, qs[not_named], calls[not_named])
   list(call = calls, msg = msgs)
 }
 
@@ -94,8 +94,8 @@ deparse_call <- function(q, arg) {
   deparse_collapse(call)
 }
 
-default_msg <- function(msg, qs, calls) {
-  if (nzchar(msg)) {
+generate_message <- function(default, qs, calls) {
+  if (nzchar(default)) {
     vapply(qs, glue_opp, character(1), text = msg)
   } else {
     # double-up braces to shield them from glue::glue()
