@@ -98,8 +98,13 @@ default_msg <- function(msg, qs, calls) {
   if (nzchar(msg)) {
     vapply(qs, glue_opp, character(1), text = msg)
   } else {
-    message_false(calls)
+    # double-up braces to shield them from glue::glue()
+    double_braces(sprintf("FALSE: %s", calls))
   }
+}
+
+double_braces <- function(x) {
+  gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
 }
 
 #' Glue strings, oppositely
@@ -117,11 +122,6 @@ default_msg <- function(msg, qs, calls) {
 #' # The length of ‘x’ is {length(.)}.
 glue_opp <- function(text, dot) {
   glue::glue(relevel_braces(text), . = rlang::quo_text(dot))
-}
-
-message_false <- function(calls) {
-  ws <- ifelse(grepl("\n", calls), "\n", " ")
-  paste0("FALSE:", ws, calls)
 }
 
 safely_rename <- function(..., avoid) {
