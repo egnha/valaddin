@@ -4,16 +4,16 @@
 #' double curly braces, and vice versa. It assumes, but does not check, that
 #' braces are matched.
 #'
+#' @noRd
 #' @param text String.
 #' @return String with braces re-leveled, but otherwise unchanged.
 #' @examples
-#' relevel_braces(".")                         # "."
-#' relevel_braces("{.}")                       # "{{.}}"
-#' relevel_braces("{{.}}")                     # "{.}"
-#' relevel_braces("{{.}.}")                    # "{{{.}.}}"
-#' relevel_braces("{{.}{.}}")                  # "{{{.}{.}}}"
-#' relevel_braces(".{{.}.}.{{.}}.{.{.}}.{.}")  # ".{{{.}.}}.{.}.{{.{.}}}.{{.}}"
-#' @noRd
+#' relevel_braces(".")                         # .
+#' relevel_braces("{.}")                       # {{.}}
+#' relevel_braces("{{.}}")                     # {.}
+#' relevel_braces("{{.}.}")                    # {{{.}.}}
+#' relevel_braces("{{.}{.}}")                  # {{{.}{.}}}
+#' relevel_braces(".{{.}.}.{{.}}.{.{.}}.{.}")  # .{{{.}.}}.{.}.{{.{.}}}.{{.}}
 relevel_braces <- function(text) {
   text_vec <- strsplit(text, NULL)[[1L]]
   paste(relevel_braces_(text_vec), collapse = "")
