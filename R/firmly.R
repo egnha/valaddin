@@ -217,8 +217,7 @@ problems <- function(chks, verdict, env) {
   vapply(seq_along(verdict), function(i) {
     x <- verdict[[i]]
     if (is_false(x)) {
-      error_message(chks$msg[[i]], chks$expr[[i]], env,
-                    message_false(chks$call[[i]]))
+      error_message(chks$msg[[i]], chks$call[[i]], chks$expr[[i]], env)
     } else if (inherits(x, "error")) {
       sprintf("Error evaluating check %s: %s", chks$call[[i]], x$message)
     } else {
@@ -228,7 +227,7 @@ problems <- function(chks, verdict, env) {
   }, character(1))
 }
 
-error_message <- function(msg, q, env, fallback_msg) {
+error_message <- function(msg, call, q, env, fallback_msg) {
   env_msg <- new.env(parent = env)
   env_msg[["msg"]] <- msg
   tryCatch(
@@ -236,6 +235,11 @@ error_message <- function(msg, q, env, fallback_msg) {
       env[["."]] <- eval(rlang::get_expr(q), env)
       glue::glue(msg, .envir = env_msg)
     },
-    error = function(e) fallback_msg
+    error = function(e) {
+      fallback_msg <- message_false(call)
+      expr <- rlang::get_expr(q)
+      sprintf("%s\n(Error interpolating message %s, with `.` = %s: %s)",
+              fallback_msg, msg, expr, e[["message"]])
+    }
   )
 }
