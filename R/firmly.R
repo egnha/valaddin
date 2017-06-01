@@ -224,12 +224,12 @@ problems <- function(chks, verdict, env) {
   }, character(1))
 }
 
-error_message <- function(msg, quo, env, fallback_msg) {
+error_message <- function(msg, q, env, fallback_msg) {
   env_msg <- new.env(parent = env)
   env_msg[["msg"]] <- msg
   tryCatch(
     {
-      env[["."]] <- eval(rlang::get_expr(quo), env)
+      env[["."]] <- eval(rlang::get_expr(q), env)
       glue::glue(msg, .envir = env_msg)
     },
     error = function(e) fallback_msg
