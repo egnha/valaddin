@@ -96,7 +96,7 @@ deparse_call <- function(q, arg) {
 
 generate_message <- function(default, qs, calls) {
   if (nzchar(default)) {
-    vapply(qs, glue_opp, character(1), text = msg)
+    vapply(qs, glue_opp, character(1), text = default)
   } else {
     # double-up braces to shield them from glue::glue()
     double_braces(message_false(calls))
