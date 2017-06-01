@@ -99,12 +99,16 @@ generate_message <- function(default, qs, calls) {
     vapply(qs, glue_opp, character(1), text = msg)
   } else {
     # double-up braces to shield them from glue::glue()
-    double_braces(sprintf("FALSE: %s", calls))
+    double_braces(message_false(calls))
   }
 }
 
 double_braces <- function(x) {
   gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
+}
+
+message_false <- function(call) {
+  sprintf("FALSE: %s", call)
 }
 
 #' Glue strings, oppositely
