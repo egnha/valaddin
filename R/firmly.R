@@ -131,19 +131,22 @@ glue_opp <- function(q, text) {
   glue::glue(text, .envir = env)
 }
 
-safely_rename <- function(..., avoid) {
-  nms <- list(...)
-  n <- max(unlist(lapply(avoid, function(expr) rapply(as.list(expr), nchar))))
-  filler <- paste(character(n), collapse = "_")
-  setNames(paste(nms, filler, sep = "_"), nms)
+name_predicates <- function(preds, exprs) {
+  paste0(safely_rename("pred", avoid = exprs), seq_along(preds))
 }
 
-name_bind_predicates <- function(preds, nm, env) {
-  names(preds) <- paste0(nm, seq_along(preds))
-  for (n in names(preds)) {
-    assign(n, rlang::eval_tidy(preds[[n]]), envir = env)
+safely_rename <- function(nm, avoid) {
+  n <- max(unlist(lapply(avoid, function(expr) rapply(as.list(expr), nchar))))
+  filler <- paste(character(n), collapse = "_")
+  paste(nm, filler, sep = "_")
+}
+
+bind_predicates <- function(nms, preds) {
+  env <- new.env(parent = emptyenv())
+  for (i in seq_along(nms)) {
+    assign(nms[i], rlang::eval_tidy(preds[[i]]), envir = env)
   }
-  invisible(names(preds))
+  env
 }
 
 express_check <- function(exprs, nm_pred, nm_arg, nm_prom) {
