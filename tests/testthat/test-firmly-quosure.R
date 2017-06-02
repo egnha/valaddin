@@ -1,34 +1,47 @@
 context("Quosure-based firmly")
 
+foo <- function(x, ..., y = 0) invisible(NULL)
+
+errmsg_false <- function(text) {
+  message_false(esc_perl(text))
+}
+errmsg_error <- function(text) {
+  sprintf("Error evaluating check %s", esc_perl(text))
+}
+errmsg_invalid <- function(expr, val) {
+  expr <- esc_perl(expr)
+  val  <- esc_perl(val)
+  sprintf("Predicate value %s not TRUE/FALSE: %s", expr, val)
+}
+
 # Global-scope check ------------------------------------------------------
 context("Global-scope check")
 
-foo <- function(x, ..., y = 0) invisible(NULL)
-
-f <- firmly(foo, is.numeric)
-
 test_that("global check raises no error when all checks pass", {
+  f <- firmly(foo, is.numeric)
   expect_error(f(1), NA)
   expect_error(f(1:3), NA)
 })
 
 test_that("global check raises error for each and every failing check", {
-  expect_n_errors(1, f, list(x = "x"), "FALSE: is.numeric\\(x\\)")
-  expect_n_errors(1, f, list(y = "y"), "FALSE: is.numeric\\(y\\)")
-  expect_n_errors(2, f, list(x = "x", y = "y"), "FALSE: is.numeric")
+  f <- firmly(foo, is.numeric)
+  expect_n_errors(1, f, list(x = "x"), errmsg_false("is.numeric(x)"))
+  expect_n_errors(1, f, list(y = "y"), errmsg_false("is.numeric(y)"))
+  expect_n_errors(2, f, list(x = "x", y = "y"), errmsg_false("is.numeric"))
 })
 
 test_that("global check raises error for checks that fail to evaluate", {
-  expect_error(f(), "Error evaluating check is.numeric\\(x\\)")
-  expect_error(f(y = "y"), "Error evaluating check is.numeric\\(x\\)")
-  expect_error(f(stop("!")), "Error evaluating check is.numeric\\(x\\)")
+  f <- firmly(foo, is.numeric)
+  expect_error(f(), errmsg_error("is.numeric(x)"))
+  expect_error(f(y = "y"), errmsg_error("is.numeric(x)"))
+  expect_error(f(stop("!")), errmsg_error("is.numeric(x)"))
 })
 
 test_that("global check raises error for checks that return non-TRUE/FALSE", {
   f <- firmly(foo, identity)
-  expect_error(f(1), "Predicate value identity\\(x\\) not TRUE/FALSE: 1")
-  expect_error(f(NA), "Predicate value identity\\(x\\) not TRUE/FALSE: NA")
-  expect_error(f(NULL), "Predicate value identity\\(x\\) not TRUE/FALSE: NULL")
+  expect_error(f(1), errmsg_invalid("identity(x)", "1"))
+  expect_error(f(NA), errmsg_invalid("identity(x)", "NA"))
+  expect_error(f(NULL), errmsg_invalid("identity(x)", "NULL"))
 })
 
 # Local-scope check -------------------------------------------------------
