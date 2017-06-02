@@ -213,8 +213,7 @@ validation_closure <- function(f, chks, sig, nms, syms) {
         fail <- !pass
         msg_call  <- encl[["deparse_w_defval"]](call)
         msg_error <- encl[["enumerate_many"]](
-          encl[["problems"]](encl[["chks"]][fail, ], verdict[fail],
-                               ve[[encl[["nm_safe"]][["prom"]]]])
+          encl[["problems"]](encl[["chks"]][fail, ], verdict[fail], venv)
         )
         stop(paste(msg_call, msg_error, sep = "\n"), call. = FALSE)
       }
@@ -228,7 +227,8 @@ problems <- function(chks, verdict, env) {
     if (is_false(x)) {
       error_message(chks$msg[[i]], chks$call[[i]], chks$expr[[i]], env)
     } else if (inherits(x, "error")) {
-      sprintf("Error evaluating check %s: %s", chks$call[[i]], x$message)
+      sprintf("Error evaluating check %s: %s",
+              chks$call[[i]], x$message)
     } else {
       sprintf("Predicate value %s not TRUE/FALSE: %s",
               chks$call[[i]], deparse_collapse(x))
@@ -236,19 +236,24 @@ problems <- function(chks, verdict, env) {
   }, character(1))
 }
 
-error_message <- function(msg, call, q, env, fallback_msg) {
-  env_msg <- new.env(parent = env)
+error_message <- function(msg, call, q, env) {
+  env_msg <- error_env(msg, call, q, env)
   env_msg[["msg"]] <- msg
   tryCatch(
-    {
-      env[["."]] <- eval(rlang::get_expr(q), env)
-      glue::glue(msg, .envir = env_msg)
-    },
+    glue::glue(msg, .envir = env_msg),
     error = function(e) {
-      fallback_msg <- message_false(call)
-      expr <- rlang::get_expr(q)
-      sprintf("%s\n(Error interpolating message %s, with `.` = %s: %s)",
-              fallback_msg, msg, expr, e[["message"]])
+      sprintf("%s\n[Error interpolating message '%s': %s]",
+              message_false(call), msg, conditionMessage(e))
     }
   )
+}
+
+error_env <- function(msg, call, q, env) {
+  parent.env(env) <- rlang::get_env(q)
+  env_msg <- new.env(parent = env)
+  eval(substitute(
+    delayedAssign(".", .expr., env, env_msg),
+    list(.expr. = rlang::get_expr(q))
+  ))
+  env_msg
 }
