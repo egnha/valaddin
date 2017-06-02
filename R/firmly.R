@@ -149,20 +149,13 @@ bind_predicates <- function(nms, preds) {
   env
 }
 
-express_check <- function(exprs, nm_pred, nm_arg, nm_prom) {
-  get_arg <- lapply(nm_arg, function(.)
-    # use get0, instead of `[[`, because get0 raises missing-argument error
-    rlang::expr(get0(UQ(.), envir = UQ(as.name(nm_prom))))
-  )
-  names(get_arg) <- nm_arg
-  lapply(seq_along(exprs), function(i) {
-    expr <- eval(rlang::expr(substitute(UQ(exprs[[i]]), get_arg)))
-    expr <- rlang::expr(UQ(as.name(nm_pred[[i]]))(UQE(expr)))
+express_check <- function(exprs, nms) {
+  lapply(seq_along(exprs), function(i)
     list(
-      expr = expr,
+      expr = rlang::expr(UQ(as.name(nms[[i]]))(UQE(exprs[[i]]))),
       env  = rlang::get_env(exprs[[i]])
     )
-  })
+  )
 }
 
 validation_closure <- function(f, chks, sig, nm_arg) {
