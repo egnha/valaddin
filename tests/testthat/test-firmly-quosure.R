@@ -144,4 +144,98 @@ test_that("predicate function doesn't clash with names in calling frame", {
   expect_error(f("private"), NA)
   expect_error(f("not private"), errmsg_false("is_private(x)"))
 })
+
+# Error messages ----------------------------------------------------------
+
+context("Error messages")
+
+test_that("unnamed global check uses auto-generated error messages", {
+  f <- firmly(foo, is.numeric)
+  expect_error(f(x = "x"), errmsg_false("is.numeric(x)"))
+  expect_error(f(y = "y"), errmsg_false("is.numeric(y)"))
+})
+
+test_that("unnamed local check uses auto-generated error messages", {
+  f <- firmly(foo, is.numeric ~ quos(x, y))
+  expect_error(f(x = "0", y = 1), errmsg_false("is.numeric(x)"))
+  expect_error(f(x = 0, y = "1"), errmsg_false("is.numeric(y)"))
+})
+
+test_that("named global check uses name as error message", {
+  f <- firmly(foo, "Not numeric" = is.numeric)
+  expect_n_errors(1, f, list(x = "0", y = 1), "Not numeric")
+  expect_n_errors(2, f, list(x = "0", y = "1"), "Not numeric")
+})
+
+test_that("named local check uses name as error message", {
+  f <- firmly(foo, "Not numeric" = is.numeric ~ quos(x, y))
+  expect_n_errors(1, f, list(x = "0", y = 1), "Not numeric")
+  expect_n_errors(1, f, list(x = 0, y = "1"), "Not numeric")
+  expect_n_errors(2, f, list(x = "0", y = "1"), "Not numeric")
+})
+
+test_that("name of local expression overrides name of check", {
+  f <- firmly(foo, "Not numeric" = is.numeric ~ quos("local name" = x, y))
+  expect_error(f(x = "0", y = 1), "local name")
+  expect_error(f(x = 0, y = "1"), "Not numeric")
+})
+
+test_that("name of local expression overrides auto-generated error message", {
+  f <- firmly(foo, is.numeric ~ quos("local name" = x, y))
+  expect_error(f(x = "0", y = 1), "local name")
+  expect_error(f(x = 0, y = "1"), errmsg_false("is.numeric(y)"))
+})
+
+test_that("error messages of named global check are dot-interpolated", {
+  f <- local({
+    s_quote <- function(x) encodeString(x, quote = "'")
+    is_scalar <- function(x) length(x) == 1L
+    firmly(
+      foo,
+      "{{s_quote(.)}} is not a scalar (length is {length(.)})" = is_scalar
+    )
+  })
+  expect_error(f(x = 1:3), esc_perl("'x' is not a scalar (length is 3)"))
+  expect_error(f(y = 1:2), esc_perl("'y' is not a scalar (length is 2)"))
+})
+
+test_that("error messages of named local check are dot-interpolated", {
+  f <- local({
+    s_quote <- function(x) encodeString(x, quote = "'")
+    is_scalar <- function(x) length(x) == 1L
+    firmly(
+      foo,
+      "{{s_quote(.)}} is not a scalar (length is {length(.)})" = is_scalar ~
+        quos(x, x - y)
+    )
+  })
+  expect_error(f(x = 1:3), esc_perl("'x' is not a scalar (length is 3)"))
+  expect_error(f(x = 1:2, y = 1:2),
+               esc_perl("'x - y' is not a scalar (length is 2)"))
+})
+
+test_that("error messages of unnamed global check are not dot-interpolated", {
+  f <- firmly(foo, {.})
+  expect_error(f(x = FALSE, y = TRUE), errmsg_false("(function(.) {.})(x)"))
+  expect_error(f(x = TRUE, y = FALSE), errmsg_false("(function(.) {.})(y)"))
+})
+
+test_that("error messages of unnamed local check are not dot-interpolated", {
+  f <- firmly(foo, {.} ~ quos(x))
+  expect_error(f(x = FALSE, y = TRUE), errmsg_false("(function(.) {.})(x)"))
+  expect_error(f(x = TRUE, y = FALSE), NA)
+})
+
+test_that("name of local expression is locally interpolated", {
+  f <- local({
+    a <- "local"
+    firmly(foo, is.numeric ~ quos("x is {x}, a is {a}, y is {y}" = x))
+  })
+  expect_error(f(x = "x", y = 1), "x is x, a is local, y is 1")
+})
+
+test_that("auto-message is used if error message fails to be created", {
+  f <- firmly(foo, "{stop('!')}" = is.numeric ~ x)
+  expect_error(f(x = "x", y = 1), errmsg_false("is.numeric(x)"))
+  expect_error(f(x = "x", y = 1), "Error interpolating message")
 })
