@@ -40,19 +40,19 @@ is_quos <- function(expr) {
 
 parse_check <- function(chk, msg, syms) {
   chk_tidy <- rlang::eval_tidy(chk)
+  env <- rlang::get_env(chk)
   if (is_local(chk_tidy)) {
-    env <- rlang::get_env(chk)
     chk <- rlang::new_quosure(rlang::f_lhs(chk_tidy), env)
     rhs <- rlang::f_rhs(chk_tidy)
     qs <- if (is_quos(rhs)) {
-      rlang::eval_tidy(rhs)
+      rlang::eval_tidy(rlang::new_quosure(rhs, env))
     } else {
       list(rlang::new_quosure(rhs, env))
     }
   } else {
-    qs <- lapply(syms, rlang::new_quosure, env = baseenv())
+    qs <- lapply(syms, rlang::new_quosure, env = env)
   }
-  pred <- lambda(chk)
+  pred <- lambda(chk, env)
   text <- deparse_check(pred, qs, msg)
   validation_df(pred, qs, text)
 }
@@ -71,11 +71,11 @@ validation_df <- function(pred, exprs, text) {
 }
 
 # Variation of rlang::as_function
-lambda <- function(q) {
+lambda <- function(q, env) {
   body <- rlang::get_expr(q)
   if (is_lambda(body)) {
     expr <- call("function", as.pairlist(alist(. = )), body)
-    rlang::new_quosure(expr, rlang::get_env(q))
+    rlang::new_quosure(expr, env)
   } else {
     q
   }
