@@ -135,12 +135,12 @@ safely_rename <- function(..., avoid) {
   setNames(paste(nms, filler, sep = "_"), nms)
 }
 
-bind_predicates <- function(preds, nm, env) {
+name_bind_predicates <- function(preds, nm, env) {
   names(preds) <- paste0(nm, seq_along(preds))
   for (n in names(preds)) {
     assign(n, rlang::eval_tidy(preds[[n]]), envir = env)
   }
-  names(preds)
+  invisible(names(preds))
 }
 
 express_check <- function(exprs, nm_pred, nm_arg, nm_prom) {
@@ -163,7 +163,7 @@ validation_closure <- function(f, chks, sig, nm_arg) {
   nm_safe <- safely_rename("prom", "pred", avoid = chks[["expr"]])
 
   ve <- new.env(parent = emptyenv())
-  nm_pred <- bind_predicates(chks[["pred"]], nm_safe[["pred"]], ve)
+  nm_pred <- name_bind_predicates(chks[["pred"]], nm_safe[["pred"]], ve)
   make_promises <- eval(call("function", sig, quote(environment())))
   new_validation_env <- function(call, env) {
     ve[[nm_safe[["prom"]]]] <- eval(`[[<-`(call, 1L, make_promises), env)
