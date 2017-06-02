@@ -29,7 +29,7 @@ vld <- function(..., checklist = NULL) {
       "rbind",
       Map(function(., ..) parse_check(., .., arg[["sym"]]), chks, msgs)
     )
-    validation_closure(f, chks, sig, arg[["nm"]])
+    validation_closure(f, chks, sig, arg[["nm"]], arg[["sym"]])
   }
 }
 
@@ -168,19 +168,20 @@ express_check <- function(exprs, nms) {
   )
 }
 
-validation_closure <- function(f, chks, sig, nm_arg) {
-  nm_safe <- safely_rename("prom", "pred", avoid = chks[["expr"]])
+validation_closure <- function(f, chks, sig, nms, syms) {
+  force(f)
+  force(nms)
+  force(syms)
 
-  ve <- new.env(parent = emptyenv())
-  nm_pred <- name_bind_predicates(chks[["pred"]], nm_safe[["pred"]], ve)
+  nms_pred <- name_predicates(chks[["pred"]], chks[["expr"]])
+  env_pred <- bind_predicates(nms_pred, chks[["pred"]])
   make_promises <- eval(call("function", sig, quote(environment())))
   new_validation_env <- function(call, env) {
-    ve[[nm_safe[["prom"]]]] <- eval(`[[<-`(call, 1L, make_promises), env)
-    parent.env(ve[[nm_safe[["prom"]]]]) <- environment(f)
-    ve
+    env_prom <- eval(`[[<-`(call, 1L, make_promises), env)
+    parent.env(env_prom) <- environment(f)
+    bind_promises(nms, syms, env_prom, env_pred)
   }
-
-  exprs <- express_check(chks[["expr"]], nm_pred, nm_arg, nm_safe[["prom"]])
+  exprs <- express_check(chks[["expr"]], nms_pred)
 
   # Local bindings to avoid (unlikely) clashes with formal arguments
   enumerate_many <- match.fun("enumerate_many")
@@ -196,14 +197,13 @@ validation_closure <- function(f, chks, sig, nm_arg) {
     function() {
       call <- match.call()
       encl <- parent.env(environment())
-      ve <- encl[["new_validation_env"]](call, parent.frame())
-      # Make version that catches the first error, like stopifnot()
+      venv <- encl[["new_validation_env"]](call, parent.frame())
       verdict <- suppressWarnings(
         lapply(encl[["exprs"]], function(.)
-          tryCatch(
-            eval(.[["expr"]], `parent.env<-`(ve, .[["env"]])),
-            error = identity
-          )
+          tryCatch({
+            parent.env(encl[["env_pred"]]) <- .[["env"]]
+            eval(.[["expr"]], venv)
+          }, error = identity)
         )
       )
       pass <- vapply(verdict, isTRUE, logical(1))
