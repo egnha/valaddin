@@ -118,14 +118,17 @@ message_false <- function(call) {
 #' those in single curly braces are literally interpreted.
 #'
 #' @noRd
-#' @param dot Quosure or expression.
+#' @param q Quosure.
 #' @param text Text to interpolate.
-#' @return Glue object.
+#' @return Glue object, i.e., string of class `glue`.
 #' @examples
-#' glue_opp("The length of {{sQuote(.)}} is {length(.)}.", dot = quote(x))
+#' glue_opp("The length of {{sQuote(.)}} is {length(.)}.", q = rlang::quo(x))
 #' # The length of ‘x’ is {length(.)}.
-glue_opp <- function(text, dot) {
-  glue::glue(relevel_braces(text), . = rlang::quo_text(dot))
+glue_opp <- function(q, text) {
+  env <- new.env(parent = rlang::get_env(q))
+  env[["text"]] <- relevel_braces(text)
+  env[["."]] <- rlang::quo_text(q)
+  glue::glue(text, .envir = env)
 }
 
 safely_rename <- function(..., avoid) {
