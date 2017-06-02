@@ -35,7 +35,7 @@ vld <- function(..., checklist = NULL) {
 
 is_local <- rlang::is_formula
 is_quos <- function(expr) {
-  is.call(expr) && identical(expr[[1]], as.symbol("quos"))
+  is.call(expr) && identical(expr[[1L]], as.symbol("quos"))
 }
 
 parse_check <- function(chk, msg, syms) {
