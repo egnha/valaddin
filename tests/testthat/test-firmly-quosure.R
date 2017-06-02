@@ -50,24 +50,23 @@ context("Local-scope check")
 test_that("local check of a single expression checks the expression", {
   # check of an argument
   f <- firmly(foo, is.numeric ~ x)
-  expect_error(f(1), NA)
   expect_error(f(1, y = stop("!")), NA)
-  expect_error(f("1"), "FALSE: is.numeric\\(x\\)")
+  expect_error(f("1"), errmsg_false("is.numeric(x)"))
 
   # check of an expression of arguments
   is_positive <- function(x) isTRUE(x > 0)
   f <- firmly(foo, is_positive ~ x - y)
   expect_error(f(2), NA)
   expect_error(f(1, y = 0), NA)
-  expect_error(f(1, y = 1), "FALSE: is_positive\\(x - y\\)")
+  expect_error(f(1, y = 1), errmsg_false("is_positive(x - y)"))
 })
 
 test_that("local check of quosures checks the quosure expressions", {
   is_positive <- function(x) isTRUE(x > 0)
   f <- firmly(foo, is_positive ~ quos(x, y, x - y))
   expect_error(f(2, y = 1), NA)
-  expect_error(f(0, y = 1), "FALSE: is_positive\\(x\\)")
-  expect_error(f(0, y = 1), "FALSE: is_positive\\(x - y\\)")
+  expect_error(f(0, y = 1), errmsg_false("is_positive(x)"))
+  expect_error(f(0, y = 1), errmsg_false("is_positive(x - y)"))
 })
 
 # Lambda predicate function -----------------------------------------------
@@ -76,13 +75,13 @@ context("Lambda predicate function")
 test_that("global lambda expression is interpreted as a predicate function", {
   f <- firmly(foo, {. > 0})
   expect_error(f(1, y = 1), NA)
-  expect_error(f(0), "FALSE")
+  expect_error(f(0), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
 })
 
 test_that("local lambda expression is interpreted as predicate function", {
   f <- firmly(foo, {. > 0} ~ x)
-  expect_error(f(1, y = 1), NA)
-  expect_error(f(0), "FALSE: \\(function\\(.\\) \\{. > 0\\}\\)\\(x\\)")
+  expect_error(f(1, y = stop("!")), NA)
+  expect_error(f(0), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
 })
 
 # Unquoting checks --------------------------------------------------------
@@ -97,10 +96,9 @@ test_that("global predicate function is evaluated in environment of check", {
     is_private <- function(.) identical(., private)
     firmly(function(x) NULL, is_private)
   })
-  # this should be ignored
-  private <- "not private"
+  private <- "not private"  # should be ignored by f
   expect_error(f("private"), NA)
-  expect_error(f(0), "FALSE: is_private\\(x\\)")
+  expect_error(f(0), errmsg_false("is_private(x)"))
 })
 
 test_that("local predicate function is evaluated in environment of check", {
@@ -109,21 +107,21 @@ test_that("local predicate function is evaluated in environment of check", {
     is_private <- function(.) identical(., private)
     firmly(function(x) NULL, is_private ~ x)
   })
-  # this should be ignored
-  private <- "not private"
+  private <- "not private"  # should be ignored by f
   expect_error(f("private"), NA)
-  expect_error(f(0), "FALSE: is_private\\(x\\)")
+  expect_error(f("not private"), errmsg_false("is_private(x)"))
 })
 
-test_that("input validation check is evaluated in environment of check", {
+test_that("input validation is evaluated in environment of check", {
   f <- local({
     private <- "private"
-    firmly(function(x) NULL, isTRUE ~ identical(x, private))
+    predicate <- base::identical
+    firmly(function(x) NULL, isTRUE ~ predicate(x, private))
   })
-  # this should be ignored
-  private <- "not private"
+  private <- "not private"         # private and predicate
+  predicate <- function(...) TRUE  # should be ignored by f
   expect_error(f("private"), NA)
-  expect_error(f("not private"), "FALSE: isTRUE\\(identical\\(x, private\\)\\)")
+  expect_error(f("not private"), errmsg_false("isTRUE(predicate(x, private))"))
 })
 
 test_that("check expression doesn't clash with names in calling frame", {
@@ -131,10 +129,9 @@ test_that("check expression doesn't clash with names in calling frame", {
     private <- "private"
     firmly(function(x) NULL, isTRUE ~ identical(x, private))
   })
-  # this should be ignored
-  private <- "not private"
+  private <- "not private"  # should be ignored by f
   expect_error(f("private"), NA)
-  expect_error(f(private), "FALSE: isTRUE\\(identical\\(x, private\\)\\)")
+  expect_error(f(private), errmsg_false("isTRUE(identical(x, private))"))
 })
 
 test_that("predicate function doesn't clash with names in calling frame", {
@@ -143,7 +140,8 @@ test_that("predicate function doesn't clash with names in calling frame", {
     is_private <- function(.) identical(., private)
     firmly(function(x) NULL, is_private ~ x)
   })
-  is_private <- function(...) FALSE
+  is_private <- function(...) FALSE  # should be ignored by f
   expect_error(f("private"), NA)
-  expect_error(f("not private"), "FALSE: is_private\\(x\\)")
+  expect_error(f("not private"), errmsg_false("is_private(x)"))
+})
 })
