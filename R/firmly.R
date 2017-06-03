@@ -243,8 +243,7 @@ problems <- function(chks, verdict, env) {
 }
 
 error_message <- function(msg, call, q, env) {
-  env_msg <- error_env(msg, call, q, env)
-  env_msg[["msg"]] <- msg
+  env_msg <- error_msg_env(msg, q, env)
   tryCatch(
     glue::glue(msg, .envir = env_msg),
     error = function(e) {
@@ -254,12 +253,14 @@ error_message <- function(msg, call, q, env) {
   )
 }
 
-error_env <- function(msg, call, q, env) {
-  parent.env(env) <- rlang::get_env(q)
-  env_msg <- new.env(parent = env)
+error_msg_env <- function(msg, q, env) {
+  env_dot <- new.env(parent = rlang::get_env(q))
   eval(substitute(
-    delayedAssign(".", .expr., env, env_msg),
-    list(.expr. = rlang::get_expr(q))
+    delayedAssign(".", .expr., env, env_dot),
+    list(.expr. = rlang::quo_expr(q))
   ))
+  parent.env(env) <- env_dot
+  env_msg <- new.env(parent = env)
+  env_msg[["msg"]] <- msg
   env_msg
 }
