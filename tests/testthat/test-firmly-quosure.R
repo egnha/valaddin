@@ -129,6 +129,20 @@ test_that("local-check predicate can be unquoted", {
                errmsg_false("(function(x) x > z)(y)"), perl = TRUE)
 })
 
+test_that("local check expressions can be unquoted", {
+  q <- local({
+    one <- 1
+    rlang::quo(y - one)
+  })
+  two <- 2
+  f <- firmly(foo, {. > 0} ~ quos(x - !!two, !!q))
+  expect_error(f(x = 3, y = 2), NA)
+  expect_error(f(x = 2, y = 1),
+               errmsg_false("(function(.) {. > 0})(x - 2)"), perl = TRUE)
+  expect_error(f(x = 2, y = 1),
+               errmsg_false("(function(.) {. > 0})(y - one)"), perl = TRUE)
+})
+
 # Tidy evaluation of checks -----------------------------------------------
 context("Tidy evaluation of checks")
 
