@@ -143,6 +143,20 @@ test_that("local check expressions can be unquoted", {
                errmsg_false("(function(.) {. > 0})(y - one)"), perl = TRUE)
 })
 
+test_that("error message for global check can be unquoted", {
+  msg <- "'{{.}}' is not numeric: {.}"
+  f <- firmly(foo, !!msg := is.numeric)
+  expect_error(f(x = 0, y = 1), NA)
+  expect_error(f(x = "text", y = 1), "'x' is not numeric: text")
+})
+
+test_that("error message for local check can be unquoted", {
+  msg <- "'x' is not numeric: {x}"
+  f <- firmly(foo, is.numeric ~ quos(!!msg := x))
+  expect_error(f(x = 0, y = 1), NA)
+  expect_error(f(x = "text", y = 1), "'x' is not numeric: text")
+})
+
 # Tidy evaluation of checks -----------------------------------------------
 context("Tidy evaluation of checks")
 
