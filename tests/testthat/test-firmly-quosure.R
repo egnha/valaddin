@@ -98,11 +98,14 @@ test_that("global-check predicate can be unquoted", {
     z <- 0
     rlang::quo({. > z})
   })
-  f <- firmly(foo, !! predicate1, !! predicate2)
+  zero <- 0
+  f <- firmly(foo, !! predicate1, !! predicate2, {. > !!zero})
   expect_error(f(x = 1, y = 1), NA)
   expect_error(f(x = 0, y = 1), errmsg_false("(function(x) x > z)(x)"),
                perl = TRUE)
   expect_error(f(x = 0, y = 1), errmsg_false("(function(.) {. > z})(x)"),
+               perl = TRUE)
+  expect_error(f(x = 0, y = 1), errmsg_false("(function(.) {. > 0})(x)"),
                perl = TRUE)
 })
 
@@ -115,10 +118,15 @@ test_that("local-check predicate can be unquoted", {
     z <- 0
     rlang::quo((function(x) x > z))
   })
-  f <- firmly(foo, UQ(predicate1) ~ x, UQ(predicate2) ~ y)
+  zero <- 0
+  f <- firmly(foo, UQ(predicate1) ~ x, {. > !!zero} ~ x, UQ(predicate2) ~ y)
   expect_error(f(x = 1, y = 1), NA)
-  expect_error(f(x = 0, y = 0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
-  expect_error(f(x = 0, y = 0), errmsg_false("(function(x) x > z)(y)"), perl = TRUE)
+  expect_error(f(x = 0, y = 0),
+               errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
+  expect_error(f(x = 0, y = 0),
+               errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
+  expect_error(f(x = 0, y = 0),
+               errmsg_false("(function(x) x > z)(y)"), perl = TRUE)
 })
 
 # Tidy evaluation of checks -----------------------------------------------
