@@ -73,15 +73,17 @@ test_that("local check of quosures checks the quosure expressions", {
 context("Lambda predicate function")
 
 test_that("global lambda expression is interpreted as a predicate function", {
-  f <- firmly(foo, {. > 0})
+  z <- 0
+  f <- firmly(foo, {. > z})
   expect_error(f(1, y = 1), NA)
-  expect_error(f(0), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
+  expect_error(f(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
 })
 
 test_that("local lambda expression is interpreted as predicate function", {
-  f <- firmly(foo, {. > 0} ~ x)
+  z <- 0
+  f <- firmly(foo, {. > z} ~ x)
   expect_error(f(1, y = stop("!")), NA)
-  expect_error(f(0), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
+  expect_error(f(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
 })
 
 # Unquoting checks --------------------------------------------------------
