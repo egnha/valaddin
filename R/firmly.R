@@ -33,25 +33,25 @@ vld <- function(..., checklist = NULL) {
   }
 }
 
-is_local <- function(x) {
-  tryCatch(rlang::is_formula(x), error = function(e) FALSE)
+try_predicate <- function(p) {
+  force(p)
+  function(x) p(tryCatch(x, error = function(e) NULL))
 }
-is_quos <- function(expr) {
-  is.call(expr) && identical(expr[[1L]], as.symbol("quos"))
-}
+is_local <- try_predicate(rlang::is_formula)
+is_quos  <- try_predicate(rlang::is_quosures)
 
 parse_check <- function(chk, msg, syms) {
   env <- rlang::get_env(chk)
-  if (is_local(chk_val <- rlang::eval_tidy(chk))) {
-    lhs <- rlang::f_lhs(chk_val)
+  if (is_local(chk_eval <- rlang::eval_tidy(chk, env = env))) {
+    lhs <- rlang::f_lhs(chk_eval)
     if (rlang::is_quosure(lhs)) {
-      chk <- rlang::new_quosure(rlang::quo_expr(lhs), rlang::get_env(lhs))
+      chk <- lhs
     } else {
       chk <- rlang::new_quosure(rlang::quo_expr(lhs), env)
     }
-    rhs <- rlang::quo_expr(rlang::f_rhs(chk_val))
-    qs <- if (is_quos(rhs)) {
-      rlang::eval_tidy(rlang::new_quosure(rhs, env))
+    rhs <- rlang::f_rhs(chk_eval)
+    qs <- if (is_quos(rhs_eval <- rlang::eval_tidy(rhs, env = env))) {
+      rhs_eval
     } else {
       list(rlang::new_quosure(rhs, env))
     }
