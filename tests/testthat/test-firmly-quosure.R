@@ -277,9 +277,9 @@ test_that("error messages of named global check are dot-interpolated", {
 })
 
 test_that("dot in global check message always stands for current argument", {
-  f <- firmly(function(x, .) NULL, "literal: {{.}}, value: {.}" = isTRUE)
-  expect_error(f(TRUE, "dot"), "literal: ., value: dot")
-  expect_error(f("x", TRUE), "literal: x, value: x")
+  f <- firmly(function(x, .) NULL, "literal: {{.}}; value: {.}" = isTRUE)
+  expect_error(f(TRUE, "dot-value"), "literal: .; value: dot-value")
+  expect_error(f("x-value", TRUE), "literal: x; value: x-value")
 })
 
 test_that("dot in local check message does not stand for current argument", {
