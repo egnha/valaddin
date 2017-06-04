@@ -47,21 +47,19 @@ test_that("global check raises error for checks that return non-TRUE/FALSE", {
 # Local-scope check -------------------------------------------------------
 context("Local-scope check")
 
-test_that("local check of a single expression checks the expression", {
-  # check of an argument
-  f <- firmly(foo, is.numeric ~ x)
-  expect_error(f(1, y = stop("!")), NA)
-  expect_error(f("1"), errmsg_false("is.numeric(x)"))
+test_that("check formula with non-quosure RHS checks whole RHS expression", {
+  # check of a bare argument
+  f <- firmly(foo, isTRUE ~ x)
+  expect_error(f(TRUE, y = stop("!")), NA)
+  expect_error(f(FALSE), errmsg_false("isTRUE(x)"))
 
   # check of an expression of arguments
-  is_positive <- function(x) isTRUE(x > 0)
-  f <- firmly(foo, is_positive ~ x - y)
-  expect_error(f(2), NA)
-  expect_error(f(1, y = 0), NA)
-  expect_error(f(1, y = 1), errmsg_false("is_positive(x - y)"))
+  f <- firmly(foo, isTRUE ~ length(x) == 1L)
+  expect_error(f(1, y = stop("!")), NA)
+  expect_error(f(1:2), errmsg_false("isTRUE(length(x) == 1L)"))
 })
 
-test_that("local check of quosures checks the quosure expressions", {
+test_that("check formula with quosures RHS checks contained expressions", {
   is_positive <- function(x) isTRUE(x > 0)
   f <- firmly(foo, is_positive ~ quos(x, y, x - y))
   expect_error(f(2, y = 1), NA)
