@@ -216,7 +216,6 @@ test_that("predicate function doesn't clash with names in calling frame", {
 })
 
 # Error messages ----------------------------------------------------------
-
 context("Error messages")
 
 test_that("unnamed global check uses auto-generated error messages", {
@@ -254,6 +253,12 @@ test_that("name of local expression overrides auto-generated error message", {
   f <- firmly(foo, is.numeric ~ quos("local name" = x, y))
   expect_error(f(x = "0", y = 1), "local name")
   expect_error(f(x = 0, y = "1"), errmsg_false("is.numeric(y)"))
+})
+
+test_that("auto-message is used if error message fails to be created", {
+  f <- firmly(foo, "{stop('!')}" = is.numeric ~ x)
+  expect_error(f(x = "x", y = 1), errmsg_false("is.numeric(x)"))
+  expect_error(f(x = "x", y = 1), "Error interpolating message")
 })
 
 test_that("error messages of named global check are dot-interpolated", {
@@ -302,10 +307,4 @@ test_that("name of local expression is locally interpolated", {
     firmly(foo, is.numeric ~ quos("x is {x}, a is {a}, y is {y}" = x))
   })
   expect_error(f(x = "x", y = 1), "x is x, a is local, y is 1")
-})
-
-test_that("auto-message is used if error message fails to be created", {
-  f <- firmly(foo, "{stop('!')}" = is.numeric ~ x)
-  expect_error(f(x = "x", y = 1), errmsg_false("is.numeric(x)"))
-  expect_error(f(x = "x", y = 1), "Error interpolating message")
 })
