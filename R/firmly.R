@@ -3,8 +3,8 @@
 rlang::quos
 
 #' @export
-firmly <- function(f, ..., checklist = NULL) {
-  vld(..., checklist = checklist)(f)
+firmly <- function(f, ..., checklist = list(), error_class = character()) {
+  vld(..., checklist = checklist, error_class = error_class)(f)
 }
 
 #' @export
@@ -19,7 +19,8 @@ nomen <- function(sig) {
 }
 
 #' @export
-vld <- function(..., checklist = NULL) {
+vld <- function(..., checklist = list(), error_class = character()) {
+  force(error_class)
   chks <- c(rlang::quos(...), checklist)
   function(f) {
     sig <- formals(f)
@@ -30,7 +31,8 @@ vld <- function(..., checklist = NULL) {
       Map(function(., ..) parse_check(., .., arg[["sym"]]), chks, msgs)
     )
     chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
-    validation_closure(f, chks, sig, arg[["nm"]], arg[["sym"]])
+    error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
+    validation_closure(f, chks, sig, arg[["nm"]], arg[["sym"]], error_class)
   }
 }
 
@@ -191,7 +193,7 @@ express_check <- function(exprs, nms) {
   )
 }
 
-validation_closure <- function(f, chks, sig, nms, syms) {
+validation_closure <- function(f, chks, sig, nms, syms, error_class) {
   force(f)
   force(nms)
   force(syms)
@@ -205,10 +207,20 @@ validation_closure <- function(f, chks, sig, nms, syms) {
     bind_promises(nms, syms, env_prom, env_pred)
   }
   exprs <- express_check(chks[["expr"]], nms_pred)
-
-  # Local bindings to avoid (unlikely) clashes with formal arguments
-  enumerate_many <- match.fun("enumerate_many")
-  problems <- match.fun("problems")
+  error <- function(call, verdict, fail, env) {
+    err_call <- deparse_w_defval(call)
+    err_msgs <- problems(chks[fail, ], verdict[fail], env)
+    structure(
+      list(
+        message    = paste(err_call, enumerate_many(err_msgs), sep = "\n"),
+        call       = NULL,
+        match_call = call,
+        error_call = chks[fail, ][["call"]],
+        error_msgs = err_msgs
+      ),
+      class = c(error_class, "error", "condition")
+    )
+  }
   deparse_w_defval <- function(call) {
     sig[names(call[-1L])] <- call[-1L]
     sig <- sig[!vapply(sig, identical, logical(1), quote(expr = ))]
@@ -233,12 +245,7 @@ validation_closure <- function(f, chks, sig, nms, syms) {
       if (all(pass)) {
         eval(`[[<-`(call, 1L, encl[["f"]]), parent.frame())
       } else {
-        fail <- !pass
-        msg_call  <- encl[["deparse_w_defval"]](call)
-        msg_error <- encl[["enumerate_many"]](
-          encl[["problems"]](encl[["chks"]][fail, ], verdict[fail], venv)
-        )
-        stop(paste(msg_call, msg_error, sep = "\n"), call. = FALSE)
+        stop(encl[["error"]](call, verdict, !pass, venv))
       }
     }
   )
