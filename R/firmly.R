@@ -149,7 +149,9 @@ glue_opp <- function(q, text, env) {
 
   # substitute string into call to avoid binding string to env,
   # which could clash with a name in an environment higher up
-  eval(bquote(glue::glue(.(relevel_braces(text)), .envir = env_dot)))
+  eval(bquote(glue::glue(.(relevel_braces(text)), .envir = env_dot))) %||%
+    # work-around bug in glue 0.1.0 (get character(0) for certain strings)
+    ""
 }
 
 name_predicates <- function(preds, exprs) {
@@ -263,7 +265,9 @@ error_message <- function(msg, is_gen, call, q, env) {
   tryCatch(
     # substitute string into call to avoid binding string to env,
     # which could clash with a name in an environment higher up
-    eval(bquote(glue::glue(.(msg), .envir = env_dot))),
+    eval(bquote(glue::glue(.(msg), .envir = env_dot))) %||%
+      # work-around bug in glue 0.1.0 (get character(0) for certain strings)
+      "",
     error = function(e) {
       sprintf("%s\n[Error interpolating message '%s': %s]",
               message_false(call), msg, conditionMessage(e))
