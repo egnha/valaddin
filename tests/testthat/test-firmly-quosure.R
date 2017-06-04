@@ -261,6 +261,8 @@ test_that("auto-message is used if error message fails to be created", {
   expect_error(f(x = "x", y = 1), "Error interpolating message")
 })
 
+context("String-interpolation of error messages")
+
 test_that("error messages of named global check are dot-interpolated", {
   f <- local({
     s_quote <- function(x) encodeString(x, quote = "'")
@@ -272,6 +274,20 @@ test_that("error messages of named global check are dot-interpolated", {
   })
   expect_error(f(x = 1:3), esc_perl("'x' is not a scalar (length is 3)"))
   expect_error(f(y = 1:2), esc_perl("'y' is not a scalar (length is 2)"))
+})
+
+test_that("dot in global check message always stands for current argument", {
+  f <- firmly(function(x, .) NULL, "literal: {{.}}, value: {.}" = isTRUE)
+  expect_error(f(TRUE, "dot"), "literal: ., value: dot")
+  expect_error(f("x", TRUE), "literal: x, value: x")
+})
+
+test_that("dot in local check message does not stand for current argument", {
+  f <- firmly(function(x, .) NULL,
+              "literal: {{.}}, value: {.}" = isTRUE ~
+                quos("x: {x}, dot: {.}" = x, .))
+  expect_error(f(TRUE, "dot"), "literal: ., value: dot")
+  expect_error(f("x", TRUE), "x: x, dot: TRUE")
 })
 
 test_that("error messages of named local check are dot-interpolated", {
