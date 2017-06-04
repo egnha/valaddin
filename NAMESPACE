@@ -3,7 +3,6 @@
 S3method(print,check_maker)
 export("%checkin%")
 export("%checkout%")
-export(firm_args)
 export(firm_checks)
 export(firm_core)
 export(firm_error)
