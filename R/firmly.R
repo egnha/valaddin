@@ -29,6 +29,7 @@ vld <- function(..., checklist = NULL) {
       "rbind",
       Map(function(., ..) parse_check(., .., arg[["sym"]]), chks, msgs)
     )
+    chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
     validation_closure(f, chks, sig, arg[["nm"]], arg[["sym"]])
   }
 }
