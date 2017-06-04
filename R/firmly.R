@@ -160,9 +160,8 @@ bind_predicates <- function(nms, preds) {
 bind_promises <- function(nms, exprs, env_eval, parent) {
   env_assign <- new.env(parent = parent)
   for (i in seq_along(nms))
-    eval(substitute(
-      delayedAssign(.nm., .expr., env_eval, env_assign),
-      list(.nm. = nms[[i]], .expr. = exprs[[i]])
+    eval(bquote(
+      delayedAssign(.(nms[[i]]), .(exprs[[i]]), env_eval, env_assign)
     ))
   env_assign
 }
