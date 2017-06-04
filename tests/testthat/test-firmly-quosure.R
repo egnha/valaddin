@@ -155,7 +155,7 @@ test_that("global predicate function is evaluated in environment of check", {
   expect_error(f(0), errmsg_false("is_private(x)"))
 })
 
-test_that("local predicate function is evaluated in environment of check", {
+test_that("local-check predicate is evaluated in environment of check", {
   f <- local({
     private <- "private"
     is_private <- function(.) identical(., private)
@@ -178,7 +178,7 @@ test_that("input validation is evaluated in environment of check item", {
   expect_error(f("not private"), errmsg_false("isTRUE(predicate(x, private))"))
 })
 
-test_that("check expression doesn't clash with names in calling frame", {
+test_that("check-item names don't clash with names in calling frame", {
   f <- local({
     private <- "private"
     firmly(function(x) NULL, isTRUE ~ identical(x, private))
