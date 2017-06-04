@@ -74,10 +74,11 @@ quo_check_items <- function(f, env) {
 validation_df <- function(pred, exprs, text) {
   n <- length(exprs)
   d <- list(
-    pred = `[<-`(vector("list", n), list(pred)),
-    expr = exprs,
-    call = text$call,
-    msg  = text$msg
+    pred   = `[<-`(vector("list", n), list(pred)),
+    expr   = exprs,
+    call   = text$call,
+    msg    = text$msg,
+    is_gen = text$is_gen
   )
   class(d) <- "data.frame"
   attr(d, "row.names") <- .set_row_names(n)
@@ -100,7 +101,7 @@ deparse_check <- function(pred, qs, default) {
   msgs <- names(qs) %||% character(length(qs))
   not_named <- !nzchar(msgs)
   msgs[not_named] <- generate_message(default, qs[not_named], calls[not_named])
-  list(call = calls, msg = msgs)
+  list(call = calls, msg = msgs, is_gen = not_named)
 }
 
 deparse_call <- function(q, arg) {
@@ -240,7 +241,8 @@ problems <- function(chks, verdict, env) {
   vapply(seq_along(verdict), function(i) {
     x <- verdict[[i]]
     if (is_false(x)) {
-      error_message(chks$msg[[i]], chks$call[[i]], chks$expr[[i]], env)
+      error_message(chks$msg[[i]], chks$is_gen[[i]], chks$call[[i]],
+                    chks$expr[[i]], env)
     } else if (inherits(x, "error")) {
       sprintf("Error evaluating check %s: %s",
               chks$call[[i]], x$message)
@@ -251,8 +253,9 @@ problems <- function(chks, verdict, env) {
   }, character(1))
 }
 
-error_message <- function(msg, call, q, env) {
-  env_dot <- bind_as_dot(q, env)
+error_message <- function(msg, is_gen, call, q, env) {
+  parent.env(env) <- rlang::get_env(q)
+  env_dot <- if (is_gen) bind_dot_as(q, env) else env
   tryCatch(
     # substitute string into call to avoid binding string to env,
     # which could clash with a name in an environment higher up
@@ -264,8 +267,7 @@ error_message <- function(msg, call, q, env) {
   )
 }
 
-bind_as_dot <- function(q, env) {
-  parent.env(env) <- rlang::get_env(q)
+bind_dot_as <- function(q, env) {
   env_dot <- new.env(parent = env)
   eval(bquote(delayedAssign(".", .(rlang::quo_expr(q)), env, env_dot)))
   env_dot
