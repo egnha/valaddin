@@ -327,10 +327,11 @@ test_that("error messages of unnamed local check are not dot-interpolated", {
   expect_error(f(x = TRUE, y = FALSE), NA)
 })
 
-test_that("name of local expression is locally interpolated", {
-  f <- local({
+test_that("name of check item is interpolated in check-item scope", {
+  chk <- local({
     a <- "local"
-    firmly(foo, is.numeric ~ quos("x is {x}, a is {a}, y is {y}" = x))
+    rlang::quos("x is {x}, a is {a}, y is {y}" = x)
   })
+  f <- firmly(foo, isTRUE ~ !! chk)
   expect_error(f(x = "x", y = 1), "x is x, a is local, y is 1")
 })
