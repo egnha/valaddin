@@ -43,24 +43,32 @@ is_quos  <- try_predicate(rlang::is_quosures)
 parse_check <- function(chk, msg, syms) {
   env <- rlang::get_env(chk)
   if (is_local(chk_eval <- rlang::eval_tidy(chk, env = env))) {
-    lhs <- rlang::f_lhs(chk_eval)
-    if (rlang::is_quosure(lhs)) {
-      chk <- lhs
-    } else {
-      chk <- rlang::new_quosure(rlang::quo_expr(lhs), env)
-    }
-    rhs <- rlang::f_rhs(chk_eval)
-    qs <- if (is_quos(rhs_eval <- rlang::eval_tidy(rhs, env = env))) {
-      rhs_eval
-    } else {
-      list(rlang::new_quosure(rhs, env))
-    }
+    chk <- quo_predicate(chk_eval, env)
+    qs <- quo_check_items(chk_eval, env)
   } else {
     qs <- lapply(syms, rlang::new_quosure, env = env)
   }
   pred <- lambda(chk)
   text <- deparse_check(pred, qs, msg)
   validation_df(pred, qs, text)
+}
+
+quo_predicate <- function(f, env) {
+  lhs <- rlang::f_lhs(f)
+  if (rlang::is_quosure(lhs)) {
+    lhs
+  } else {
+    rlang::new_quosure(rlang::quo_expr(lhs), env)
+  }
+}
+
+quo_check_items <- function(f, env) {
+  rhs <- rlang::f_rhs(f)
+  if (is_quos(rhs_eval <- rlang::eval_tidy(rhs, env = env))) {
+    rhs_eval
+  } else {
+    list(rlang::new_quosure(rhs, env))
+  }
 }
 
 validation_df <- function(pred, exprs, text) {
