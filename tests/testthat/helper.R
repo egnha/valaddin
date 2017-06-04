@@ -1,6 +1,18 @@
 library(stringr, warn.conflicts = FALSE)
 library(purrr, warn.conflicts = FALSE)
 
+errmsg_false <- function(text) {
+  message_false(esc_perl(text))
+}
+errmsg_error <- function(text) {
+  sprintf("Error evaluating check %s", esc_perl(text))
+}
+errmsg_invalid <- function(expr, val) {
+  expr <- esc_perl(expr)
+  val  <- esc_perl(val)
+  sprintf("Predicate value %s not TRUE/FALSE: %s", expr, val)
+}
+
 noneval_checks <- list(
   x ~ is.numeric,
   log(x) ~ is.numeric,
