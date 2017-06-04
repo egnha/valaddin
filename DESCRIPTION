@@ -37,3 +37,4 @@ Collate:
     'checkers.R'
     'valaddin.R'
 RoxygenNote: 6.0.1
+Roxygen: list(markdown = TRUE)
