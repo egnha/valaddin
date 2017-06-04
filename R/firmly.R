@@ -132,9 +132,11 @@ message_false <- function(call) {
 #' # The length of ‘x’ is {length(.)}.
 glue_opp <- function(q, text) {
   env <- new.env(parent = rlang::get_env(q))
-  env[["text"]] <- relevel_braces(text)
   env[["."]] <- rlang::quo_text(q)
-  glue::glue(text, .envir = env)
+
+  # substitute string into call to avoid binding string to env,
+  # which could clash with a name in an environment higher up
+  eval(bquote(glue::glue(.(relevel_braces(text)), .envir = env)))
 }
 
 name_predicates <- function(preds, exprs) {
@@ -243,9 +245,11 @@ problems <- function(chks, verdict, env) {
 }
 
 error_message <- function(msg, call, q, env) {
-  env_msg <- error_msg_env(msg, q, env)
+  env_dot <- bind_as_dot(q, env)
   tryCatch(
-    glue::glue(msg, .envir = env_msg),
+    # substitute string into call to avoid binding string to env,
+    # which could clash with a name in an environment higher up
+    eval(bquote(glue::glue(.(msg), .envir = env_dot))),
     error = function(e) {
       sprintf("%s\n[Error interpolating message '%s': %s]",
               message_false(call), msg, conditionMessage(e))
@@ -253,14 +257,9 @@ error_message <- function(msg, call, q, env) {
   )
 }
 
-error_msg_env <- function(msg, q, env) {
-  env_dot <- new.env(parent = rlang::get_env(q))
-  eval(substitute(
-    delayedAssign(".", .expr., env, env_dot),
-    list(.expr. = rlang::quo_expr(q))
-  ))
-  parent.env(env) <- env_dot
-  env_msg <- new.env(parent = env)
-  env_msg[["msg"]] <- msg
-  env_msg
+bind_as_dot <- function(q, env) {
+  parent.env(env) <- rlang::get_env(q)
+  env_dot <- new.env(parent = env)
+  eval(bquote(delayedAssign(".", .(rlang::quo_expr(q)), env, env_dot)))
+  env_dot
 }
