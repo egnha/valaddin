@@ -261,7 +261,7 @@ problems <- function(chks, verdict, env) {
 
 error_message <- function(msg, is_gen, call, q, env) {
   parent.env(env) <- rlang::get_env(q)
-  env_dot <- if (is_gen) bind_dot_as(q, env) else env
+  env_dot <- if (is_gen) bind_as_dot(q, env) else env
   tryCatch(
     # substitute string into call to avoid binding string to env,
     # which could clash with a name in an environment higher up
@@ -275,7 +275,7 @@ error_message <- function(msg, is_gen, call, q, env) {
   )
 }
 
-bind_dot_as <- function(q, env) {
+bind_as_dot <- function(q, env) {
   env_dot <- new.env(parent = env)
   eval(bquote(delayedAssign(".", .(rlang::quo_expr(q)), env, env_dot)))
   env_dot
