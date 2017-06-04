@@ -49,7 +49,7 @@ parse_check <- function(chk, msg, syms) {
     qs <- lapply(syms, rlang::new_quosure, env = env)
   }
   pred <- lambda(chk)
-  text <- deparse_check(pred, qs, msg)
+  text <- deparse_check(pred, qs, msg, env)
   validation_df(pred, qs, text)
 }
 
@@ -96,11 +96,12 @@ lambda <- function(q) {
   }
 }
 
-deparse_check <- function(pred, qs, default) {
+deparse_check <- function(pred, qs, default, env) {
   calls <- vapply(qs, deparse_call, character(1), q = pred)
   msgs <- names(qs) %||% character(length(qs))
   not_named <- !nzchar(msgs)
-  msgs[not_named] <- generate_message(default, qs[not_named], calls[not_named])
+  msgs[not_named] <- generate_message(default, env,
+                                      qs[not_named], calls[not_named])
   list(call = calls, msg = msgs, is_gen = not_named)
 }
 
@@ -109,9 +110,9 @@ deparse_call <- function(q, arg) {
   deparse_collapse(call)
 }
 
-generate_message <- function(default, qs, calls) {
+generate_message <- function(default, env, qs, calls) {
   if (nzchar(default)) {
-    vapply(qs, glue_opp, character(1), text = default)
+    vapply(qs, glue_opp, character(1), text = default, env = env)
   } else {
     # double-up braces to shield them from glue::glue()
     double_braces(message_false(calls))
@@ -139,13 +140,13 @@ message_false <- function(call) {
 #' @examples
 #' glue_opp("The length of {{sQuote(.)}} is {length(.)}.", q = rlang::quo(x))
 #' # The length of ‘x’ is {length(.)}.
-glue_opp <- function(q, text) {
-  env <- new.env(parent = rlang::get_env(q))
-  env[["."]] <- rlang::quo_text(q)
+glue_opp <- function(q, text, env) {
+  env_dot <- new.env(parent = env)
+  env_dot[["."]] <- rlang::quo_text(q)
 
   # substitute string into call to avoid binding string to env,
   # which could clash with a name in an environment higher up
-  eval(bquote(glue::glue(.(relevel_braces(text)), .envir = env)))
+  eval(bquote(glue::glue(.(relevel_braces(text)), .envir = env_dot)))
 }
 
 name_predicates <- function(preds, exprs) {
