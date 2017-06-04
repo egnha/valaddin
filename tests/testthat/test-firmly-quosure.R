@@ -290,6 +290,16 @@ test_that("dot in local check message does not stand for current argument", {
   expect_error(f("x", TRUE), "x: x, dot: TRUE")
 })
 
+test_that("generated error message is interpolated in check environment", {
+  chk <- local({
+    bar <- function(x) sprintf("local text: %s", x)
+    rlang::quos("{{bar(.)}}; value: {.}" = isTRUE)
+  })
+  bar <- function(x) "this should not have been called"
+  f <- firmly(function(x) NULL, checklist = chk)
+  expect_error(f("not true"), "local text: x; value: not true")
+})
+
 test_that("error messages of named local check are dot-interpolated", {
   f <- local({
     s_quote <- function(x) encodeString(x, quote = "'")
