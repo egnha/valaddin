@@ -19,8 +19,8 @@ context("Global-scope check")
 
 test_that("global check raises no error when all checks pass", {
   f <- firmly(foo, is.numeric)
-  expect_error(f(1), NA)
-  expect_error(f(1:3), NA)
+  expect_error(f(1, y = 1:3), NA)
+  expect_error(f(1:3, y = 1), NA)
 })
 
 test_that("global check raises error for each and every failing check", {
