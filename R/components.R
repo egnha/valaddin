@@ -16,7 +16,7 @@
 #'     \item \code{firm_core} returns a function.
 #'     \item \code{firm_checks} returns a data frame with components \code{pred}
 #'       (quosure), \code{expr} (quosure), \code{call} (character), \code{msg}
-#'       (character), \code{is_gen} (logical).
+#'       (character), \code{dot_as_expr} (logical).
 #'     \item \code{firm_error} returns a character vector.
 #'   }
 #'   In the absence of the component to be extracted, these functions return

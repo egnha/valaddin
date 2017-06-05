@@ -93,32 +93,29 @@ validation_closure <- function(f, chks, sig, nms, syms, error_class) {
 
 problems <- function(chks, verdict, env) {
   vapply(seq_along(verdict), function(i) {
-    x <- verdict[[i]]
-    if (is_false(x)) {
-      error_message(chks$msg[[i]], chks$is_gen[[i]], chks$call[[i]],
-                    chks$expr[[i]], env)
-    } else if (inherits(x, "error")) {
-      sprintf("Error evaluating check %s: %s",
-              chks$call[[i]], x$message)
+    out <- verdict[[i]]
+    if (is_false(out)) {
+      err_invalid_input(chks[i, ], env)
+    } else if (inherits(out, "error")) {
+      err_eval_error(chks$call[[i]], out)
     } else {
-      sprintf("Predicate value %s not TRUE/FALSE: %s",
-              chks$call[[i]], deparse_collapse(x))
+      err_invalid_value(chks$call[[i]], out)
     }
   }, character(1))
 }
 
-error_message <- function(msg, is_gen, call, q, env) {
-  parent.env(env) <- rlang::get_env(q)
-  env_dot <- if (is_gen) bind_as_dot(q, env) else env
+err_invalid_input <- function(., env) {
+  parent.env(env) <- rlang::get_env(.$expr[[1]])
+  env_dot <- if (.$dot_as_expr[[1]]) bind_as_dot(.$expr[[1]], env) else env
   tryCatch(
     # substitute string into call to avoid binding string to env,
     # which could clash with a name in an environment higher up
-    eval(bquote(glue::glue(.(msg), .envir = env_dot))) %||%
+    eval(bquote(glue::glue(.(.$msg[[1]]), .envir = env_dot))) %||%
       # work-around bug in glue 1.0.0 (get character(0) for certain strings)
       "",
     error = function(e) {
       sprintf("%s\n[Error interpolating message '%s': %s]",
-              message_false(call), msg, conditionMessage(e))
+              message_false(.$call[[1]]), .$msg[[1]], conditionMessage(e))
     }
   )
 }
@@ -127,4 +124,12 @@ bind_as_dot <- function(q, env) {
   env_dot <- new.env(parent = env)
   eval(bquote(delayedAssign(".", .(rlang::quo_expr(q)), env, env_dot)))
   env_dot
+}
+
+err_eval_error <- function(call, out) {
+  sprintf("Error evaluating check %s: %s", call, conditionMessage(out))
+}
+
+err_invalid_value <- function(call, out) {
+  sprintf("Predicate value %s not TRUE/FALSE: %s", call, deparse_collapse(out))
 }

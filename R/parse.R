@@ -42,11 +42,11 @@ is_quos <- function(x) {
 validation_df <- function(pred, exprs, text) {
   n <- length(exprs)
   d <- list(
-    pred   = `[<-`(vector("list", n), list(pred)),
-    expr   = exprs,
-    call   = text$call,
-    msg    = text$msg,
-    is_gen = text$is_gen
+    pred        = `[<-`(vector("list", n), list(pred)),
+    expr        = exprs,
+    call        = text[["call"]],
+    msg         = text[["msg"]],
+    dot_as_expr = text[["dot_as_expr"]]
   )
   class(d) <- "data.frame"
   attr(d, "row.names") <- .set_row_names(n)
@@ -70,7 +70,7 @@ deparse_check <- function(pred, qs, default, env) {
   not_named <- !nzchar(msgs)
   msgs[not_named] <- generate_message(default, env,
                                       qs[not_named], calls[not_named])
-  list(call = calls, msg = msgs, is_gen = not_named)
+  list(call = calls, msg = msgs, dot_as_expr = not_named)
 }
 
 deparse_call <- function(q, arg) {

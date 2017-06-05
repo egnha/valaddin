@@ -24,9 +24,9 @@ test_that("global check raises error for checks that fail to evaluate", {
 
 test_that("global check raises error for checks that return non-TRUE/FALSE", {
   f <- firmly(function(x, y) NULL, identity)
-  expect_error(f(1), errmsg_invalid("identity(x)", "1"))
-  expect_error(f(NA), errmsg_invalid("identity(x)", "NA"))
-  expect_error(f(NULL), errmsg_invalid("identity(x)", "NULL"))
+  expect_error(f(1), errmsg_invalid("identity(x)", 1))
+  expect_error(f(NA), errmsg_invalid("identity(x)", NA))
+  expect_error(f(NULL), errmsg_invalid("identity(x)", NULL))
 })
 
 # Local-scope check -------------------------------------------------------
