@@ -23,7 +23,7 @@ vld <- function(..., checklist = list(), error_class = character()) {
     msgs <- names(chks) %||% character(length(chks))
     chks <- do.call(
       "rbind",
-      Map(function(., ..) parse_check(., .., arg[["sym"]]), chks, msgs)
+      Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]), chks, msgs)
     )
     chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
