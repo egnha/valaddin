@@ -74,18 +74,18 @@ validation_closure <- function(f, chks, sig, nms, syms, error_class) {
     function() {
       call <- match.call()
       encl <- parent.env(environment())
-      venv <- encl[["new_validation_env"]](call, parent.frame())
+      venv <- .subset2(encl, "new_validation_env")(call, parent.frame())
       verdict <- suppressWarnings(
-        lapply(encl[["exprs"]], function(.) {
-          parent.env(encl[["env_pred"]]) <- .[["env"]]
-          tryCatch(eval_bare(.[["expr"]], venv), error = identity)
+        lapply(.subset2(encl, "exprs"), function(.) {
+          parent.env(encl[["env_pred"]]) <- .subset2(., "env")
+          tryCatch(eval_bare(.subset2(., "expr"), venv), error = identity)
         })
       )
       pass <- vapply(verdict, isTRUE, logical(1))
       if (all(pass)) {
-        eval(`[[<-`(call, 1L, encl[["f"]]), parent.frame())
+        eval_bare(`[[<-`(call, 1L, .subset2(encl, "f")), parent.frame())
       } else {
-        stop(encl[["error"]](call, verdict, !pass, venv))
+        stop(.subset2(encl, "error")(call, verdict, !pass, venv))
       }
     }
   )
