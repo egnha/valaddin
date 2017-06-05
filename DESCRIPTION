@@ -31,6 +31,8 @@ Collate:
     'components.R'
     'call.R'
     'relevel-braces.R'
+    'parse.R'
+    'firm-closure.R'
     'firmly.R'
     'validate.R'
     'scope.R'
