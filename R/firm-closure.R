@@ -34,6 +34,7 @@ express_check <- function(exprs, nms) {
   )
 }
 
+#' @importFrom rlang eval_bare
 validation_closure <- function(f, chks, sig, nms, syms, error_class) {
   force(f)
   force(nms)
@@ -77,7 +78,7 @@ validation_closure <- function(f, chks, sig, nms, syms, error_class) {
       verdict <- suppressWarnings(
         lapply(encl[["exprs"]], function(.) {
           parent.env(encl[["env_pred"]]) <- .[["env"]]
-          tryCatch(eval(.[["expr"]], venv), error = identity)
+          tryCatch(eval_bare(.[["expr"]], venv), error = identity)
         })
       )
       pass <- vapply(verdict, isTRUE, logical(1))
