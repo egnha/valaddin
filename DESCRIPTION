@@ -30,7 +30,6 @@ Collate:
     'checklist.R'
     'components.R'
     'call.R'
-    'relevel-braces.R'
     'parse.R'
     'firm-closure.R'
     'firmly.R'
