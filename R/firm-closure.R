@@ -75,12 +75,10 @@ validation_closure <- function(f, chks, sig, nms, syms, error_class) {
       encl <- parent.env(environment())
       venv <- encl[["new_validation_env"]](call, parent.frame())
       verdict <- suppressWarnings(
-        lapply(encl[["exprs"]], function(.)
-          tryCatch({
-            parent.env(encl[["env_pred"]]) <- .[["env"]]
-            eval(.[["expr"]], venv)
-          }, error = identity)
-        )
+        lapply(encl[["exprs"]], function(.) {
+          parent.env(encl[["env_pred"]]) <- .[["env"]]
+          tryCatch(eval(.[["expr"]], venv), error = identity)
+        })
       )
       pass <- vapply(verdict, isTRUE, logical(1))
       if (all(pass)) {
