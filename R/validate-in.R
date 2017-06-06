@@ -35,12 +35,12 @@ express_check <- function(exprs, nms) {
 }
 
 #' @importFrom rlang eval_bare
-validation_closure <- function(f, chks, sig, nms, syms, error_class) {
+validation_closure <- function(f, chks, sig, arg, error_class) {
   force(f)
-  force(nms)
-  force(syms)
   force(error_class)
 
+  nms <- arg[["nm"]]
+  syms <- arg[["sym"]]
   nms_pred <- name_predicates(chks[["pred"]], chks[["expr"]])
   env_pred <- bind_predicates(nms_pred, chks[["pred"]])
   make_promises <- eval(call("function", sig, quote(environment())))

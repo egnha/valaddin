@@ -43,7 +43,7 @@ chks_vld <- rlang::quos(
     chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
     firm_closure(with_sig(
-      validation_closure(f, chks, sig, arg[["nm"]], arg[["sym"]], error_class),
+      validation_closure(f, chks, sig, arg, error_class),
       sig, attributes(f)
     ))
   }
