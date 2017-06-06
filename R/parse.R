@@ -53,7 +53,7 @@ validation_df <- function(pred, exprs, text) {
   d
 }
 
-# Variation of rlang::as_function
+# Like magrittr, capture '{...}' as anonymous function
 lambda <- function(q) {
   body <- rlang::quo_expr(q)
   if (is_lambda(body)) {
@@ -67,7 +67,6 @@ lambda <- function(q) {
   }
 }
 
-# Like magrittr, capture '{...}' as anonymous function
 is_lambda <- function(x) {
   is.call(x) && identical(x[[1L]], as.symbol("{"))
 }
