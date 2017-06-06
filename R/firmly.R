@@ -7,8 +7,12 @@ nomen <- function(sig) {
   list(nm = nm, sym = lapply(nm, as.symbol))
 }
 
+is_firm <- function(x) {
+  inherits(x, "firm_closure")
+}
+
 firm_closure <- function(f) {
-  if (!inherits(f, "firm_closure")) {
+  if (!is_firm(f)) {
     class(f) <- c("firm_closure", class(f))
   }
   f
@@ -59,6 +63,17 @@ chks_firmly <- c(
 
 #' @export
 firmly <- `_vld`(checklist = chks_firmly)(`_firmly`)
+
+#' @export
+loosely <- function(f) {
+  if (!is.function(f)) {
+    stop("'f' must be a function", call. = FALSE)
+  } else if (is_firm(f)) {
+    firm_core(f)
+  } else {
+    f
+  }
+}
 
 #' @export
 `%checkin%` <- function(chks, f) {
