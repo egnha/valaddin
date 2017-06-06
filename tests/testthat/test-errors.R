@@ -108,7 +108,7 @@ test_that("error messages of unnamed global check don't interpolate dot", {
 })
 
 test_that("error messages of unnamed local check don't interpolate dot", {
-  f <- firmly(function(x, y) NULL, {.} ~ quos(x))
+  f <- firmly(function(x, y) NULL, {.} ~ x)
   expect_error(f(FALSE, TRUE), errmsg_false("(function(.) {.})(x)"))
   expect_error(f(TRUE, FALSE), NA)
 })
