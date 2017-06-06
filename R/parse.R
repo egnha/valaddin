@@ -67,6 +67,11 @@ lambda <- function(q) {
   }
 }
 
+# Like magrittr, capture '{...}' as anonymous function
+is_lambda <- function(x) {
+  is.call(x) && identical(x[[1L]], as.symbol("{"))
+}
+
 deparse_check <- function(pred, qs, default, env) {
   calls <- vapply(qs, deparse_call, character(1), q = pred)
   msgs <- names(qs) %||% character(length(qs))
