@@ -10,9 +10,14 @@ chks_vld <- rlang::quos(
 
 `_vld` <- function(..., checklist = list(), error_class = character()) {
   chks <- c(rlang::quos(...), checklist)
+  error_class <- error_class[nzchar(error_class)]
   function(f) {
     sig <- formals(f)
     arg <- nomen(sig)
+    error_class_na <- is.null(firm_checks(f)) || !length(error_class)
+    if (!length(arg[["nm"]]) || !length(chks) && error_class_na) {
+      return(f)
+    }
     msgs <- names(chks) %||% character(length(chks))
     chks <-
       do.call("rbind", c(
