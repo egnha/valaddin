@@ -74,16 +74,6 @@ test_that("dot in local check message does not stand for current argument", {
   expect_error(f("x", TRUE), "x: x, dot: TRUE")
 })
 
-test_that("generated error message is interpolated in check environment", {
-  chk <- local({
-    bar <- function(x) sprintf("local text: %s", x)
-    rlang::quos("{{bar(.)}}; value: {.}" = isTRUE)
-  })
-  bar <- function(x) "this should not have been called"
-  f <- firmly(function(x) NULL, checklist = chk)
-  expect_error(f("not true"), "local text: x; value: not true")
-})
-
 test_that("error messages of named local check interpolate dot", {
   f <- local({
     s_quote <- function(x) encodeString(x, quote = "'")
@@ -113,11 +103,21 @@ test_that("error messages of unnamed local check don't interpolate dot", {
   expect_error(f(TRUE, FALSE), NA)
 })
 
+test_that("name of global check is interpolated in predicate scope", {
+  pred <- local({
+    bar <- function(x) sprintf("local text: %s", x)
+    rlang::quo(isTRUE)
+  })
+  f <- firmly(function(x) NULL, "{{bar(.)}}; value: {.}" = !! pred)
+  expect_error(f("not true"), "local text: x; value: not true")
+})
+
 test_that("name of check item is interpolated in check-item scope", {
   chk <- local({
     a <- "local"
-    rlang::quos("x is {x}, a is {a}, y is {y}" = x)
+    rlang::quo(x)
   })
-  f <- firmly(function(x, y) NULL, isTRUE ~ !! chk)
+  f <- firmly(function(x, y) NULL,
+              isTRUE ~ quos("x is {x}, a is {a}, y is {y}" = !! chk))
   expect_error(f(FALSE, "y"), "x is FALSE, a is local, y is y")
 })
