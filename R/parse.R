@@ -1,6 +1,10 @@
+try_eval_tidy <- function(expr, data = NULL, env = rlang::caller_env()) {
+  tryCatch(rlang::eval_tidy(expr, data, env), error = function(e) NULL)
+}
+
 parse_check <- function(chk, msg, syms) {
   env <- rlang::get_env(chk)
-  if (is_local(chk_eval <- rlang::eval_tidy(chk, env = env))) {
+  if (rlang::is_formula(chk_eval <- try_eval_tidy(chk, env = env))) {
     chk <- quo_predicate(chk_eval, env)
     qs <- quo_check_items(chk_eval, env)
   } else {
@@ -9,10 +13,6 @@ parse_check <- function(chk, msg, syms) {
   pred <- lambda(chk)
   text <- deparse_check(pred, qs, msg, env)
   validation_df(pred, qs, text)
-}
-
-is_local <- function(x) {
-  rlang::is_formula(tryCatch(x, error = function(e) NULL))
 }
 
 quo_predicate <- function(f, env) {
@@ -59,8 +59,11 @@ lambda <- function(q) {
   if (is_lambda(body)) {
     expr <- call("function", as.pairlist(alist(. = )), body)
     rlang::new_quosure(expr, rlang::get_env(q))
-  } else {
+  } else if (is.function(try_eval_tidy(q))) {
     q
+  } else {
+    stop("Not a function (or quosure thereof): ", rlang::quo_text(q),
+         call. = FALSE)
   }
 }
 
