@@ -2,19 +2,34 @@
 #' @export
 rlang::quos
 
-#' @export
-firmly <- function(f, ..., checklist = list(), error_class = character()) {
-  vld(..., checklist = checklist, error_class = error_class)(f)
+nomen <- function(sig) {
+  nm <- setdiff(names(sig), "...") %||% character(0)
+  list(nm = nm, sym = lapply(nm, as.symbol))
 }
 
-#' @export
-`%checkin%` <- function(chks, f) {
-  # identity function of rhs, provisionally
+firm_closure <- function(f) {
+  if (!inherits(f, "firm_closure")) {
+    class(f) <- c("firm_closure", class(f))
+  }
   f
 }
 
-#' @export
-vld <- function(..., checklist = list(), error_class = character()) {
+with_sig <- function(f, sig, attrs) {
+  formals(f) <- sig
+  attributes(f) <- attrs
+  f
+}
+
+chks_vld <- rlang::quos(
+  "'checklist' must be a list (of checks)" = is.list ~ checklist,
+  "'error_class' must be character vector" = is.character ~ error_class
+)
+
+`_firmly` <- function(f, ..., checklist = list(), error_class = character()) {
+  `_vld`(..., checklist = checklist, error_class = error_class)(f)
+}
+
+`_vld` <- function(..., checklist = list(), error_class = character()) {
   force(error_class)
   chks <- c(rlang::quos(...), checklist)
   function(f) {
@@ -34,20 +49,17 @@ vld <- function(..., checklist = list(), error_class = character()) {
   }
 }
 
-nomen <- function(sig) {
-  nm <- setdiff(names(sig), "...") %||% character(0)
-  list(nm = nm, sym = lapply(nm, as.symbol))
-}
+#' @export
+vld <- `_vld`(checklist = chks_vld)(`_vld`)
 
-firm_closure <- function(f) {
-  if (!inherits(f, "firm_closure")) {
-    class(f) <- c("firm_closure", class(f))
-  }
-  f
-}
+#' @export
+firmly <- `_vld`(
+  "'f' must be a closure" = rlang::is_closure ~ f,
+  checklist = chks_vld
+)(`_firmly`)
 
-with_sig <- function(f, sig, attrs) {
-  formals(f) <- sig
-  attributes(f) <- attrs
+#' @export
+`%checkin%` <- function(chks, f) {
+  # identity function of rhs, provisionally
   f
 }
