@@ -39,6 +39,7 @@ validation_closure <- function(f, chks, sig, nms, syms, error_class) {
   force(f)
   force(nms)
   force(syms)
+  force(error_class)
 
   nms_pred <- name_predicates(chks[["pred"]], chks[["expr"]])
   env_pred <- bind_predicates(nms_pred, chks[["pred"]])
@@ -69,26 +70,23 @@ validation_closure <- function(f, chks, sig, nms, syms, error_class) {
     deparse_collapse(as.call(c(call[[1L]], sig)))
   }
 
-  `formals<-`(
-    value = sig,
-    function() {
-      call <- match.call()
-      encl <- parent.env(environment())
-      venv <- .subset2(encl, "new_validation_env")(call, parent.frame())
-      verdict <- suppressWarnings(
-        lapply(.subset2(encl, "exprs"), function(.) {
-          parent.env(encl[["env_pred"]]) <- .subset2(., "env")
-          tryCatch(eval_bare(.subset2(., "expr"), venv), error = identity)
-        })
-      )
-      pass <- vapply(verdict, isTRUE, logical(1))
-      if (all(pass)) {
-        eval_bare(`[[<-`(call, 1L, .subset2(encl, "f")), parent.frame())
-      } else {
-        stop(.subset2(encl, "error")(call, verdict, !pass, venv))
-      }
+  function() {
+    call <- match.call()
+    encl <- parent.env(environment())
+    venv <- .subset2(encl, "new_validation_env")(call, parent.frame())
+    verdict <- suppressWarnings(
+      lapply(.subset2(encl, "exprs"), function(.) {
+        parent.env(encl[["env_pred"]]) <- .subset2(., "env")
+        tryCatch(eval_bare(.subset2(., "expr"), venv), error = identity)
+      })
+    )
+    pass <- vapply(verdict, isTRUE, logical(1))
+    if (all(pass)) {
+      eval_bare(`[[<-`(call, 1L, .subset2(encl, "f")), parent.frame())
+    } else {
+      stop(.subset2(encl, "error")(call, verdict, !pass, venv))
     }
-  )
+  }
 }
 
 problems <- function(chks, verdict, env) {

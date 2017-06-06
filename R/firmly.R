@@ -25,13 +25,29 @@ vld <- function(..., checklist = list(), error_class = character()) {
       "rbind",
       Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]), chks, msgs)
     )
-    chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
+    chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
-    validation_closure(f, chks, sig, arg[["nm"]], arg[["sym"]], error_class)
+    firm_closure(with_sig(
+      validation_closure(f, chks, sig, arg[["nm"]], arg[["sym"]], error_class),
+      sig, attributes(f)
+    ))
   }
 }
 
 nomen <- function(sig) {
   nm <- setdiff(names(sig), "...") %||% character(0)
   list(nm = nm, sym = lapply(nm, as.symbol))
+}
+
+firm_closure <- function(f) {
+  if (!inherits(f, "firm_closure")) {
+    class(f) <- c("firm_closure", class(f))
+  }
+  f
+}
+
+with_sig <- function(f, sig, attrs) {
+  formals(f) <- sig
+  attributes(f) <- attrs
+  f
 }
