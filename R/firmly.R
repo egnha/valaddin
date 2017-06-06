@@ -2,9 +2,46 @@
 #' @export
 rlang::quos
 
+chks_vld <- rlang::quos(
+  "'checklist' must be a list (of checks)" = is.list ~ checklist,
+  "'error_class' must be a character vector without NAs" =
+    {is.character(.) && !anyNA(.)} ~ error_class
+)
+
+`_vld` <- function(..., checklist = list(), error_class = character()) {
+  chks <- c(rlang::quos(...), checklist)
+  function(f) {
+    sig <- formals(f)
+    arg <- nomen(sig)
+    msgs <- names(chks) %||% character(length(chks))
+    chks <-
+      do.call("rbind", c(
+        firm_checks(f),
+        Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]), chks, msgs)
+      ))
+    chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
+    error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
+    firm_closure(with_sig(
+      validation_closure(loosely(f), chks, sig, arg, error_class),
+      sig, attributes(f)
+    ))
+  }
+}
+
 nomen <- function(sig) {
   nm <- setdiff(names(sig), "...") %||% character(0)
   list(nm = nm, sym = lapply(nm, as.symbol))
+}
+
+#' @export
+loosely <- function(f) {
+  if (!is.function(f)) {
+    stop("'f' must be a function", call. = FALSE)
+  } else if (is_firm(f)) {
+    firm_core(f)
+  } else {
+    f
+  }
 }
 
 is_firm <- function(x) {
@@ -24,31 +61,6 @@ with_sig <- function(f, sig, attrs) {
   f
 }
 
-chks_vld <- rlang::quos(
-  "'checklist' must be a list (of checks)" = is.list ~ checklist,
-  "'error_class' must be character vector" = is.character ~ error_class
-)
-
-`_vld` <- function(..., checklist = list(), error_class = character()) {
-  force(error_class)
-  chks <- c(rlang::quos(...), checklist)
-  function(f) {
-    sig <- formals(f)
-    arg <- nomen(sig)
-    msgs <- names(chks) %||% character(length(chks))
-    chks <- do.call(
-      "rbind",
-      Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]), chks, msgs)
-    )
-    chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
-    error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
-    firm_closure(with_sig(
-      validation_closure(f, chks, sig, arg, error_class),
-      sig, attributes(f)
-    ))
-  }
-}
-
 #' @export
 vld <- `_vld`(checklist = chks_vld)(`_vld`)
 
@@ -63,17 +75,6 @@ chks_firmly <- c(
 
 #' @export
 firmly <- `_vld`(checklist = chks_firmly)(`_firmly`)
-
-#' @export
-loosely <- function(f) {
-  if (!is.function(f)) {
-    stop("'f' must be a function", call. = FALSE)
-  } else if (is_firm(f)) {
-    firm_core(f)
-  } else {
-    f
-  }
-}
 
 #' @export
 `%checkin%` <- function(chks, f) {
