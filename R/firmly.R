@@ -27,7 +27,7 @@ chks_vld <- rlang::quos(
       ))
     chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
-    firm_closure(with_sig(
+    as_firm_closure(with_sig(
       validation_closure(loosely(f), chks, sig, arg, error_class),
       sig, attributes(f)
     ))
@@ -54,7 +54,7 @@ is_firm <- function(x) {
   inherits(x, "firm_closure")
 }
 
-firm_closure <- function(f) {
+as_firm_closure <- function(f) {
   if (!is_firm(f)) {
     class(f) <- c("firm_closure", class(f))
   }
