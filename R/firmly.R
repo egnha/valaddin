@@ -3,7 +3,8 @@
 rlang::quos
 
 chks_vld <- rlang::quos(
-  "'checklist' must be a list (of checks)" = is.list ~ checklist,
+  "'checklist' must be a list of quosures" =
+    {all(vapply(., rlang::is_quosure, logical(1)))} ~ checklist,
   "'error_class' must be a character vector without NAs" =
     {is.character(.) && !anyNA(.)} ~ error_class
 )
