@@ -25,10 +25,6 @@ chks_vld <- rlang::quos(
   "'error_class' must be character vector" = is.character ~ error_class
 )
 
-`_firmly` <- function(f, ..., checklist = list(), error_class = character()) {
-  `_vld`(..., checklist = checklist, error_class = error_class)(f)
-}
-
 `_vld` <- function(..., checklist = list(), error_class = character()) {
   force(error_class)
   chks <- c(rlang::quos(...), checklist)
@@ -52,11 +48,17 @@ chks_vld <- rlang::quos(
 #' @export
 vld <- `_vld`(checklist = chks_vld)(`_vld`)
 
+chks_firmly <- c(
+  "'f' must be a closure" = rlang::quo(rlang::is_closure ~ f),
+  chks_vld
+)
+
+`_firmly` <- function(f, ..., checklist = list(), error_class = character()) {
+  `_vld`(..., checklist = checklist, error_class = error_class)(f)
+}
+
 #' @export
-firmly <- `_vld`(
-  "'f' must be a closure" = rlang::is_closure ~ f,
-  checklist = chks_vld
-)(`_firmly`)
+firmly <- `_vld`(checklist = chks_firmly)(`_firmly`)
 
 #' @export
 `%checkin%` <- function(chks, f) {
