@@ -1,8 +1,8 @@
 context("firmly()")
 
 test_that("error raised when f is not a closure", {
-  non_fun <- list(NULL, NA, 0, letters, character(0), mtcars, log, list())
-  for (x in non_fun) {
+  non_closure <- list(NULL, NA, 0, letters, character(0), mtcars, log, list())
+  for (x in non_closure) {
     expect_error(firmly(x), "'f' must be a closure")
   }
 })
