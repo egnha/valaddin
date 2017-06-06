@@ -70,17 +70,13 @@ with_sig <- function(f, sig, attrs) {
 #' @export
 vld <- `_vld`(checklist = chks_vld)(`_vld`)
 
-chks_firmly <- c(
-  "'f' must be a closure" = rlang::quo(rlang::is_closure ~ f),
-  chks_vld
-)
-
-`_firmly` <- function(f, ..., checklist = list(), error_class = character()) {
-  `_vld`(..., checklist = checklist, error_class = error_class)(f)
-}
-
 #' @export
-firmly <- `_vld`(checklist = chks_firmly)(`_firmly`)
+firmly <- vld(
+  "'f' must be a closure" = rlang::is_closure ~ f,
+  checklist = chks_vld
+)(function(f, ..., checklist = list(), error_class = character()) {
+  `_vld`(..., checklist = checklist, error_class = error_class)(f)
+})
 
 #' @export
 `%checkin%` <- function(chks, f) {
