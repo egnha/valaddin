@@ -86,3 +86,28 @@ firmly <- `_vld`(checklist = chks_firmly)(`_firmly`)
   # identity function of rhs, provisionally
   f
 }
+
+#' @export
+print.firm_closure <- function(x, ...) {
+  cat("<firm_closure>\n")
+
+  cat("\n* Core function:\n")
+  print.default(firm_core(x))
+
+  cat("\n* Checks (<predicate>:<error message>):\n")
+  chks <- firm_checks(x)
+  if (length(chks)) {
+    labels <- paste0(chks$call, ":\n", encodeString(chks$msg, quote = "\""))
+    cat(enumerate_many(labels))
+  } else {
+    cat("None\n")
+  }
+
+  cat("\n* Error subclass for check errors:\n")
+  subclass <- firm_error(x)
+  if (!is.null(subclass)) {
+    cat(paste(subclass, collapse = ", "), "\n")
+  } else {
+    cat("None\n")
+  }
+}
