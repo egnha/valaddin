@@ -58,18 +58,22 @@ validation_df <- function(pred, exprs, text) {
 lambda <- function(q) {
   body <- rlang::quo_expr(q)
   if (is_lambda(body)) {
-    expr <- call("function", as.pairlist(alist(. = )), body)
+    expr <- express_lambda(body)
     rlang::new_quosure(expr, rlang::get_env(q))
   } else if (is.function(try_eval_tidy(q))) {
     q
   } else {
-    stop("Not a function (or quosure thereof): ", rlang::quo_text(q),
+    stop("Not a function or lambda expression: ", rlang::quo_text(q),
          call. = FALSE)
   }
 }
 
 is_lambda <- function(x) {
   is.call(x) && identical(x[[1L]], as.symbol("{"))
+}
+
+express_lambda <- function(body) {
+  call("function", as.pairlist(alist(. = )), body)
 }
 
 deparse_check <- function(pred, qs, default, env) {
