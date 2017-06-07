@@ -11,6 +11,7 @@
 
 is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
+is_error <- function(x) inherits(x, "error")
 
 stop_wo_call <- function(...) stop(..., call. = FALSE)
 warning_wo_call <- function(...) warning(..., call. = FALSE)

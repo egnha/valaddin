@@ -94,7 +94,7 @@ problems <- function(chks, verdict, env) {
     out <- verdict[[i]]
     if (is_false(out)) {
       err_invalid_input(chks[i, ], env)
-    } else if (inherits(out, "error")) {
+    } else if (is_error(out)) {
       err_eval_error(chks$call[[i]], out)
     } else {
       err_invalid_value(chks$call[[i]], out)
