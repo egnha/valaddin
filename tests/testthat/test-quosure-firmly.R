@@ -79,6 +79,6 @@ test_that("error raised if predicate is neither function nor quosure thereof", {
   err_msg <- esc_perl("Not a function or lambda expression")
   for (x in fake_predicates) {
     expect_error(firmly(f, !! x), err_msg)
-    expect_error(firmly(f, !! quo(x)), err_msg)
+    expect_error(firmly(f, !! rlang::quo(x)), err_msg)
   }
 })
