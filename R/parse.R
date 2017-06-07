@@ -1,10 +1,11 @@
-try_eval_tidy <- function(expr, data = NULL, env = rlang::caller_env()) {
-  tryCatch(rlang::eval_tidy(expr, data, env), error = function(e) NULL)
+try_eval_tidy <- function(expr, env = rlang::caller_env(), if_error = NULL) {
+  tryCatch(rlang::eval_tidy(expr, env = env), error = function(e) if_error)
 }
 
 parse_check <- function(chk, msg, syms) {
   env <- rlang::get_env(chk)
-  if (rlang::is_formula(chk_eval <- try_eval_tidy(chk, env = env))) {
+  chk_eval <- try_eval_tidy(chk, env = env)
+  if (rlang::is_formula(chk_eval)) {
     chk <- quo_predicate(chk_eval, env)
     qs <- quo_check_items(chk_eval, env)
   } else {
