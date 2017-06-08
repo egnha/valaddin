@@ -8,6 +8,9 @@ parse_check <- function(chk, msg, syms) {
   if (rlang::is_formula(chk_eval)) {
     chk <- quo_predicate(chk_eval, env)
     qs <- quo_check_items(chk_eval, env)
+    if (!nzchar(msg)) {
+      msg <- attr(chk_eval, "def_err_msg", exact = TRUE) %||% ""
+    }
   } else {
     qs <- lapply(syms, rlang::new_quosure, env = env)
   }
@@ -88,7 +91,7 @@ deparse_check <- function(pred, qs, def_msg, env) {
   calls <- vapply(qs, deparse_call, character(1), q = pred)
   msgs <- names_filled(qs)
   not_named <- !nzchar(msgs)
-  msgs[not_named] <- generate_message(default, env,
+  msgs[not_named] <- generate_message(def_msg, env,
                                       qs[not_named], calls[not_named])
   list(call = calls, msg = msgs, dot_as_expr = not_named)
 }
@@ -98,9 +101,9 @@ deparse_call <- function(q, arg) {
   deparse_collapse(call)
 }
 
-generate_message <- function(default, env, qs, calls) {
-  if (nzchar(default)) {
-    vapply(qs, glue_opp, character(1), text = default, env = env)
+generate_message <- function(def_msg, env, qs, calls) {
+  if (nzchar(def_msg)) {
+    vapply(qs, glue_opp, character(1), text = def_msg, env = env)
   } else {
     # double-up braces to shield them from glue::glue()
     double_braces(message_false(calls))
