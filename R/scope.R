@@ -105,7 +105,7 @@ is_check_maker <- function(x) {
 #' @export
 print.check_maker <- function(x, ...) {
   env <- environment(x)
-  p <- env$.rhs
+  p <- rlang::quo_expr(env[["pred"]])
 
   cat("<check_maker>\n")
 
@@ -113,9 +113,13 @@ print.check_maker <- function(x, ...) {
   if (is_lambda(p)) {
     cat(deparse_collapse(express_lambda(p)), "\n")
   } else {
-    print.default(p)
+    print(p)
   }
 
   cat("\n* Error message:\n")
-  cat(encodeString(env$.msg, quote = "\""), "\n")
+  if (nzchar(env[["msg"]])) {
+    cat(encodeString(env[["msg"]], quote = "\""), "\n")
+  } else {
+    cat(message_false(deparse_call(p, as.name("..."))), "\n")
+  }
 }
