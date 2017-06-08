@@ -121,16 +121,12 @@ globalize <- vld(
 #' @export
 print.check_maker <- function(x, ...) {
   env <- environment(x)
-  p <- rlang::quo_expr(env[["pred"]])
+  p <- env[["pred"]]
 
   cat("<check_maker>\n")
 
   cat("\n* Predicate function:\n")
-  if (is_lambda(p)) {
-    cat(deparse_collapse(express_lambda(p)), "\n")
-  } else {
-    print(p)
-  }
+  print(rlang::eval_tidy(p), "\n")
 
   cat("\n* Error message:\n")
   if (nzchar(env[["msg"]])) {
