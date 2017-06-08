@@ -29,7 +29,6 @@ Collate:
     'future.R'
     'checklist.R'
     'components.R'
-    'call.R'
     'parse.R'
     'validate-in.R'
     'firmly.R'
