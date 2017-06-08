@@ -21,13 +21,14 @@ parse_check <- function(chk, msg, syms) {
 
 quo_predicate <- function(f, env) {
   lhs <- rlang::f_lhs(f)
-  if (rlang::is_quosure(lhs)) {
-    q <- lhs
-  } else {
-    q <- rlang::new_quosure(rlang::quo_expr(lhs), env)
-  }
-  attr(q, "def_err_msg") <- attr(f, "def_err_msg", exact = TRUE)
-  q
+  structure(
+    if (rlang::is_quosure(lhs)) {
+      lhs
+    } else {
+      rlang::new_quosure(rlang::quo_expr(lhs), env)
+    },
+    def_err_msg = attr(f, "def_err_msg", exact = TRUE)
+  )
 }
 
 quo_check_items <- function(f, env) {

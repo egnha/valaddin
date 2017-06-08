@@ -86,7 +86,7 @@ localize <- function(...) {
   if (length(preds) > 1L) {
     warning("Only the first predicate will be localized", call. = FALSE)
   }
-  `class<-`(
+  structure(
     function(...) {
       check_items <- rlang::quos(...)
       structure(
@@ -94,7 +94,7 @@ localize <- function(...) {
         def_err_msg = msg
       )
     },
-    c("check_maker", "function")
+    class = c("check_maker", "function")
   )
 }
 
