@@ -63,8 +63,7 @@ lambda <- function(q) {
   } else if (isTRUE(is_q_fun <- is.function(try_eval_tidy(q)))) {
     q
   } else {
-    stop("Not a function or lambda expression: ", rlang::quo_text(q),
-         call. = FALSE)
+    stop(err_not_quo_function(q, is_q_fun), call. = FALSE)
   }
 }
 
@@ -76,7 +75,16 @@ express_lambda <- function(body) {
   call("function", as.pairlist(alist(. = )), body)
 }
 
-deparse_check <- function(pred, qs, default, env) {
+err_not_quo_function <- function(q, liability) {
+  if (is_error(liability)) {
+    sprintf("Error trying to determine whether %s is a function: %s",
+            rlang::quo_text(q), conditionMessage(liability))
+  } else {
+    sprintf("Not a function or lambda expression: %s", rlang::quo_text(q))
+  }
+}
+
+deparse_check <- function(pred, qs, def_msg, env) {
   calls <- vapply(qs, deparse_call, character(1), q = pred)
   msgs <- names(qs) %||% character(length(qs))
   not_named <- !nzchar(msgs)
