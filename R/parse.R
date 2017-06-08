@@ -8,13 +8,13 @@ parse_check <- function(chk, msg, syms) {
   if (rlang::is_formula(chk_eval)) {
     chk <- quo_predicate(chk_eval, env)
     qs <- quo_check_items(chk_eval, env)
-    if (!nzchar(msg)) {
-      msg <- attr(chk_eval, "def_err_msg", exact = TRUE) %||% ""
-    }
   } else {
     qs <- lapply(syms, rlang::new_quosure, env = env)
   }
   pred <- lambda(chk)
+  if (!nzchar(msg)) {
+    msg <- attr(chk, "def_err_msg", exact = TRUE) %||% ""
+  }
   text <- deparse_check(pred, qs, msg, env)
   validation_df(pred, qs, text)
 }
@@ -22,10 +22,12 @@ parse_check <- function(chk, msg, syms) {
 quo_predicate <- function(f, env) {
   lhs <- rlang::f_lhs(f)
   if (rlang::is_quosure(lhs)) {
-    lhs
+    q <- lhs
   } else {
-    rlang::new_quosure(rlang::quo_expr(lhs), env)
+    q <- rlang::new_quosure(rlang::quo_expr(lhs), env)
   }
+  attr(q, "def_err_msg") <- attr(f, "def_err_msg", exact = TRUE)
+  q
 }
 
 quo_check_items <- function(f, env) {

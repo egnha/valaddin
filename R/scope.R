@@ -102,6 +102,22 @@ is_check_maker <- function(x) {
   rlang::is_closure(x) && inherits(x, "check_maker")
 }
 
+#' @rdname input-validators
+#' @export
+#' @param chkr Function of class `check_maker`, i.e., a function created by
+#'   `localize`.
+#' @return `globalize` returns the global-scope check formula from which the
+#'   function `chkr` is derived.
+globalize <- vld(
+  "'chkr' must be a local checker function (see ?localize)" =
+    is_check_maker ~ chkr
+)(function(chkr) {
+  structure(
+    environment(chkr)[["preds"]][[1L]],
+    def_err_msg = environment(chkr)[["msg"]]
+  )
+})
+
 #' @export
 print.check_maker <- function(x, ...) {
   env <- environment(x)
