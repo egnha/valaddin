@@ -1,5 +1,5 @@
-try_eval_tidy <- function(expr, env = rlang::caller_env(), if_error = NULL) {
-  tryCatch(rlang::eval_tidy(expr, env = env), error = function(e) if_error)
+try_eval_tidy <- function(expr, env = rlang::caller_env()) {
+  tryCatch(rlang::eval_tidy(expr, env = env), error = identity)
 }
 
 parse_check <- function(chk, msg, syms) {
@@ -60,7 +60,7 @@ lambda <- function(q) {
   if (is_lambda(body)) {
     expr <- express_lambda(body)
     rlang::new_quosure(expr, rlang::get_env(q))
-  } else if (is.function(try_eval_tidy(q))) {
+  } else if (isTRUE(is_q_fun <- is.function(try_eval_tidy(q)))) {
     q
   } else {
     stop("Not a function or lambda expression: ", rlang::quo_text(q),
