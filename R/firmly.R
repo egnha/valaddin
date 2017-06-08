@@ -19,11 +19,11 @@ chks_vld <- rlang::quos(
     if (!length(arg[["nm"]]) || !length(chks) && error_class_na) {
       return(f)
     }
-    msgs <- names(chks) %||% character(length(chks))
     chks <-
       do.call("rbind", c(
         firm_checks(f),
-        Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]), chks, msgs)
+        Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]),
+            chks, names_filled(chks))
       ))
     chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"

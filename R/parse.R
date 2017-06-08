@@ -86,7 +86,7 @@ err_not_quo_function <- function(q, liability) {
 
 deparse_check <- function(pred, qs, def_msg, env) {
   calls <- vapply(qs, deparse_call, character(1), q = pred)
-  msgs <- names(qs) %||% character(length(qs))
+  msgs <- names_filled(qs)
   not_named <- !nzchar(msgs)
   msgs[not_named] <- generate_message(default, env,
                                       qs[not_named], calls[not_named])

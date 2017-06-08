@@ -3,6 +3,10 @@
   if (is.null(x) || length(x) == 0L) y else x
 }
 
+names_filled <- function(x) {
+  names(x) %||% character(length(x))
+}
+
 # Pipe operator
 `%>%` <- purrr::`%>%`
 
