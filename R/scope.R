@@ -81,11 +81,11 @@ NULL
 #'   }
 localize <- function(...) {
   preds <- rlang::quos(...)
-  pred <- lambda(preds[[1L]])
-  msg <- names(preds)[1L] %||% ""
   if (length(preds) > 1L) {
     warning("Only the first predicate will be localized", call. = FALSE)
   }
+  pred <- lambda(preds[[1L]])
+  msg <- names(preds)[1L] %||% ""
   structure(
     function(...) {
       check_items <- rlang::quos(...)
