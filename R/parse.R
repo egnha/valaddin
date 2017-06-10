@@ -1,5 +1,5 @@
-try_eval_tidy <- function(expr, env = rlang::caller_env()) {
-  tryCatch(rlang::eval_tidy(expr, env = env), error = identity)
+try_eval_tidy <- function(expr, env = rlang::caller_env(), error = identity) {
+  tryCatch(rlang::eval_tidy(expr, env = env), error = error)
 }
 
 parse_check <- function(chk, msg, syms) {
