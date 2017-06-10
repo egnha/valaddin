@@ -5,11 +5,11 @@ rlang::quos
 chks_vld <- rlang::quos(
   "'checklist' must be a list of quosures" =
     {all(vapply(., rlang::is_quosure, logical(1)))} ~ checklist,
-  "'error_class' must be a character vector without NAs" =
-    {is.character(.) && !anyNA(.)} ~ error_class
+  "'error_class' must be NULL or a character vector without NAs" =
+    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
 
-`_vld` <- function(..., checklist = list(), error_class = character()) {
+`_vld` <- function(..., checklist = list(), error_class = NULL) {
   chks <- c(rlang::quos(...), checklist)
   error_class <- error_class[nzchar(error_class)]
   function(f) {
@@ -74,7 +74,7 @@ vld <- `_vld`(checklist = chks_vld)(`_vld`)
 firmly <- vld(
   "'f' must be a closure" = rlang::is_closure ~ f,
   checklist = chks_vld
-)(function(f, ..., checklist = list(), error_class = character()) {
+)(function(f, ..., checklist = list(), error_class = NULL) {
   `_vld`(..., checklist = checklist, error_class = error_class)(f)
 })
 

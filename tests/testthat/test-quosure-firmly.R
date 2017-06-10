@@ -16,12 +16,12 @@ test_that("error raised when checklist is not a list of quosures", {
   }
 })
 
-test_that("error raised when error_class is not a character vector", {
+test_that("error raised when error_class is not NULL or a character vector", {
   f <- function(x) NULL
-  non_chr <- list(NULL, NA, 0, log, mtcars)
+  non_chr <- list(NA, 0, log, mtcars)
   for (x in non_chr) {
     expect_error(firmly(f, error_class = x),
-                 "'error_class' must be a character vector without NAs")
+                 "'error_class' must be NULL or a character vector without NAs")
   }
 })
 
@@ -30,7 +30,7 @@ test_that("error raised when error_class contains an NA", {
   na_vec <- list(NA_character_, c("a", NA_character_))
   for (x in na_vec) {
     expect_error(firmly(f, error_class = x),
-                 "'error_class' must be a character vector without NAs")
+                 "'error_class' must be NULL or a character vector without NAs")
   }
 })
 
