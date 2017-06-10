@@ -3,14 +3,12 @@
 rlang::quos
 
 chks_vld <- rlang::quos(
-  "'checklist' must be a list of quosures" =
-    {all(vapply(., rlang::is_quosure, logical(1)))} ~ checklist,
   "'error_class' must be NULL or a character vector without NAs" =
     {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
 
-`_vld` <- function(..., checklist = list(), error_class = NULL) {
-  chks <- c(rlang::quos(...), checklist)
+`_vld` <- function(..., error_class = NULL) {
+  chks <- rlang::quos(...)
   error_class <- error_class[nzchar(error_class)]
   function(f) {
     sig <- formals(f)
@@ -68,14 +66,14 @@ with_sig <- function(f, sig, attrs) {
 }
 
 #' @export
-vld <- `_vld`(checklist = chks_vld)(`_vld`)
+vld <- `_vld`(UQS(chks_vld))(`_vld`)
 
 #' @export
 firmly <- vld(
   "'f' must be a closure" = rlang::is_closure ~ f,
-  checklist = chks_vld
-)(function(f, ..., checklist = list(), error_class = NULL) {
-  `_vld`(..., checklist = checklist, error_class = error_class)(f)
+  UQS(chks_vld)
+)(function(f, ..., error_class = NULL) {
+  `_vld`(..., error_class = error_class)(f)
 })
 
 #' @export

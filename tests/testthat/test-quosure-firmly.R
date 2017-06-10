@@ -7,15 +7,6 @@ test_that("error raised when f is not a closure", {
   }
 })
 
-test_that("error raised when checklist is not a list of quosures", {
-  f <- function(x) NULL
-  non_quos <- list(rlang::quo(isTRUE), list(rlang::quos(isTRUE)), list(~isTRUE))
-  for (x in non_quos) {
-    expect_error(firmly(x, checklist = x),
-                 "'checklist' must be a list of quosures")
-  }
-})
-
 test_that("error raised when error_class is not NULL or a character vector", {
   f <- function(x) NULL
   non_chr <- list(NA, 0, log, mtcars)
