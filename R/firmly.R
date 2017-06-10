@@ -77,12 +77,6 @@ firmly <- vld(
 })
 
 #' @export
-`%checkin%` <- function(chks, f) {
-  # identity function of rhs, provisionally
-  f
-}
-
-#' @export
 print.firm_closure <- function(x, ...) {
   cat("<firm_closure>\n")
 
