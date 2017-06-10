@@ -9,6 +9,15 @@ test_that("error raised when f is not a closure", {
 
 test_that("error raised when error_class is not NULL or a character vector", {
   f <- function(x) NULL
+  expect_error(firmly(f, error_class = NULL), NA)
+  expect_error(firmly(f, error_class = character()), NA)
+  expect_error(firmly(f, error_class = letters), NA)
+
+  ff <- firmly(f, isTRUE)
+  expect_error(firmly(ff, error_class = NULL), NA)
+  expect_error(firmly(ff, error_class = character()), NA)
+  expect_error(firmly(ff, error_class = letters), NA)
+
   non_chr <- list(NA, 0, log, mtcars)
   for (x in non_chr) {
     expect_error(firmly(f, error_class = x),
