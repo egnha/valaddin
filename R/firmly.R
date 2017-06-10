@@ -19,7 +19,7 @@ chks_vld <- rlang::quos(
     }
     chks <-
       do.call("rbind", c(
-        firm_checks(f),
+        list(firm_checks(f)),
         Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]),
             chks, names_filled(chks))
       ))
