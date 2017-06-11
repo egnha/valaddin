@@ -6,39 +6,40 @@ parse_check <- function(chk, msg, syms) {
   env <- rlang::get_env(chk)
   chk_eval <- try_eval_tidy(chk, env = env)
   if (rlang::is_formula(chk_eval)) {
-    chk <- quo_predicate(chk_eval, env)
-    qs <- quo_check_items(chk_eval, env)
+    qs <- enquo_check_items(rlang::f_rhs(chk_eval), env)
+    pred <- get_predicate(rlang::f_lhs(chk_eval), env)
   } else {
     qs <- lapply(syms, rlang::new_quosure, env = env)
+    pred <- get_predicate(chk, env)
   }
-  pred <- lambda(chk)
   if (!nzchar(msg)) {
-    msg <- attr(chk, "def_err_msg", exact = TRUE) %||% ""
+    msg <- attr(chk_eval, "def_err_msg", exact = TRUE) %||% ""
   }
-  text <- deparse_check(pred, qs, msg, env)
-  validation_df(pred, qs, text)
+  text <- deparse_check(pred[["expr"]], qs, msg, env)
+  validation_tbl(pred[["fn"]], qs, text)
 }
 
-quo_predicate <- function(f, env) {
-  lhs <- rlang::f_lhs(f)
-  structure(
-    if (rlang::is_quosure(lhs)) {
-      lhs
-    } else {
-      rlang::new_quosure(rlang::quo_expr(lhs), env)
-    },
-    def_err_msg = attr(f, "def_err_msg", exact = TRUE)
+validation_tbl <- function(pred, exprs, text) {
+  n <- length(exprs)
+  x <- list(
+    pred        = `[<-`(vector("list", n), list(pred)),
+    expr        = exprs,
+    call        = text[["call"]],
+    msg         = text[["msg"]],
+    dot_as_expr = text[["dot_as_expr"]]
   )
+  class(x) <- c("tbl_df", "tbl", "data.frame")
+  attr(x, "row.names") <- .set_row_names(n)
+  x
 }
 
-quo_check_items <- function(f, env) {
-  rhs <- rlang::f_rhs(f)
-  if (is_quos(rhs)) {
-    rlang::eval_tidy(rhs, env = env)
-  } else if (rlang::is_quosures(rhs)) {
-    rhs
+enquo_check_items <- function(expr, env) {
+  if (is_quos(expr)) {
+    rlang::eval_tidy(expr, env = env)
+  } else if (rlang::is_quosures(expr)) {
+    expr
   } else {
-    list(rlang::new_quosure(rhs, env))
+    list(rlang::new_quosure(expr, env))
   }
 }
 
@@ -46,52 +47,39 @@ is_quos <- function(x) {
   is.call(x) && identical(x[[1L]], as.name("quos"))
 }
 
-validation_df <- function(pred, exprs, text) {
-  n <- length(exprs)
-  d <- list(
-    pred        = `[<-`(vector("list", n), list(pred)),
-    expr        = exprs,
-    call        = text[["call"]],
-    msg         = text[["msg"]],
-    dot_as_expr = text[["dot_as_expr"]]
-  )
-  class(d) <- "data.frame"
-  attr(d, "row.names") <- .set_row_names(n)
-  d
-}
-
-# Like magrittr, capture '{...}' as anonymous function
-lambda <- function(q) {
-  body <- rlang::quo_expr(q)
-  if (is_lambda(body)) {
-    expr <- express_lambda(body)
-    rlang::new_quosure(expr, rlang::get_env(q))
-  } else if (isTRUE(is_q_fun <- is.function(try_eval_tidy(q)))) {
-    q
-  } else {
-    stop(err_not_quo_function(q, is_q_fun), call. = FALSE)
+get_predicate <- function(x, env) {
+  if (rlang::is_quosure(x)) {
+    env <- rlang::get_env(x)
   }
+  x_expr <- rlang::quo_expr(x)
+  if (is_lambda(x_expr)) {
+    expr <- call("function", as.pairlist(alist(. = )), x_expr)
+    fn <- eval(expr, env)
+  } else {
+    expr <- x_expr
+    fn <- try_eval_tidy(x, env = env)
+    if (!is.function(fn)) {
+      stop(err_not_function(x, fn), call. = FALSE)
+    }
+  }
+  list(expr = expr, fn = fn)
 }
 
 is_lambda <- function(x) {
   is.call(x) && identical(x[[1L]], as.symbol("{"))
 }
 
-express_lambda <- function(body) {
-  call("function", as.pairlist(alist(. = )), body)
-}
-
-err_not_quo_function <- function(q, liability) {
-  if (is_error(liability)) {
+err_not_function <- function(x, fault) {
+  if (is_error(fault)) {
     sprintf("Error trying to determine whether %s is a function: %s",
-            rlang::quo_text(q), conditionMessage(liability))
+            rlang::quo_text(x), conditionMessage(fault))
   } else {
-    sprintf("Not a function or lambda expression: %s", rlang::quo_text(q))
+    sprintf("Not a function: %s", rlang::quo_text(x))
   }
 }
 
-deparse_check <- function(pred, qs, def_msg, env) {
-  calls <- vapply(qs, deparse_call, character(1), q = pred)
+deparse_check <- function(expr, qs, def_msg, env) {
+  calls <- vapply(qs, deparse_call, character(1), expr = expr)
   msgs <- names_filled(qs)
   not_named <- !nzchar(msgs)
   msgs[not_named] <- generate_message(def_msg, env,
@@ -99,8 +87,8 @@ deparse_check <- function(pred, qs, def_msg, env) {
   list(call = calls, msg = msgs, dot_as_expr = not_named)
 }
 
-deparse_call <- function(q, arg) {
-  call <- rlang::quo_expr(rlang::expr(UQE(q)(UQ(arg))))
+deparse_call <- function(expr, arg) {
+  call <- rlang::expr(UQE(expr)(UQE(arg)))
   deparse_collapse(call)
 }
 
