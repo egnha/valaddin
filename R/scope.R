@@ -133,7 +133,7 @@ print.check_maker <- function(x, ...) {
   cat("<check_maker>\n")
 
   cat("\n* Predicate function:\n")
-  print(env[["pred"]][["fn"]], "\n")
+  cat(deparse_collapse(env[["pred"]][["expr"]]), "\n")
 
   cat("\n* Error message:\n")
   cat(encodeString(env[["msg"]], quote = "\""), "\n")
