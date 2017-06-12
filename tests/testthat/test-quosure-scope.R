@@ -16,7 +16,7 @@ test_that("warning is raised when more than one argument is supplied", {
 })
 
 test_that("error is raised when argument is not a function/lambda expression", {
-  err_msg <- "Not a function or lambda expression"
+  err_msg <- "Not a function"
   fake_predicates <- list(NULL, NA, 1:2, "a", mtcars, list(ls))
   for (x in fake_predicates) {
     expect_error(localize(x), err_msg)

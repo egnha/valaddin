@@ -80,22 +80,30 @@ NULL
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
 localize <- function(...) {
-  preds <- rlang::quos(...)
-  if (length(preds) > 1L) {
+  if (length(preds <- rlang::quos(...)) > 1L) {
     warning("Only the first predicate will be localized", call. = FALSE)
   }
-  pred <- lambda(preds[[1L]])
-  msg <- names(preds)[1L] %||% ""
+  pred <- get_predicate(preds[[1L]], rlang::get_env(preds[[1L]]))
+  if (nzchar(names(preds)[1L])) {
+    msg <- names(preds)[1L]
+  } else {
+    msg <- default_message(rlang::quo_expr(preds[[1L]]), pred[["expr"]])
+  }
   structure(
     function(...) {
       check_items <- rlang::quos(...)
       structure(
-        rlang::new_formula(pred, check_items, parent.frame()),
+        rlang::new_formula(pred[["fn"]], check_items, parent.frame()),
         def_err_msg = msg
       )
     },
     class = c("check_maker", "function")
   )
+}
+
+default_message <- function(expr1, expr2) {
+  expr <- if (is_lambda(expr1)) expr2 else expr1
+  message_false(deparse_collapse(rlang::expr(UQ(expr)({{.}}))))
 }
 
 is_check_maker <- function(x) {
@@ -113,7 +121,7 @@ globalize <- vld(
     is_check_maker ~ chkr
 )(function(chkr) {
   structure(
-    environment(chkr)[["preds"]][[1L]],
+    environment(chkr)[["pred"]][["fn"]],
     def_err_msg = environment(chkr)[["msg"]]
   )
 })
@@ -121,17 +129,12 @@ globalize <- vld(
 #' @export
 print.check_maker <- function(x, ...) {
   env <- environment(x)
-  p <- env[["pred"]]
 
   cat("<check_maker>\n")
 
   cat("\n* Predicate function:\n")
-  print(rlang::eval_tidy(p), "\n")
+  print(env[["pred"]][["fn"]], "\n")
 
   cat("\n* Error message:\n")
-  if (nzchar(env[["msg"]])) {
-    cat(encodeString(env[["msg"]], quote = "\""), "\n")
-  } else {
-    cat(message_false(deparse_call(p, as.name("..."))), "\n")
-  }
+  cat(encodeString(env[["msg"]], quote = "\""), "\n")
 }
