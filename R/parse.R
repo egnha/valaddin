@@ -4,7 +4,7 @@ try_eval_tidy <- function(expr, env = rlang::caller_env(), error = identity) {
 
 parse_check <- function(chk, msg, syms) {
   env <- rlang::get_env(chk)
-  chk_eval <- try_eval_tidy(chk, env = env)
+  chk_eval <- try_eval_tidy(chk, env, const(NULL))
   if (rlang::is_formula(chk_eval)) {
     qs <- enquo_check_items(rlang::f_rhs(chk_eval), env)
     pred <- get_predicate(rlang::f_lhs(chk_eval), env)
@@ -58,7 +58,7 @@ get_predicate <- function(x, env) {
     fn <- eval(expr, env)
   } else {
     expr <- x_expr
-    fn <- try_eval_tidy(x, env = env)
+    fn <- try_eval_tidy(x, env)
     if (!is.function(fn)) {
       stop(err_not_function(x, fn), call. = FALSE)
     }

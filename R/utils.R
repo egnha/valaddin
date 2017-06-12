@@ -7,6 +7,11 @@ names_filled <- function(x) {
   names(x) %||% character(length(x))
 }
 
+const <- function(x) {
+  force(x)
+  function(...) x
+}
+
 # Pipe operator
 `%>%` <- purrr::`%>%`
 
