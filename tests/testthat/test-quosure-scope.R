@@ -92,3 +92,21 @@ test_that("localization supports unquoting of error message", {
   expect_error(f(TRUE), NA)
   expect_error(f(FALSE), "X is not true: FALSE")
 })
+
+context("Globalization")
+
+test_that(
+  "globalization of localized predicate is check-equivalent to predicate",
+  {
+    predicate <- local({
+      z <- 0
+      function(x) isTRUE(x > z)
+    })
+    f <- function(x) NULL
+    f1 <- firmly(f, globalize(localize(predicate)))
+    f2 <- firmly(f, predicate)
+    expect_error(f1(1), NA)
+    expect_error(f1(0), errmsg_false("predicate(x)"))
+    expect_equal(f1, f2)
+  }
+)
