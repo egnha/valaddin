@@ -15,7 +15,8 @@ parse_check <- function(chk, msg, syms) {
   if (!nzchar(msg)) {
     msg <- attr(chk_eval, "def_err_msg", exact = TRUE) %||% ""
   }
-  text <- deparse_check(pred[["expr"]], qs, msg, env)
+  protect <- attr(chk_eval, "protect_msg", exact = TRUE) %||% FALSE
+  text <- deparse_check(pred[["expr"]], qs, msg, protect, env)
   validation_tbl(pred[["fn"]], qs, text)
 }
 
@@ -78,11 +79,11 @@ err_not_function <- function(x, fault) {
   }
 }
 
-deparse_check <- function(expr, qs, def_msg, env) {
+deparse_check <- function(expr, qs, def_msg, protect, env) {
   calls <- vapply(qs, deparse_call, character(1), expr = expr)
   msgs <- names_filled(qs)
   not_named <- !nzchar(msgs)
-  msgs[not_named] <- generate_message(def_msg, env,
+  msgs[not_named] <- generate_message(def_msg, protect, env,
                                       qs[not_named], calls[not_named])
   list(call = calls, msg = msgs, dot_as_expr = not_named)
 }
@@ -92,9 +93,13 @@ deparse_call <- function(expr, arg) {
   deparse_collapse(call)
 }
 
-generate_message <- function(def_msg, env, qs, calls) {
+generate_message <- function(def_msg, protect, env, qs, calls) {
   if (nzchar(def_msg)) {
-    vapply(qs, glue_opp, character(1), text = def_msg, env = env)
+    msg <- vapply(qs, glue_opp, character(1), text = def_msg, env = env)
+    if (protect) {
+      msg <- double_braces(msg)
+    }
+    msg
   } else {
     # double-up braces to shield them from glue::glue()
     double_braces(message_false(calls))

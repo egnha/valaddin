@@ -86,15 +86,18 @@ localize <- function(...) {
   pred <- get_predicate(preds[[1L]], rlang::get_env(preds[[1L]]))
   if (nzchar(names(preds)[1L])) {
     msg <- names(preds)[1L]
+    protect <- FALSE
   } else {
     msg <- default_message(rlang::quo_expr(preds[[1L]]), pred[["expr"]])
+    protect <- TRUE
   }
   structure(
     function(...) {
       check_items <- rlang::quos(...)
       structure(
         rlang::new_formula(pred[["fn"]], check_items, parent.frame()),
-        def_err_msg = msg
+        def_err_msg = msg,
+        protect_msg = protect
       )
     },
     class = c("check_maker", "function")
@@ -103,6 +106,7 @@ localize <- function(...) {
 
 default_message <- function(expr1, expr2) {
   expr <- if (is_lambda(expr1)) expr2 else expr1
+  # double-up braces so that generate_message() substitutes literal expression
   message_false(deparse_collapse(rlang::expr(UQ(expr)({{.}}))))
 }
 
@@ -122,7 +126,8 @@ globalize <- vld(
 )(function(chkr) {
   structure(
     environment(chkr)[["pred"]][["fn"]],
-    def_err_msg = environment(chkr)[["msg"]]
+    def_err_msg = environment(chkr)[["msg"]],
+    protect_msg = environment(chkr)[["protect"]]
   )
 })
 
