@@ -20,6 +20,7 @@ parse_check <- function(chk, msg, syms) {
   validation_tbl(pred[["fn"]], qs, text)
 }
 
+# stripped-down version of tibble:::list_to_tibble()
 validation_tbl <- function(pred, exprs, text) {
   n <- length(exprs)
   x <- list(
