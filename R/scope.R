@@ -100,7 +100,7 @@ localize <- function(...) {
         protect_msg = protect
       )
     },
-    class = c("check_maker", "function")
+    class = c("local_predicate", "function")
   )
 }
 
@@ -110,8 +110,8 @@ default_message <- function(expr1, expr2) {
   message_false(deparse_collapse(rlang::expr(UQ(expr)({{.}}))))
 }
 
-is_check_maker <- function(x) {
-  rlang::is_closure(x) && inherits(x, "check_maker")
+is_local_predicate <- function(x) {
+  rlang::is_closure(x) && inherits(x, "local_predicate")
 }
 
 #' @rdname input-validators
@@ -121,8 +121,8 @@ is_check_maker <- function(x) {
 #' @return `globalize` returns the global-scope check formula from which the
 #'   function `chkr` is derived.
 globalize <- vld(
-  "'chkr' must be a local checker function (see ?localize)" =
-    is_check_maker ~ chkr
+  "'chkr' must be a local-check maker (function, see ?localize)" =
+    is_local_predicate ~ chkr
 )(function(chkr) {
   structure(
     environment(chkr)[["pred"]][["fn"]],
@@ -132,10 +132,10 @@ globalize <- vld(
 })
 
 #' @export
-print.check_maker <- function(x, ...) {
+print.local_predicate <- function(x, ...) {
   env <- environment(x)
 
-  cat("<check_maker>\n")
+  cat("<local_predicate>\n")
 
   cat("\n* Predicate function:\n")
   cat(deparse_collapse(env[["pred"]][["expr"]]), "\n")

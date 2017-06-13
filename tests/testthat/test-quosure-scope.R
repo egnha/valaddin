@@ -24,12 +24,12 @@ test_that("error is raised when argument is not a function/lambda expression", {
 })
 
 # Return value
-test_that("localized function is an object of class 'check_maker'", {
-  expect_true("check_maker" %in% class(localize(isTRUE)))
+test_that("localized function has class 'local_predicate'", {
+  expect_true("local_predicate" %in% class(localize(isTRUE)))
 })
 
-test_that("localized lambda expression is an object of class 'check_maker'", {
-  expect_true("check_maker" %in% class(localize({isTRUE(. > 0)})))
+test_that("localized lambda expression has class 'local_predicate'", {
+  expect_true("local_predicate" %in% class(localize({isTRUE(. > 0)})))
 })
 
 # Scope of input validation
