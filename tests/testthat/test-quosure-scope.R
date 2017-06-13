@@ -100,6 +100,19 @@ test_that("localization supports unquoting of error message", {
 
 context("Globalization")
 
+test_that("error is raised when argument is not a local predicate", {
+  fake_local_predicate <- list(
+    NULL, NA, 1:2, "a", mtcars, list(ls),
+    # not a closure
+    log,
+    # not of class 'local_predicate'
+    unclass(localize(isTRUE))
+  )
+  for (x in fake_local_predicate) {
+    expect_error(globalize(x), "'chkr' must be a local-check maker")
+  }
+})
+
 test_that(
   "globalization of localized predicate is check-equivalent to predicate",
   {
@@ -115,3 +128,27 @@ test_that(
     expect_equal(f1, f2)
   }
 )
+
+test_that("globalization preserves message of localized predicate", {
+  chkr1 <- localize(isTRUE)
+  chkr2 <- localize("{{.}} is not true: {.}" = isTRUE)
+  f <- function(x) NULL
+  f1 <- firmly(f, globalize(chkr1))
+  f2 <- firmly(f, globalize(chkr2))
+  expect_error(f1(TRUE), NA)
+  expect_error(f2(TRUE), NA)
+  expect_error(f1("indeed not"), errmsg_false("isTRUE(x)"))
+  expect_error(f2("indeed not"), "x is not true: indeed not")
+})
+
+test_that("name of globalization overrides message of localized predicate", {
+  chkr1 <- localize(isTRUE)
+  chkr2 <- localize("{{.}} is not true: {.}" = isTRUE)
+  f <- function(x) NULL
+  f1 <- firmly(f, "overridden" = globalize(chkr1))
+  f2 <- firmly(f, "overridden" = globalize(chkr2))
+  expect_error(f1(TRUE), NA)
+  expect_error(f2(TRUE), NA)
+  expect_error(f1("indeed not"), "overridden")
+  expect_error(f2("indeed not"), "overridden")
+})
