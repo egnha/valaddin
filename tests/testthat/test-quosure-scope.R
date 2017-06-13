@@ -80,14 +80,14 @@ test_that("local error message overrides that of localized predicate", {
 # Quasiquotation
 test_that("localization supports quasiquotation of argument", {
   z <- local({z <- 0; rlang::quo(z)})
-  chkr1 <- localize(function(x) isTRUE(x > !!z))
+  chkr1 <- localize(function(x) isTRUE(x > !! z))
   chkr2 <- localize(function(x) isTRUE(x > 0))
   expect_equal(localize(chkr1), localize(chkr2))
 })
 
 test_that("localization supports unquoting of error message", {
   msg <- "{{toupper(.)}} is not true: {.}"
-  chk_is_true <- localize(!!msg := isTRUE)
+  chk_is_true <- localize(!! msg := isTRUE)
   f <- firmly(function(x) NULL, chk_is_true(x))
   expect_error(f(TRUE), NA)
   expect_error(f(FALSE), "X is not true: FALSE")

@@ -108,7 +108,7 @@ test_that("check items support quasiquotation", {
     rlang::quo(y - one)
   })
   two <- 2
-  f <- firmly(function(x, y) NULL, {. > 0} ~ quos(x - !!two, !!q))
+  f <- firmly(function(x, y) NULL, {. > 0} ~ quos(x - !! two, !! q))
   expect_error(f(3, 2), NA)
   expect_error(f(2, 1),
                errmsg_false("(function(.) {. > 0})(x - 2)"), perl = TRUE)
@@ -118,14 +118,14 @@ test_that("check items support quasiquotation", {
 
 test_that("error message for global check supports quasiquotation", {
   msg <- "'{{.}}' is not true: {.}"
-  f <- firmly(function(x, y) NULL, !!msg := isTRUE)
+  f <- firmly(function(x, y) NULL, !! msg := isTRUE)
   expect_error(f(TRUE, TRUE), NA)
   expect_error(f("indeed not", TRUE), "'x' is not true: indeed not")
 })
 
 test_that("error message local to check item supports quasiquotation", {
   msg <- "'x' is not true: {x}"
-  f <- firmly(function(x, y) NULL, isTRUE ~ quos(!!msg := x))
+  f <- firmly(function(x, y) NULL, isTRUE ~ quos(!! msg := x))
   expect_error(f(TRUE), NA)
   expect_error(f("indeed not"), "'x' is not true: indeed not")
 })
