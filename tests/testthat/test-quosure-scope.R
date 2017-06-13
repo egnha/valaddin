@@ -57,10 +57,13 @@ test_that("check items of local check maker use their scope for validation", {
 
 # Error messages
 test_that("unnamed localized predicate as check has default error message", {
-  chk_is_true <- localize(isTRUE)
-  f <- firmly(function(x) NULL, chk_is_true(x))
+  z <- 0
+  f <- firmly(function(x) NULL, localize(isTRUE)(x))
+  g <- firmly(function(x) NULL, localize({. > z})(x))
   expect_error(f(TRUE), NA)
   expect_error(f(FALSE), errmsg_false("isTRUE(x)"))
+  expect_error(g(1), NA)
+  expect_error(g(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
 })
 
 test_that("named localized predicate as check has name as error message", {
@@ -80,9 +83,12 @@ test_that("local error message overrides that of localized predicate", {
 # Quasiquotation
 test_that("localization supports quasiquotation of argument", {
   z <- local({z <- 0; rlang::quo(z)})
+  predicate <- function(x) isTRUE(x > 0)
   chkr1 <- localize(function(x) isTRUE(x > !! z))
   chkr2 <- localize(function(x) isTRUE(x > 0))
+  chkr3 <- localize(!! predicate)
   expect_equal(localize(chkr1), localize(chkr2))
+  expect_equal(localize(chkr1), localize(chkr3))
 })
 
 test_that("localization supports unquoting of error message", {
