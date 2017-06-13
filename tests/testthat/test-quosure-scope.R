@@ -67,8 +67,7 @@ test_that("unnamed localized predicate as check has default error message", {
 })
 
 test_that("named localized predicate as check has name as error message", {
-  chk_is_true <- localize("Not true" = isTRUE)
-  f <- firmly(function(x) NULL, chk_is_true(x))
+  f <- firmly(function(x) NULL, localize("Not true" = isTRUE)(x))
   expect_error(f(TRUE), NA)
   expect_error(f(FALSE), "Not true")
 })
@@ -77,7 +76,7 @@ test_that("local error message overrides that of localized predicate", {
   chk_is_true <- localize("Not true" = isTRUE)
   f <- firmly(function(x) NULL, chk_is_true("x is not true: {x}" = x))
   expect_error(f(TRUE), NA)
-  expect_error(f(FALSE), "x is not true: FALSE")
+  expect_error(f("indeed not"), "x is not true: indeed not")
 })
 
 # Quasiquotation
@@ -96,7 +95,7 @@ test_that("localization supports unquoting of error message", {
   chk_is_true <- localize(!! msg := isTRUE)
   f <- firmly(function(x) NULL, chk_is_true(x))
   expect_error(f(TRUE), NA)
-  expect_error(f(FALSE), "X is not true: FALSE")
+  expect_error(f("indeed not"), "X is not true: indeed not")
 })
 
 context("Globalization")
