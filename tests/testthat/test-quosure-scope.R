@@ -113,22 +113,6 @@ test_that("error is raised when argument is not a local predicate", {
   }
 })
 
-test_that(
-  "globalization of localized predicate is check-equivalent to predicate",
-  {
-    predicate <- local({
-      z <- 0
-      function(x) isTRUE(x > z)
-    })
-    f <- function(x) NULL
-    f1 <- firmly(f, globalize(localize(predicate)))
-    f2 <- firmly(f, predicate)
-    expect_error(f1(1), NA)
-    expect_error(f1(0), errmsg_false("predicate(x)"))
-    expect_equal(f1, f2)
-  }
-)
-
 test_that("globalization preserves message of localized predicate", {
   chkr1 <- localize(isTRUE)
   chkr2 <- localize("{{.}} is not true: {.}" = isTRUE)
@@ -151,4 +135,33 @@ test_that("name of globalization overrides message of localized predicate", {
   expect_error(f2(TRUE), NA)
   expect_error(f1("indeed not"), "overridden")
   expect_error(f2("indeed not"), "overridden")
+})
+
+context("Scope inversion")
+
+test_that("localize(globalize(chkr)) is check-equivalent to chkr", {
+  predicate <- local({
+    z <- 0
+    function(x) isTRUE(x > z)
+  })
+  chkr <- localize(predicate)
+  f <- function(x) NULL
+  ff <- firmly(f, localize(globalize(chkr))(x))
+  ff_ref <- firmly(f, chkr(x))
+  expect_error(ff(1), NA)
+  expect_error(ff(0), errmsg_false("globalize(chkr)"))
+  expect_equal(ff, ff_ref)
+})
+
+test_that("globalize(localize(pred)) is check-equivalent to pred", {
+  predicate <- local({
+    z <- 0
+    function(x) isTRUE(x > z)
+  })
+  f <- function(x) NULL
+  ff <- firmly(f, globalize(localize(predicate)))
+  ff_ref <- firmly(f, predicate)
+  expect_error(ff(1), NA)
+  expect_error(ff(0), errmsg_false("predicate(x)"))
+  expect_equal(ff, ff_ref)
 })
