@@ -91,11 +91,12 @@ localize <- function(...) {
     msg <- default_message(rlang::quo_expr(preds[[1L]]), pred[["expr"]])
     protect <- TRUE
   }
+  pred_quo <- rlang::new_quosure(pred[["fn"]], pred[["env"]])
   structure(
     function(...) {
       check_items <- rlang::quos(...)
       structure(
-        rlang::new_formula(pred[["fn"]], check_items, parent.frame()),
+        rlang::new_formula(pred_quo, check_items, parent.frame()),
         def_err_msg = msg,
         protect_msg = protect
       )

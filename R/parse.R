@@ -16,7 +16,7 @@ parse_check <- function(chk, msg, syms) {
     msg <- attr(chk_eval, "def_err_msg", exact = TRUE) %||% ""
   }
   protect <- attr(chk_eval, "protect_msg", exact = TRUE) %||% FALSE
-  text <- deparse_check(pred[["expr"]], qs, msg, protect, env)
+  text <- deparse_check(pred[["expr"]], qs, msg, protect, pred[["env"]])
   validation_tbl(pred[["fn"]], qs, text)
 }
 
@@ -64,7 +64,7 @@ get_predicate <- function(x, env) {
       stop(err_not_function(x, fn), call. = FALSE)
     }
   }
-  list(expr = expr, fn = fn)
+  list(expr = expr, fn = fn, env = env)
 }
 
 is_lambda <- function(x) {
@@ -84,8 +84,8 @@ deparse_check <- function(expr, qs, def_msg, protect, env) {
   calls <- vapply(qs, deparse_call, character(1), expr = expr)
   msgs <- names_filled(qs)
   not_named <- !nzchar(msgs)
-  msgs[not_named] <- generate_message(def_msg, protect, env,
-                                      qs[not_named], calls[not_named])
+  msgs[not_named] <-
+    generate_message(def_msg, protect, env, qs[not_named], calls[not_named])
   list(call = calls, msg = msgs, dot_as_expr = not_named)
 }
 
