@@ -117,7 +117,25 @@ is_local_predicate <- function(x) {
 
 #' @rdname input-validators
 #' @export
-#' @param chkr Function of class `check_maker`, i.e., a function created by
+#' @param msg Error message (string).
+#' @param compare Comparison function.
+localize_comparison <- vld(
+  "'msg' must be a string" = {is.character(.) && length(.) == 1L} ~ msg,
+  "'compare' must be a function" = is.function ~ compare
+)(function(msg, compare, ...) {
+  force(msg)
+  force(compare)
+  compare_ref <- function(ref) {
+    function(x) compare(x, ref, ...)
+  }
+  function(ref, ...) {
+    localize(UQ(msg) := compare_ref(ref))(...)
+  }
+})
+
+#' @rdname input-validators
+#' @export
+#' @param chkr Function of class `local_predicate`, i.e., a function created by
 #'   `localize`.
 #' @return `globalize` returns the global-scope check formula from which the
 #'   function `chkr` is derived.
