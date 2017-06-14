@@ -100,4 +100,6 @@ print.firm_closure <- function(x, ...) {
   } else {
     cat("None\n")
   }
+
+  invisible(x)
 }

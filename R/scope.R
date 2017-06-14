@@ -161,4 +161,6 @@ print.local_predicate <- function(x, ...) {
 
   cat("\n* Error message:\n")
   cat(encodeString(env[["msg"]], quote = "\""), "\n")
+
+  invisible(x)
 }
