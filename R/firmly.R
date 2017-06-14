@@ -48,6 +48,7 @@ loosely <- function(f) {
   }
 }
 
+#' @export
 is_firm <- function(x) {
   inherits(x, "firm_closure")
 }
