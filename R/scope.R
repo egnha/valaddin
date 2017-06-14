@@ -128,8 +128,8 @@ localize_comparison <- vld(
   compare_ref <- function(ref) {
     function(x) compare(x, ref, ...)
   }
-  function(ref, ...) {
-    localize(UQ(msg) := compare_ref(ref))(...)
+  function(ref) {
+    localize(UQ(msg) := compare_ref(ref))
   }
 })
 
