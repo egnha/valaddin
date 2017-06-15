@@ -7,19 +7,13 @@ parse_check <- function(chk, msg, syms) {
   chk_eval <- try_eval_tidy(chk, error = const(NULL))
   if (rlang::is_formula(chk_eval) && ! rlang::is_quosure(chk_eval)) {
     qs <- enquo_check_items(rlang::f_rhs(chk_eval), env)
-    pred <- get_predicate(rlang::f_lhs(chk_eval), env)
+    pred <- as_predicate(rlang::f_lhs(chk_eval), env)
   } else {
     qs <- lapply(syms, rlang::new_quosure, env = env)
-    pred <- get_predicate(chk, env)
+    pred <- as_predicate(chk, env)
   }
   if (!nzchar(msg)) {
-    msg_q <- attr(chk_eval, "def_err_msg", exact = TRUE)
-    if (rlang::is_quosure(msg_q)) {
-      msg <- rlang::eval_tidy(msg_q)
-      env <- rlang::get_env(msg_q)
-    } else {
-      msg <- ""
-    }
+    msg <- attr(chk_eval, "def_err_msg", exact = TRUE) %||% ""
   }
   protect <- attr(chk_eval, "protect_msg", exact = TRUE) %||% FALSE
   text <- deparse_check(pred[["expr"]], qs, msg, protect, env)
@@ -55,16 +49,15 @@ is_quos <- function(x) {
   is.call(x) && identical(x[[1]], as.name("quos"))
 }
 
-get_predicate <- function(x, env) {
-  x_expr <- rlang::quo_expr(x)
+as_predicate <- function(x, env) {
   if (rlang::is_quosure(x)) {
     env <- rlang::get_env(x)
   }
-  if (is_lambda(x_expr)) {
-    expr <- call("function", as.pairlist(alist(. = )), x_expr)
+  expr <- rlang::quo_expr(x)
+  if (is_lambda(expr)) {
+    expr <- call("function", as.pairlist(alist(. = )), expr)
     fn <- eval(expr, env)
   } else {
-    expr <- x_expr
     fn <- try_eval_tidy(x, env)
     if (!is.function(fn)) {
       stop(err_not_function(x, fn), call. = FALSE)
