@@ -43,7 +43,7 @@ test_that("localized predicate uses its scope for validation", {
   expect_error(f(""), errmsg_false("(function(x) identical(x, inside))(x)"))
 })
 
-test_that("check items of local check maker use their scope for validation", {
+test_that("check items of local predicate use their scope for validation", {
   chk_equals_inside_z <- local({
     z <- 0
     equals_inside_z <- function(x) isTRUE(all.equal(x, z))
@@ -109,7 +109,7 @@ test_that("error is raised when argument is not a local predicate", {
     unclass(localize(isTRUE))
   )
   for (x in fake_local_predicate) {
-    expect_error(globalize(x), "'chkr' must be a local-check maker")
+    expect_error(globalize(x), "'chkr' must be a local predicate")
   }
 })
 

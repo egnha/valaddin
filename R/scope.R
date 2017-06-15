@@ -140,7 +140,7 @@ localize_comparison <- vld(
 #' @return `globalize` returns the global-scope check formula from which the
 #'   function `chkr` is derived.
 globalize <- vld(
-  "'chkr' must be a local-check maker (function, see ?localize)" =
+  "'chkr' must be a local predicate (see ?localize)" =
     is_local_predicate ~ chkr
 )(function(chkr) {
   structure(
