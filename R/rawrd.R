@@ -10,13 +10,13 @@ call_sig <- function(x, width) {
 
 call_sig_fn <- function(nm, width) {
   # Allowed range of values for width.cutoff parameter of deparse()
-  stopifnot(width >= 20L, width <= 500L)
+  stopifnot(width >= 20, width <= 500)
 
   sig <- formals(get(nm, mode = "function"))
   expr <- deparse(call("function", sig, quote(expr = ))) %>%
     paste(collapse = "") %>%
     sub("^function", nm, .) %>%
-    {parse(text = ., keep.source = FALSE)[[1L]]}
+    {parse(text = ., keep.source = FALSE)[[1]]}
   indent <- paste(rep(" ", nchar(nm)), collapse = "")
 
   paste(deparse_lines(expr, indent, width), collapse = "\n")
@@ -29,7 +29,7 @@ deparse_lines <- function(expr, indent, width) {
   while (exceed_width) {
     x <- deparse_reindent(expr, indent, w)
     exceed_width <- any(vapply(x, nchar, integer(1)) > width)
-    w <- w - 1L
+    w <- w - 1
   }
   x
 }
@@ -37,14 +37,14 @@ deparse_reindent <- function(expr, indent, width) {
   expr %>%
     deparse(width.cutoff = width) %>%
     trimws(which = "both") %>%
-    {`[<-`(., -1L, value = paste(indent, .[-1L]))}
+    {`[<-`(., -1, value = paste(indent, .[-1]))}
 }
 
 call_sig_op <- function(nm) {
   op <- get(nm, mode = "function")
   args <- names(formals(op))
   nm_esc_pct <- gsub("%", "\\\\%", nm)
-  paste(args[1L], nm_esc_pct, args[2L])
+  paste(args[1], nm_esc_pct, args[2])
 }
 
 # Convert a string-valued function into a vectorized function that joins strings
@@ -87,7 +87,7 @@ rd_alias <- vec_strjoin(rd_markup("alias"))
 #' rd_usage("ls")
 #' rd_usage(c("firmly", "loosely"), pos = "package:valaddin")
 #' @noRd
-rd_usage <- function(x, width = 80L) {
+rd_usage <- function(x, width = 80) {
   rd_markup("usage", join = "\n\n", sep = "\n")(call_sig(x, width))
 }
 

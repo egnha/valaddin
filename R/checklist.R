@@ -39,7 +39,7 @@ is_checklist <- function(x) {
 
 # Same as purrr::is_scalar_character() but with check against NA
 is_string <- function(x) {
-  typeof(x) == "character" && length(x) == 1L && !is.na(x)
+  typeof(x) == "character" && length(x) == 1 && !is.na(x)
 }
 
 is_gbl_check_formula <- function(x) {
@@ -53,7 +53,7 @@ is_rhs_function <- function(x) {
 # To check that a formula is onesided, it is not enough to check
 # is.null(ff_eval_lhs(x)), for both NULL ~ x and ~x have NULL lhs.
 is_onesided <- function(x) {
-  length(x) == 2L
+  length(x) == 2
 }
 
 is_f_onesided <- function(x) {

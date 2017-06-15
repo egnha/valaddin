@@ -1,6 +1,6 @@
 # Empty-default operator
 `%||%` <- function(x, y) {
-  if (is.null(x) || length(x) == 0L) y else x
+  if (is.null(x) || length(x) == 0) y else x
 }
 
 names_filled <- function(x) {
@@ -36,7 +36,7 @@ warning_wo_call <- function(...) warning(..., call. = FALSE)
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
   d <- deparse(x)
-  if (length(d) > 1L) {
+  if (length(d) > 1) {
     paste(trimws(gsub("\\s+", " ", d), which = "left"), collapse = "")
   } else {
     d
@@ -49,7 +49,7 @@ quote_collapse <- function(xs) {
 }
 
 # Collapse a character vector into an enumerated string
-enumerate_many <- function(x, many = 2L) {
+enumerate_many <- function(x, many = 2) {
   if (length(x) >= many) {
     paste(
       vapply(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]]),

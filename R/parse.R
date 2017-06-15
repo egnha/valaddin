@@ -46,7 +46,7 @@ enquo_check_items <- function(expr, env) {
 }
 
 is_quos <- function(x) {
-  is.call(x) && identical(x[[1L]], as.name("quos"))
+  is.call(x) && identical(x[[1]], as.name("quos"))
 }
 
 get_predicate <- function(x, env) {
@@ -68,7 +68,7 @@ get_predicate <- function(x, env) {
 }
 
 is_lambda <- function(x) {
-  is.call(x) && identical(x[[1L]], as.symbol("{"))
+  is.call(x) && identical(x[[1]], as.symbol("{"))
 }
 
 err_not_function <- function(x, fault) {
@@ -151,21 +151,21 @@ glue_opp <- function(q, text, env) {
 #' relevel_braces("{{.}{.}}")                  # {{{.}{.}}}
 #' relevel_braces(".{{.}.}.{{.}}.{.{.}}.{.}")  # .{{{.}.}}.{.}.{{.{.}}}.{{.}}
 relevel_braces <- function(text) {
-  text_vec <- strsplit(text, NULL)[[1L]]
+  text_vec <- strsplit(text, NULL)[[1]]
   paste(relevel_braces_(text_vec), collapse = "")
 }
 
 relevel_braces_ <- function(x) {
   ht <- as.integer(cumsum(brace_val(x)))
-  rle <- rle(ht != 0L)
+  rle <- rle(ht != 0)
   out <- vector("list", length(rle[["values"]]))
-  pos <- 0L
+  pos <- 0
   for (i in seq_along(rle[["values"]])) {
     l <- rle[["lengths"]][i]
     seq <- pos + seq_len(l)
     if (rle[["values"]][i]) {
       if (is_double_brace(ht[seq])) {
-        out[[i]] <- x[seq][2L:(l - 1L)]
+        out[[i]] <- x[seq][2:(l - 1)]
       } else {
         out[[i]] <- c("{", x[seq], "}")
       }
@@ -185,9 +185,9 @@ brace_val <- function(x) {
 }
 
 is_double_brace <- function(ht) {
-  if (length(ht) <= 2L) {
+  if (length(ht) <= 2) {
     FALSE
   } else {
-    sum(ht == 1L) == 2L
+    sum(ht == 1) == 2
   }
 }

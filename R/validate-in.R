@@ -45,7 +45,7 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
   env_pred <- bind_predicates(nms_pred, chks[["pred"]])
   make_promises <- eval(call("function", sig, quote(environment())))
   new_validation_env <- function(call, env) {
-    env_prom <- eval(`[[<-`(call, 1L, make_promises), env)
+    env_prom <- eval(`[[<-`(call, 1, make_promises), env)
     parent.env(env_prom) <- environment(f)
     bind_promises(nms, syms, env_prom, env_pred)
   }
@@ -65,9 +65,9 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
     )
   }
   deparse_w_defval <- function(call) {
-    sig[names(call[-1L])] <- call[-1L]
+    sig[names(call[-1])] <- call[-1]
     sig <- sig[!vapply(sig, identical, logical(1), quote(expr = ))]
-    deparse_collapse(as.call(c(call[[1L]], sig)))
+    deparse_collapse(as.call(c(call[[1]], sig)))
   }
 
   function() {
@@ -82,7 +82,7 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
     )
     pass <- vapply(verdict, isTRUE, logical(1))
     if (all(pass)) {
-      eval_bare(`[[<-`(call, 1L, .subset2(encl, "f")), parent.frame())
+      eval_bare(`[[<-`(call, 1, .subset2(encl, "f")), parent.frame())
     } else {
       stop(.subset2(encl, "error")(call, verdict, !pass, venv))
     }
@@ -106,7 +106,7 @@ err_invalid_input <- function(., env) {
   parent.env(env) <- rlang::get_env(.$expr[[1]])
   env_dot <- if (.$dot_as_expr[[1]]) bind_as_dot(.$expr[[1]], env) else env
   tryCatch(
-    glue_text(.$msg[[1L]], env_dot),
+    glue_text(.$msg[[1]], env_dot),
     error = function(e) {
       sprintf("%s\n[Error interpolating message '%s': %s]",
               message_false(.$call[[1]]), .$msg[[1]], conditionMessage(e))

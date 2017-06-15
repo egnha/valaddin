@@ -53,7 +53,7 @@
 #'   localize(err_msg ~ {. <= n})(...)
 #' }
 #' fib <- function(n) {
-#'   if (n <= 1L) return(1L)
+#'   if (n <= 1) return(1)
 #'   Recall(n - 1) + Recall(n - 2)
 #' }
 #' capped_fib <- firmly(fib, chk_lte(30, ~ ceiling(n)))
@@ -81,15 +81,15 @@ NULL
 #'   }
 localize <- function(...) {
   preds <- rlang::quos(...)
-  if (length(preds) > 1L) {
+  if (length(preds) > 1) {
     warning("Only the first predicate will be localized", call. = FALSE)
   }
-  pred <- get_predicate(preds[[1L]], rlang::get_env(preds[[1L]]))
-  if (nzchar(names(preds)[1L])) {
-    msg <- names(preds)[1L]
+  pred <- get_predicate(preds[[1]], rlang::get_env(preds[[1]]))
+  if (nzchar(names(preds)[1])) {
+    msg <- names(preds)[1]
     protect <- FALSE
   } else {
-    msg <- default_message(rlang::quo_expr(preds[[1L]]), pred[["expr"]])
+    msg <- default_message(rlang::quo_expr(preds[[1]]), pred[["expr"]])
     protect <- TRUE
   }
   pred_quo <- rlang::new_quosure(pred[["fn"]], pred[["env"]])

@@ -62,7 +62,7 @@ validate <- function(., ..., .checklist = list(),
   `formals<-`(
     function () {
       encl <- parent.env(environment())
-      encl$validate_out(eval.parent(`[[<-`(match.call(), 1L, encl$.f)))
+      encl$validate_out(eval.parent(`[[<-`(match.call(), 1, encl$.f)))
     },
     value = formals(.f)
   )
