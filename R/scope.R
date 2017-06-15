@@ -120,7 +120,7 @@ is_local_predicate <- function(x) {
 #' @param msg Error message (string).
 #' @param compare Comparison function.
 localize_comparison <- vld(
-  "'msg' must be a string" = {is.character(.) && length(.) == 1L} ~ msg,
+  "'msg' must be a string" = rlang::is_string ~ msg,
   "'compare' must be a function" = is.function ~ compare
 )(function(msg, compare, ...) {
   force(msg)
