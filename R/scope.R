@@ -80,7 +80,8 @@ NULL
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
 localize <- function(...) {
-  if (length(preds <- rlang::quos(...)) > 1L) {
+  preds <- rlang::quos(...)
+  if (length(preds) > 1L) {
     warning("Only the first predicate will be localized", call. = FALSE)
   }
   pred <- get_predicate(preds[[1L]], rlang::get_env(preds[[1L]]))
