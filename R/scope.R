@@ -126,11 +126,10 @@ localize_comparison <- vld(
 )(function(msg, compare, ...) {
   force(msg)
   force(compare)
-  compare_ref <- function(ref) {
-    function(x) compare(x, ref, ...)
-  }
-  function(ref) {
-    localize(UQ(msg) := compare_ref(ref))
+  env <- parent.frame()
+  function(REF) {
+    msg <- relevel_braces(glue_text(msg, env, list(REF = REF)))
+    localize(UQ(msg) := function(x) compare(x, REF, ...))
   }
 })
 
