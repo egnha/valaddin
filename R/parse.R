@@ -13,10 +13,16 @@ parse_check <- function(chk, msg, syms) {
     pred <- get_predicate(chk, env)
   }
   if (!nzchar(msg)) {
-    msg <- attr(chk_eval, "def_err_msg", exact = TRUE) %||% ""
+    msg_q <- attr(chk_eval, "def_err_msg", exact = TRUE)
+    if (rlang::is_quosure(msg_q)) {
+      msg <- rlang::eval_tidy(msg_q)
+      env <- rlang::get_env(msg_q)
+    } else {
+      msg <- ""
+    }
   }
   protect <- attr(chk_eval, "protect_msg", exact = TRUE) %||% FALSE
-  text <- deparse_check(pred[["expr"]], qs, msg, protect, pred[["env"]])
+  text <- deparse_check(pred[["expr"]], qs, msg, protect, env)
   validation_tbl(pred[["fn"]], qs, text)
 }
 
@@ -50,10 +56,10 @@ is_quos <- function(x) {
 }
 
 get_predicate <- function(x, env) {
+  x_expr <- rlang::quo_expr(x)
   if (rlang::is_quosure(x)) {
     env <- rlang::get_env(x)
   }
-  x_expr <- rlang::quo_expr(x)
   if (is_lambda(x_expr)) {
     expr <- call("function", as.pairlist(alist(. = )), x_expr)
     fn <- eval(expr, env)
@@ -64,7 +70,7 @@ get_predicate <- function(x, env) {
       stop(err_not_function(x, fn), call. = FALSE)
     }
   }
-  list(expr = expr, fn = fn, env = env)
+  list(expr = expr, fn = fn)
 }
 
 is_lambda <- function(x) {

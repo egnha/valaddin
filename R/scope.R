@@ -84,20 +84,23 @@ localize <- function(...) {
   if (length(preds) > 1) {
     warning("Only the first predicate will be localized", call. = FALSE)
   }
-  pred <- get_predicate(preds[[1]], rlang::get_env(preds[[1]]))
+  env <- rlang::get_env(preds[[1]])
+  pred <- get_predicate(preds[[1]], env)
   if (nzchar(names(preds)[1])) {
-    msg <- names(preds)[1]
+    msg <- rlang::new_quosure(names(preds)[1], env)
     protect <- FALSE
   } else {
-    msg <- default_message(rlang::quo_expr(preds[[1]]), pred[["expr"]])
+    msg <- rlang::new_quosure(
+      default_message(rlang::quo_expr(preds[[1]]), pred[["expr"]]),
+      env
+    )
     protect <- TRUE
   }
-  pred_quo <- rlang::new_quosure(pred[["fn"]], pred[["env"]])
   structure(
     function(...) {
       check_items <- rlang::quos(...)
       structure(
-        rlang::new_formula(pred_quo, check_items, parent.frame()),
+        rlang::new_formula(pred[["fn"]], check_items, parent.frame()),
         def_err_msg = msg,
         protect_msg = protect
       )
