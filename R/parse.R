@@ -102,7 +102,7 @@ generate_message <- function(def_msg, protect, env, qs, calls) {
     }
     msg
   } else {
-    # double-up braces to shield them from glue::glue()
+    # double-up braces to shield them from glue_text()
     double_braces(message_false(calls))
   }
 }
@@ -131,12 +131,7 @@ message_false <- function(call) {
 glue_opp <- function(q, text, env) {
   env_dot <- new.env(parent = env)
   env_dot[["."]] <- rlang::quo_text(q)
-
-  # substitute string into call to avoid binding string to env,
-  # which could clash with a name in an environment higher up
-  eval(bquote(glue::glue(.(relevel_braces(text)), .envir = env_dot))) %||%
-    # work-around bug in glue 1.0.0 (get character(0) for certain strings)
-    ""
+  glue_text(relevel_braces(text), env_dot)
 }
 
 #' Re-level curly braces

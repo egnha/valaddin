@@ -12,6 +12,14 @@ const <- function(x) {
   function(...) x
 }
 
+glue_text <- function(text, env, data = NULL) {
+  # substitute string into call to avoid binding string to env,
+  # which could clash with a name in an environment higher up
+  eval(bquote(glue::glue_data(.x = data, .(text), .envir = env))) %||%
+    # work-around bug in glue 1.0.0: returns character(0) for ""
+    ""
+}
+
 # Pipe operator
 `%>%` <- purrr::`%>%`
 

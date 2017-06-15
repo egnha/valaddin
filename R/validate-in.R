@@ -106,11 +106,7 @@ err_invalid_input <- function(., env) {
   parent.env(env) <- rlang::get_env(.$expr[[1]])
   env_dot <- if (.$dot_as_expr[[1]]) bind_as_dot(.$expr[[1]], env) else env
   tryCatch(
-    # substitute string into call to avoid binding string to env,
-    # which could clash with a name in an environment higher up
-    eval(bquote(glue::glue(.(.$msg[[1]]), .envir = env_dot))) %||%
-      # work-around bug in glue 1.0.0 (get character(0) for certain strings)
-      "",
+    glue_text(.$msg[[1L]], env_dot),
     error = function(e) {
       sprintf("%s\n[Error interpolating message '%s': %s]",
               message_false(.$call[[1]]), .$msg[[1]], conditionMessage(e))
