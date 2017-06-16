@@ -80,22 +80,27 @@ NULL
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
 localize <- function(...) {
-  preds <- rlang::quos(...)
-  if (length(preds) > 1) {
+  dots <- rlang::quos(...)
+  if (length(dots) > 1) {
     warning("Only the first argument will be localized", call. = FALSE)
   }
-  pred <- as_predicate(preds[[1]], rlang::get_env(preds[[1]]))
-  if (nzchar(msg <- names(preds)[1])) {
+  p <- as_predicate(dots[[1]], rlang::get_env(dots[[1]]))
+  localize_(names(dots[1]), p[["fn"]], p[["expr"]], rlang::quo_expr(dots[[1]]))
+}
+
+localize_ <- function(msg, fn, expr, expr_q) {
+  force(fn)
+  if (nzchar(msg)) {
     protect <- FALSE
   } else {
-    msg <- default_message(rlang::quo_expr(preds[[1]]), pred[["expr"]])
+    msg <- default_message(expr_q, expr)
     protect <- TRUE
   }
   structure(
     function(...) {
       check_items <- rlang::quos(...)
       structure(
-        rlang::new_formula(pred[["fn"]], check_items, parent.frame()),
+        rlang::new_formula(fn, check_items, parent.frame()),
         def_err_msg = msg,
         protect_msg = protect
       )
@@ -142,7 +147,7 @@ globalize <- vld(
     is_local_predicate ~ chkr
 )(function(chkr) {
   structure(
-    environment(chkr)[["pred"]][["fn"]],
+    environment(chkr)[["fn"]],
     def_err_msg = environment(chkr)[["msg"]],
     protect_msg = environment(chkr)[["protect"]]
   )
