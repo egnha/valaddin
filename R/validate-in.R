@@ -106,7 +106,7 @@ err_invalid_input <- function(., env) {
   parent.env(env) <- rlang::get_env(.$expr[[1]])
   env_dot <- if (.$dot_as_expr[[1]]) bind_as_dot(.$expr[[1]], env) else env
   tryCatch(
-    glue_text(.$msg[[1]], env_dot),
+    glue::collapse(glue_text(.$msg[[1]], env_dot), sep = ", ", width = 60),
     error = function(e) {
       sprintf("%s\n[Error interpolating message '%s': %s]",
               message_false(.$call[[1]]), .$msg[[1]], conditionMessage(e))
