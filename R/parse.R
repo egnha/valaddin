@@ -53,7 +53,7 @@ as_predicate <- function(x, env) {
   if (rlang::is_quosure(x)) {
     env <- rlang::get_env(x)
   }
-  expr <- rlang::quo_expr(x)
+  expr <- rlang::get_expr(x)
   if (is_lambda(expr)) {
     expr <- call("function", as.pairlist(alist(. = )), expr)
     fn <- eval(expr, env)
