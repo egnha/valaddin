@@ -23,9 +23,6 @@ glue_text <- function(text, env, data = NULL) {
 # Pipe operator
 `%>%` <- purrr::`%>%`
 
-# Hush `R CMD check` note (confused by `.` in pipes)
-. <- NULL
-
 is_true <- isTRUE
 is_false <- function(x) identical(FALSE, x)
 is_error <- function(x) inherits(x, "error")
