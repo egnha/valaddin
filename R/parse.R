@@ -125,12 +125,11 @@ message_false <- function(call) {
 #' @param text Text to interpolate.
 #' @return Glue object, i.e., string of class `glue`.
 #' @examples
-#' glue_opp("The length of {{sQuote(.)}} is {length(.)}.", q = rlang::quo(x))
+#' q <- rlang::quo(x)
+#' glue_opp(q, "The length of {{sQuote(.)}} is {length(.)}.", baseenv())
 #' # The length of ‘x’ is {length(.)}.
 glue_opp <- function(q, text, env) {
-  env_dot <- new.env(parent = env)
-  env_dot[["."]] <- rlang::quo_text(q)
-  glue_text(relevel_braces(text), env_dot)
+  glue_text(relevel_braces(text), env, list(. = rlang::quo_text(q)))
 }
 
 #' Re-level curly braces
