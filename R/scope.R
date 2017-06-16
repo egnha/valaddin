@@ -121,20 +121,23 @@ is_local_predicate <- function(x) {
 
 #' @rdname input-validators
 #' @export
-#' @param msg Error message (string).
-#' @param compare Comparison function.
-localize_comparison <- vld(
-  "'msg' must be a string" = rlang::is_string ~ msg,
-  "'compare' must be a function" = is.function ~ compare
-)(function(msg, compare, ...) {
-  force(msg)
-  force(compare)
-  env <- parent.frame()
-  function(REF) {
-    msg <- relevel_braces(glue_text(msg, env, list(REF = REF)))
-    localize(UQ(msg) := function(x) compare(x, REF, ...))
+localize_comparison <- function(...) {
+  dots <- rlang::quos(...)
+  if (length(dots) > 1) {
+    warning("Only the first argument will be localized", call. = FALSE)
   }
-})
+  msg <- names(dots[1])
+  env <- parent.frame()
+  p <- as_predicate(dots[[1]], rlang::get_env(dots[[1]]),
+                    args = alist(. = , .ref = , ... = ))
+  function(.ref, ...) {
+    msg <- relevel_braces(glue_text(msg, env, list(.ref = .ref)))
+    localize_(msg,
+              function(.) p[["fn"]](., .ref, ...),
+              p[["expr"]],
+              rlang::quo_expr(dots[[1]]))
+  }
+}
 
 #' @rdname input-validators
 #' @export
