@@ -10,7 +10,7 @@ test_that("only the first predicate supplied is processesed", {
 })
 
 test_that("warning is raised when more than one argument is supplied", {
-  warn_msg <- "Only the first predicate will be localized"
+  warn_msg <- "Only the first argument will be localized"
   expect_warning(localize(isTRUE, y), warn_msg)
   expect_warning(tryCatch(localize(x, y), error = function(e) NULL), warn_msg)
 })

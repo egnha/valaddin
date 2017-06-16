@@ -82,7 +82,7 @@ NULL
 localize <- function(...) {
   preds <- rlang::quos(...)
   if (length(preds) > 1) {
-    warning("Only the first predicate will be localized", call. = FALSE)
+    warning("Only the first argument will be localized", call. = FALSE)
   }
   pred <- as_predicate(preds[[1]], rlang::get_env(preds[[1]]))
   if (nzchar(msg <- names(preds)[1])) {
