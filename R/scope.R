@@ -131,7 +131,7 @@ localize_comparison <- function(...) {
   p <- as_predicate(dots[[1]], rlang::get_env(dots[[1]]),
                     args = alist(. = , .ref = , ... = ))
   function(.ref, ...) {
-    msg <- relevel_braces(glue_text(msg, env, list(.ref = .ref)))
+    msg <- glue_text(msg, env, list(.ref = .ref), .open = "<<", .close = ">>")
     localize_(msg,
               function(.) p[["fn"]](., .ref, ...),
               p[["expr"]],
