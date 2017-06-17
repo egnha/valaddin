@@ -121,71 +121,15 @@ message_false <- function(call) {
 #' those in single curly braces are literally interpreted.
 #'
 #' @noRd
-#' @param q Quosure.
+#' @param q Quosure whose flattened string representation is the value of `.`.
 #' @param text Text to interpolate.
+#' @param env Environment in which to evaluate [glue::glue()].
 #' @return Glue object, i.e., string of class `glue`.
 #' @examples
 #' q <- rlang::quo(x)
 #' glue_opp(q, "The length of {{sQuote(.)}} is {length(.)}.", baseenv())
 #' # The length of ‘x’ is {length(.)}.
 glue_opp <- function(q, text, env) {
-  glue_text(relevel_braces(text), env, list(. = rlang::quo_text(q)))
-}
-
-#' Re-level curly braces
-#'
-#' `relevel_braces()` converts groups of a single curly braces to groups of
-#' double curly braces, and vice versa. It assumes, but does not check, that
-#' braces are matched.
-#'
-#' @noRd
-#' @param text String.
-#' @return String with braces re-leveled, but otherwise unchanged.
-#' @examples
-#' relevel_braces(".")                         # .
-#' relevel_braces("{.}")                       # {{.}}
-#' relevel_braces("{{.}}")                     # {.}
-#' relevel_braces("{{.}.}")                    # {{{.}.}}
-#' relevel_braces("{{.}{.}}")                  # {{{.}{.}}}
-#' relevel_braces(".{{.}.}.{{.}}.{.{.}}.{.}")  # .{{{.}.}}.{.}.{{.{.}}}.{{.}}
-relevel_braces <- function(text) {
-  text_vec <- strsplit(text, NULL)[[1]]
-  paste(relevel_braces_(text_vec), collapse = "")
-}
-
-relevel_braces_ <- function(x) {
-  ht <- as.integer(cumsum(brace_val(x)))
-  rle <- rle(ht != 0)
-  out <- vector("list", length(rle[["values"]]))
-  pos <- 0
-  for (i in seq_along(rle[["values"]])) {
-    l <- rle[["lengths"]][i]
-    seq <- pos + seq_len(l)
-    if (rle[["values"]][i]) {
-      if (is_double_brace(ht[seq])) {
-        out[[i]] <- x[seq][2:(l - 1)]
-      } else {
-        out[[i]] <- c("{", x[seq], "}")
-      }
-    } else {
-      out[[i]] <- x[seq]
-    }
-    pos <- pos + l
-  }
-  unlist(out)
-}
-
-brace_val <- function(x) {
-  val <- numeric(length(x))
-  val[x == "{"] <-  1
-  val[x == "}"] <- -1
-  val
-}
-
-is_double_brace <- function(ht) {
-  if (length(ht) <= 2) {
-    FALSE
-  } else {
-    sum(ht == 1) == 2
-  }
+  glue_text(text, env, list(. = rlang::quo_text(q)),
+            .open = "{{", .close = "}}")
 }
