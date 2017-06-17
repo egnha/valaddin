@@ -1,7 +1,7 @@
 context("Input validation")
 
 # Global-scope check ------------------------------------------------------
-context("Global-scope check")
+context("Global check")
 
 test_that("global check raises no error when all checks pass", {
   f <- firmly(function(x, y) NULL, is.numeric)
@@ -30,7 +30,7 @@ test_that("global check raises error for checks that return non-TRUE/FALSE", {
 })
 
 # Local-scope check -------------------------------------------------------
-context("Local-scope check")
+context("Local check")
 
 test_that("check formula with non-quosure RHS checks whole RHS expression", {
   # check of a bare argument
@@ -62,7 +62,7 @@ test_that("global lambda expression is interpreted as a predicate function", {
   expect_error(f(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
 })
 
-test_that("local lambda expression is interpreted as predicate function", {
+test_that("local lambda expression is interpreted as a predicate function", {
   z <- 0
   f <- firmly(function(x, y) NULL, {. > z} ~ x)
   expect_error(f(1, stop("!")), NA)
@@ -72,7 +72,7 @@ test_that("local lambda expression is interpreted as predicate function", {
 # Quasiquotation ----------------------------------------------------------
 context("Quasiquotation")
 
-test_that("global-check predicate supports quasiquotation", {
+test_that("global predicate function supports quasiquotation", {
   zero <- 0
   predicate1 <- rlang::quo(function(x) x > zero)
   predicate2 <- local({
@@ -87,7 +87,7 @@ test_that("global-check predicate supports quasiquotation", {
   expect_error(f(0, 1), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
 })
 
-test_that("local-check predicate supports quasiquotation", {
+test_that("local predicate function supports quasiquotation", {
   zero <- 0
   predicate1 <- rlang::quo(function(x) x > zero)
   predicate2 <- local({
