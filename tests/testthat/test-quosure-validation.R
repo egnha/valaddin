@@ -46,7 +46,14 @@ test_that("check formula with non-quosure RHS checks whole RHS expression", {
 
 test_that("check formula with quosures RHS checks contained expressions", {
   is_positive <- function(x) isTRUE(x > 0)
+
   f <- firmly(function(x, y) NULL, is_positive ~ quos(x, y, x - y))
+  expect_error(f(2, 1), NA)
+  expect_error(f(0, 1), errmsg_false("is_positive(x)"))
+  expect_error(f(0, 1), errmsg_false("is_positive(x - y)"))
+
+  check_items <- rlang::quos(x, y, x - y)
+  f <- firmly(function(x, y) NULL, is_positive ~ !! check_items)
   expect_error(f(2, 1), NA)
   expect_error(f(0, 1), errmsg_false("is_positive(x)"))
   expect_error(f(0, 1), errmsg_false("is_positive(x - y)"))
@@ -109,6 +116,14 @@ test_that("check items support quasiquotation", {
   })
   two <- 2
   f <- firmly(function(x, y) NULL, {. > 0} ~ quos(x - !! two, !! q))
+  expect_error(f(3, 2), NA)
+  expect_error(f(2, 1),
+               errmsg_false("(function(.) {. > 0})(x - 2)"), perl = TRUE)
+  expect_error(f(2, 1),
+               errmsg_false("(function(.) {. > 0})(y - one)"), perl = TRUE)
+
+  check_items <- rlang::quos(x - !! two, !! q)
+  f <- firmly(function(x, y) NULL, {. > 0} ~ !! check_items)
   expect_error(f(3, 2), NA)
   expect_error(f(2, 1),
                errmsg_false("(function(.) {. > 0})(x - 2)"), perl = TRUE)
