@@ -11,7 +11,6 @@ LazyData: true
 Depends:
     R (>= 3.1.0)
 Imports:
-    lazyeval (>= 0.2.0),
     glue (>= 1.1),
     purrr (>= 0.2.2),
     rlang (>= 0.1.1)
@@ -26,15 +25,12 @@ BugReports: https://github.com/egnha/valaddin/issues
 Collate:
     'utils.R'
     'rawrd.R'
-    'future.R'
-    'checklist.R'
     'components.R'
     'parse.R'
     'validate-in.R'
     'firmly.R'
     'validate-out.R'
     'scope.R'
-    'checkers.R'
     'valaddin.R'
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
