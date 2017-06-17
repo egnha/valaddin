@@ -88,7 +88,7 @@ localize <- function(...) {
   localize_(names(dots[1]), p[["fn"]], p[["expr"]], rlang::quo_expr(dots[[1]]))
 }
 
-localize_ <- function(msg, fn, expr, expr_q) {
+localize_ <- function(msg, fn, expr, expr_q = expr) {
   force(fn)
   if (nzchar(msg)) {
     protect <- FALSE
@@ -127,16 +127,27 @@ localize_comparison <- function(...) {
     warning("Only the first argument will be localized", call. = FALSE)
   }
   msg <- names(dots[1])
-  env <- parent.frame()
-  p <- as_predicate(dots[[1]], rlang::get_env(dots[[1]]),
-                    args = alist(. = , .ref = , ... = ))
+  env <- rlang::get_env(dots[[1]])
+  cmpr <- as_comparison(dots[[1]])
   function(.ref, ...) {
     msg <- glue_text(msg, env, list(.ref = .ref), .open = "<<", .close = ">>")
-    localize_(msg,
-              function(.) p[["fn"]](., .ref, ...),
-              p[["expr"]],
-              rlang::quo_expr(dots[[1]]))
+    expr <- eval(bquote(substitute(.(cmpr[["expr"]]), list(.ref = .ref))))
+    pred <- eval(function_expr(expr, alist(... = )), cmpr[["env"]])(...)
+    localize_(msg, pred, expr)
   }
+}
+
+as_comparison <- function(q) {
+  expr <- rlang::get_expr(q)
+  if (is_lambda(expr)) {
+    env <- rlang::get_env(q)
+  } else if (is.function(x <- try_eval_tidy(q))) {
+    env <- environment(x)
+    expr <- bquote(.(expr)(., .ref, ...))
+  } else {
+    stop(err_not_function(q, x), call. = FALSE)
+  }
+  list(expr = function_expr(expr), env = env)
 }
 
 #' @rdname input-validators
