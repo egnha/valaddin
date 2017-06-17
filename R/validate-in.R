@@ -105,19 +105,29 @@ problems <- function(chks, verdict, env) {
 err_invalid_input <- function(., env) {
   parent.env(env) <- rlang::get_env(.$expr[[1]])
   env_dot <- if (.$dot_as_expr[[1]]) bind_as_dot(.$expr[[1]], env) else env
-  tryCatch(
-    glue::collapse(glue_text(.$msg[[1]], env_dot), sep = ", ", width = 60),
-    error = function(e) {
-      sprintf("%s\n[Error interpolating message '%s': %s]",
-              message_false(.$call[[1]]), .$msg[[1]], conditionMessage(e))
-    }
+  errmsg <- tryCatch(
+    glue_text(.$msg[[1]], env_dot),
+    error = function(e)
+      err_msg_error(.$call[[1]], .$msg[[1]], conditionMessage(e))
   )
+  l <- length(errmsg)
+  if (l == 1) {
+    errmsg
+  } else {
+    not_string <- sprintf("not a string (has length %d)", l)
+    err_msg_error(.$call[[1]], .$msg[[1]], not_string)
+  }
 }
 
 bind_as_dot <- function(q, env) {
   env_dot <- new.env(parent = env)
   eval(bquote(delayedAssign(".", .(rlang::quo_expr(q)), env, env_dot)))
   env_dot
+}
+
+err_msg_error <- function(call, msg, err) {
+  sprintf('%s\n[Error interpolating message "%s": %s]',
+          message_false(call), msg, err)
 }
 
 err_eval_error <- function(call, out) {
