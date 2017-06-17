@@ -7,11 +7,6 @@ names_filled <- function(x) {
   names(x) %||% character(length(x))
 }
 
-const <- function(x) {
-  force(x)
-  function(...) x
-}
-
 # Substitute string into call to avoid binding string to env,
 # which could clash with a name in an environment higher up.
 glue_text <- function(text, env, data = NULL, ...) {
@@ -23,9 +18,6 @@ glue_text <- function(text, env, data = NULL, ...) {
 
 is_error <- function(x) inherits(x, "error")
 
-stop_wo_call <- function(...) stop(..., call. = FALSE)
-warning_wo_call <- function(...) warning(..., call. = FALSE)
-
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
   d <- deparse(x)
@@ -36,10 +28,6 @@ deparse_collapse <- function(x) {
   }
 }
 
-# Typically used to list symbols, such as function argument names
-quote_collapse <- function(xs) {
-  paste(encodeString(xs, quote = "`"), collapse = ", ")
-}
 
 # Collapse a character vector into an enumerated string
 enumerate_many <- function(x, many = 2) {
