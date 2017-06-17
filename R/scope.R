@@ -119,6 +119,17 @@ is_local_predicate <- function(x) {
   rlang::is_closure(x) && inherits(x, "local_predicate")
 }
 
+#' @export
+print.local_predicate <- function(x, ...) {
+  env <- environment(x)
+  cat("<local_predicate>\n")
+  cat("\n* Predicate function:\n")
+  cat(deparse_collapse(env[["expr"]]), "\n")
+  cat("\n* Error message:\n")
+  cat(encodeString(env[["msg"]], quote = "\""), "\n")
+  invisible(x)
+}
+
 #' @rdname input-validators
 #' @export
 localize_comparison <- function(...) {
@@ -160,20 +171,22 @@ globalize <- vld(
   "'chkr' must be a local predicate (see ?localize)" =
     is_local_predicate ~ chkr
 )(function(chkr) {
+  env <- environment(chkr)
   structure(
-    environment(chkr)[["fn"]],
-    def_err_msg = environment(chkr)[["msg"]],
-    protect_msg = environment(chkr)[["protect"]]
+    env[["fn"]],
+    def_err_msg = env[["msg"]],
+    protect_msg = env[["protect"]],
+    expr        = env[["expr"]],
+    class       = c("global_predicate", "function")
   )
 })
 
 #' @export
-print.local_predicate <- function(x, ...) {
-  env <- environment(x)
-  cat("<local_predicate>\n")
+print.global_predicate <- function(x, ...) {
+  cat("<global_predicate>\n")
   cat("\n* Predicate function:\n")
-  cat(deparse_collapse(env[["expr"]]), "\n")
+  cat(deparse_collapse(attr(x, "expr", exact = TRUE)), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(env[["msg"]], quote = "\""), "\n")
+  cat(encodeString(attr(x, "def_err_msg", exact = TRUE), quote = "\""), "\n")
   invisible(x)
 }
