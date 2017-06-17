@@ -92,7 +92,7 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
 problems <- function(chks, verdict, env) {
   vapply(seq_along(verdict), function(i) {
     out <- verdict[[i]]
-    if (is_false(out)) {
+    if (rlang::is_false(out)) {
       err_invalid_input(chks[i, ], env)
     } else if (is_error(out)) {
       err_eval_error(chks$call[[i]], out)
