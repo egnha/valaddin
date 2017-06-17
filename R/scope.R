@@ -139,11 +139,15 @@ localize_comparison <- function(...) {
   }
   msg <- names(dots[1])
   env <- rlang::get_env(dots[[1]])
-  cmpr <- as_comparison(dots[[1]])
+  cmp <- as_comparison(dots[[1]])
   function(.ref, ...) {
-    msg <- glue_text(msg, env, list(.ref = .ref), .open = "<<", .close = ">>")
-    expr <- eval(bquote(substitute(.(cmpr[["expr"]]), list(.ref = .ref))))
-    pred <- eval(function_expr(expr, alist(... = )), cmpr[["env"]])(...)
+    data <- list(
+      expr  = rlang::expr_name(substitute(.ref)),
+      value = deparse_collapse(.ref)
+    )
+    msg <- glue_text(msg, env, list(.ref = data), .open = "{{{", .close = "}}}")
+    expr <- eval(bquote(substitute(.(cmp[["expr"]]), list(.ref = .ref))))
+    pred <- eval(function_expr(expr, alist(... = )), cmp[["env"]])(...)
     localize_(msg, pred, expr)
   }
 }
