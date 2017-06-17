@@ -80,10 +80,8 @@ firmly <- vld(
 #' @export
 print.firm_closure <- function(x, ...) {
   cat("<firm_closure>\n")
-
   cat("\n* Core function:\n")
   print.default(firm_core(x))
-
   cat("\n* Checks (<predicate>:<error message>):\n")
   chks <- firm_checks(x)
   if (length(chks)) {
@@ -92,7 +90,6 @@ print.firm_closure <- function(x, ...) {
   } else {
     cat("None\n")
   }
-
   cat("\n* Error subclass for check errors:\n")
   subclass <- firm_error(x)
   if (!is.null(subclass)) {
@@ -100,6 +97,5 @@ print.firm_closure <- function(x, ...) {
   } else {
     cat("None\n")
   }
-
   invisible(x)
 }
