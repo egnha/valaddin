@@ -7,8 +7,8 @@ names_filled <- function(x) {
   names(x) %||% character(length(x))
 }
 
-# Substitute string into call to avoid binding string to env,
-# which could clash with a name in an environment higher up.
+# When gluing, substitute string into call, to avoid making a binding that could
+# inadvertently override one in an environment higher up.
 glue_text <- function(text, env, data = NULL, ...) {
   eval(bquote(glue::glue_data(.x = data, .(text), .envir = env, ...)))
 }
