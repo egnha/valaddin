@@ -28,6 +28,16 @@ deparse_collapse <- function(x) {
   }
 }
 
+# base::trimws() is only available in R >= 3.2.0
+trimws <- function(x, which = c("both", "left", "right")) {
+  sub_ <- function(re, x) sub(re, "", x, perl = TRUE)
+  switch(
+    match.arg(which),
+    left  = sub_("^[ \t\r\n]+", x),
+    right = sub_("[ \t\r\n]+$", x),
+    both  = sub_("[ \t\r\n]+$", sub_("^[ \t\r\n]+", x))
+  )
+}
 
 # Collapse a character vector into an enumerated string
 enumerate_many <- function(x, many = 2) {
