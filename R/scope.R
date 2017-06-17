@@ -190,3 +190,70 @@ print.global_predicate <- function(x, ...) {
   cat(encodeString(attr(x, "def_err_msg", exact = TRUE), quote = "\""), "\n")
   invisible(x)
 }
+
+#' @export
+predicate_function <- function(x) {
+  UseMethod("predicate_function")
+}
+#' @export
+predicate_function.local_predicate <- function(x) {
+  environment(x)[["fn"]]
+}
+#' @export
+predicate_function.global_predicate <- function(x) {
+  `attributes<-`(x, NULL)
+}
+
+#' @export
+predicate_message <- function(x) {
+  UseMethod("predicate_message")
+}
+#' @export
+predicate_message.local_predicate <- function(x) {
+  environment(x)[["msg"]]
+}
+#' @export
+predicate_message.global_predicate <- function(x) {
+  attr(x, "def_err_msg", exact = TRUE)
+}
+
+#' @export
+predicate_protect <- function(x) {
+  UseMethod("predicate_protect")
+}
+#' @export
+predicate_protect.local_predicate <- function(x) {
+  environment(x)[["protect"]]
+}
+#' @export
+predicate_protect.global_predicate <- function(x) {
+  attr(x, "protect_msg", exact = TRUE)
+}
+
+#' @export
+`predicate_message<-` <- function(x, ...) {
+  UseMethod("predicate_message<-")
+}
+#' @export
+`predicate_message<-.local_predicate` <- function(x, value) {
+  environment(x)[["msg"]] <- value
+  invisible(x)
+}
+#' @export
+`predicate_message<-.global_predicate` <- function(x, value) {
+  `attr<-`(x, "def_err_msg", value)
+}
+
+#' @export
+`predicate_protect<-` <- function(x, ...) {
+  UseMethod("predicate_protect<-")
+}
+#' @export
+`predicate_protect<-.local_predicate` <- function(x, value) {
+  environment(x)[["protect"]] <- value
+  invisible(x)
+}
+#' @export
+`predicate_protect<-.global_predicate` <- function(x, value) {
+  `attr<-`(x, "protect_msg", value)
+}
