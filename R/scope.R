@@ -159,14 +159,10 @@ globalize <- vld(
 #' @export
 print.local_predicate <- function(x, ...) {
   env <- environment(x)
-
   cat("<local_predicate>\n")
-
   cat("\n* Predicate function:\n")
-  cat(deparse_collapse(env[["pred"]][["expr"]]), "\n")
-
+  cat(deparse_collapse(env[["expr"]]), "\n")
   cat("\n* Error message:\n")
   cat(encodeString(env[["msg"]], quote = "\""), "\n")
-
   invisible(x)
 }
