@@ -49,13 +49,13 @@ is_quos <- function(x) {
   is.call(x) && identical(x[[1]], as.name("quos"))
 }
 
-as_predicate <- function(x, env, args = alist(. = )) {
+as_predicate <- function(x, env) {
   if (rlang::is_quosure(x)) {
     env <- rlang::get_env(x)
   }
   expr <- rlang::get_expr(x)
   if (is_lambda(expr)) {
-    expr <- call("function", as.pairlist(args), expr)
+    expr <- function_expr(expr)
     fn <- eval(expr, env)
   } else {
     fn <- try_eval_tidy(x, env)
@@ -68,6 +68,10 @@ as_predicate <- function(x, env, args = alist(. = )) {
 
 is_lambda <- function(x) {
   is.call(x) && identical(x[[1]], as.symbol("{"))
+}
+
+function_expr <- function(body, args = alist(. = )) {
+  call("function", as.pairlist(args), body)
 }
 
 err_not_function <- function(x, fault) {
