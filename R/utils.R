@@ -16,8 +16,6 @@ glue_text <- function(text, env, data = NULL, ...) {
 # Pipe operator
 `%>%` <- purrr::`%>%`
 
-is_error <- function(x) inherits(x, "error")
-
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
   d <- deparse(x)

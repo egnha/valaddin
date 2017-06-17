@@ -79,6 +79,8 @@ err_not_function <- function(x, fault) {
   }
 }
 
+is_error <- function(x) inherits(x, "error")
+
 deparse_check <- function(expr, qs, def_msg, protect, env) {
   calls <- vapply(qs, deparse_call, character(1), expr = expr)
   msgs <- names_filled(qs)
