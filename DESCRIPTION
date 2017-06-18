@@ -30,6 +30,7 @@ Collate:
     'firmly.R'
     'validate-out.R'
     'scope.R'
+    'predicates.R'
     'valaddin.R'
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
