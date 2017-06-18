@@ -141,28 +141,30 @@ localize_comparison <- function(...) {
   env <- rlang::get_env(dots[[1]])
   cmp <- as_comparison(dots[[1]])
   function(.ref, ...) {
-    data <- list(
-      expr  = rlang::expr_name(substitute(.ref)),
-      value = deparse_collapse(.ref)
-    )
-    msg <- glue_text(msg, env, list(.ref = data), .open = "{{{", .close = "}}}")
-    expr <- eval(bquote(substitute(.(cmp[["expr"]]), list(.ref = .ref))))
-    pred <- eval(function_expr(expr, alist(... = )), cmp[["env"]])(...)
+    repr <- list(expr = deparse_collapse(substitute(.ref)), value = .ref)
+    msg <- glue_text(msg, env, list(.ref = repr), .open = "{{{", .close = "}}}")
+    dot_exprs <- rlang::exprs(...)
+    expr_bd <- eval(bquote(substitute(.(cmp[["expr_bd"]]), list(.ref = .ref))))
+    expr <- function_expr(eval(bquote(rlang::expr(.(expr_bd)))))
+    pred <- eval(
+      function_expr(cmp[["expr_fn"]], alist(.ref = , ... = )), cmp[["env"]]
+    )(.ref, ...)
     localize_(msg, pred, expr)
   }
 }
 
 as_comparison <- function(q) {
-  expr <- rlang::get_expr(q)
+  expr <- body <- rlang::get_expr(q)
   if (is_lambda(expr)) {
     env <- rlang::get_env(q)
   } else if (is.function(x <- try_eval_tidy(q))) {
     env <- environment(x)
+    body <- bquote(.(body)(., .ref, UQS(dot_exprs)))
     expr <- bquote(.(expr)(., .ref, ...))
   } else {
     stop(err_not_function(q, x), call. = FALSE)
   }
-  list(expr = function_expr(expr), env = env)
+  list(expr_bd = body, expr_fn = function_expr(expr), env = env)
 }
 
 #' @rdname input-validators
