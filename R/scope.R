@@ -237,7 +237,7 @@ predicate_protect.global_predicate <- function(x) {
 }
 
 #' @export
-`predicate_message<-` <- function(x, ...) {
+`predicate_message<-` <- function(x, value) {
   UseMethod("predicate_message<-")
 }
 #' @export
@@ -251,7 +251,7 @@ predicate_protect.global_predicate <- function(x) {
 }
 
 #' @export
-`predicate_protect<-` <- function(x, ...) {
+`predicate_protect<-` <- function(x, value) {
   UseMethod("predicate_protect<-")
 }
 #' @export
