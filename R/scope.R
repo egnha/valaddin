@@ -207,7 +207,11 @@ predicate_function.local_predicate <- function(x) {
 }
 #' @export
 predicate_function.global_predicate <- function(x) {
-  `attributes<-`(x, NULL)
+  strip_attr(x, "def_err_msg", "protect_msg", "expr", "class")
+}
+strip_attr <- function(x, ...) {
+  attrs <- list(...)
+  Reduce(function(., which) `attr<-`(., which, NULL), attrs, x)
 }
 
 #' @export
