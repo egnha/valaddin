@@ -24,12 +24,12 @@ parse_check <- function(chk, msg, syms) {
 validation_tbl <- function(pred, exprs, text) {
   n <- length(exprs)
   x <- list(
-    pred        = `[<-`(vector("list", n), list(pred)),
-    expr        = exprs,
-    call        = text[["call"]],
-    msg         = text[["msg"]],
+    pred       = `[<-`(vector("list", n), list(pred)),
+    expr       = exprs,
+    call       = text[["call"]],
+    msg        = text[["msg"]],
     is_msg_gbl = text[["is_msg_gbl"]],
-    env         = text[["env"]]
+    env        = text[["env"]]
   )
   class(x) <- c("tbl_df", "tbl", "data.frame")
   attr(x, "row.names") <- .set_row_names(n)
