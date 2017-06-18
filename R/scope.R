@@ -93,7 +93,7 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
   if (nzchar(msg)) {
     protect <- FALSE
   } else {
-    msg <- default_message(expr_q, expr)
+    msg <- default_message(expr, expr_q)
     protect <- TRUE
   }
   structure(
@@ -110,7 +110,7 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
 }
 
 default_message <- function(expr1, expr2) {
-  expr <- if (is_lambda(expr1)) expr2 else expr1
+  expr <- if (is_lambda(expr2)) expr1 else expr2
   # double-up braces so that generate_message() substitutes literal expression
   message_false(deparse_collapse(rlang::expr(UQ(expr)({{.}}))))
 }
