@@ -13,9 +13,6 @@ glue_text <- function(text, env, data = NULL, ...) {
   eval(bquote(glue::glue_data(.x = data, .(text), .envir = env, ...)))
 }
 
-# Pipe operator
-`%>%` <- purrr::`%>%`
-
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
   d <- deparse(x)

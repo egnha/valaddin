@@ -13,10 +13,11 @@ call_sig_fn <- function(nm, width) {
   stopifnot(width >= 20, width <= 500)
 
   sig <- formals(get(nm, mode = "function"))
-  expr <- deparse(call("function", sig, quote(expr = ))) %>%
-    paste(collapse = "") %>%
-    sub("^function", nm, .) %>%
-    {parse(text = ., keep.source = FALSE)[[1]]}
+  expr_chr <- sub(
+    "^function", nm,
+    paste(deparse(call("function", sig, quote(expr = ))), collapse = "")
+  )
+  expr <- parse(text = expr_chr, keep.source = FALSE)[[1]]
   indent <- paste(rep(" ", nchar(nm)), collapse = "")
 
   paste(deparse_lines(expr, indent, width), collapse = "\n")
@@ -34,10 +35,8 @@ deparse_lines <- function(expr, indent, width) {
   x
 }
 deparse_reindent <- function(expr, indent, width) {
-  expr %>%
-    deparse(width.cutoff = width) %>%
-    trimws(which = "both") %>%
-    {`[<-`(., -1, value = paste(indent, .[-1]))}
+  x <- trimws(deparse(expr, width.cutoff = width), which = "both")
+  `[<-`(x, -1, value = paste(indent, x[-1]))
 }
 
 call_sig_op <- function(nm) {

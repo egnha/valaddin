@@ -12,7 +12,6 @@ Depends:
     R (>= 3.1.0)
 Imports:
     glue (>= 1.1),
-    purrr (>= 0.2.2),
     rlang (>= 0.1.1)
 Suggests:
     testthat,
