@@ -16,7 +16,7 @@
 #'     \item \code{firm_core} returns a function.
 #'     \item \code{firm_checks} returns a data frame with components \code{pred}
 #'       (quosure), \code{expr} (quosure), \code{call} (character), \code{msg}
-#'       (character), \code{dot_as_expr} (logical).
+#'       (character), \code{is_msg_gbl} (logical), \code{env} (environment).
 #'     \item \code{firm_error} returns a character vector.
 #'   }
 #'   In the absence of the component to be extracted, these functions return
@@ -27,7 +27,7 @@
 #' f <- function(x, y, ...) NULL
 #' ff <- firmly(f, is.numeric, {. > 0} ~ quos(x, y - x))
 #' identical(firm_core(ff), f)  # [1] TRUE
-#' firm_checks(ff)              # 4 x 5 data frame
+#' firm_checks(ff)              # 4 x 6 data frame
 #' firm_error(ff)               # [1] "inputValidationError"
 #'
 #' @name components

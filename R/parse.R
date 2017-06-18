@@ -28,7 +28,8 @@ validation_tbl <- function(pred, exprs, text) {
     expr        = exprs,
     call        = text[["call"]],
     msg         = text[["msg"]],
-    dot_as_expr = text[["dot_as_expr"]]
+    is_msg_gbl = text[["is_msg_gbl"]],
+    env         = text[["env"]]
   )
   class(x) <- c("tbl_df", "tbl", "data.frame")
   attr(x, "row.names") <- .set_row_names(n)
@@ -88,10 +89,13 @@ is_error <- function(x) inherits(x, "error")
 deparse_check <- function(expr, qs, def_msg, protect, env) {
   calls <- vapply(qs, deparse_call, character(1), expr = expr)
   msgs <- names_filled(qs)
-  not_named <- !nzchar(msgs)
-  msgs[not_named] <-
-    generate_message(def_msg, protect, env, qs[not_named], calls[not_named])
-  list(call = calls, msg = msgs, dot_as_expr = not_named)
+  is_msg_gbl <- !nzchar(msgs)
+  msgs[is_msg_gbl] <-
+    generate_message(def_msg, protect, env, qs[is_msg_gbl], calls[is_msg_gbl])
+  envs <- vector("list", length(qs))
+  envs[ is_msg_gbl] <- list(env)
+  envs[!is_msg_gbl] <- lapply(qs[!is_msg_gbl], rlang::get_env)
+  list(call = calls, msg = msgs, is_msg_gbl = is_msg_gbl, env = envs)
 }
 
 deparse_call <- function(expr, arg) {

@@ -103,10 +103,10 @@ problems <- function(chks, verdict, env) {
 }
 
 err_invalid_input <- function(., env) {
-  parent.env(env) <- rlang::get_env(.$expr[[1]])
-  env_dot <- if (.$dot_as_expr[[1]]) bind_as_dot(.$expr[[1]], env) else env
+  parent.env(env) <- .$env[[1]]
+  env_msg <- if (.$is_msg_gbl[[1]]) bind_as_dot(.$expr[[1]], env) else env
   errmsg <- tryCatch(
-    glue_text(.$msg[[1]], env_dot),
+    glue_text(.$msg[[1]], env_msg),
     error = function(e)
       err_msg_error(.$call[[1]], .$msg[[1]], conditionMessage(e))
   )
