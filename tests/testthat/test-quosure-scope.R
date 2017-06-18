@@ -2,19 +2,6 @@ context("Check-scope conversion")
 
 context("Localization")
 
-# Input validation of localize()
-test_that("only the first predicate supplied is processesed", {
-  chkr1 <- localize(isTRUE)
-  chkr2 <- suppressWarnings(localize(isTRUE, y))
-  expect_equal(chkr1, chkr2)
-})
-
-test_that("warning is raised when more than one argument is supplied", {
-  warn_msg <- "Only the first argument will be localized"
-  expect_warning(localize(isTRUE, y), warn_msg)
-  expect_warning(tryCatch(localize(x, y), error = function(e) NULL), warn_msg)
-})
-
 test_that("error is raised when argument is not a function/lambda expression", {
   err_msg <- "Not a function"
   fake_predicates <- list(NULL, NA, 1:2, "a", mtcars, list(ls))
@@ -67,13 +54,13 @@ test_that("unnamed localized predicate as check has default error message", {
 })
 
 test_that("named localized predicate as check has name as error message", {
-  f <- firmly(function(x) NULL, localize("Not true" = isTRUE)(x))
+  f <- firmly(function(x) NULL, localize(isTRUE, "Not true")(x))
   expect_error(f(TRUE), NA)
   expect_error(f(FALSE), "Not true")
 })
 
 test_that("local error message overrides that of localized predicate", {
-  chk_is_true <- localize("Not true" = isTRUE)
+  chk_is_true <- localize(isTRUE, "Not true")
   f <- firmly(function(x) NULL, chk_is_true("x is not true: {x}" = x))
   expect_error(f(TRUE), NA)
   expect_error(f("indeed not"), "x is not true: indeed not")
@@ -88,14 +75,6 @@ test_that("localization supports quasiquotation of argument", {
   chkr3 <- localize(!! predicate)
   expect_equal(localize(chkr1), localize(chkr2))
   expect_equal(localize(chkr1), localize(chkr3))
-})
-
-test_that("localization supports unquoting of error message", {
-  msg <- "{{toupper(.)}} is not true: {.}"
-  chk_is_true <- localize(!! msg := isTRUE)
-  f <- firmly(function(x) NULL, chk_is_true(x))
-  expect_error(f(TRUE), NA)
-  expect_error(f("indeed not"), "X is not true: indeed not")
 })
 
 context("Globalization")
@@ -115,7 +94,7 @@ test_that("error is raised when argument is not a local predicate", {
 
 test_that("globalization preserves message of localized predicate", {
   chkr1 <- localize(isTRUE)
-  chkr2 <- localize("{{.}} is not true: {.}" = isTRUE)
+  chkr2 <- localize(isTRUE, "{{.}} is not true: {.}")
   f <- function(x) NULL
   f1 <- firmly(f, globalize(chkr1))
   f2 <- firmly(f, globalize(chkr2))
@@ -127,7 +106,7 @@ test_that("globalization preserves message of localized predicate", {
 
 test_that("name of globalization overrides message of localized predicate", {
   chkr1 <- localize(isTRUE)
-  chkr2 <- localize("{{.}} is not true: {.}" = isTRUE)
+  chkr2 <- localize(isTRUE, "{{.}} is not true: {.}")
   f <- function(x) NULL
   f1 <- firmly(f, "overridden" = globalize(chkr1))
   f2 <- firmly(f, "overridden" = globalize(chkr2))

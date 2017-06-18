@@ -79,13 +79,10 @@ NULL
 #'       item has its own error message, the error message is derived from that
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
-localize <- function(...) {
-  dots <- rlang::quos(...)
-  if (length(dots) > 1) {
-    warning("Only the first argument will be localized", call. = FALSE)
-  }
-  p <- as_predicate(dots[[1]], rlang::get_env(dots[[1]]))
-  localize_(names(dots[1]), p[["fn"]], p[["expr"]], rlang::quo_expr(dots[[1]]))
+localize <- function(p, msg = "") {
+  qp <- rlang::enquo(p)
+  pred <- as_predicate(qp, rlang::get_env(qp))
+  localize_(msg, pred[["fn"]], pred[["expr"]], rlang::quo_expr(qp))
 }
 
 localize_ <- function(msg, fn, expr, expr_q = expr) {
@@ -132,14 +129,11 @@ print.local_predicate <- function(x, ...) {
 
 #' @rdname input-validators
 #' @export
-localize_comparison <- function(...) {
-  dots <- rlang::quos(...)
-  if (length(dots) > 1) {
-    warning("Only the first argument will be localized", call. = FALSE)
-  }
-  msg <- names(dots[1])
-  env <- rlang::get_env(dots[[1]])
-  cmp <- as_comparison(dots[[1]])
+localize_comparison <- function(p, msg = "") {
+  force(msg)
+  qp <- rlang::enquo(p)
+  env <- rlang::get_env(qp)
+  cmp <- as_comparison(qp)
   function(.ref, ...) {
     repr <- list(expr = deparse_collapse(substitute(.ref)), value = .ref)
     msg <- glue_text(msg, env, list(.ref = repr), .open = "{{{", .close = "}}}")
