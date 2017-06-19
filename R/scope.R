@@ -135,10 +135,13 @@ localize_comparison <- function(p, msg = "") {
   env <- rlang::get_env(qp)
   cmp <- as_comparison(qp)
   function(.ref, ...) {
-    repr <- list(expr = deparse_collapse(substitute(.ref)), value = .ref)
+    qref <- rlang::enquo(.ref)
+    repr <- list(expr = rlang::quo_name(qref), value = rlang::eval_tidy(qref))
     msg <- glue_text(msg, env, list(.ref = repr), .open = "{{{", .close = "}}}")
     dot_exprs <- rlang::exprs(...)
-    expr_bd <- eval(bquote(substitute(.(cmp[["expr_bd"]]), list(.ref = .ref))))
+    expr_bd <- eval(
+      bquote(substitute(.(cmp[["expr_bd"]]), list(.ref = repr[["value"]])))
+    )
     expr <- function_expr(eval(bquote(rlang::expr(.(expr_bd)))))
     pred <- eval(
       function_expr(cmp[["expr_fn"]], alist(.ref = , ... = )), cmp[["env"]]
