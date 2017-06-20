@@ -129,39 +129,31 @@ print.local_predicate <- function(x, ...) {
 
 #' @rdname input-validators
 #' @export
-localize_comparison <- function(p, msg = "") {
+localize_comparison <- function(p, msg = "", open = "{{{", close = "}}}") {
   force(msg)
-  qp <- rlang::enquo(p)
-  env <- rlang::get_env(qp)
-  cmp <- as_comparison(qp)
-  function(.ref, ...) {
-    qref <- rlang::enquo(.ref)
-    repr <- list(expr = rlang::quo_name(qref), value = rlang::eval_tidy(qref))
-    msg <- glue_text(msg, env, list(.ref = repr), .open = "{{{", .close = "}}}")
-    dot_exprs <- rlang::exprs(...)
-    expr_bd <- eval(
-      bquote(substitute(.(cmp[["expr_bd"]]), list(.ref = repr[["value"]])))
-    )
-    expr <- function_expr(eval(bquote(rlang::expr(.(expr_bd)))))
-    pred <- eval(
-      function_expr(cmp[["expr_fn"]], alist(.ref = , ... = )), cmp[["env"]]
-    )(.ref, ...)
-    localize_(msg, pred, expr)
+  force(open)
+  force(close)
+  p <- rlang::enquo(p)
+  env <- rlang::f_env(p)
+  cmp <- as_comparison(p)
+  function(ref, ...) {
+    repr <- list(expr = deparse_collapse(substitute(ref)), value = ref)
+    msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
+    localize_(msg, cmp[["fn"]](ref, ...), cmp[["expr"]])
   }
 }
 
 as_comparison <- function(q) {
-  expr <- body <- rlang::get_expr(q)
+  expr <- rlang::f_rhs(q)
   if (is_lambda(expr)) {
-    env <- rlang::get_env(q)
-  } else if (is.function(x <- try_eval_tidy(q))) {
-    env <- environment(x)
-    body <- bquote(.(body)(., .ref, UQS(dot_exprs)))
-    expr <- bquote(.(expr)(., .ref, ...))
+    expr <- new_fn_expr(expr, alist(. = , .ref = ref))
+  } else if (is.function(f <- try_eval_tidy(q))) {
+    expr <- new_fn_expr(bquote(.(f)(., ref, ...)))
   } else {
-    stop(err_not_function(q, x), call. = FALSE)
+    stop(err_not_function(q, f), call. = FALSE)
   }
-  list(expr_bd = body, expr_fn = function_expr(expr), env = env)
+  fn <- eval(new_fn_expr(expr, alist(ref = , ... = )), rlang::f_env(q))
+  list(fn = fn, expr = expr)
 }
 
 #' @rdname input-validators
