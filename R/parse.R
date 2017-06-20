@@ -107,16 +107,16 @@ generate_message <- function(def_msg, protect, env, qs, calls) {
   if (nzchar(def_msg)) {
     msg <- vapply(qs, glue_opp, character(1), text = def_msg, env = env)
     if (protect) {
-      msg <- double_braces(msg)
+      msg <- protect_braces(msg)
     }
     msg
   } else {
     # double-up braces to shield them from glue_text()
-    double_braces(message_false(calls))
+    protect_braces(message_false(calls))
   }
 }
 
-double_braces <- function(x) {
+protect_braces <- function(x) {
   gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
 }
 
