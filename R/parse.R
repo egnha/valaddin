@@ -52,7 +52,7 @@ is_quos <- function(x) {
 
 as_predicate <- function(x, env) {
   if (rlang::is_quosure(x)) {
-    env <- rlang::get_env(x)
+    env <- rlang::f_env(x)
   }
   expr <- rlang::get_expr(x)
   if (is_lambda(expr)) {
