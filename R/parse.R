@@ -56,7 +56,7 @@ as_predicate <- function(x, env) {
   }
   expr <- rlang::get_expr(x)
   if (is_lambda(expr)) {
-    expr <- function_expr(expr)
+    expr <- new_fn_expr(expr)
     fn <- eval(expr, env)
   } else {
     fn <- try_eval_tidy(x, env)
@@ -71,7 +71,7 @@ is_lambda <- function(x) {
   is.call(x) && identical(x[[1]], as.symbol("{"))
 }
 
-function_expr <- function(body, args = alist(. = )) {
+new_fn_expr <- function(body, args = alist(. = )) {
   call("function", as.pairlist(args), body)
 }
 
