@@ -77,7 +77,7 @@ function_expr <- function(body, args = alist(. = )) {
 
 err_not_function <- function(x, fault) {
   if (is_error(fault)) {
-    sprintf("Error trying to determine whether %s is a function: %s",
+    sprintf("Could not determine whether %s is a function: %s",
             rlang::quo_text(x), conditionMessage(fault))
   } else {
     sprintf("Not a function: %s", rlang::quo_text(x))
