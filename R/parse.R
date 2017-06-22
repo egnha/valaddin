@@ -125,23 +125,11 @@ protect_braces <- function(x) {
 message_false <- function(call) {
   sprintf("FALSE: %s", call)
 }
-
-#' Glue strings, oppositely
-#'
-#' `glue_opp()` is an opposite version of [glue::glue()] for a designated
-#' expression (`.`): expressions in double curly braces are interpolated, while
-#' those in single curly braces are literally interpreted.
-#'
-#' @noRd
-#' @param q Quosure whose flattened string representation is the value of `.`.
-#' @param text Text to interpolate.
-#' @param env Environment in which to evaluate [glue::glue()].
-#' @return Glue object, i.e., string of class `glue`.
-#' @examples
-#' q <- rlang::quo(x)
-#' glue_opp(q, "The length of {{sQuote(.)}} is {length(.)}.", baseenv())
-#' # The length of ‘x’ is {length(.)}.
-glue_opp <- function(q, text, env) {
-  glue_text(text, env, list(. = rlang::quo_text(q)),
+# glue strings, "oppositely," e.g., with `qdot` as `quo(x)`,
+#   "length of {{sQuote(.)}}: {length(.)}"
+# is turned into
+#   "length of ‘x’: {length(.)}"
+glue_opp <- function(qdot, text, env) {
+  glue_text(text, env, list(. = rlang::quo_text(qdot)),
             .open = "{{", .close = "}}")
 }
