@@ -152,7 +152,7 @@ test_that("error message local to check item supports quasiquotation", {
 # Tidy evaluation of checks -----------------------------------------------
 context("Tidy evaluation of checks")
 
-test_that("global predicate function is evaluated in environment of check", {
+test_that("global predicate function is evaluated in scope of check", {
   f <- local({
     private <- "private"
     is_private <- function(.) identical(., private)
@@ -160,10 +160,10 @@ test_that("global predicate function is evaluated in environment of check", {
   })
   private <- "not private"  # should be ignored by f
   expect_error(f("private"), NA)
-  expect_error(f(0), errmsg_false("is_private(x)"))
+  expect_error(f("not private"), errmsg_false("is_private(x)"))
 })
 
-test_that("local-check predicate is evaluated in environment of check", {
+test_that("local predicate function is evaluated in scope of check item", {
   f <- local({
     private <- "private"
     is_private <- function(.) identical(., private)
