@@ -73,12 +73,12 @@ test_that("firmly(f) has the same attributes as f, aside from its class", {
                    attributes(f))
 })
 
-test_that("error raised if predicate is neither function nor quosure thereof", {
+test_that("error raised if predicate is not a function or lambda expression", {
   f <- function(x) NULL
+  # lambda expressions are OK
+  expect_error(firmly(f, {isTRUE(.)}), NA)
+  # but other non-functions are not OK
   fake_predicates <- list(NULL, NA, 1:2, mtcars, list(ls))
-  err_msg <- esc_perl("Not a function")
-  for (x in fake_predicates) {
-    expect_error(firmly(f, !! x), err_msg)
-    expect_error(firmly(f, !! rlang::quo(x)), err_msg)
-  }
+  for (fake_pred in fake_predicates)
+    expect_error(firmly(f, fake_pred), "Not a function")
 })
