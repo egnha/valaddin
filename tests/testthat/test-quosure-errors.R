@@ -80,15 +80,16 @@ test_that("error messages of named local check interpolate dot", {
     is_scalar <- function(x) length(x) == 1L
     firmly(
       function(x, y) NULL,
-      "{{s_quote(.)}} is not a scalar (length is {length(.)})" = is_scalar ~
-        quos(x, x - y)
+      "{{s_quote(.)}} is not a scalar (length is {length(.)})" =
+        is_scalar ~ quos(x, x - y)
     )
   })
-  expect_error(f(1:3), esc_perl("'x' is not a scalar (length is 3)"))
-  expect_error(f(1:2, 1:2),
+  expect_error(f(1:2),
                esc_perl("'x' is not a scalar (length is 2)"))
   expect_error(f(1:2, 1:2),
-               esc_perl("'x - y' is not a scalar (length is 2)"))
+               esc_perl("'x' is not a scalar (length is 2)"))
+  expect_error(f(1:3, 4:6),
+               esc_perl("'x - y' is not a scalar (length is 3)"))
 })
 
 test_that("error messages of unnamed global check don't interpolate dot", {
