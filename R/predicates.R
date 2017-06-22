@@ -76,7 +76,7 @@ comparisons$relation <- list(
   ),
   list(
     "near",
-    quote({abs(. - .ref) < sqrt(.Machine$double.eps)}),
+    quote({isTRUE(abs(. - .ref) < sqrt(.Machine$double.eps))}),
     "{{.}} does not (nearly) equal {{{.ref$value}}}"
   )
 )
