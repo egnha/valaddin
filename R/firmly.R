@@ -4,12 +4,14 @@ rlang::quos
 
 chks_vld <- rlang::quos(
   "'error_class' must be NULL or a character vector without NAs" =
-    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
+    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class,
+  "'env' must be an environment" =
+    is.environment ~ env
 )
-
-`_vld` <- function(..., error_class = NULL) {
+`_vld` <- function(..., error_class = NULL, env = parent.frame()) {
   chks <- rlang::quos(...)
   error_class <- error_class[nzchar(error_class)]
+  force(env)
   function(f) {
     sig <- formals(f)
     arg <- nomen(sig)
@@ -20,7 +22,7 @@ chks_vld <- rlang::quos(
     chks <-
       do.call("rbind", c(
         list(firm_checks(f)),
-        Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]]),
+        Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]], env),
             chks, names_filled(chks))
       ))
     chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
@@ -71,10 +73,13 @@ vld <- `_vld`(UQS(chks_vld))(`_vld`)
 
 #' @export
 firmly <- vld(
-  "'f' must be a closure" = rlang::is_closure ~ f,
-  UQS(chks_vld)
+  "'f' must be a closure" =
+    rlang::is_closure ~ f,
+  "'error_class' must be NULL or a character vector without NAs" =
+    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )(function(f, ..., error_class = NULL) {
-  `_vld`(..., error_class = error_class)(f)
+  env <- parent.frame()
+  `_vld`(..., error_class = error_class, env = env)(f)
 })
 
 #' @export
