@@ -30,13 +30,12 @@ parse_check <- function(chk, msg, syms, env) {
   text <- deparse_check(pred$expr, chk_items, msg, protect, env)
   validation_tbl(pred$fn, chk_items, text)
 }
-
-# stripped-down version of tibble:::list_to_tibble()
-validation_tbl <- function(pred, exprs, text) {
-  n <- length(exprs)
+# cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)
+validation_tbl <- function(pred, chk_items, text) {
+  n <- length(chk_items)
   x <- list(
     pred       = `[<-`(vector("list", n), list(pred)),
-    expr       = exprs,
+    expr       = chk_items,
     call       = text[["call"]],
     msg        = text[["msg"]],
     is_msg_gbl = text[["is_msg_gbl"]],
