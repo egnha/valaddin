@@ -58,7 +58,7 @@ is_quos_expr <- function(x) {
   is.call(x) && identical(x[[1]], as.name("quos"))
 }
 
-as_predicate <- function(q, env = rlang::f_env(q)) {
+as_predicate <- function(q, env) {
   expr <- rlang::get_expr(q)
   if (is_lambda(expr)) {
     expr <- new_fn_expr(expr)
