@@ -80,11 +80,11 @@ NULL
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
 localize <- function(p, msg = "") {
-  qp <- rlang::enquo(p)
-  pred <- as_predicate(qp, rlang::get_env(qp))
-  localize_(msg, pred[["fn"]], pred[["expr"]], rlang::quo_expr(qp))
+  p <- rlang::enquo(p)
+  env <- capture_env(p, parent.frame())
+  pred <- as_predicate(p, env)
+  localize_(msg, pred$fn, pred$expr, rlang::quo_expr(p))
 }
-
 localize_ <- function(msg, fn, expr, expr_q = expr) {
   force(fn)
   if (nzchar(msg)) {
@@ -105,10 +105,9 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
     class = c("local_predicate", "function")
   )
 }
-
 default_message <- function(expr1, expr2) {
   expr <- if (is_lambda(expr2)) expr1 else expr2
-  # double-up braces so that generate_message() substitutes literal expression
+  # double-up braces so that make_message() substitutes literal expression
   message_false(deparse_collapse(bquote(.(expr)({{.}}))))
 }
 
@@ -134,26 +133,29 @@ localize_comparison <- function(p, msg = "", open = "{{{", close = "}}}") {
   force(open)
   force(close)
   p <- rlang::enquo(p)
-  env <- rlang::f_env(p)
-  cmp <- as_comparison(p)
+  env <- capture_env(p, parent.frame())
+  cmp <- as_comparison(p, env)
   function(ref, ...) {
     repr <- list(expr = deparse_collapse(substitute(ref)), value = ref)
     msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
-    localize_(msg, cmp[["fn"]](ref, ...), cmp[["expr"]])
+    localize_(msg, cmp$fn(ref, ...), cmp$expr)
   }
 }
-
-as_comparison <- function(q) {
-  expr <- rlang::f_rhs(q)
+as_comparison <- function(p, env) {
+  expr <- rlang::f_rhs(p)
   if (is_lambda(expr)) {
     expr <- new_fn_expr(expr, alist(. = , .ref = ref))
-  } else if (is.function(f <- try_eval_tidy(q))) {
-    expr <- new_fn_expr(bquote(.(f)(., ref, ...)))
   } else {
-    stop(err_not_function(q, f), call. = FALSE)
+    f <- try_eval_tidy(p, env)
+    if (!is.function(f)) {
+      print(f)
+      stop(err_not_function(expr, maybe_error(f)), call. = FALSE)
+    }
+    expr <- new_fn_expr(bquote(.(f)(., ref, ...)))
+    env <- environment(f)
   }
-  fn <- eval(new_fn_expr(expr, alist(ref = , ... = )), rlang::f_env(q))
-  list(fn = fn, expr = expr)
+  fn <- eval(new_fn_expr(expr, alist(ref = , ... = )), env)
+  list(expr = expr, fn = fn)
 }
 
 #' @rdname input-validators
