@@ -219,42 +219,18 @@ predicate_message.global_predicate <- function(x) {
 }
 
 #' @export
-predicate_protect <- function(x) {
-  UseMethod("predicate_protect")
-}
-#' @export
-predicate_protect.local_predicate <- function(x) {
-  environment(x)[["protect"]]
-}
-#' @export
-predicate_protect.global_predicate <- function(x) {
-  attr(x, "protect_msg", exact = TRUE)
-}
-
-#' @export
 `predicate_message<-` <- function(x, value) {
   UseMethod("predicate_message<-")
 }
 #' @export
 `predicate_message<-.local_predicate` <- function(x, value) {
-  environment(x)[["msg"]] <- value
+  environment(x)$msg <- value
+  environment(x)$protect <- FALSE
   invisible(x)
 }
 #' @export
 `predicate_message<-.global_predicate` <- function(x, value) {
-  `attr<-`(x, "def_err_msg", value)
-}
-
-#' @export
-`predicate_protect<-` <- function(x, value) {
-  UseMethod("predicate_protect<-")
-}
-#' @export
-`predicate_protect<-.local_predicate` <- function(x, value) {
-  environment(x)[["protect"]] <- value
+  attr(x, "def_err_msg") <- value
+  attr(x, "protect_msg") <- FALSE
   invisible(x)
-}
-#' @export
-`predicate_protect<-.global_predicate` <- function(x, value) {
-  `attr<-`(x, "protect_msg", value)
 }
