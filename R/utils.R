@@ -35,3 +35,15 @@ enumerate_many <- function(x, many = 2) {
     paste0(x, "\n")
   }
 }
+
+# A quosure environment is for tidyeval, not introspection;
+# therefore, it is not necessarily the calling environment,
+# which needs to be tracked, separately.
+# cf. https://github.com/tidyverse/rlang/issues/185
+capture_env <- function(x, env) {
+  env_x <- rlang::f_env(x)
+  if (identical(env_x, emptyenv()))
+    env
+  else
+    env_x
+}
