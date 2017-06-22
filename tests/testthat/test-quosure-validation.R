@@ -98,19 +98,22 @@ test_that("global predicate function supports quasiquotation", {
 
 test_that("local predicate function supports quasiquotation", {
   zero <- 0
-  predicate1 <- rlang::quo(function(x) x > zero)
+  predicate1 <- local({
+    z <- 0
+    rlang::quo(function(x1) x1 > z)
+  })
   predicate2 <- local({
     z <- 0
-    rlang::quo({. > z})
+    function(x2) {x2 > z}
   })
   f <- firmly(function(x, y) NULL,
               UQ(predicate1) ~ x,
-              {. > !! zero} ~ x,
-              UQ(predicate2) ~ y)
+              UQ(predicate2) ~ y,
+              {. > !! zero} ~ x)
   expect_error(f(1, 1), NA)
-  expect_error(f(0, 0), errmsg_false("(function(x) x > zero)(x)"), perl = TRUE)
+  expect_error(f(0, 0), errmsg_false("(function(x1) x1 > z)(x)"), perl = TRUE)
   expect_error(f(0, 0), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
-  expect_error(f(0, 0), errmsg_false("(function(.) {. > z})(y)"), perl = TRUE)
+  expect_error(f(0, 0), errmsg_false("(function (x2) {x2 > z})(y)"), perl = TRUE)
 })
 
 test_that("check items support quasiquotation", {
