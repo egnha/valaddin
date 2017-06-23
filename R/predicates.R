@@ -15,16 +15,16 @@ comparisons <- list(
 )
 comparisons$boolean <- list(
   list(
-    "all",
-    function(x, f, na.rm = FALSE)
-      all(vapply(x, f, logical(1)), na.rm = na.rm),
-    "{{.}} is not all true when mapped element-wise by '{{{.ref$expr}}}'"
+    "all_map",
+    function(., .ref, ...)
+      all(vapply(., rlang::as_function(.ref), logical(1)), ...),
+    "{{.}} is not all true when mapped by '{{{.ref$expr}}}'"
   ),
   list(
-    "any",
-    function(x, f, na.rm = FALSE)
-      any(vapply(x, f, logical(1)), na.rm = na.rm),
-    "{{.}} is all false when mapped element-wise by '{{{.ref$expr}}}'"
+    "any_map",
+    function(., .ref, ...)
+      any(vapply(., rlang::as_function(.ref), logical(1)), ...),
+    "{{.}} is all false when mapped by '{{{.ref$expr}}}'"
   )
 )
 comparisons$equiv <- list(
