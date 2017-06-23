@@ -135,10 +135,10 @@ localize_comparison <- function(p, msg = "", open = "{{{", close = "}}}") {
   p <- rlang::enquo(p)
   env <- capture_env(p, parent.frame())
   cmp <- as_comparison(p, env)
-  function(ref, ...) {
-    repr <- list(expr = deparse_collapse(substitute(ref)), value = ref)
+  function(.ref, ...) {
+    repr <- list(value = .ref, expr = deparse_collapse(substitute(.ref)))
     msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
-    localize_(msg, cmp$fn(ref, ...), cmp$expr)
+    localize_(msg, cmp$fn(.ref, ...), cmp$expr)
   }
 }
 as_comparison <- function(p, env) {
