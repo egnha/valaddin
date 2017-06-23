@@ -73,11 +73,6 @@ comparisons$relation <- list(
     "lte",
     quote({isTRUE(. <= .ref)}),
     "{{.}} is not less than or equal to {{{.ref$value}}}"
-  ),
-  list(
-    "near",
-    quote({isTRUE(abs(. - .ref) < sqrt(.Machine$double.eps))}),
-    "{{.}} does not (nearly) equal {{{.ref$value}}}"
   )
 )
 comparisons$sets <- list(
