@@ -11,7 +11,7 @@ comparisons <- list(
   equiv    = NULL,
   pattern  = NULL,
   relation = NULL,
-  setop    = NULL
+  sets     = NULL
 )
 comparisons$boolean <- list(
   list(
@@ -80,16 +80,46 @@ comparisons$relation <- list(
     "{{.}} does not (nearly) equal {{{.ref$value}}}"
   )
 )
-comparisons$setop <- list(
+comparisons$sets <- list(
   list(
     "in",
     quote({isTRUE(. %in% .ref)}),
     "{{.}} is not in '{{{.ref$expr}}}'"
   ),
   list(
+    "not_in",
+    quote({isTRUE(! . %in% .ref)}),
+    "{{.}} is in '{{{.ref$expr}}}'"
+  ),
+  list(
     "contains",
     quote({all(.ref %in% .)}),
     "{{.}} does not contain '{{{.ref$expr}}}'"
+  ),
+  list(
+    "doesnt_contain",
+    quote({any(! .ref %in% .)}),
+    "{{.}} contains '{{{.ref$expr}}}'"
+  ),
+  list(
+    "contained_in",
+    quote({all(. %in% .ref)}),
+    "{{.}} is not contained in '{{{.ref$expr}}}'"
+  ),
+  list(
+    "not_contained_in",
+    quote({any(! . %in% .ref)}),
+    "{{.}} is contained in '{{{.ref$expr}}}'"
+  ),
+  list(
+    "intersects",
+    quote({length(intersect(., .ref)) > 0}),
+    "{{.}} does not intersect '{{{.ref$expr}}}'"
+  ),
+  list(
+    "doesnt_intersect",
+    quote({length(intersect(., .ref)) == 0}),
+    "{{.}} intersects '{{{.ref$expr}}}'"
   ),
   list(
     "setequal",
