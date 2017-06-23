@@ -148,7 +148,6 @@ as_comparison <- function(p, env) {
   } else {
     f <- try_eval_tidy(p, env)
     if (!is.function(f)) {
-      print(f)
       stop(err_not_function(expr, maybe_error(f)), call. = FALSE)
     }
     expr <- new_fn_expr(bquote(.(f)(., ref, ...)))
