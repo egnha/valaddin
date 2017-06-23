@@ -147,10 +147,9 @@ comparisons$sets <- list(
   )
 )
 
-assign_lcl_comparisons("vld_", unlist(comparisons, recursive = FALSE))
 
-#' @rawNamespace exportPattern("^vld_.*$")
-NULL
+#' @rawNamespace exportPattern("^v_.*$")
+assign_lcl_comparisons("v_", unlist(comparisons, recursive = FALSE))
 
 # Non-bare "numerical" predicates are omitted from rlang 0.1.1
 is_numeric <- function(x, n = NULL) {
