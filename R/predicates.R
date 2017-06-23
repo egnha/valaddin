@@ -1,10 +1,10 @@
-assign_comparisons <-
-  function(comparisons, prefix = "vld_", env = parent.frame()) {
-    for (cmp in comparisons) {
-      nm <- paste0(prefix, cmp[[1]])
-      assign(nm, localize_comparison(UQ(cmp[[2]]), cmp[[3]]), envir = env)
-    }
+assign_comparisons <- function(prefix, comparisons) {
+  env <- parent.frame()
+  for (cmp in comparisons) {
+    nm <- paste0(prefix, cmp[[1]])
+    assign(nm, localize_comparison(UQ(cmp[[2]]), cmp[[3]]), envir = env)
   }
+}
 
 comparisons <- list(
   boolean  = NULL,
@@ -98,7 +98,7 @@ comparisons$setop <- list(
   )
 )
 
-assign_comparisons(unlist(comparisons, recursive = FALSE))
+assign_comparisons("vld_", unlist(comparisons, recursive = FALSE))
 
 #' @rawNamespace exportPattern("^vld_.*$")
 NULL
