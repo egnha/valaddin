@@ -8,7 +8,7 @@ assign_comparisons <- function(prefix, comparisons) {
 
 comparisons <- list(
   boolean  = NULL,
-  equiv    = NULL,
+  object   = NULL,
   pattern  = NULL,
   relation = NULL,
   sets     = NULL
@@ -27,30 +27,19 @@ comparisons$boolean <- list(
     "{{.}} is all false when mapped by '{{{.ref$expr}}}'"
   )
 )
-comparisons$equiv <- list(
+comparisons$object <- list(
   list(
-    "all_equal",
-    function(target, current, ...)
-      isTRUE(all.equal(target, current, ...)),
-    "{{.}} does not equal '{{{.ref$expr}}}'"
-  ),
-  list(
-    "identical",
-    identical,
-    "{{.}} is not identical to '{{{.ref$expr}}}'"
+    "inherits",
+    inherits,
+    "{{.}} is not of class \"{{{.ref$value}}}\""
   )
 )
 comparisons$pattern <- list(
   list(
     "grepl",
-    function(x, pattern, ...)
-      isTRUE(grepl(pattern, x, ...)),
-    "Pattern '{{{.ref$value}}}' is not matched in {{.}}"
-  ),
-  list(
-    "inherits",
-    inherits,
-    "{{.}} is not of class \"{{{.ref$value}}}\""
+    function(., .ref, ...)
+      isTRUE(grepl(.ref, ., ...)),
+    "Pattern \"{{{.ref$value}}}\" is not matched in {{.}}"
   )
 )
 comparisons$relation <- list(
