@@ -83,7 +83,7 @@ comparisons$relation <- list(
 comparisons$setop <- list(
   list(
     "in",
-    quote({all(. %in% .ref)}),
+    quote({isTRUE(. %in% .ref)}),
     "{{.}} is not in '{{{.ref$expr}}}'"
   ),
   list(
