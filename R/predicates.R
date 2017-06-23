@@ -44,19 +44,51 @@ comparisons$pattern <- list(
 )
 comparisons$relation <- list(
   list(
+    "identical",
+    identical,
+    "{{.}} is not identical to '{{{.ref$expr}}}'"
+  ),
+  list(
+    "not_identical",
+    quote({!identical(., .ref, ...)}),
+    "{{.}} is identical to '{{{.ref$expr}}}'"
+  ),
+  list(
+    "equal",
+    quote({isTRUE(. == .ref)}),
+    "{{.}} is not equal to {{{.ref$value}}}"
+  ),
+  list(
+    "not_equal",
+    quote({isTRUE(. != .ref)}),
+    "{{.}} equals {{{.ref$value}}}"
+  ),
+  list(
+    "all_equal",
+    function(., .ref, ...)
+      isTRUE(all.equal(., .ref, ...)),
+    "{{.}} is not (all) equal to '{{{.ref$expr}}}'"
+  ),
+  list(
+    "not_all_equal",
+    function(., .ref, ...)
+      rlang::is_false(all.equal(., .ref, ...)),
+    "{{.}} is (all) equal to '{{{.ref$expr}}}'"
+  ),
+  list(
     "gt",
     quote({isTRUE(. > .ref)}),
     "{{.}} is not greater than {{{.ref$value}}}"
   ),
   list(
-    "gte",
-    quote({isTRUE(. >= .ref)}),
-    "{{.}} is not greater than or equal to {{{.ref$value}}}"
-  ),
-  list(
     "lt",
     quote({isTRUE(. < .ref)}),
     "{{.}} is not less than {{{.ref$value}}}"
+  ),
+  list(
+    "gte",
+    quote({isTRUE(. >= .ref)}),
+    "{{.}} is not greater than or equal to {{{.ref$value}}}"
   ),
   list(
     "lte",
