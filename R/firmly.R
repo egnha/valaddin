@@ -73,12 +73,14 @@ vld <- `_vld`(UQS(chks_vld))(`_vld`)
 
 #' @export
 firmly <- vld(
-  "'f' must be a closure" =
-    rlang::is_closure ~ f,
+  "'f' must be a function" =
+    is.function ~ f,
   "'error_class' must be NULL or a character vector without NAs" =
     {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )(function(f, ..., error_class = NULL) {
   env <- parent.frame()
+  if (is.primitive(f))
+    f <- rlang::as_closure(f)
   `_vld`(..., error_class = error_class, env = env)(f)
 })
 

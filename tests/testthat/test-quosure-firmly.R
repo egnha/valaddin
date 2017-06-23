@@ -1,10 +1,14 @@
 context("firmly()")
 
-test_that("error raised when f is not a closure", {
-  non_closure <- list(NULL, NA, 0, letters, character(0), mtcars, log, list())
-  for (x in non_closure) {
-    expect_error(firmly(x), "'f' must be a closure")
+test_that("error raised when f is not a function", {
+  non_fn <- list(NULL, NA, 0, letters, character(0), mtcars, list(log))
+  for (x in non_fn) {
+    expect_error(firmly(x), "'f' must be a function")
   }
+  # But no error if f is a function
+  expect_error(firmly(log), NA)       # special
+  expect_error(firmly(sin), NA)       # builtin
+  expect_error(firmly(identity), NA)  # closure
 })
 
 test_that("error raised when error_class is not NULL or a character vector", {
