@@ -27,18 +27,19 @@ chks_vld <- rlang::quos(
       ))
     chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
-    as_firm_closure(with_sig(
-      validation_closure(loosely(f), chks, sig, arg, error_class),
-      sig, attributes(f)
-    ))
+    as_firm_closure(
+      with_sig(
+        validation_closure(loosely(f), chks, sig, arg, error_class),
+        sig,
+        attributes(f)
+      )
+    )
   }
 }
-
 nomen <- function(sig) {
   nm <- setdiff(names(sig), "...") %||% character(0)
   list(nm = nm, sym = lapply(nm, as.symbol))
 }
-
 #' @export
 loosely <- function(f) {
   if (!is.function(f)) {
@@ -49,19 +50,16 @@ loosely <- function(f) {
     f
   }
 }
-
 #' @export
 is_firm <- function(x) {
   inherits(x, "firm_closure")
 }
-
 as_firm_closure <- function(f) {
   if (!is_firm(f)) {
     class(f) <- c("firm_closure", class(f))
   }
   f
 }
-
 with_sig <- function(f, sig, attrs) {
   formals(f) <- sig
   attributes(f) <- attrs
