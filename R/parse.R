@@ -24,10 +24,12 @@ parse_check <- function(chk, msg, syms, env) {
     pred <- as_predicate(chk, env)
     chk_items <- lapply(syms, rlang::new_quosure, env = env)
   }
+  get_attr <- function(x) (chk_ev %@% x) %||% (pred$fn %@% x)
+  expr <- get_attr("vld_pred_expr") %||% pred$expr
   if (!nzchar(msg))
-    msg <- (chk_ev %@% "def_err_msg") %||% ""
-  interp_msg <- (chk_ev %@% "interp_msg") %||% TRUE
-  text <- deparse_check(pred$expr, chk_items, msg, interp_msg, env)
+    msg <- get_attr("vld_err_msg") %||% ""
+  interp_msg <- get_attr("vld_interp_msg") %||% TRUE
+  text <- deparse_check(expr, chk_items, msg, interp_msg, env)
   validation_tbl(pred$fn, chk_items, text)
 }
 # cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)

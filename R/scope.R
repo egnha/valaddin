@@ -100,8 +100,8 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
       check_items <- rlang::quos(...)
       structure(
         rlang::new_formula(fn, check_items, parent.frame()),
-        def_err_msg = msg,
-        interp_msg  = interp_msg
+        vld_err_msg    = msg,
+        vld_interp_msg = interp_msg,
         vld_pred_expr  = expr
       )
     },
@@ -167,10 +167,10 @@ globalize <- vld(
   env <- environment(chkr)
   structure(
     env$fn,
-    def_err_msg = env$msg,
-    interp_msg  = env$interp_msg,
-    expr        = env$expr,
-    class       = c("global_predicate", "function")
+    vld_err_msg    = env$msg,
+    vld_interp_msg = env$interp_msg,
+    vld_pred_expr  = env$expr,
+    class          = c("global_predicate", "function")
   )
 })
 
@@ -178,9 +178,9 @@ globalize <- vld(
 print.global_predicate <- function(x, ...) {
   cat("<global_predicate>\n")
   cat("\n* Predicate function:\n")
-  cat(deparse_collapse(x %@% "expr"), "\n")
+  cat(deparse_collapse(x %@% "vld_pred_expr"), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(x %@% "def_err_msg", quote = "\""), "\n")
+  cat(encodeString(x %@% "vld_err_msg", quote = "\""), "\n")
   invisible(x)
 }
 
@@ -194,7 +194,7 @@ predicate_function.local_predicate <- function(x) {
 }
 #' @export
 predicate_function.global_predicate <- function(x) {
-  strip_attr(x, "def_err_msg", "interp_msg", "expr", "class")
+  strip_attr(x, "vld_err_msg", "vld_interp_msg", "vld_pred_expr", "class")
 }
 strip_attr <- function(x, ...) {
   attrs <- list(...)
@@ -211,7 +211,7 @@ predicate_message.local_predicate <- function(x) {
 }
 #' @export
 predicate_message.global_predicate <- function(x) {
-  x %@% "def_err_msg"
+  x %@% "vld_err_msg"
 }
 
 #' @export
@@ -221,12 +221,12 @@ predicate_message.global_predicate <- function(x) {
 #' @export
 `predicate_message<-.local_predicate` <- function(x, value) {
   environment(x)$msg <- value
-  environment(x)$interp_msg <- TRUE
+  environment(x)$vld_interp_msg <- TRUE
   invisible(x)
 }
 #' @export
 `predicate_message<-.global_predicate` <- function(x, value) {
-  attr(x, "def_err_msg") <- value
-  attr(x, "interp_msg") <- TRUE
+  attr(x, "vld_err_msg") <- value
+  attr(x, "vld_interp_msg") <- TRUE
   invisible(x)
 }
