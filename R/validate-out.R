@@ -1,69 +1,67 @@
 #' Validate objects
 #'
-#' @name validate
+#' @param . Object to validate.
+#' @param ... Input validation checks.
+#' @param error_class Character vector of the error subclass to signal if
+#'   validation fails. If `NULL` (the default), the error subclass is
+#'   `objectValidationError`.
+#'
 #' @examples
 #' \dontrun{
-#' library(magrittr)
+#' # Assertions valid: data frame returned (invisibly)
+#' validate(mtcars,
+#'          v_all_map(is.numeric),
+#'          v_gt(10)(nrow(.)),
+#'          v_contains(c("mpg", "cyl"))(names(.)))
 #'
-#' # Valid assertions: data frame returned (invisibly)
-#' mtcars %>%
-#'   validate(
-#'     vld_all(~sapply(., is.numeric)),
-#'     ~{nrow(.) > 10},
-#'     vld_all(~c("mpg", "cyl") %in% names(.))
-#'   )
-#'
-#' # Invalid assertions: error raised
-#' mtcars %>%
-#'   validate(
-#'     vld_all(~sapply(., is.numeric)),
-#'     ~{nrow(.) > 1000},
-#'     vld_all(~c("mpg", "cylinders") %in% names(.))
-#'   )
+#' # Some assertions invalid: error raised
+#' validate(mtcars,
+#'          v_all_map(is.numeric),
+#'          v_gt(1000)(nrow(.)),
+#'          v_contains("cylinders")(names(.)))
 #' }
-NULL
-
-validator <- function(..., .checklist = list(), .error_class = character()) {
-  firmly_(function(.) invisible(.),
-          ..., .checklist = .checklist, .error_class = .error_class)
-}
-
-#' @rdname validate
-#' @param . Object to validate.
-#' @param \dots Input-validation check formula(e).
-#' @param .checklist List of check formulae. (These are combined with check
-#'   formulae provided via \code{\dots}.)
-#' @param .error_class Subclass of the error condition to be raised when an
-#'   input validation error occurs (character).
+#'
 #' @export
-validate <- function(., ..., .checklist = list(),
-                     .error_class = "validationError") {
-  # Assign validator to `validate` to get appropriate call in error message
-  validate <-
-    validator(..., .checklist = .checklist, .error_class = .error_class)
-  validate(.)
+validate <- function(., ..., error_class = NULL) {
+  validate <- validator(..., error_class = error_class)
+  eval(bquote(validate(.(substitute(.)))))
 }
-
 #' @rdname validate
-#' @param .f Interpreted function, i.e., closure.
-#' @param .checks List of check formulae, optionally containing a character
-#'   vector named \code{.error_class}, corresponding to the similarly named
-#'   argument.
 #' @export
-`%checkout%` <- function(.f, .checks) {
-  force(.f)
+validator <- vld(UQS(chk_error_class))(
+  function(..., error_class = NULL) {
+    error_class <- error_class %||% "objectValidationError"
+    `_vld`(..., error_class = error_class, env = parent.frame())(pass)
+  }
+)
+# name of argument must coincide with name of validate()'s object-argument
+pass <- function(.) invisible(.)
 
-  validate_out <- local({
-    nms <- names(.checks) %||% character(length(.checks))
-    chk <- .checks[nms != ".error_class"]
-    err <- .checks$.error_class %||% character()
-    validator(.checklist = chk, .error_class = err)
-  })
-  `formals<-`(
-    function () {
-      encl <- parent.env(environment())
-      encl$validate_out(eval.parent(`[[<-`(match.call(), 1, encl$.f)))
-    },
-    value = formals(.f)
-  )
-}
+#' Output-validate a function
+#'
+#' @param f Function.
+#' @param ... Input validation checks.
+#' @param error_class Character vector of the error subclass to signal if
+#'   validation fails. If `NULL` (the default), the error subclass is
+#'   `objectValidationError`.
+#'
+#' @name return_firmly
+#' @export
+return_firmly <- vld(
+  "'f' must be a function" = is.function ~ f,
+  UQS(chk_error_class)
+)(
+  function(f, ..., error_class = NULL) {
+    force(f)
+    error_class <- error_class %||% "outputValidationError"
+    verify <- loosely(validator)(..., error_class = error_class)
+    with_sig(
+      function() {
+        encl <- parent.env(environment())
+        encl$verify(eval.parent(`[[<-`(match.call(), 1, encl$f)))
+      },
+      formals(f),
+      attributes(f)
+    )
+  }
+)
