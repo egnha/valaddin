@@ -87,10 +87,12 @@ localize <- function(p, msg = "") {
 }
 localize_ <- function(msg, fn, expr, expr_q = expr) {
   force(fn)
+  expr <- if (is_lambda(expr_q)) expr else expr_q
   if (nzchar(msg)) {
     interp_msg <- TRUE
   } else {
-    msg <- default_message(expr, expr_q)
+    # double-up braces so that make_message() substitutes literal expression
+    msg <- message_false(deparse_collapse(bquote(.(expr)({{.}}))))
     interp_msg <- FALSE
   }
   structure(
@@ -100,17 +102,12 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
         rlang::new_formula(fn, check_items, parent.frame()),
         def_err_msg = msg,
         interp_msg  = interp_msg
+        vld_pred_expr  = expr
       )
     },
     class = c("local_predicate", "function")
   )
 }
-default_message <- function(expr1, expr2) {
-  expr <- if (is_lambda(expr2)) expr1 else expr2
-  # double-up braces so that make_message() substitutes literal expression
-  message_false(deparse_collapse(bquote(.(expr)({{.}}))))
-}
-
 is_local_predicate <- function(x) {
   rlang::is_closure(x) && inherits(x, "local_predicate")
 }
