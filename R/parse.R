@@ -36,10 +36,10 @@ validation_tbl <- function(pred, chk_items, text) {
   x <- list(
     pred       = `[<-`(vector("list", n), list(pred)),
     expr       = chk_items,
-    call       = text[["call"]],
-    msg        = text[["msg"]],
-    is_msg_gbl = text[["is_msg_gbl"]],
-    env        = text[["env"]]
+    call       = text$call,
+    msg        = text$msg,
+    is_msg_gbl = text$is_msg_gbl,
+    env        = text$env
   )
   class(x) <- c("tbl_df", "tbl", "data.frame")
   attr(x, "row.names") <- .set_row_names(n)

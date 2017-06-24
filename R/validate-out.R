@@ -56,7 +56,7 @@ validate <- function(., ..., .checklist = list(),
   validate_out <- local({
     nms <- names(.checks) %||% character(length(.checks))
     chk <- .checks[nms != ".error_class"]
-    err <- .checks[[".error_class"]] %||% character()
+    err <- .checks$.error_class %||% character()
     validator(.checklist = chk, .error_class = err)
   })
   `formals<-`(

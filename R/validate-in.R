@@ -39,17 +39,17 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
   force(f)
   force(error_class)
 
-  nms <- arg[["nm"]]
-  syms <- arg[["sym"]]
-  nms_pred <- name_predicates(seq_along(chks[["pred"]]), chks[["expr"]])
-  env_pred <- bind_predicates(nms_pred, chks[["pred"]])
+  nms <- arg$nm
+  syms <- arg$sym
+  nms_pred <- name_predicates(seq_along(chks$pred), chks$expr)
+  env_pred <- bind_predicates(nms_pred, chks$pred)
   make_promises <- eval(call("function", sig, quote(environment())))
   new_validation_env <- function(call, env) {
     env_prom <- eval(`[[<-`(call, 1, make_promises), env)
     parent.env(env_prom) <- environment(f)
     bind_promises(nms, syms, env_prom, env_pred)
   }
-  exprs <- express_check(chks[["expr"]], nms_pred)
+  exprs <- express_check(chks$expr, nms_pred)
   error <- function(call, verdict, fail, env) {
     err_call <- deparse_w_defval(call)
     err_msgs <- problems(chks[fail, ], verdict[fail], env)
@@ -58,7 +58,7 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
         message    = paste(err_call, enumerate_many(err_msgs), sep = "\n"),
         call       = NULL,
         match_call = call,
-        error_call = chks[fail, ][["call"]],
+        error_call = chks[fail, ]$call,
         error_msgs = err_msgs
       ),
       class = c(error_class, "error", "condition")

@@ -16,16 +16,16 @@ chks_vld <- rlang::quos(
     sig <- formals(f)
     arg <- nomen(sig)
     error_class_na <- is.null(firm_checks(f)) || !length(error_class)
-    if (!length(arg[["nm"]]) || !length(chks) && error_class_na) {
+    if (!length(arg$nm) || !length(chks) && error_class_na) {
       return(f)
     }
     chks <-
       do.call("rbind", c(
         list(firm_checks(f)),
-        Map(function(chk, msg) parse_check(chk, msg, arg[["sym"]], env),
+        Map(function(chk, msg) parse_check(chk, msg, arg$sym, env),
             chks, names_filled(chks))
       ))
-    chks <- chks[rev(!duplicated(rev(chks[["call"]]))), , drop = FALSE]
+    chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
     as_firm_closure(with_sig(
       validation_closure(loosely(f), chks, sig, arg, error_class),

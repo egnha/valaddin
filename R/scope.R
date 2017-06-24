@@ -120,9 +120,9 @@ print.local_predicate <- function(x, ...) {
   env <- environment(x)
   cat("<local_predicate>\n")
   cat("\n* Predicate function:\n")
-  cat(deparse_collapse(env[["expr"]]), "\n")
+  cat(deparse_collapse(env$expr), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(env[["msg"]], quote = "\""), "\n")
+  cat(encodeString(env$msg, quote = "\""), "\n")
   invisible(x)
 }
 
@@ -169,10 +169,10 @@ globalize <- vld(
 )(function(chkr) {
   env <- environment(chkr)
   structure(
-    env[["fn"]],
-    def_err_msg = env[["msg"]],
-    protect_msg = env[["protect"]],
-    expr        = env[["expr"]],
+    env$fn,
+    def_err_msg = env$msg,
+    protect_msg = env$protect,
+    expr        = env$expr,
     class       = c("global_predicate", "function")
   )
 })
@@ -193,7 +193,7 @@ predicate_function <- function(x) {
 }
 #' @export
 predicate_function.local_predicate <- function(x) {
-  environment(x)[["fn"]]
+  environment(x)$fn
 }
 #' @export
 predicate_function.global_predicate <- function(x) {
@@ -210,7 +210,7 @@ predicate_message <- function(x) {
 }
 #' @export
 predicate_message.local_predicate <- function(x) {
-  environment(x)[["msg"]]
+  environment(x)$msg
 }
 #' @export
 predicate_message.global_predicate <- function(x) {
