@@ -2,11 +2,9 @@
 #' @export
 rlang::quos
 
-chks_vld <- rlang::quos(
+chk_error_class <- rlang::quos(
   "'error_class' must be NULL or a character vector without NAs" =
-    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class,
-  "'env' must be an environment" =
-    is.environment ~ env
+    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
 `_vld` <- function(..., error_class = NULL, env = parent.frame()) {
   chks <- rlang::quos(...)
@@ -67,20 +65,22 @@ with_sig <- function(f, sig, attrs) {
 }
 
 #' @export
-vld <- `_vld`(UQS(chks_vld))(`_vld`)
+vld <- `_vld`(
+  "'env' must be an environment" = is.environment ~ env,
+  UQS(chk_error_class)
+)(`_vld`)
 
 #' @export
 firmly <- vld(
-  "'f' must be a function" =
-    is.function ~ f,
-  "'error_class' must be NULL or a character vector without NAs" =
-    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
-)(function(f, ..., error_class = NULL) {
-  env <- parent.frame()
-  if (is.primitive(f))
-    f <- rlang::as_closure(f)
-  `_vld`(..., error_class = error_class, env = env)(f)
-})
+  "'f' must be a function" = is.function ~ f,
+  UQS(chk_error_class)
+)(
+  function(f, ..., error_class = NULL) {
+    if (is.primitive(f))
+      f <- rlang::as_closure(f)
+    `_vld`(..., error_class = error_class, env = parent.frame())(f)
+  }
+)
 
 #' @export
 print.firm_closure <- function(x, ...) {
