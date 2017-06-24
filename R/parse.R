@@ -25,8 +25,8 @@ parse_check <- function(chk, msg, syms, env) {
     chk_items <- lapply(syms, rlang::new_quosure, env = env)
   }
   if (!nzchar(msg))
-    msg <- attr(chk_ev, "def_err_msg", exact = TRUE) %||% ""
-  protect <- attr(chk_ev, "protect_msg", exact = TRUE) %||% FALSE
+    msg <- (chk_ev %@% "def_err_msg") %||% ""
+  protect <- (chk_ev %@% "protect_msg") %||% FALSE
   text <- deparse_check(pred$expr, chk_items, msg, protect, env)
   validation_tbl(pred$fn, chk_items, text)
 }

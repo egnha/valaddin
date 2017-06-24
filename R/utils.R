@@ -3,6 +3,9 @@
   if (is.null(x) || length(x) == 0) y else x
 }
 
+# Infix attribute accessor
+`%@%` <- rlang::`%@%`
+
 names_filled <- function(x) {
   names(x) %||% character(length(x))
 }

@@ -181,9 +181,9 @@ globalize <- vld(
 print.global_predicate <- function(x, ...) {
   cat("<global_predicate>\n")
   cat("\n* Predicate function:\n")
-  cat(deparse_collapse(attr(x, "expr", exact = TRUE)), "\n")
+  cat(deparse_collapse(x %@% "expr"), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(attr(x, "def_err_msg", exact = TRUE), quote = "\""), "\n")
+  cat(encodeString(x %@% "def_err_msg", quote = "\""), "\n")
   invisible(x)
 }
 
@@ -214,7 +214,7 @@ predicate_message.local_predicate <- function(x) {
 }
 #' @export
 predicate_message.global_predicate <- function(x) {
-  attr(x, "def_err_msg", exact = TRUE)
+  x %@% "def_err_msg"
 }
 
 #' @export
