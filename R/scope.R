@@ -88,10 +88,10 @@ localize <- function(p, msg = "") {
 localize_ <- function(msg, fn, expr, expr_q = expr) {
   force(fn)
   if (nzchar(msg)) {
-    protect <- FALSE
+    interp_msg <- TRUE
   } else {
     msg <- default_message(expr, expr_q)
-    protect <- TRUE
+    interp_msg <- FALSE
   }
   structure(
     function(...) {
@@ -99,7 +99,7 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
       structure(
         rlang::new_formula(fn, check_items, parent.frame()),
         def_err_msg = msg,
-        protect_msg = protect
+        interp_msg  = interp_msg
       )
     },
     class = c("local_predicate", "function")
@@ -171,7 +171,7 @@ globalize <- vld(
   structure(
     env$fn,
     def_err_msg = env$msg,
-    protect_msg = env$protect,
+    interp_msg  = env$interp_msg,
     expr        = env$expr,
     class       = c("global_predicate", "function")
   )
@@ -197,7 +197,7 @@ predicate_function.local_predicate <- function(x) {
 }
 #' @export
 predicate_function.global_predicate <- function(x) {
-  strip_attr(x, "def_err_msg", "protect_msg", "expr", "class")
+  strip_attr(x, "def_err_msg", "interp_msg", "expr", "class")
 }
 strip_attr <- function(x, ...) {
   attrs <- list(...)
@@ -224,12 +224,12 @@ predicate_message.global_predicate <- function(x) {
 #' @export
 `predicate_message<-.local_predicate` <- function(x, value) {
   environment(x)$msg <- value
-  environment(x)$protect <- FALSE
+  environment(x)$interp_msg <- TRUE
   invisible(x)
 }
 #' @export
 `predicate_message<-.global_predicate` <- function(x, value) {
   attr(x, "def_err_msg") <- value
-  attr(x, "protect_msg") <- FALSE
+  attr(x, "interp_msg") <- TRUE
   invisible(x)
 }

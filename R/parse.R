@@ -26,8 +26,8 @@ parse_check <- function(chk, msg, syms, env) {
   }
   if (!nzchar(msg))
     msg <- (chk_ev %@% "def_err_msg") %||% ""
-  protect <- (chk_ev %@% "protect_msg") %||% FALSE
-  text <- deparse_check(pred$expr, chk_items, msg, protect, env)
+  interp_msg <- (chk_ev %@% "interp_msg") %||% TRUE
+  text <- deparse_check(pred$expr, chk_items, msg, interp_msg, env)
   validation_tbl(pred$fn, chk_items, text)
 }
 # cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)
@@ -93,12 +93,12 @@ is_error <- function(x) {
   inherits(x, "error")
 }
 
-deparse_check <- function(expr, chk_items, def_msg, protect, env) {
+deparse_check <- function(expr, chk_items, def_msg, interp_msg, env) {
   calls <- vapply(chk_items, deparse_call, character(1), x = expr)
   msgs <- names_filled(chk_items)
   is_gbl <- !nzchar(msgs)
   msgs[is_gbl] <-
-    make_message(def_msg, protect, env, chk_items[is_gbl], calls[is_gbl])
+    make_message(def_msg, interp_msg, env, chk_items[is_gbl], calls[is_gbl])
   envs <- vector("list", length(chk_items))
   envs[ is_gbl] <- list(env)
   envs[!is_gbl] <- lapply(chk_items[!is_gbl], rlang::f_env)
@@ -108,10 +108,10 @@ deparse_call <- function(x, arg) {
   call <- rlang::expr(UQE(x)(UQE(arg)))
   deparse_collapse(call)
 }
-make_message <- function(msg, protect, env, chk_items, calls) {
+make_message <- function(msg, interp_msg, env, chk_items, calls) {
   if (nzchar(msg)) {
     msgs <- vapply(chk_items, glue_opp, character(1), text = msg, env = env)
-    if (protect)
+    if (!interp_msg)
       msgs <- protect_braces(msgs)
     msgs
   } else
