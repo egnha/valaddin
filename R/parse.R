@@ -67,6 +67,8 @@ as_predicate <- function(q, env) {
     fn <- eval(expr, env)
   } else {
     fn <- try_eval_tidy(q, env)
+    if (is_local_predicate(fn))
+      fn <- globalize(fn)
     if (!is.function(fn))
       stop(err_not_function(expr, maybe_error(fn)), call. = FALSE)
   }
@@ -77,6 +79,9 @@ is_lambda <- function(x) {
 }
 new_fn_expr <- function(body, args = alist(. = )) {
   call("function", as.pairlist(args), body)
+}
+is_local_predicate <- function(x) {
+  inherits(x, "local_predicate")
 }
 err_not_function <- function(x, fault = NULL) {
   x <- rlang::expr_label(x)

@@ -108,9 +108,6 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
     class = c("local_predicate", "function")
   )
 }
-is_local_predicate <- function(x) {
-  rlang::is_closure(x) && inherits(x, "local_predicate")
-}
 
 #' @export
 print.local_predicate <- function(x, ...) {
