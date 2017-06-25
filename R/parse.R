@@ -53,7 +53,6 @@ enquo_check_items <- function(x, env) {
 is_quos_expr <- function(x) {
   is.call(x) && identical(x[[1]], as.name("quos"))
 }
-
 as_predicate <- function(q, env) {
   expr <- rlang::get_expr(q)
   if (is_lambda(expr)) {
@@ -162,6 +161,8 @@ message_false <- function(call) {
 # is turned into
 #   "length of ‘x’: {length(.)}"
 glue_opp <- function(qdot, text, env) {
-  glue_text(text, env, list(. = rlang::quo_text(qdot)),
-            .open = "{{", .close = "}}")
+  glue_text(
+    text, env, list(. = rlang::quo_text(qdot)),
+    .open = "{{", .close = "}}"
+  )
 }
