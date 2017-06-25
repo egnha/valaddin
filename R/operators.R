@@ -116,19 +116,20 @@ print.firm_closure <- function(x, ...) {
 #'   `objectValidationError`.
 #'
 #' @examples
-#' \dontrun{
-#' # Assertions valid: data frame returned (invisibly)
+#' # All assertions valid: data frame returned (invisibly)
 #' validate(mtcars,
+#'          is.data.frame,
 #'          v_all_map(is.numeric),
 #'          v_gt(10)(nrow(.)),
 #'          v_contains(c("mpg", "cyl"))(names(.)))
 #'
-#' # Some assertions invalid: error raised
+#' \dontrun{
+#' # Some assertions invalid: diagnostic error raised
 #' validate(mtcars,
+#'          is.matrix,
 #'          v_all_map(is.numeric),
 #'          v_gt(1000)(nrow(.)),
-#'          v_contains("cylinders")(names(.)))
-#' }
+#'          v_contains("cylinders")(names(.)))}
 #'
 #' @export
 validate <- solidify(
