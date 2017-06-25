@@ -131,10 +131,15 @@ print.firm_closure <- function(x, ...) {
 #' }
 #'
 #' @export
-validate <- function(., ..., error_class = NULL) {
-  validate <- validify(..., error_class = error_class)
-  eval(bquote(validate(.(substitute(.)))))
-}
+validate <- solidify(
+  UQS(chk_error_class)
+)(
+  function(., ..., error_class = NULL) {
+    validate <-
+      loosely(validify)(..., error_class = error_class, env = parent.frame())
+    eval(bquote(validate(.(substitute(.)))))
+  }
+)
 #' @rdname validate
 #' @export
 validify <- solidify(
