@@ -1,5 +1,17 @@
 # valaddin
 
+## 0.2.0.9000
+
+### Redesign of API 
+
+This version is major redesign of the API, which introduces:
+
+* Tidyverse grammar for input validation checks
+  (provided by [rlang](https://github.com/tidyverse/rlang))
+
+* Programmable error messages via literal string interpolation
+  (provided by [glue](https://github.com/tidyverse/glue))
+
 ## 0.1.0.9000
 
 ### Operator for input validation
