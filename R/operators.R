@@ -146,8 +146,32 @@ validify <- solidify(
 )(
   function(..., error_class = NULL, env = parent.frame()) {
     error_class <- error_class %||% "objectValidationError"
-    solidify_(..., error_class = error_class, env = env)(pass)
+    structure(
+      solidify_(..., error_class = error_class, env = env)(pass),
+      class = c("validator", "firm_closure", "function")
+    )
   }
 )
 # name of argument must coincide with name of validate()'s object-argument
 pass <- function(.) invisible(.)
+
+#' @export
+print.validator <- function(x, ...) {
+  cat("<validator>\n")
+  cat("\n* Validation (<predicate>:<error message>):\n")
+  chks <- firm_checks(x)
+  if (length(chks)) {
+    labels <- paste0(chks$call, ":\n", encodeString(chks$msg, quote = "\""))
+    cat(enumerate_many(labels))
+  } else {
+    cat("None\n")
+  }
+  cat("\n* Error subclass for validation errors:\n")
+  subclass <- firm_error(x)
+  if (!is.null(subclass)) {
+    cat(paste(subclass, collapse = ", "), "\n")
+  } else {
+    cat("None\n")
+  }
+  invisible(x)
+}
