@@ -2,9 +2,9 @@
 
 ## 0.2.0.9000
 
-### Redesign of API 
+### Redesign of API
 
-This version is major redesign of the API, which introduces:
+This version is a major redesign of the API, which introduces:
 
 * Tidyverse grammar for input validation checks
   (provided by [rlang](https://github.com/tidyverse/rlang))
