@@ -23,12 +23,12 @@
 #'
 #' @export
 validate <- function(., ..., error_class = NULL) {
-  validate <- validator(..., error_class = error_class)
+  validate <- validify(..., error_class = error_class)
   eval(bquote(validate(.(substitute(.)))))
 }
 #' @rdname validate
 #' @export
-validator <- solidify(
+validify <- solidify(
   UQS(chk_error_class)
 )(
   function(..., error_class = NULL) {
@@ -56,7 +56,7 @@ return_firmly <- solidify(
   function(f, ..., error_class = NULL) {
     force(f)
     error_class <- error_class %||% "outputValidationError"
-    verify <- loosely(validator)(..., error_class = error_class)
+    verify <- loosely(validify)(..., error_class = error_class)
     with_sig(
       function() {
         encl <- parent.env(environment())
