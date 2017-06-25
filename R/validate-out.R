@@ -28,10 +28,12 @@ validate <- function(., ..., error_class = NULL) {
 }
 #' @rdname validate
 #' @export
-validator <- vld(UQS(chk_error_class))(
+validator <- solidify(
+  UQS(chk_error_class)
+)(
   function(..., error_class = NULL) {
     error_class <- error_class %||% "objectValidationError"
-    `_vld`(..., error_class = error_class, env = parent.frame())(pass)
+    solidify_(..., error_class = error_class, env = parent.frame())(pass)
   }
 )
 # name of argument must coincide with name of validate()'s object-argument
@@ -47,7 +49,7 @@ pass <- function(.) invisible(.)
 #'
 #' @name return_firmly
 #' @export
-return_firmly <- vld(
+return_firmly <- solidify(
   "'f' must be a function" = is.function ~ f,
   UQS(chk_error_class)
 )(

@@ -157,19 +157,21 @@ as_comparison <- function(p, env) {
 #'   `localize`.
 #' @return `globalize` returns the global-scope check formula from which the
 #'   function `chkr` is derived.
-globalize <- vld(
+globalize <- solidify(
   "'chkr' must be a local predicate (see ?localize)" =
     is_local_predicate ~ chkr
-)(function(chkr) {
-  env <- environment(chkr)
-  structure(
-    env$fn,
-    vld_err_msg    = env$msg,
-    vld_interp_msg = env$interp_msg,
-    vld_pred_expr  = env$expr,
-    class          = c("global_predicate", "function")
-  )
-})
+)(
+  function(chkr) {
+    env <- environment(chkr)
+    structure(
+      env$fn,
+      vld_err_msg    = env$msg,
+      vld_interp_msg = env$interp_msg,
+      vld_pred_expr  = env$expr,
+      class          = c("global_predicate", "function")
+    )
+  }
+)
 
 #' @export
 print.global_predicate <- function(x, ...) {

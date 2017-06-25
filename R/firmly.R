@@ -6,7 +6,7 @@ chk_error_class <- rlang::quos(
   "'error_class' must be NULL or a character vector without NAs" =
     {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
-`_vld` <- function(..., error_class = NULL, env = parent.frame()) {
+solidify_ <- function(..., error_class = NULL, env = parent.frame()) {
   chk_parts <- parse_checks(rlang::quos(...), env)
   error_class <- error_class[nzchar(error_class)]
   function(f) {
@@ -64,20 +64,20 @@ with_sig <- function(f, sig, attrs) {
 }
 
 #' @export
-vld <- `_vld`(
+solidify <- solidify_(
   "'env' must be an environment" = is.environment ~ env,
   UQS(chk_error_class)
-)(`_vld`)
+)(solidify_)
 
 #' @export
-firmly <- vld(
+firmly <- solidify(
   "'f' must be a function" = is.function ~ f,
   UQS(chk_error_class)
 )(
   function(f, ..., error_class = NULL) {
     if (is.primitive(f))
       f <- rlang::as_closure(f)
-    `_vld`(..., error_class = error_class, env = parent.frame())(f)
+    solidify_(..., error_class = error_class, env = parent.frame())(f)
   }
 )
 
