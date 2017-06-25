@@ -67,10 +67,7 @@ with_sig <- function(f, sig, attrs) {
 }
 
 #' @export
-solidify <- solidify_(
-  UQS(chk_error_class),
-  UQS(chk_env)
-)(solidify_)
+solidify <- solidify_(UQS(chk_error_class), UQS(chk_env))(solidify_)
 
 #' @export
 firmly <- solidify(
