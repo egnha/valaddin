@@ -144,32 +144,3 @@ validify <- solidify(
 )
 # name of argument must coincide with name of validate()'s object-argument
 pass <- function(.) invisible(.)
-
-#' Output-validate a function
-#'
-#' @param f Function.
-#' @param ... Input validation checks.
-#' @param error_class Character vector of the error subclass to signal if
-#'   validation fails. If `NULL` (the default), the error subclass is
-#'   `objectValidationError`.
-#'
-#' @name return_firmly
-#' @export
-return_firmly <- solidify(
-  "'f' must be a function" = is.function ~ f,
-  UQS(chk_error_class)
-)(
-  function(f, ..., error_class = NULL) {
-    force(f)
-    error_class <- error_class %||% "outputValidationError"
-    verify <- loosely(validify)(..., error_class = error_class)
-    with_sig(
-      function() {
-        encl <- parent.env(environment())
-        encl$verify(eval.parent(`[[<-`(match.call(), 1, encl$f)))
-      },
-      formals(f),
-      attributes(f)
-    )
-  }
-)
