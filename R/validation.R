@@ -71,7 +71,7 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
   }
 
   function() {
-    call <- match.call()
+    call <- sys.call()
     encl <- parent.env(environment())
     venv <- .subset2(encl, "new_validation_env")(call, parent.frame())
     verdict <- suppressWarnings(
@@ -84,7 +84,7 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
     if (all(pass)) {
       eval_bare(`[[<-`(call, 1, .subset2(encl, "f")), parent.frame())
     } else {
-      stop(.subset2(encl, "error")(call, verdict, !pass, venv))
+      stop(.subset2(encl, "error")(match.call(), verdict, !pass, venv))
     }
   }
 }
