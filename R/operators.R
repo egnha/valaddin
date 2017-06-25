@@ -6,6 +6,9 @@ chk_error_class <- rlang::quos(
   "'error_class' must be NULL or a character vector without NAs" =
     {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
+chk_env <- rlang::quos(
+  "'env' must be an environment" = is.environment ~ env
+)
 solidify_ <- function(..., error_class = NULL, env = parent.frame()) {
   chk_parts <- parse_checks(rlang::quos(...), env)
   error_class <- error_class[nzchar(error_class)]
@@ -65,8 +68,8 @@ with_sig <- function(f, sig, attrs) {
 
 #' @export
 solidify <- solidify_(
-  "'env' must be an environment" = is.environment ~ env,
-  UQS(chk_error_class)
+  UQS(chk_error_class),
+  UQS(chk_env)
 )(solidify_)
 
 #' @export
@@ -135,11 +138,12 @@ validate <- function(., ..., error_class = NULL) {
 #' @rdname validate
 #' @export
 validify <- solidify(
-  UQS(chk_error_class)
+  UQS(chk_error_class),
+  UQS(chk_env)
 )(
-  function(..., error_class = NULL) {
+  function(..., error_class = NULL, env = parent.frame()) {
     error_class <- error_class %||% "objectValidationError"
-    solidify_(..., error_class = error_class, env = parent.frame())(pass)
+    solidify_(..., error_class = error_class, env = env)(pass)
   }
 )
 # name of argument must coincide with name of validate()'s object-argument
