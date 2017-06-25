@@ -7,21 +7,20 @@ chk_error_class <- rlang::quos(
     {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
 `_vld` <- function(..., error_class = NULL, env = parent.frame()) {
-  chks <- rlang::quos(...)
+  chk_parts <- parse_checks(rlang::quos(...), env)
   error_class <- error_class[nzchar(error_class)]
-  force(env)
   function(f) {
     sig <- formals(f)
     arg <- nomen(sig)
     error_class_na <- is.null(firm_checks(f)) || !length(error_class)
-    if (!length(arg$nm) || !length(chks) && error_class_na) {
+    if (!length(arg$nm) || is.null(chk_parts) && error_class_na) {
       return(f)
     }
     chks <-
       do.call("rbind", c(
         list(firm_checks(f)),
-        Map(function(chk, msg) parse_check(chk, msg, arg$sym, env),
-            chks, names_filled(chks))
+        list(chk_parts$local),
+        list(localize_at(chk_parts$global, arg$sym))
       ))
     chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"

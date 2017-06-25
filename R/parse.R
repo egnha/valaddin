@@ -1,46 +1,47 @@
-#' Parse a check quosure
+#' Parse input validation checks
 #'
-#' @param chk Quosure of a function, lambda expression, or formula.
-#' @param msg Default error message (string).
-#' @param syms List of arguments (symbols).
-#' @param env Fallback environment, in case `chk` has empty environment.
-#' @return Data frame of parsed check of check items.
+#' @param chks Quosures of input validation checks.
+#' @param env Fallback environment, in case an input validation check (quosure)
+#'   has an empty environment.
+#' @return List of parsed input validation checks, separated by scope (global
+#'   vs. local).
 #'
 #' @noRd
-parse_check <- function(chk, msg, syms, env) {
-  chk_ev <- try_eval_tidy(chk)
-  env <- capture_env(chk, env)
-  if (rlang::is_formula(chk_ev)) {
-    pred <- as_predicate(rlang::f_lhs(chk_ev), env)
-    chk_items <- enquo_check_items(rlang::f_rhs(chk_ev), env)
-  } else {
-    pred <- as_predicate(chk, env)
-    chk_items <- lapply(syms, rlang::new_quosure, env = env)
-  }
-  get_attr <- function(x) (chk_ev %@% x) %||% (pred$fn %@% x)
-  expr <- get_attr("vld_pred_expr") %||% pred$expr
-  if (!nzchar(msg))
-    msg <- get_attr("vld_err_msg") %||% ""
-  interp_msg <- get_attr("vld_interp_msg") %||% TRUE
-  text <- deparse_check(expr, chk_items, msg, interp_msg, env)
-  validation_tbl(pred$fn, chk_items, text)
-}
-# cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)
-validation_tbl <- function(pred, chk_items, text) {
-  n <- length(chk_items)
-  x <- list(
-    pred       = `[<-`(vector("list", n), list(pred)),
-    expr       = chk_items,
-    call       = text$call,
-    msg        = text$msg,
-    is_msg_gbl = text$is_msg_gbl,
-    env        = text$env
+parse_checks <- function(chks, env) {
+  if (length(chks) == 0)
+    return(NULL)
+  chklist <- Map(check_parser(env), chks, names_filled(chks))
+  is_global <- vapply(chklist, function(.) is.null(.$chk_items), logical(1))
+  list(
+    global = chklist[is_global],
+    local  = tabulate_checks(chklist[!is_global])
   )
-  class(x) <- c("tbl_df", "tbl", "data.frame")
-  attr(x, "row.names") <- .set_row_names(n)
-  x
 }
 
+check_parser <- function(env) {
+  function(chk, msg) {
+    chkev <- try_eval_tidy(chk)
+    env <- capture_env(chk, env)
+    if (rlang::is_formula(chkev)) {
+      pred <- as_predicate(rlang::f_lhs(chkev), env)
+      chk_items <- enquo_check_items(rlang::f_rhs(chkev), env)
+    } else {
+      pred <- as_predicate(chk, env)
+      chk_items <- NULL
+    }
+    get_attr <- function(x, def) {
+      (chkev %@% x) %||% (pred$fn %@% x) %||% def
+    }
+    list(
+      fn         = pred$fn,
+      expr       = get_attr("vld_pred_expr", pred$expr),
+      msg        = if (nzchar(msg)) msg else get_attr("vld_err_msg", ""),
+      interp_msg = get_attr("vld_interp_msg", TRUE),
+      chk_items  = chk_items,
+      env        = env
+    )
+  }
+}
 enquo_check_items <- function(x, env) {
   if (is_quos_expr(x))
     eval(x, env)
@@ -93,6 +94,38 @@ is_error <- function(x) {
   inherits(x, "error")
 }
 
+tabulate_checks <- function(xs) {
+  parts <- lapply(xs, function(.) {
+    text <- deparse_check(.$expr, .$chk_items, .$msg, .$interp_msg, .$env)
+    validation_tbl(.$fn, .$chk_items, text)
+  })
+  do.call("rbind", parts)
+}
+localize_at <- function(xs, syms) {
+  js <- seq_along(syms)
+  qs <- lapply(syms, rlang::new_quosure)
+  for (i in seq_along(xs)) {
+    for (j in js)
+      rlang::f_env(qs[[j]]) <- xs[[i]]$env
+    xs[[i]]$chk_items <- qs
+  }
+  tabulate_checks(xs)
+}
+# cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)
+validation_tbl <- function(pred, chk_items, text) {
+  n <- length(chk_items)
+  x <- list(
+    pred       = `[<-`(vector("list", n), list(pred)),
+    expr       = chk_items,
+    call       = text$call,
+    msg        = text$msg,
+    is_msg_gbl = text$is_msg_gbl,
+    env        = text$env
+  )
+  class(x) <- c("tbl_df", "tbl", "data.frame")
+  attr(x, "row.names") <- .set_row_names(n)
+  x
+}
 deparse_check <- function(expr, chk_items, def_msg, interp_msg, env) {
   calls <- vapply(chk_items, deparse_call, character(1), x = expr)
   msgs <- names_filled(chk_items)
