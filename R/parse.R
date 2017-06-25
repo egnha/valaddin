@@ -1,10 +1,3 @@
-try_eval_tidy <- function(expr, env = rlang::caller_env()) {
-  tryCatch(
-    rlang::eval_tidy(expr, env = env),
-    error = identity
-  )
-}
-
 #' Parse a check quosure
 #'
 #' @param chk Quosure of a function, lambda expression, or formula.
