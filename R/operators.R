@@ -9,7 +9,7 @@ chk_error_class <- rlang::quos(
 chk_env <- rlang::quos(
   "'env' must be an environment" = is.environment ~ env
 )
-solidify_ <- function(..., error_class = NULL, env = parent.frame()) {
+fasten_ <- function(..., error_class = NULL, env = parent.frame()) {
   chk_parts <- parse_checks(rlang::quos(...), env)
   error_class <- error_class[nzchar(error_class)]
   function(f) {
@@ -67,17 +67,17 @@ with_sig <- function(f, sig, attrs) {
 }
 
 #' @export
-solidify <- solidify_(UQS(chk_error_class), UQS(chk_env))(solidify_)
+fasten <- fasten_(UQS(chk_error_class), UQS(chk_env))(fasten_)
 
 #' @export
-firmly <- solidify(
+firmly <- fasten(
   "'f' must be a function" = is.function ~ f,
   UQS(chk_error_class)
 )(
   function(f, ..., error_class = NULL) {
     if (is.primitive(f))
       f <- rlang::as_closure(f)
-    solidify_(..., error_class = error_class, env = parent.frame())(f)
+    fasten_(..., error_class = error_class, env = parent.frame())(f)
   }
 )
 
@@ -129,7 +129,7 @@ print.firm_closure <- function(x, ...) {
 #'          v_contains("cylinders")(names(.)))}
 #'
 #' @export
-validate <- solidify(
+validate <- fasten(
   UQS(chk_error_class)
 )(
   function(., ..., error_class = NULL) {
@@ -140,14 +140,14 @@ validate <- solidify(
 )
 #' @rdname validate
 #' @export
-validify <- solidify(
+validify <- fasten(
   UQS(chk_error_class),
   UQS(chk_env)
 )(
   function(..., error_class = NULL, env = parent.frame()) {
     error_class <- error_class %||% "objectValidationError"
     structure(
-      solidify_(..., error_class = error_class, env = env)(pass),
+      fasten_(..., error_class = error_class, env = env)(pass),
       class = c("validator", "firm_closure", "function")
     )
   }
