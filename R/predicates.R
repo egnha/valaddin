@@ -8,6 +8,7 @@ assign_with <- function(f) {
   }
 }
 assign_lcl_comparisons <- assign_with(localize_comparison)
+assign_lcl_predicates  <- assign_with(localize)
 
 comparisons <- list(
   boolean  = NULL,
@@ -21,20 +22,20 @@ comparisons$boolean <- list(
     "all_map",
     function(., .ref, ...)
       all(vapply(., rlang::as_function(.ref), logical(1)), ...),
-    "{{.}} is not all true when mapped by '{{{.ref$expr}}}'"
+    "{{.}} is not all true when mapped by {{{.ref$expr}}}"
   ),
   list(
     "any_map",
     function(., .ref, ...)
       any(vapply(., rlang::as_function(.ref), logical(1)), ...),
-    "{{.}} is all false when mapped by '{{{.ref$expr}}}'"
+    "{{.}} is all false when mapped by {{{.ref$expr}}}"
   )
 )
 comparisons$object <- list(
   list(
     "inherits",
     inherits,
-    "{{.}} is not of class \"{{{.ref$value}}}\""
+    '{{.}} is not of class "{{{.ref$value}}}"'
   )
 )
 comparisons$pattern <- list(
@@ -42,19 +43,19 @@ comparisons$pattern <- list(
     "grepl",
     function(., .ref, ...)
       isTRUE(grepl(.ref, ., ...)),
-    "Pattern \"{{{.ref$value}}}\" is not matched in {{.}}"
+    'Pattern "{{{.ref$value}}}" is not matched in {{.}}'
   )
 )
 comparisons$relation <- list(
   list(
     "identical",
     identical,
-    "{{.}} is not identical to '{{{.ref$expr}}}'"
+    "{{.}} is not identical to {{{.ref$expr}}}"
   ),
   list(
     "not_identical",
     quote({!identical(., .ref, ...)}),
-    "{{.}} is identical to '{{{.ref$expr}}}'"
+    "{{.}} is identical to {{{.ref$expr}}}"
   ),
   list(
     "equal",
@@ -70,13 +71,13 @@ comparisons$relation <- list(
     "all_equal",
     function(., .ref, ...)
       isTRUE(all.equal(., .ref, ...)),
-    "{{.}} is not (all) equal to '{{{.ref$expr}}}'"
+    "{{.}} is not (all) equal to {{{.ref$expr}}}"
   ),
   list(
     "not_all_equal",
     function(., .ref, ...)
       rlang::is_false(all.equal(., .ref, ...)),
-    "{{.}} is (all) equal to '{{{.ref$expr}}}'"
+    "{{.}} is (all) equal to {{{.ref$expr}}}"
   ),
   list(
     "gt",
@@ -103,50 +104,59 @@ comparisons$sets <- list(
   list(
     "in",
     quote({isTRUE(. %in% .ref)}),
-    "{{.}} is not in '{{{.ref$expr}}}'"
+    "{{.}} is not in {{{.ref$expr}}}"
   ),
   list(
     "not_in",
     quote({isTRUE(! . %in% .ref)}),
-    "{{.}} is in '{{{.ref$expr}}}'"
+    "{{.}} is in {{{.ref$expr}}}"
   ),
   list(
     "contains",
     quote({all(.ref %in% .)}),
-    "{{.}} does not contain '{{{.ref$expr}}}'"
+    "{{.}} does not contain {{{.ref$expr}}}"
   ),
   list(
     "doesnt_contain",
     quote({any(! .ref %in% .)}),
-    "{{.}} contains '{{{.ref$expr}}}'"
+    "{{.}} contains {{{.ref$expr}}}"
   ),
   list(
     "contained_in",
     quote({all(. %in% .ref)}),
-    "{{.}} is not contained in '{{{.ref$expr}}}'"
+    "{{.}} is not contained in {{{.ref$expr}}}"
   ),
   list(
     "not_contained_in",
     quote({any(! . %in% .ref)}),
-    "{{.}} is contained in '{{{.ref$expr}}}'"
+    "{{.}} is contained in {{{.ref$expr}}}"
   ),
   list(
     "intersects",
     quote({length(intersect(., .ref)) > 0}),
-    "{{.}} does not intersect '{{{.ref$expr}}}'"
+    "{{.}} does not intersect {{{.ref$expr}}}"
   ),
   list(
     "doesnt_intersect",
     quote({length(intersect(., .ref)) == 0}),
-    "{{.}} intersects '{{{.ref$expr}}}'"
+    "{{.}} intersects {{{.ref$expr}}}"
   ),
   list(
     "setequal",
     setequal,
-    "{{.}} and '{{{.ref$expr}}}' are not equal as sets"
+    "{{.}} and {{{.ref$expr}}} are not equal as sets"
   )
 )
 
+predicates <- list(
+  type        = NULL,
+  scalar_type = NULL,
+  bare_type   = NULL,
+  object      = NULL,
+  misc        = NULL
+)
+predicates$type <- list(
+)
 
 #' @rawNamespace exportPattern("^v_.*$")
 assign_lcl_comparisons("v_", unlist(comparisons, recursive = FALSE))
@@ -163,3 +173,46 @@ is_scalar_numeric <- function(x) {
   is_numeric(x) && length(x) == 1
 }
 is_number <- is_scalar_numeric
+
+# vld_list <- lcl_comparison(
+#   "{{.}} is not a list" = rlang::is_list
+# )
+#
+# is_gt <- function(., .ref, how) how(. > .ref)
+#
+# vld_gt <- lcl_comparison(
+#   "{{.}} is not greater than {{{.ref$value}}}" = is_gt
+# )
+#
+# f <- function(...) function(.) {how(. > 2)}
+# f(how = isTRUE)
+#
+# dots <- exprs(how = any)
+# bd <- expr(is_gt(., UQ(.ref), UQS(dots)))
+
+# Be conservative! Choose stable predicates!
+# boolean operator
+
+# predicates <- matrix(
+#   c(
+#     "is.environment",
+#     "is.data.frame",
+#
+#     "is_function",
+#     "is_closure",
+#     "is_formula",
+#     "is_list",
+#     "is_named",
+#     "is_true",
+#     "is_false"
+#   ),
+#   ncol = 4, byrow = TRUE
+# )
+# colnames(predicates) <- c("nm", "msg", "fn", "pkg")
+#
+# msg_prefix <- "{{.}} is not"
+
+# vld_gt <- localize_comparison(
+#   "{{sQuote(.)}} is not greater than {{ref}} (difference is {{ref} - .})",
+#   function(x, ref) isTRUE(x > ref)
+# )
