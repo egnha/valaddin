@@ -221,6 +221,7 @@ types <- list(
   symbol      = "a symbol",
   pairlist    = "a pairlist",
   environment = "an environment",
+  language    = "a language object",
   list        = "a list",
   logical     = "a logical vector",
   integer     = "an integer vector",
