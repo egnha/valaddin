@@ -166,7 +166,7 @@ predicates <- list(
   type        = NULL,
   scalar_type = NULL,
   object      = NULL,
-  misc        = NULL
+  property    = NULL
 )
 predicates$boolean <- list(
   list(
@@ -341,6 +341,48 @@ predicates$object <- list(
     "quosures",
     rlang::is_quosures,
     "{{.}} is not a list of quosures"
+  )
+)
+predicates$property <- list(
+  list(
+    "not_null",
+    quote({!is.null(.)}),
+    "{{.}} is NULL"
+  ),
+  list(
+    "not_empty",
+    quote({length(.) != 0}),
+    "{{.}} is empty"
+  ),
+  list(
+    "singleton",
+    quote({length(.) == 1}),
+    "{{.}} is not a length-one object"
+  ),
+  list(
+    "not_na",
+    quote({!is.na(.)}),
+    "{{.}} is NA"
+  ),
+  list(
+    "has_no_na",
+    quote({!anyNA(.)}),
+    "{{.}} has an NA"
+  ),
+  list(
+    "sorted",
+    quote({!is.unsorted(.)}),
+    "{{.}} is not sorted"
+  ),
+  list(
+    "recursive",
+    is.recursive,
+    "{{.}} is not recursive"
+  ),
+  list(
+    "named",
+    rlang::is_named,
+    "{{.}} is not named"
   )
 )
 
