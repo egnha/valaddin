@@ -165,7 +165,6 @@ predicates <- list(
   boolean     = NULL,
   type        = NULL,
   scalar_type = NULL,
-  bare_type   = NULL,
   object      = NULL,
   misc        = NULL
 )
