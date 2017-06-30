@@ -162,13 +162,49 @@ comparisons$sets <- list(
 )
 
 predicates <- list(
+  boolean     = NULL,
   type        = NULL,
   scalar_type = NULL,
   bare_type   = NULL,
   object      = NULL,
   misc        = NULL
 )
-predicates$type <- list(
+predicates$boolean <- list(
+  list(
+    "true",
+    isTRUE,
+    "{{.}} is not true"
+  ),
+  list(
+    "is",
+    isTRUE,
+    "{{.}} is not true"
+  ),
+  list(
+    "false",
+    quote({identical(., FALSE)}),
+    "{{.}} is not false"
+  ),
+  list(
+    "not",
+    quote({identical(., FALSE)}),
+    "{{.}} is not false"
+  ),
+  list(
+    "all",
+    all,
+    "{{.}} not all true"
+  ),
+  list(
+    "none",
+    quote({all(! .)}),
+    "{{.}} not all false"
+  ),
+  list(
+    "any",
+    any,
+    "{{.}} all false"
+  )
 )
 
 # Non-bare "numerical" predicates are omitted from rlang 0.1.1
