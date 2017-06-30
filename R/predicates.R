@@ -275,7 +275,7 @@ predicates$scalar_type <- c(
     list(
       "scalar_numerical",
       is_scalar_numerical,
-      "{{.}} is not a scalar double/integer vector"
+      "{{.}} is not a single-element double/integer vector"
     ),
     list(
       "number",
