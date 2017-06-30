@@ -205,20 +205,102 @@ predicates$boolean <- list(
     "{{.}} all false"
   )
 )
-
-# Non-bare "numerical" predicates are omitted from rlang 0.1.1
-is_numeric <- function(x, n = NULL) {
-  if (!typeof(x) %in% c("double", "integer"))
-    return(FALSE)
-  if (!is.null(n) && length(x) != n)
-    return(FALSE)
-  TRUE
+make_predicate_data <- function(ns, xs, prefix) {
+  unname(
+    Map(function(nm, this) {
+      list(
+        nm,
+        getExportedValue(ns, paste0(prefix, nm)),
+        sprintf("{{.}} is not %s", this)
+      )
+    }, names(xs), xs)
+  )
 }
-is_scalar_numeric <- function(x) {
-  is_numeric(x) && length(x) == 1
+types <- list(
+  null        = "NULL",
+  symbol      = "a symbol",
+  pairlist    = "a pairlist",
+  environment = "an environment",
+  list        = "a list",
+  logical     = "a logical vector",
+  integer     = "an integer vector",
+  double      = "a double vector",
+  complex     = "a complex vector",
+  character   = "a character vector",
+  raw         = "a raw vector"
+)
+predicates$type <- c(
+  list(
+    list(
+      "closure",
+      quote({typeof(.) == "closure"}),
+      "{{.}} is not a closure"
+    ),
+    list(
+      "numerical",
+      quote({typeof(.) %in% c("double", "integer")}),
+      "{{.}} is not a double/integer vector"
+    )
+  ),
+  make_predicate_data("base", types, "is.")
+)
+make_scalar_type_data <- function(xs, prefix) {
+  unname(
+    Map(function(nm, this) {
+      list(
+        paste0("scalar_", nm),
+        bquote({.(as.name(paste0(prefix, nm)))(.) && length(.) == 1}),
+        sprintf("{{.}} is not a single-element %s", this)
+      )
+    }, names(xs), xs)
+  )
 }
-is_number <- is_scalar_numeric
-
+scalar_types <- list(
+  atomic    = "atomic vector",
+  list      = "list",
+  logical   = "logical vector",
+  integer   = "integer vector",
+  double    = "double vector",
+  complex   = "complex vector",
+  character = "character vector",
+  raw       = "raw vector",
+  vector    = "vector"
+)
+is_scalar_numerical <- function(.) {
+  typeof(.) %in% c("double", "integer") && length(.) == 1
+}
+predicates$scalar_type <- c(
+  list(
+    list(
+      "scalar_numerical",
+      is_scalar_numerical,
+      "{{.}} is not a scalar double/integer vector"
+    ),
+    list(
+      "number",
+      bquote({
+        typeof(.) %in% c("double", "integer") && length(.) == 1 && !is.na(.)
+      }),
+      "{{.}} is not a number"
+    ),
+    list(
+      "whole_number",
+      quote({is.integer(.) && length(.) == 1 && !is.na(.)}),
+      "{{.}} is not a whole number"
+    ),
+    list(
+      "boolean",
+      quote({is.logical(.) && length(.) == 1 && !is.na(.)}),
+      "{{.}} is not a boolean"
+    ),
+    list(
+      "string",
+      quote({is.character(.) && length(.) == 1 && !is.na(.)}),
+      "{{.}} is not a string"
+    )
+  ),
+  make_scalar_type_data(scalar_types, "is.")
+)
 
 assign_with <- function(f) {
   function(prefix, xs) {
