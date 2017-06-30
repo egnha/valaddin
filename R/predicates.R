@@ -31,7 +31,7 @@ comparisons$property <- list(
   list(
     "has_name",
     quote({.ref %in% names(.)}),
-    "{{.}} does not have name {{{.ref$value}}}"
+    '{{.}} does not have name "{{{.ref$value}}}"'
   ),
   list(
     "has_names",
