@@ -301,6 +301,48 @@ predicates$scalar_type <- c(
   ),
   make_scalar_type_data(scalar_types, "is.")
 )
+predicates$object <- list(
+  list(
+    "call",
+    is.call,
+    "{{.}} is not a call"
+  ),
+  list(
+    "factor",
+    is.factor,
+    "{{.}} is not a factor"
+  ),
+  list(
+    "data_frame",
+    is.data.frame,
+    "{{.}} is not a data frame"
+  ),
+  list(
+    "matrix",
+    is.matrix,
+    "{{.}} is not a matrix"
+  ),
+  list(
+    "formula",
+    quote({inherits(., "formula")}),
+    "{{.}} is not a formula"
+  ),
+  list(
+    "function",
+    is.function,
+    "{{.}} is not a function"
+  ),
+  list(
+    "quosure",
+    rlang::is_quosure,
+    "{{.}} is not a quosure"
+  ),
+  list(
+    "quosures",
+    rlang::is_quosures,
+    "{{.}} is not a list of quosures"
+  )
+)
 
 assign_with <- function(f) {
   function(prefix, xs) {
