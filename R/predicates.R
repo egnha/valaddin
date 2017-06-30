@@ -1,7 +1,7 @@
 comparisons <- list(
   boolean  = NULL,
-  object   = NULL,
   pattern  = NULL,
+  property = NULL,
   relation = NULL,
   sets     = NULL
 )
@@ -19,19 +19,44 @@ comparisons$boolean <- list(
     "{{.}} is all false when mapped by {{{.ref$expr}}}"
   )
 )
-comparisons$object <- list(
-  list(
-    "inherits",
-    inherits,
-    '{{.}} is not of class "{{{.ref$value}}}"'
-  )
-)
 comparisons$pattern <- list(
   list(
     "grepl",
     function(., .ref, ...)
       isTRUE(grepl(.ref, ., ...)),
     'Pattern "{{{.ref$value}}}" is not matched in {{.}}'
+  )
+)
+comparisons$property <- list(
+  list(
+    "has_name",
+    quote({.ref %in% names(.)}),
+    "{{.}} does not have name {{{.ref$value}}}"
+  ),
+  list(
+    "has_names",
+    quote({all(.ref %in% names(.))}),
+    "{{.}} does not have names {{{.ref$value}}}"
+  ),
+  list(
+    "has_length",
+    quote({length(.) == .ref}),
+    "{{.}} is not of length {{{.ref$value}}}"
+  ),
+  list(
+    "has_attr",
+    quote({.ref %in% attributes(.)}),
+    "{{.}} does not have attribute {{{.ref$value}}}"
+  ),
+  list(
+    "has_attrs",
+    quote({all(.ref %in% attributes(.))}),
+    "{{.}} does not have attributes {{{.ref$value}}}"
+  ),
+  list(
+    "inherits",
+    inherits,
+    '{{.}} is not of class "{{{.ref$value}}}"'
   )
 )
 comparisons$relation <- list(
