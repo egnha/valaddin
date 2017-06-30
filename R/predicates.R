@@ -1,15 +1,3 @@
-assign_with <- function(f) {
-  function(prefix, xs) {
-    env <- parent.frame()
-    for (x in xs) {
-      nm <- paste0(prefix, x[[1]])
-      assign(nm, f(UQ(x[[2]]), x[[3]]), envir = env)
-    }
-  }
-}
-assign_lcl_comparisons <- assign_with(localize_comparison)
-assign_lcl_predicates  <- assign_with(localize)
-
 comparisons <- list(
   boolean  = NULL,
   object   = NULL,
@@ -158,9 +146,6 @@ predicates <- list(
 predicates$type <- list(
 )
 
-#' @rawNamespace exportPattern("^v_.*$")
-assign_lcl_comparisons("v_", unlist(comparisons, recursive = FALSE))
-
 # Non-bare "numerical" predicates are omitted from rlang 0.1.1
 is_numeric <- function(x, n = NULL) {
   if (!typeof(x) %in% c("double", "integer"))
@@ -175,4 +160,17 @@ is_scalar_numeric <- function(x) {
 is_number <- is_scalar_numeric
 
 
+assign_with <- function(f) {
+  function(prefix, xs) {
+    env <- parent.frame()
+    for (x in xs) {
+      nm <- paste0(prefix, x[[1]])
+      assign(nm, f(UQ(x[[2]]), x[[3]]), envir = env)
+    }
+  }
+}
+assign_lcl_comparisons <- assign_with(localize_comparison)
+assign_lcl_predicates  <- assign_with(localize)
 
+#' @rawNamespace exportPattern("^v_.*$")
+assign_lcl_comparisons("vld_", unlist(comparisons, recursive = FALSE))
