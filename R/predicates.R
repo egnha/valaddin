@@ -174,45 +174,5 @@ is_scalar_numeric <- function(x) {
 }
 is_number <- is_scalar_numeric
 
-# vld_list <- lcl_comparison(
-#   "{{.}} is not a list" = rlang::is_list
-# )
-#
-# is_gt <- function(., .ref, how) how(. > .ref)
-#
-# vld_gt <- lcl_comparison(
-#   "{{.}} is not greater than {{{.ref$value}}}" = is_gt
-# )
-#
-# f <- function(...) function(.) {how(. > 2)}
-# f(how = isTRUE)
-#
-# dots <- exprs(how = any)
-# bd <- expr(is_gt(., UQ(.ref), UQS(dots)))
 
-# Be conservative! Choose stable predicates!
-# boolean operator
 
-# predicates <- matrix(
-#   c(
-#     "is.environment",
-#     "is.data.frame",
-#
-#     "is_function",
-#     "is_closure",
-#     "is_formula",
-#     "is_list",
-#     "is_named",
-#     "is_true",
-#     "is_false"
-#   ),
-#   ncol = 4, byrow = TRUE
-# )
-# colnames(predicates) <- c("nm", "msg", "fn", "pkg")
-#
-# msg_prefix <- "{{.}} is not"
-
-# vld_gt <- localize_comparison(
-#   "{{sQuote(.)}} is not greater than {{ref}} (difference is {{ref} - .})",
-#   function(x, ref) isTRUE(x > ref)
-# )
