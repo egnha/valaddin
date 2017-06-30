@@ -398,5 +398,6 @@ assign_with <- function(f) {
 assign_lcl_comparisons <- assign_with(localize_comparison)
 assign_lcl_predicates  <- assign_with(localize)
 
-#' @rawNamespace exportPattern("^v_.*$")
+#' @rawNamespace exportPattern("^vld_.*$")
 assign_lcl_comparisons("vld_", unlist(comparisons, recursive = FALSE))
+assign_lcl_predicates("vld_", unlist(predicates, recursive = FALSE))
