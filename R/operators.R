@@ -1,16 +1,9 @@
-#' @importFrom rlang quos
-#' @export
-rlang::quos
-
-chk_error_class <- rlang::quos(
-  "'error_class' must be NULL or a character vector without NAs" =
+chk_error_class <- vld(
+  "'error_class' must be NULL or a character vector without NAs" :=
     {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
-chk_env <- rlang::quos(
-  "'env' must be an environment" = is.environment ~ env
-)
-fasten_ <- function(..., error_class = NULL, env = parent.frame()) {
-  chk_parts <- parse_checks(rlang::quos(...), env)
+fasten_ <- function(..., error_class = NULL) {
+  chk_parts <- parse_checks(vld(...))
   error_class <- error_class[nzchar(error_class)]
   function(f) {
     sig <- formals(f)
@@ -67,17 +60,17 @@ with_sig <- function(f, sig, attrs) {
 }
 
 #' @export
-fasten <- fasten_(UQS(chk_error_class), UQS(chk_env))(fasten_)
+fasten <- fasten_(UQS(chk_error_class))(fasten_)
 
 #' @export
 firmly <- fasten(
-  "'f' must be a function" = is.function ~ f,
+  "'f' must be a function" := is.function ~ f,
   UQS(chk_error_class)
 )(
   function(f, ..., error_class = NULL) {
     if (is.primitive(f))
       f <- rlang::as_closure(f)
-    fasten_(..., error_class = error_class, env = parent.frame())(f)
+    fasten_(..., error_class = error_class)(f)
   }
 )
 
@@ -134,20 +127,19 @@ validate <- fasten(
 )(
   function(., ..., error_class = NULL) {
     validate <-
-      loosely(validify)(..., error_class = error_class, env = parent.frame())
+      loosely(validify)(..., error_class = error_class)
     eval(bquote(validate(.(substitute(.)))))
   }
 )
 #' @rdname validate
 #' @export
 validify <- fasten(
-  UQS(chk_error_class),
-  UQS(chk_env)
+  UQS(chk_error_class)
 )(
-  function(..., error_class = NULL, env = parent.frame()) {
+  function(..., error_class = NULL) {
     error_class <- error_class %||% "objectValidationError"
     structure(
-      fasten_(..., error_class = error_class, env = env)(pass),
+      fasten_(..., error_class = error_class)(pass),
       class = c("validator", "firm_closure", "function")
     )
   }
