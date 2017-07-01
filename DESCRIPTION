@@ -25,6 +25,7 @@ Collate:
     'utils.R'
     'rawrd.R'
     'components.R'
+    'capture.R'
     'parser.R'
     'validation.R'
     'operators.R'
