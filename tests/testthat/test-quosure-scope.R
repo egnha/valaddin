@@ -61,7 +61,7 @@ test_that("named localized predicate as check has name as error message", {
 
 test_that("local error message overrides that of localized predicate", {
   chk_is_true <- localize(isTRUE, "Not true")
-  f <- firmly(function(x) NULL, chk_is_true("x is not true: {x}" = x))
+  f <- firmly(function(x) NULL, chk_is_true("x is not true: {x}" := x))
   expect_error(f(TRUE), NA)
   expect_error(f("indeed not"), "x is not true: indeed not")
 })
@@ -108,8 +108,8 @@ test_that("name of globalization overrides message of localized predicate", {
   chkr1 <- localize(isTRUE)
   chkr2 <- localize(isTRUE, "{{.}} is not true: {.}")
   f <- function(x) NULL
-  f1 <- firmly(f, "overridden" = globalize(chkr1))
-  f2 <- firmly(f, "overridden" = globalize(chkr2))
+  f1 <- firmly(f, "overridden" := globalize(chkr1))
+  f2 <- firmly(f, "overridden" := globalize(chkr2))
   expect_error(f1(TRUE), NA)
   expect_error(f2(TRUE), NA)
   expect_error(f1("indeed not"), "overridden")
