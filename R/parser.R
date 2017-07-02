@@ -1,10 +1,10 @@
 #' Parse input validation checks
 #'
-#' @param chks List of input-validation checks as error message-check
-#'   definitions (cf. [rlang::dots_definitions()]).
-#' @return List of parsed input validation checks, separated by scope (global
-#'   vs. local).
-#'
+#' @param chks List of input-validation checks as pairs of quosures (named
+#'   `msg`, `chk`), as output by [vld()].
+#' @return List of parsed input validation checks, separated by scope (global vs
+#'   local). Complete parsing of global checks is deferred until the formal
+#'   arguments of the function are known.
 #' @noRd
 parse_checks <- function(chks) {
   if (length(chks) == 0)
@@ -15,6 +15,35 @@ parse_checks <- function(chks) {
     global = chklist[is_global],
     local  = tabulate_checks(chklist[!is_global])
   )
+}
+
+#' Tabulate an input validation check as a data frame
+#'
+#' @details Adapted from
+#'   [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy).
+#' @param pred Predicate function.
+#' @param chk_quos List of expressions to validate, as quosures.
+#' @param text List of textual data for input validation:
+#'   - `call`: expression of a validation call (string)
+#'   - `msg`: error message (string)
+#'   - `is_msg_gbl`: is the error message derived from a global error message?
+#'   - `env`: environment in which to interpolate the error message
+#' @return Data frame of input-validation data to be used by
+#'   `validation_closure()`.
+#' @noRd
+validation_tbl <- function(pred, chk_quos, text) {
+  n <- length(chk_quos)
+  x <- list(
+    pred       = `[<-`(vector("list", n), list(pred)),
+    expr       = chk_quos,
+    call       = text$call,
+    msg        = text$msg,
+    is_msg_gbl = text$is_msg_gbl,
+    env        = text$env
+  )
+  class(x) <- c("tbl_df", "tbl", "data.frame")
+  attr(x, "row.names") <- .set_row_names(n)
+  x
 }
 
 parse_check <- function(.) {
@@ -105,21 +134,7 @@ localize_at <- function(xs, syms) {
     xs[[i]]$chk_items <- qs
   tabulate_checks(xs)
 }
-# cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)
-validation_tbl <- function(pred, chk_quos, text) {
-  n <- length(chk_quos)
-  x <- list(
-    pred       = `[<-`(vector("list", n), list(pred)),
-    expr       = chk_quos,
-    call       = text$call,
-    msg        = text$msg,
-    is_msg_gbl = text$is_msg_gbl,
-    env        = text$env
-  )
-  class(x) <- c("tbl_df", "tbl", "data.frame")
-  attr(x, "row.names") <- .set_row_names(n)
-  x
-}
+
 deparse_check <- function(expr, chk_items, def_msg, interp_msg, env) {
   calls <-
     vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
