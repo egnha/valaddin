@@ -20,8 +20,9 @@ parse_checks <- function(chks) {
 parse_check <- function(.) {
   chkev <- try_eval_tidy(.$chk)
   if (rlang::is_formula(chkev)) {
-    pred <- as_predicate(rlang::f_lhs(chkev), rlang::f_env(chkev))
-    chk_items <- enquo_check_items(rlang::f_rhs(chkev), rlang::f_env(chkev))
+    env_fml <- rlang::f_env(chkev)
+    pred <- as_predicate(rlang::f_lhs(chkev), env_fml)
+    chk_items <- enquo_check_items(rlang::f_rhs(chkev), env_fml)
   } else {
     pred <- as_predicate(.$chk, rlang::f_env(.$chk))
     chk_items <- NULL
