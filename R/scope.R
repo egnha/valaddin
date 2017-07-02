@@ -158,7 +158,7 @@ as_comparison <- function(p, env) {
 #' @return `globalize` returns the global-scope check formula from which the
 #'   function `chkr` is derived.
 globalize <- fasten(
-  "'chkr' must be a local predicate (see ?localize)" =
+  "'chkr' must be a local predicate (see ?localize)" :=
     is_local_predicate ~ chkr
 )(
   function(chkr) {
