@@ -27,13 +27,17 @@ name_checks <- function(defs) {
 }
 
 splice_checks <- function(dots) {
-  is_chk <- vapply(dots, is_check, logical(1))
-  dots_splice <- lapply(dots[is_chk], rlang::eval_tidy)
-  dots_checks <- lapply(dots[!is_chk], set_empty_msg)
-  c(dots_checks, dots_splice)
+  lapply(dots, function(.) {
+    rhs <- rlang::f_rhs(.)
+    x <- try_eval_tidy(.)
+    if (is.list(rhs) || is_lcl_chk(x))
+      x
+    else
+      set_empty_msg(.)
+  })
 }
-is_check <- function(x) {
-  is.list(rlang::f_rhs(x))
+is_lcl_chk <- function(x) {
+  inherits(x, "local_validation_checks")
 }
 set_empty_msg <- function(x) {
   list(msg = rlang::quo(""), chk = x)
