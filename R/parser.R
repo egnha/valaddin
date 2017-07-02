@@ -22,7 +22,7 @@ parse_check <- function(.) {
   if (rlang::is_formula(chkev)) {
     env_fml <- rlang::f_env(chkev)
     pred <- as_predicate(rlang::f_lhs(chkev), env_fml)
-    chk_items <- enquo_check_items(rlang::f_rhs(chkev), env_fml)
+    chk_items <- as_check_items(rlang::f_rhs(chkev), env_fml)
   } else {
     pred <- as_predicate(.$chk, rlang::f_env(.$chk))
     chk_items <- NULL
@@ -40,7 +40,7 @@ parse_check <- function(.) {
     env        = rlang::f_env(.$msg)
   )
 }
-enquo_check_items <- function(x, env) {
+as_check_items <- function(x, env) {
   if (is_vld_expr(x))
     eval(x, env)
   else if (is_vld(x))
