@@ -19,10 +19,6 @@ vld <- function(...) {
   )
 }
 
-is_vld <- function(x) {
-  inherits(x, "validationChecks")
-}
-
 name_checks <- function(defs) {
   lapply(defs, `names<-`, c("msg", "chk"))
 }
@@ -38,4 +34,8 @@ is_check <- function(x) {
 }
 set_empty_msg <- function(x) {
   list(msg = rlang::quo(""), chk = x)
+}
+
+is_vld <- function(x) {
+  inherits(x, "validationChecks")
 }
