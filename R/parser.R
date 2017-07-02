@@ -1,16 +1,15 @@
 #' Parse input validation checks
 #'
-#' @param chks Quosures of input validation checks.
-#' @param env Fallback environment, in case an input validation check (quosure)
-#'   has an empty environment.
+#' @param chks List of input-validation checks as error message-check
+#'   definitions (cf. [rlang::dots_definitions()]).
 #' @return List of parsed input validation checks, separated by scope (global
 #'   vs. local).
 #'
 #' @noRd
-parse_checks <- function(chks, env) {
+parse_checks <- function(chks) {
   if (length(chks) == 0)
     return(NULL)
-  chklist <- Map(check_parser(env), chks, names_filled(chks))
+  chklist <- lapply(chks, parse_check)
   is_global <- vapply(chklist, function(.) is.null(.$chk_items), logical(1))
   list(
     global = chklist[is_global],
@@ -18,40 +17,38 @@ parse_checks <- function(chks, env) {
   )
 }
 
-check_parser <- function(env) {
-  function(chk, msg) {
-    chkev <- try_eval_tidy(chk)
-    env <- capture_env(chk, env)
-    if (rlang::is_formula(chkev)) {
-      pred <- as_predicate(rlang::f_lhs(chkev), env)
-      chk_items <- enquo_check_items(rlang::f_rhs(chkev), env)
-    } else {
-      pred <- as_predicate(chk, env)
-      chk_items <- NULL
-    }
-    get_attr <- function(x, def) {
-      (chkev %@% x) %||% (pred$fn %@% x) %||% def
-    }
-    list(
-      fn         = pred$fn,
-      expr       = get_attr("vld_pred_expr", pred$expr),
-      msg        = if (nzchar(msg)) msg else get_attr("vld_err_msg", ""),
-      interp_msg = get_attr("vld_interp_msg", TRUE),
-      chk_items  = chk_items,
-      env        = env
-    )
+parse_check <- function(.) {
+  chkev <- try_eval_tidy(.$chk)
+  if (rlang::is_formula(chkev)) {
+    pred <- as_predicate(rlang::f_lhs(chkev), rlang::f_env(chkev))
+    chk_items <- enquo_check_items(rlang::f_rhs(chkev), rlang::f_env(chkev))
+  } else {
+    pred <- as_predicate(.$chk, rlang::f_env(.$chk))
+    chk_items <- NULL
   }
+  get_attr <- function(x, def) {
+    (chkev %@% x) %||% (pred$fn %@% x) %||% def
+  }
+  msg <- rlang::eval_tidy(.$msg)
+  list(
+    fn         = pred$fn,
+    expr       = get_attr("vld_pred_expr", pred$expr),
+    msg        = if (nzchar(msg)) msg else get_attr("vld_err_msg", ""),
+    interp_msg = get_attr("vld_interp_msg", TRUE),
+    chk_items  = chk_items,
+    env        = rlang::f_env(.$msg)
+  )
 }
 enquo_check_items <- function(x, env) {
-  if (is_quos_expr(x))
-    eval(x, env)
-  else if (rlang::is_quosures(x))
-    x
+  if (is_vld_expr(x))
+    lapply(eval(x, env), `[[`, "chk")
+  else if (is_vld(x))
+    lapply(x, `[[`, "chk")
   else
     list(rlang::new_quosure(x, env))
 }
-is_quos_expr <- function(x) {
-  is.call(x) && identical(x[[1]], as.name("quos"))
+is_vld_expr <- function(x) {
+  is.call(x) && identical(x[[1]], as.name("vld"))
 }
 as_predicate <- function(q, env) {
   expr <- rlang::get_expr(q)
