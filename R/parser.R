@@ -16,36 +16,6 @@ parse_checks <- function(chks) {
     local  = tabulate_checks(chklist[!is_global])
   )
 }
-
-#' Tabulate an input validation check as a data frame
-#'
-#' @details Adapted from
-#'   [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy).
-#' @param pred Predicate function.
-#' @param chk_quos List of expressions to validate, as quosures.
-#' @param text List of textual data for input validation:
-#'   - `call`: expression of a validation call (string)
-#'   - `msg`: error message (string)
-#'   - `is_msg_gbl`: is the error message derived from a global error message?
-#'   - `env`: environment in which to interpolate the error message
-#' @return Data frame of input-validation data to be used by
-#'   `validation_closure()`.
-#' @noRd
-validation_tbl <- function(pred, chk_quos, text) {
-  n <- length(chk_quos)
-  x <- list(
-    pred       = `[<-`(vector("list", n), list(pred)),
-    expr       = chk_quos,
-    call       = text$call,
-    msg        = text$msg,
-    is_msg_gbl = text$is_msg_gbl,
-    env        = text$env
-  )
-  class(x) <- c("tbl_df", "tbl", "data.frame")
-  attr(x, "row.names") <- .set_row_names(n)
-  x
-}
-
 parse_check <- function(.) {
   chkev <- try_eval_tidy(.$chk)
   if (rlang::is_formula(chkev)) {
@@ -116,6 +86,34 @@ is_error <- function(x) {
   inherits(x, "error")
 }
 
+#' Tabulate an input validation check as a data frame
+#'
+#' @details Adapted from
+#'   [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy).
+#' @param pred Predicate function.
+#' @param chk_quos List of expressions to validate, as quosures.
+#' @param text List of textual data for input validation:
+#'   - `call`: expression of a validation call (string)
+#'   - `msg`: error message (string)
+#'   - `is_msg_gbl`: is the error message derived from a global error message?
+#'   - `env`: environment in which to interpolate the error message
+#' @return Data frame of input-validation data to be used by
+#'   `validation_closure()`.
+#' @noRd
+validation_tbl <- function(pred, chk_quos, text) {
+  n <- length(chk_quos)
+  x <- list(
+    pred       = `[<-`(vector("list", n), list(pred)),
+    expr       = chk_quos,
+    call       = text$call,
+    msg        = text$msg,
+    is_msg_gbl = text$is_msg_gbl,
+    env        = text$env
+  )
+  class(x) <- c("tbl_df", "tbl", "data.frame")
+  attr(x, "row.names") <- .set_row_names(n)
+  x
+}
 tabulate_checks <- function(xs) {
   parts <- lapply(xs, function(.) {
     text <- deparse_check(.$expr, .$chk_items, .$msg, .$interp_msg, .$env)
@@ -123,14 +121,6 @@ tabulate_checks <- function(xs) {
   })
   do.call("rbind", parts)
 }
-localize_at <- function(xs, syms) {
-  qs <- lapply(syms, function(.)
-    set_empty_msg(rlang::new_quosure(., emptyenv())))
-  for (i in seq_along(xs))
-    xs[[i]]$chk_items <- qs
-  tabulate_checks(xs)
-}
-
 deparse_check <- function(expr, chk_items, def_msg, interp_msg, env) {
   calls <-
     vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
@@ -174,4 +164,12 @@ glue_opp <- function(qdot, text, env) {
     text, env, list(. = rlang::quo_text(qdot)),
     .open = "{{", .close = "}}"
   )
+}
+
+localize_at <- function(xs, syms) {
+  qs <- lapply(syms, function(.)
+    set_empty_msg(rlang::new_quosure(., emptyenv())))
+  for (i in seq_along(xs))
+    xs[[i]]$chk_items <- qs
+  tabulate_checks(xs)
 }
