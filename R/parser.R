@@ -41,11 +41,11 @@ parse_check <- function(.) {
 }
 enquo_check_items <- function(x, env) {
   if (is_vld_expr(x))
-    lapply(eval(x, env), `[[`, "chk")
+    eval(x, env)
   else if (is_vld(x))
-    lapply(x, `[[`, "chk")
+    x
   else
-    list(rlang::new_quosure(x, env))
+    list(set_empty_msg(rlang::new_quosure(x, env)))
 }
 is_vld_expr <- function(x) {
   is.call(x) && identical(x[[1]], as.name("vld"))
@@ -123,14 +123,16 @@ validation_tbl <- function(pred, chk_items, text) {
   x
 }
 deparse_check <- function(expr, chk_items, def_msg, interp_msg, env) {
-  calls <- vapply(chk_items, deparse_call, character(1), x = expr)
-  msgs <- names_filled(chk_items)
+  calls <-
+    vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
+  msgs <-
+    vapply(chk_items, function(.) rlang::eval_tidy(.$msg), character(1))
   is_gbl <- !nzchar(msgs)
   msgs[is_gbl] <-
     make_message(def_msg, interp_msg, env, chk_items[is_gbl], calls[is_gbl])
   envs <- vector("list", length(chk_items))
   envs[ is_gbl] <- list(env)
-  envs[!is_gbl] <- lapply(chk_items[!is_gbl], rlang::f_env)
+  envs[!is_gbl] <- lapply(chk_items[!is_gbl], function(.) rlang::f_env(.$msg))
   list(call = calls, msg = msgs, is_msg_gbl = is_gbl, env = envs)
 }
 deparse_call <- function(x, arg) {
@@ -139,7 +141,8 @@ deparse_call <- function(x, arg) {
 }
 make_message <- function(msg, interp_msg, env, chk_items, calls) {
   if (nzchar(msg)) {
-    msgs <- vapply(chk_items, glue_opp, character(1), text = msg, env = env)
+    msgs <-
+      vapply(chk_items, function(.) glue_opp(.$chk, msg, env), character(1))
     if (!interp_msg)
       msgs <- protect_braces(msgs)
     msgs
