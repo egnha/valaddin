@@ -81,8 +81,7 @@ NULL
 #'   }
 localize <- function(p, msg = "") {
   p <- rlang::enquo(p)
-  env <- capture_env(p, parent.frame())
-  pred <- as_predicate(p, env)
+  pred <- as_predicate(p, capture_env(p, parent.frame()))
   localize_(msg, pred$fn, pred$expr, rlang::quo_expr(p))
 }
 localize_ <- function(msg, fn, expr, expr_q = expr) {
@@ -97,7 +96,7 @@ localize_ <- function(msg, fn, expr, expr_q = expr) {
   }
   structure(
     function(...) {
-      check_items <- rlang::quos(...)
+      check_items <- vld(...)
       structure(
         rlang::new_formula(fn, check_items, parent.frame()),
         vld_err_msg    = msg,
