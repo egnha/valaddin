@@ -12,7 +12,7 @@ vld(...)
 }
 \value{
 List of pairs of quosures, with named components \code{msg} (error
-message), \code{chk} (input validation check).
+message) and \code{chk} (input validation check), of class \code{validationChecks}.
 }
 \description{
 Capture input-validation checks
