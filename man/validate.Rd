@@ -25,16 +25,16 @@ Validate objects
 # All assertions valid: data frame returned (invisibly)
 validate(mtcars,
          is.data.frame,
-         v_all_map(is.numeric),
-         v_gt(10)(nrow(.)),
-         v_contains(c("mpg", "cyl"))(names(.)))
+         vld_all_map(is.numeric),
+         vld_gt(10)(nrow(.)),
+         vld_has_names(c("mpg", "cyl"))(.))
 
 \dontrun{
 # Some assertions invalid: diagnostic error raised
 validate(mtcars,
          is.matrix,
-         v_all_map(is.numeric),
-         v_gt(1000)(nrow(.)),
-         v_contains("cylinders")(names(.)))}
+         vld_all_map(is.numeric),
+         vld_gt(1000)(nrow(.)),
+         vld_has_name("cylinders")(.))}
 
 }
