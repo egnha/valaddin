@@ -36,7 +36,7 @@ comparisons$property <- list(
   list(
     "has_names",
     quote({all(.ref %in% names(.))}),
-    "{{.}} does not have names {{{.ref$value}}}"
+    "{{{comma_collapse(.ref$value)}}} are not all names of {{.}}"
   ),
   list(
     "has_length",
@@ -51,7 +51,7 @@ comparisons$property <- list(
   list(
     "has_attrs",
     quote({all(.ref %in% attributes(.))}),
-    "{{.}} does not have attributes {{{.ref$value}}}"
+    "{{{comma_collapse(.ref$value)}}} are not all attributes of {{.}}"
   ),
   list(
     "inherits",
