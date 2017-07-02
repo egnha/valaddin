@@ -387,18 +387,14 @@ predicates$property <- list(
   )
 )
 
-assign_with <- function(f) {
-  function(prefix, xs) {
-    env <- parent.frame()
-    for (x in xs) {
-      nm <- paste0(prefix, x[[1]])
-      assign(nm, f(UQ(x[[2]]), x[[3]]), envir = env)
-    }
-  }
+for (x in unlist(comparisons, recursive = FALSE)) {
+  nm <- paste0("vld_", x[[1]])
+  assign(nm, localize_comparison(UQ(x[[2]]), x[[3]]))
 }
-assign_lcl_comparisons <- assign_with(localize_comparison)
-assign_lcl_predicates  <- assign_with(localize)
+for (x in unlist(predicates, recursive = FALSE)) {
+  nm <- paste0("vld_", x[[1]])
+  assign(nm, localize(UQ(x[[2]]), x[[3]]))
+}
 
 #' @rawNamespace exportPattern("^vld_.*$")
-assign_lcl_comparisons("vld_", unlist(comparisons, recursive = FALSE))
-assign_lcl_predicates("vld_", unlist(predicates, recursive = FALSE))
+NULL
