@@ -77,9 +77,7 @@ as_check_items <- function(x, env) {
   else
     list(set_empty_msg(rlang::new_quosure(x, env)))
 }
-is_vld_expr <- function(x) {
-  is.call(x) && identical(x[[1]], as.name("vld"))
-}
+is_vld_expr <- identify_caller("vld")
 as_predicate <- function(q, env) {
   expr <- rlang::get_expr(q)
   if (is_lambda(expr)) {
@@ -94,9 +92,7 @@ as_predicate <- function(q, env) {
   }
   list(expr = expr, fn = fn)
 }
-is_lambda <- function(x) {
-  is.call(x) && identical(x[[1]], as.symbol("{"))
-}
+is_lambda <- identify_caller("{")
 new_fn_expr <- function(body, args = alist(. = )) {
   call("function", as.pairlist(args), body)
 }

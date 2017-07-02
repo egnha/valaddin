@@ -25,6 +25,12 @@ capture_env <- function(x, env) {
     env_x
 }
 
+identify_caller <- function(nm) {
+  caller <- as.name(nm)
+  function(x)
+    is.call(x) && identical(x[[1]], caller)
+}
+
 names_filled <- function(x) {
   names(x) %||% character(length(x))
 }
