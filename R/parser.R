@@ -94,7 +94,7 @@ is_error <- function(x) {
 tabulate_checks <- function(xs) {
   parts <- lapply(xs, function(.) {
     text <- deparse_check(.$expr, .$chk_items, .$msg, .$interp_msg, .$env)
-    validation_tbl(.$fn, .$chk_items, text)
+    validation_tbl(.$fn, lapply(.$chk_items, `[[`, "chk"), text)
   })
   do.call("rbind", parts)
 }
@@ -109,11 +109,11 @@ localize_at <- function(xs, syms) {
   tabulate_checks(xs)
 }
 # cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)
-validation_tbl <- function(pred, chk_items, text) {
-  n <- length(chk_items)
+validation_tbl <- function(pred, chk_quos, text) {
+  n <- length(chk_quos)
   x <- list(
     pred       = `[<-`(vector("list", n), list(pred)),
-    expr       = chk_items,
+    expr       = chk_quos,
     call       = text$call,
     msg        = text$msg,
     is_msg_gbl = text$is_msg_gbl,
