@@ -3,35 +3,38 @@
 \name{input-validators}
 \alias{input-validators}
 \alias{localize}
+\alias{localize_comparison}
 \alias{globalize}
 \title{Generate input-validation checks}
 \usage{
-localize(chk)
+localize(p, msg = "")
+
+localize_comparison(p, msg = "", open = "{{{", close = "}}}")
 
 globalize(chkr)
 }
 \arguments{
+\item{chkr}{Function of class \code{local_predicate}, i.e., a function created by
+\code{localize}.}
+
 \item{chk}{Check formula of global scope \emph{with} custom error message,
 i.e., a formula of the form \code{<string> ~ <predicate>}.}
-
-\item{chkr}{Function of class \code{"check_maker"}, i.e., a function created
-by \code{localize}.}
 }
 \value{
 \code{localize} returns a function of class \code{"check_maker"} and
-  call signature \code{function(...)}:
-  \itemize{
-    \item The \code{\dots} are \strong{check items} (see \emph{Check Formulae
-      of Local Scope} in the documentation page \link{firmly}).
-    \item The return value is the check formula of local scope whose scope is
-      comprised of these check items, and whose predicate function is that of
-      \code{chk} (i.e., the right-hand side of \code{chk}). Unless a check
-      item has its own error message, the error message is derived from that
-      of \code{chk} (i.e., the left-hand side of \code{chk}).
-  }
+call signature \code{function(...)}:
+\itemize{
+\item The \code{\dots} are \strong{check items} (see \emph{Check Formulae
+of Local Scope} in the documentation page \link{firmly}).
+\item The return value is the check formula of local scope whose scope is
+comprised of these check items, and whose predicate function is that of
+\code{chk} (i.e., the right-hand side of \code{chk}). Unless a check
+item has its own error message, the error message is derived from that
+of \code{chk} (i.e., the left-hand side of \code{chk}).
+}
 
-\code{globalize} returns the global-scope check formula from which
-  the function \code{chkr} is derived.
+\code{globalize} returns the global-scope check formula from which the
+function \code{chkr} is derived.
 }
 \description{
 \code{localize} derives a function that \emph{generates} check formulae of
@@ -80,7 +83,7 @@ chk_lte <- function(n, ...) {
   localize(err_msg ~ {. <= n})(...)
 }
 fib <- function(n) {
-  if (n <= 1L) return(1L)
+  if (n <= 1) return(1)
   Recall(n - 1) + Recall(n - 2)
 }
 capped_fib <- firmly(fib, chk_lte(30, ~ ceiling(n)))
@@ -91,10 +94,10 @@ capped_fib(31)  # Error: "Not <= 30: ceiling(n)"
 }
 \seealso{
 The notion of \dQuote{scope} is explained in the \emph{Check
-  Formulae} section of \link{firmly}.
+Formulae} section of \link{firmly}.
 
-  Ready-made checkers for \link[=type-checkers]{types},
-  \link[=bare-type-checkers]{bare types}, \link[=scalar-type-checkers]{scalar
-  types}, and \link[=misc-checkers]{miscellaneous predicates} are provided as
-  a convenience, and as a model for creating families of check makers.
+Ready-made checkers for \link\link{=type-checkers}{types},
+\link\link{=bare-type-checkers}{bare types}, \link\link{=scalar-type-checkers}{scalar
+types}, and \link\link{=misc-checkers}{miscellaneous predicates} are provided as
+a convenience, and as a model for creating families of check makers.
 }

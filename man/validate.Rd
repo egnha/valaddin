@@ -7,7 +7,7 @@
 \usage{
 validate(., ..., error_class = NULL)
 
-validify(..., error_class = NULL, env = parent.frame())
+validify(..., error_class = NULL)
 }
 \arguments{
 \item{.}{Object to validate.}
