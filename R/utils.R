@@ -66,7 +66,7 @@ enumerate_many <- function(x, many = 2) {
 
 comma_collapse <- function(x, width = 60) {
   x_str <- paste(x, collapse = ", ")
-  if (nchar(x_str) > 60)
+  if (nchar(x_str) > width)
     sprintf("%s ... [TRUNCATED]", substr(x_str, 1, width))
   else
     x_str
