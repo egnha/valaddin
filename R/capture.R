@@ -3,7 +3,7 @@
 #' @param ... Input-validation checks as error message-check definitions (cf.
 #'   [rlang::dots_definitions()]).
 #' @return List of pairs of quosures, with named components `msg` (error
-#'   message), `chk` (input validation check).
+#'   message) and `chk` (input validation check), of class `validationChecks`.
 #'
 #' @examples
 #' vld(!!!vld(!!!vld(f, a := b, c := d)), g, e := f)
@@ -11,7 +11,14 @@
 #' @export
 vld <- function(...) {
   dd <- rlang::dots_definitions(...)
-  c(splice_checks(dd$dots), name_checks(dd$defs))
+  structure(
+    c(splice_checks(dd$dots), name_checks(dd$defs)),
+    class = "validationChecks"
+  )
+}
+
+is_vld <- function(x) {
+  inherits(x, "validationChecks")
 }
 
 name_checks <- function(defs) {
