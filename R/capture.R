@@ -28,5 +28,5 @@ is_check <- function(x) {
   is.list(rlang::f_rhs(x))
 }
 set_empty_msg <- function(x) {
-  list(msg = rlang::quo(NULL), chk = x)
+  list(msg = rlang::quo(""), chk = x)
 }
