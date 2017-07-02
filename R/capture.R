@@ -1,5 +1,7 @@
-#' Capture input-validation checks
+#' Capture input validation checks
 #'
+#' @details The order of the input validation checks is not necessarily
+#'   preserved.
 #' @param ... Input-validation checks as error message-check definitions (cf.
 #'   [rlang::dots_definitions()]).
 #' @return List of pairs of quosures, with named components `msg` (error
@@ -8,7 +10,8 @@
 #' @examples
 #' # Stipulate that a, b, c are numeric and a > b > c
 #' z <- 0
-#' vld(is.numeric, !!! vld({isTRUE(. > !! z)} ~ vld(a - b, b - c)))
+#' vld("Not numeric" := is.numeric,
+#'     !!! vld({isTRUE(. > !! z)} ~ vld(a - b, b - c)))
 #'
 #' @export
 vld <- function(...) {

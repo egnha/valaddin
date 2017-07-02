@@ -2,7 +2,7 @@
 % Please edit documentation in R/capture.R
 \name{vld}
 \alias{vld}
-\title{Capture input-validation checks}
+\title{Capture input validation checks}
 \usage{
 vld(...)
 }
@@ -15,9 +15,16 @@ List of pairs of quosures, with named components \code{msg} (error
 message) and \code{chk} (input validation check), of class \code{validationChecks}.
 }
 \description{
-Capture input-validation checks
+Capture input validation checks
+}
+\details{
+The order of the input validation checks is not necessarily
+preserved.
 }
 \examples{
-vld(!!!vld(!!!vld(f, a := b, c := d)), g, e := f)
+# Stipulate that a, b, c are numeric and a > b > c
+z <- 0
+vld("Not numeric" := is.numeric,
+    !!! vld({isTRUE(. > !! z)} ~ vld(a - b, b - c)))
 
 }
