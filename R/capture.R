@@ -18,7 +18,7 @@ vld <- function(...) {
   dd <- rlang::dots_definitions(...)
   structure(
     c(splice_checks(dd$dots), name_checks(dd$defs)),
-    class = "validationChecks"
+    class = "validation_checks"
   )
 }
 
@@ -40,5 +40,5 @@ set_empty_msg <- function(x) {
 }
 
 is_vld <- function(x) {
-  inherits(x, "validationChecks")
+  inherits(x, "validation_checks")
 }
