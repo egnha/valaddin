@@ -35,22 +35,20 @@ nomen <- function(sig) {
 }
 #' @export
 loosely <- function(f) {
-  if (!is.function(f)) {
+  if (!is.function(f))
     stop("'f' must be a function", call. = FALSE)
-  } else if (is_firm(f)) {
+  else if (is_firm(f))
     firm_core(f)
-  } else {
+  else
     f
-  }
 }
 #' @export
 is_firm <- function(x) {
   inherits(x, "firm_closure")
 }
 as_firm_closure <- function(f) {
-  if (!is_firm(f)) {
+  if (!is_firm(f))
     class(f) <- c("firm_closure", class(f))
-  }
   f
 }
 with_sig <- function(f, sig, attrs) {
@@ -89,11 +87,10 @@ print.firm_closure <- function(x, ...) {
   }
   cat("\n* Error subclass for check errors:\n")
   subclass <- firm_error(x)
-  if (!is.null(subclass)) {
+  if (!is.null(subclass))
     cat(paste(subclass, collapse = ", "), "\n")
-  } else {
+  else
     cat("None\n")
-  }
   invisible(x)
 }
 
@@ -160,10 +157,9 @@ print.validator <- function(x, ...) {
   }
   cat("\n* Error subclass for validation errors:\n")
   subclass <- firm_error(x)
-  if (!is.null(subclass)) {
+  if (!is.null(subclass))
     cat(paste(subclass, collapse = ", "), "\n")
-  } else {
+  else
     cat("None\n")
-  }
   invisible(x)
 }

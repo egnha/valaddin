@@ -44,24 +44,22 @@ glue_text <- function(text, env, data = NULL, ...) {
 # Deparse a language object as a single string
 deparse_collapse <- function(x) {
   d <- deparse(x)
-  if (length(d) > 1) {
+  if (length(d) > 1)
     paste(trimws(gsub("\\s+", " ", d), which = "left"), collapse = "")
-  } else {
+  else
     d
-  }
 }
 
 # Collapse a character vector into an enumerated string
 enumerate_many <- function(x, many = 2) {
-  if (length(x) >= many) {
+  if (length(x) >= many)
     paste(
       vapply(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]]),
              character(1)),
       collapse = ""
     )
-  } else {
+  else
     paste0(x, "\n")
-  }
 }
 
 comma_collapse <- function(x, width = 60) {

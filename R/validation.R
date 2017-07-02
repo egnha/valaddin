@@ -81,24 +81,22 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
       })
     )
     pass <- vapply(verdict, isTRUE, logical(1))
-    if (all(pass)) {
+    if (all(pass))
       eval_bare(`[[<-`(call, 1, .subset2(encl, "f")), parent.frame())
-    } else {
+    else
       stop(.subset2(encl, "error")(match.call(), verdict, !pass, venv))
-    }
   }
 }
 
 problems <- function(chks, verdict, env) {
   vapply(seq_along(verdict), function(i) {
     out <- verdict[[i]]
-    if (rlang::is_false(out)) {
+    if (rlang::is_false(out))
       err_invalid_input(chks[i, ], env)
-    } else if (is_error(out)) {
+    else if (is_error(out))
       err_eval_error(chks$call[[i]], out)
-    } else {
+    else
       err_invalid_value(chks$call[[i]], out)
-    }
   }, character(1))
 }
 

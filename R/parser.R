@@ -145,9 +145,10 @@ make_message <- function(msg, interp_msg, env, chk_items, calls) {
     if (!interp_msg)
       msgs <- protect_braces(msgs)
     msgs
-  } else
+  } else {
     # double-up braces to shield them from glue_text()
     protect_braces(message_false(calls))
+  }
 }
 protect_braces <- function(x) {
   gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
