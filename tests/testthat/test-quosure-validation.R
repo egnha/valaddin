@@ -32,7 +32,7 @@ test_that("global check raises error for checks that return non-TRUE/FALSE", {
 # Local-scope check -------------------------------------------------------
 context("Local check")
 
-test_that("check formula with non-quosure RHS checks whole RHS expression", {
+test_that("check formula with non-vld() RHS checks whole RHS expression", {
   # check of a bare argument
   f <- firmly(function(x, y) NULL, isTRUE ~ x)
   expect_error(f(TRUE, stop("!")), NA)
@@ -44,15 +44,15 @@ test_that("check formula with non-quosure RHS checks whole RHS expression", {
   expect_error(f(1:2), errmsg_false("isTRUE(length(x) == 1L)"))
 })
 
-test_that("check formula with quosures RHS checks contained expressions", {
+test_that("check formula with vld() RHS checks contained expressions", {
   is_positive <- function(x) isTRUE(x > 0)
 
-  f <- firmly(function(x, y) NULL, is_positive ~ quos(x, y, x - y))
+  f <- firmly(function(x, y) NULL, is_positive ~ vld(x, y, x - y))
   expect_error(f(2, 1), NA)
   expect_error(f(0, 1), errmsg_false("is_positive(x)"))
   expect_error(f(0, 1), errmsg_false("is_positive(x - y)"))
 
-  check_items <- rlang::quos(x, y, x - y)
+  check_items <- vld(x, y, x - y)
   f <- firmly(function(x, y) NULL, is_positive ~ !! check_items)
   expect_error(f(2, 1), NA)
   expect_error(f(0, 1), errmsg_false("is_positive(x)"))
@@ -122,14 +122,14 @@ test_that("check items support quasiquotation", {
     rlang::quo(y - one)
   })
   two <- 2
-  f <- firmly(function(x, y) NULL, {. > 0} ~ quos(x - !! two, !! q))
+  f <- firmly(function(x, y) NULL, {. > 0} ~ vld(x - !! two, !! q))
   expect_error(f(3, 2), NA)
   expect_error(f(2, 1),
                errmsg_false("(function(.) {. > 0})(x - 2)"), perl = TRUE)
   expect_error(f(2, 1),
                errmsg_false("(function(.) {. > 0})(y - one)"), perl = TRUE)
 
-  check_items <- rlang::quos(x - !! two, !! q)
+  check_items <- vld(x - !! two, !! q)
   f <- firmly(function(x, y) NULL, {. > 0} ~ !! check_items)
   expect_error(f(3, 2), NA)
   expect_error(f(2, 1),
@@ -147,7 +147,7 @@ test_that("error message for global check supports quasiquotation", {
 
 test_that("error message local to check item supports quasiquotation", {
   msg <- "'x' is not true: {x}"
-  f <- firmly(function(x, y) NULL, isTRUE ~ quos(!! msg := x))
+  f <- firmly(function(x, y) NULL, isTRUE ~ vld(!! msg := x))
   expect_error(f(TRUE), NA)
   expect_error(f("indeed not"), "'x' is not true: indeed not")
 })
