@@ -99,13 +99,10 @@ tabulate_checks <- function(xs) {
   do.call("rbind", parts)
 }
 localize_at <- function(xs, syms) {
-  js <- seq_along(syms)
-  qs <- lapply(syms, rlang::new_quosure)
-  for (i in seq_along(xs)) {
-    for (j in js)
-      rlang::f_env(qs[[j]]) <- xs[[i]]$env
+  qs <- lapply(syms, function(.)
+    set_empty_msg(rlang::new_quosure(., emptyenv())))
+  for (i in seq_along(xs))
     xs[[i]]$chk_items <- qs
-  }
   tabulate_checks(xs)
 }
 # cf. [`quickdf()`](http://adv-r.had.co.nz/Profiling.html#be-lazy)
