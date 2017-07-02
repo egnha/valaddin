@@ -6,7 +6,9 @@
 #'   message) and `chk` (input validation check), of class `validationChecks`.
 #'
 #' @examples
-#' vld(!!!vld(!!!vld(f, a := b, c := d)), g, e := f)
+#' # Stipulate that a, b, c are numeric and a > b > c
+#' z <- 0
+#' vld(is.numeric, !!! vld({isTRUE(. > !! z)} ~ vld(a - b, b - c)))
 #'
 #' @export
 vld <- function(...) {
