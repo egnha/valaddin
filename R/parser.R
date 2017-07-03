@@ -26,15 +26,11 @@ parse_check <- function(.) {
     pred <- as_predicate(.$chk, rlang::f_env(.$chk))
     chk_items <- NULL
   }
-  get_attr <- function(x, def) {
-    (chkev %@% x) %||% (pred$fn %@% x) %||% def
-  }
   msg <- rlang::eval_tidy(.$msg)
   list(
     fn         = pred$fn,
-    expr       = get_attr("vld_pred_expr", pred$expr),
-    msg        = if (nzchar(msg)) msg else get_attr("vld_err_msg", ""),
-    interp_msg = get_attr("vld_interp_msg", TRUE),
+    expr       = (. %@% "vld_pred_expr") %||% pred$expr,
+    msg        = msg,
     chk_items  = chk_items,
     env        = rlang::f_env(.$msg)
   )
@@ -114,19 +110,19 @@ validation_tbl <- function(pred, chk_quos, text) {
 }
 tabulate_checks <- function(xs) {
   parts <- lapply(xs, function(.) {
-    text <- deparse_check(.$expr, .$chk_items, .$msg, .$interp_msg, .$env)
+    text <- deparse_check(.$expr, .$chk_items, .$msg, .$env)
     validation_tbl(.$fn, lapply(.$chk_items, `[[`, "chk"), text)
   })
   do.call("rbind", parts)
 }
-deparse_check <- function(expr, chk_items, def_msg, interp_msg, env) {
+deparse_check <- function(expr, chk_items, def_msg, env) {
   calls <-
     vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
   msgs <-
     vapply(chk_items, function(.) rlang::eval_tidy(.$msg), character(1))
   is_gbl <- !nzchar(msgs)
   msgs[is_gbl] <-
-    make_message(def_msg, interp_msg, env, chk_items[is_gbl], calls[is_gbl])
+    make_message(def_msg, env, chk_items[is_gbl], calls[is_gbl])
   envs <- vector("list", length(chk_items))
   envs[ is_gbl] <- list(env)
   envs[!is_gbl] <- lapply(chk_items[!is_gbl], function(.) rlang::f_env(.$msg))
@@ -136,17 +132,12 @@ deparse_call <- function(x, arg) {
   call <- rlang::expr(UQE(x)(UQE(arg)))
   deparse_collapse(call)
 }
-make_message <- function(msg, interp_msg, env, chk_items, calls) {
-  if (nzchar(msg)) {
-    msgs <-
-      vapply(chk_items, function(.) glue_opp(.$chk, msg, env), character(1))
-    if (!interp_msg)
-      msgs <- protect_braces(msgs)
-    msgs
-  } else {
+make_message <- function(msg, env, chk_items, calls) {
+  if (nzchar(msg))
+    vapply(chk_items, function(.) glue_opp(.$chk, msg, env), character(1))
+  else
     # double-up braces to shield them from glue_text()
     protect_braces(message_false(calls))
-  }
 }
 protect_braces <- function(x) {
   gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
