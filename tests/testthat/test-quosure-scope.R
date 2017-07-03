@@ -96,8 +96,8 @@ test_that("globalization preserves message of localized predicate", {
   chkr1 <- localize(isTRUE)
   chkr2 <- localize(isTRUE, "{{.}} is not true: {.}")
   f <- function(x) NULL
-  f1 <- firmly(f, globalize(chkr1))
-  f2 <- firmly(f, globalize(chkr2))
+  f1 <- firmly(f, !! globalize(chkr1))
+  f2 <- firmly(f, !! globalize(chkr2))
   expect_error(f1(TRUE), NA)
   expect_error(f2(TRUE), NA)
   expect_error(f1("indeed not"), errmsg_false("isTRUE(x)"))
@@ -112,7 +112,7 @@ test_that("globalize(localize(pred)) is check-equivalent to pred", {
     function(x) isTRUE(x > z)
   })
   f <- function(x) NULL
-  ff <- firmly(f, globalize(localize(predicate)))
+  ff <- firmly(f, !! globalize(localize(predicate)))
   ff_ref <- firmly(f, predicate)
   expect_error(ff(1), NA)
   expect_error(ff(0), errmsg_false("predicate(x)"))
