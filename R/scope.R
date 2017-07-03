@@ -80,9 +80,9 @@ NULL
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
 localize <- function(p, msg = NULL) {
-  p <- rlang::enquo(p)
-  x <- rlang::quo_expr(p)
-  pred <- as_predicate(p, capture_env(p, parent.frame()))
+  q <- rlang::enquo(p)
+  x <- rlang::quo_expr(q)
+  pred <- as_predicate(q, capture_env(q, parent.frame()))
   expr <- if (is_lambda(x)) pred$expr else x
   localize_(pred$fn, expr, msg)
 }
@@ -148,9 +148,9 @@ localize_comparison <- function(p, msg = "", open = "{{{", close = "}}}") {
   force(msg)
   force(open)
   force(close)
-  p <- rlang::enquo(p)
-  env <- capture_env(p, parent.frame())
-  cmp <- as_comparison(p, env)
+  q <- rlang::enquo(p)
+  env <- capture_env(q, parent.frame())
+  cmp <- as_comparison(q, env)
   function(.ref, ...) {
     repr <- list(value = .ref, expr = deparse_collapse(substitute(.ref)))
     msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
