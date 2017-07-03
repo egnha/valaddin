@@ -55,8 +55,6 @@ as_predicate <- function(q, env) {
     fn <- eval(expr, env)
   } else {
     fn <- try_eval_tidy(q, env)
-    if (is_local_predicate(fn))
-      fn <- loosely(globalize)(fn)
     if (!is.function(fn))
       stop(err_not_function(expr, maybe_error(fn)), call. = FALSE)
   }
