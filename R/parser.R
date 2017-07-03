@@ -28,11 +28,11 @@ parse_check <- function(.) {
   }
   msg <- rlang::eval_tidy(.$msg)
   list(
-    fn         = pred$fn,
-    expr       = (. %@% "vld_pred_expr") %||% pred$expr,
-    msg        = msg,
-    chk_items  = chk_items,
-    env        = rlang::f_env(.$msg)
+    fn        = pred$fn,
+    expr      = (. %@% "vld_pred_expr") %||% pred$expr,
+    msg       = msg,
+    chk_items = chk_items,
+    env       = rlang::f_env(.$msg)
   )
 }
 as_check_items <- function(x, env) {
