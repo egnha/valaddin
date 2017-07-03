@@ -101,7 +101,7 @@ problems <- function(chks, verdict, env) {
 }
 
 err_invalid_input <- function(., env) {
-  parent.env(env) <- .$env[[1]]
+  parent.env(env) <- .$env_msg[[1]]
   env_msg <- if (.$is_msg_gbl[[1]]) bind_as_dot(.$expr[[1]], env) else env
   errmsg <- tryCatch(
     glue_text(.$msg[[1]], env_msg),
