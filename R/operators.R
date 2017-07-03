@@ -8,8 +8,8 @@ fasten_ <- function(..., error_class = NULL) {
   function(f) {
     sig <- formals(f)
     arg <- nomen(sig)
-    error_class_na <- is.null(firm_checks(f)) || !length(error_class)
-    if (!length(arg$nm) || is.null(chk_parts) && error_class_na) {
+    error_class_na <- is.null(firm_checks(f)) || length(error_class) == 0
+    if (length(arg$nm) == 0 || is.null(chk_parts) && error_class_na) {
       return(f)
     }
     chks <-
