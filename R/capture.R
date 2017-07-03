@@ -17,7 +17,7 @@
 vld <- function(...) {
   dd <- rlang::dots_definitions(...)
   structure(
-    c(splice_checks(dd$dots), name_checks(dd$defs)),
+    c(splice_checks(dd$dots), standardize_checks(dd$defs)),
     class = "validation_checks"
   )
 }
@@ -25,7 +25,7 @@ is_vld <- function(x) {
   inherits(x, "validation_checks")
 }
 
-name_checks <- function(defs) {
+standardize_checks <- function(defs) {
   lapply(defs, `names<-`, c("msg", "chk"))
 }
 
