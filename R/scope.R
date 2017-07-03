@@ -83,7 +83,8 @@ localize <- function(p, msg = NULL) {
   p <- rlang::enquo(p)
   x <- rlang::quo_expr(p)
   pred <- as_predicate(p, capture_env(p, parent.frame()))
-  localize_(pred$fn, if (is_lambda(x)) pred$expr else x, msg)
+  expr <- if (is_lambda(x)) pred$expr else x
+  localize_(pred$fn, expr, msg)
 }
 localize_ <- function(fn, expr, msg) {
   force(fn)
