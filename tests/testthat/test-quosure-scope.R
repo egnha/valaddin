@@ -104,18 +104,6 @@ test_that("globalization preserves message of localized predicate", {
   expect_error(f2("indeed not"), "x is not true: indeed not")
 })
 
-test_that("name of globalization overrides message of localized predicate", {
-  chkr1 <- localize(isTRUE)
-  chkr2 <- localize(isTRUE, "{{.}} is not true: {.}")
-  f <- function(x) NULL
-  f1 <- firmly(f, "overridden" := globalize(chkr1))
-  f2 <- firmly(f, "overridden" := globalize(chkr2))
-  expect_error(f1(TRUE), NA)
-  expect_error(f2(TRUE), NA)
-  expect_error(f1("indeed not"), "overridden")
-  expect_error(f2("indeed not"), "overridden")
-})
-
 context("Scope inversion")
 
 test_that("localize(globalize(chkr)) is check-equivalent to chkr", {
