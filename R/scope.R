@@ -102,35 +102,10 @@ localize_ <- function(fn, expr, msg) {
     class = c("local_predicate", "function")
   )
 }
-#
-# localize <- function(p, msg = "") {
-#   p <- rlang::enquo(p)
-#   pred <- as_predicate(p, capture_env(p, parent.frame()))
-#   localize_(msg, pred$fn, pred$expr, rlang::quo_expr(p))
-# }
-# localize_ <- function(msg, fn, expr, expr_q = expr) {
-#   force(fn)
-#   expr <- if (is_lambda(expr_q)) expr else expr_q
-#   if (nzchar(msg)) {
-#     interp_msg <- TRUE
-#   } else {
-#     # double-up braces so that make_message() substitutes literal expression
-#     msg <- message_false(deparse_collapse(bquote(.(expr)({{.}}))))
-#     interp_msg <- FALSE
-#   }
-#   structure(
-#     function(...) {
-#       check_items <- vld(...)
-#       structure(
-#         rlang::new_formula(fn, check_items, parent.frame()),
-#         vld_err_msg    = msg,
-#         vld_interp_msg = interp_msg,
-#         vld_pred_expr  = expr
-#       )
-#     },
-#     class = c("local_predicate", "function")
-#   )
-# }
+
+is_local_predicate <- function(x) {
+  inherits(x, "local_predicate")
+}
 
 #' @export
 print.local_predicate <- function(x, ...) {

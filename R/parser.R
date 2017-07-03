@@ -60,9 +60,6 @@ is_lambda <- identify_caller("{")
 new_fn_expr <- function(body, args = alist(. = )) {
   call("function", as.pairlist(args), body)
 }
-is_local_predicate <- function(x) {
-  inherits(x, "local_predicate")
-}
 err_not_function <- function(x, fault = NULL) {
   x <- rlang::expr_label(x)
   if (is.null(fault))
