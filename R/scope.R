@@ -107,16 +107,6 @@ is_local_predicate <- function(x) {
   inherits(x, "local_predicate")
 }
 
-#' @export
-print.local_predicate <- function(x, ...) {
-  cat("<local_predicate>\n")
-  cat("\n* Predicate function:\n")
-  cat(deparse_collapse(environment(x)$expr), "\n")
-  cat("\n* Error message:\n")
-  cat(encodeString(predicate_message(x), quote = "\""), "\n")
-  invisible(x)
-}
-
 #' @rdname input-validators
 #' @export
 localize_comparison <- function(p, msg = "", open = "{{{", close = "}}}") {
@@ -169,16 +159,6 @@ globalize <- fasten(
 )
 
 #' @export
-print.global_predicate <- function(x, ...) {
-  cat("<global_predicate>\n")
-  cat("\n* Predicate function:\n")
-  cat(deparse_collapse(x %@% "vld_pred_expr"), "\n")
-  cat("\n* Error message:\n")
-  cat(encodeString(predicate_message(x), quote = "\""), "\n")
-  invisible(x)
-}
-
-#' @export
 predicate_function <- function(x) {
   UseMethod("predicate_function")
 }
@@ -216,5 +196,25 @@ predicate_message.global_predicate <- function(x) {
 #' @export
 `predicate_message<-.global_predicate` <- function(x, value) {
   x$msg <- rlang::new_quosure(value, parent.frame())
+  invisible(x)
+}
+
+#' @export
+print.local_predicate <- function(x, ...) {
+  cat("<local_predicate>\n")
+  cat("\n* Predicate function:\n")
+  cat(deparse_collapse(environment(x)$expr), "\n")
+  cat("\n* Error message:\n")
+  cat(encodeString(predicate_message(x), quote = "\""), "\n")
+  invisible(x)
+}
+
+#' @export
+print.global_predicate <- function(x, ...) {
+  cat("<global_predicate>\n")
+  cat("\n* Predicate function:\n")
+  cat(deparse_collapse(x %@% "vld_pred_expr"), "\n")
+  cat("\n* Error message:\n")
+  cat(encodeString(predicate_message(x), quote = "\""), "\n")
   invisible(x)
 }
