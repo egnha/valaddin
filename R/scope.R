@@ -79,43 +79,65 @@ NULL
 #'       item has its own error message, the error message is derived from that
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
-localize <- function(p, msg = "") {
+localize <- function(p, msg = NULL) {
   p <- rlang::enquo(p)
+  x <- rlang::quo_expr(p)
   pred <- as_predicate(p, capture_env(p, parent.frame()))
-  localize_(msg, pred$fn, pred$expr, rlang::quo_expr(p))
+  localize_(pred$fn, if (is_lambda(x)) pred$expr else x, msg)
 }
-localize_ <- function(msg, fn, expr, expr_q = expr) {
+localize_ <- function(fn, expr, msg) {
   force(fn)
-  expr <- if (is_lambda(expr_q)) expr else expr_q
-  if (nzchar(msg)) {
-    interp_msg <- TRUE
-  } else {
-    # double-up braces so that make_message() substitutes literal expression
-    msg <- message_false(deparse_collapse(bquote(.(expr)({{.}}))))
-    interp_msg <- FALSE
-  }
+  force(expr)
+  force(msg)
   structure(
     function(...) {
-      check_items <- vld(...)
+      fml <- rlang::new_formula(fn, vld(...), parent.frame())
       structure(
-        rlang::new_formula(fn, check_items, parent.frame()),
-        vld_err_msg    = msg,
-        vld_interp_msg = interp_msg,
-        vld_pred_expr  = expr
+        (if (is.null(msg)) vld(fml) else vld(msg := fml))[[1]],
+        vld_pred_expr = expr,
+        class = "local_validation_checks"
       )
     },
     class = c("local_predicate", "function")
   )
 }
+#
+# localize <- function(p, msg = "") {
+#   p <- rlang::enquo(p)
+#   pred <- as_predicate(p, capture_env(p, parent.frame()))
+#   localize_(msg, pred$fn, pred$expr, rlang::quo_expr(p))
+# }
+# localize_ <- function(msg, fn, expr, expr_q = expr) {
+#   force(fn)
+#   expr <- if (is_lambda(expr_q)) expr else expr_q
+#   if (nzchar(msg)) {
+#     interp_msg <- TRUE
+#   } else {
+#     # double-up braces so that make_message() substitutes literal expression
+#     msg <- message_false(deparse_collapse(bquote(.(expr)({{.}}))))
+#     interp_msg <- FALSE
+#   }
+#   structure(
+#     function(...) {
+#       check_items <- vld(...)
+#       structure(
+#         rlang::new_formula(fn, check_items, parent.frame()),
+#         vld_err_msg    = msg,
+#         vld_interp_msg = interp_msg,
+#         vld_pred_expr  = expr
+#       )
+#     },
+#     class = c("local_predicate", "function")
+#   )
+# }
 
 #' @export
 print.local_predicate <- function(x, ...) {
-  env <- environment(x)
   cat("<local_predicate>\n")
   cat("\n* Predicate function:\n")
-  cat(deparse_collapse(env$expr), "\n")
+  cat(deparse_collapse(environment(x)$expr), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(env$msg, quote = "\""), "\n")
+  cat(encodeString(predicate_message(x), quote = "\""), "\n")
   invisible(x)
 }
 
@@ -131,7 +153,7 @@ localize_comparison <- function(p, msg = "", open = "{{{", close = "}}}") {
   function(.ref, ...) {
     repr <- list(value = .ref, expr = deparse_collapse(substitute(.ref)))
     msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
-    localize_(msg, cmp$fn(.ref, ...), cmp$expr)
+    localize_(cmp$fn(.ref, ...), cmp$expr, msg)
   }
 }
 as_comparison <- function(p, env) {
@@ -163,11 +185,9 @@ globalize <- fasten(
   function(chkr) {
     env <- environment(chkr)
     structure(
-      env$fn,
-      vld_err_msg    = env$msg,
-      vld_interp_msg = env$interp_msg,
-      vld_pred_expr  = env$expr,
-      class          = c("global_predicate", "function")
+      (if (is.null(env$msg)) vld(env$fn) else vld(env$msg := env$fn))[[1]],
+      vld_pred_expr = env$expr,
+      class = c("global_predicate", "function")
     )
   }
 )
@@ -178,7 +198,7 @@ print.global_predicate <- function(x, ...) {
   cat("\n* Predicate function:\n")
   cat(deparse_collapse(x %@% "vld_pred_expr"), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(x %@% "vld_err_msg", quote = "\""), "\n")
+  cat(encodeString(predicate_message(x), quote = "\""), "\n")
   invisible(x)
 }
 
@@ -192,7 +212,7 @@ predicate_function.local_predicate <- function(x) {
 }
 #' @export
 predicate_function.global_predicate <- function(x) {
-  strip_attr(x, "vld_err_msg", "vld_interp_msg", "vld_pred_expr", "class")
+  strip_attr(x, "vld_pred_expr", "class")
 }
 strip_attr <- function(x, ...) {
   attrs <- list(...)
@@ -209,7 +229,7 @@ predicate_message.local_predicate <- function(x) {
 }
 #' @export
 predicate_message.global_predicate <- function(x) {
-  x %@% "vld_err_msg"
+  rlang::eval_tidy(x$msg)
 }
 
 #' @export
@@ -219,12 +239,10 @@ predicate_message.global_predicate <- function(x) {
 #' @export
 `predicate_message<-.local_predicate` <- function(x, value) {
   environment(x)$msg <- value
-  environment(x)$vld_interp_msg <- TRUE
   invisible(x)
 }
 #' @export
 `predicate_message<-.global_predicate` <- function(x, value) {
-  attr(x, "vld_err_msg") <- value
-  attr(x, "vld_interp_msg") <- TRUE
+  x$msg <- rlang::new_quosure(value, parent.frame())
   invisible(x)
 }
