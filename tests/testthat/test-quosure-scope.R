@@ -106,20 +106,6 @@ test_that("globalization preserves message of localized predicate", {
 
 context("Scope inversion")
 
-test_that("localize(globalize(chkr)) is check-equivalent to chkr", {
-  predicate <- local({
-    z <- 0
-    function(x) isTRUE(x > z)
-  })
-  chkr <- localize(predicate)
-  f <- function(x) NULL
-  ff <- firmly(f, localize(globalize(chkr))(x))
-  ff_ref <- firmly(f, chkr(x))
-  expect_error(ff(1), NA)
-  expect_error(ff(0), errmsg_false("globalize(chkr)"))
-  expect_equal(ff, ff_ref)
-})
-
 test_that("globalize(localize(pred)) is check-equivalent to pred", {
   predicate <- local({
     z <- 0
