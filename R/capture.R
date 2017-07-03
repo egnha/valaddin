@@ -21,6 +21,9 @@ vld <- function(...) {
     class = "validation_checks"
   )
 }
+is_vld <- function(x) {
+  inherits(x, "validation_checks")
+}
 
 name_checks <- function(defs) {
   lapply(defs, `names<-`, c("msg", "chk"))
@@ -30,19 +33,17 @@ splice_checks <- function(dots) {
   lapply(dots, function(.) {
     rhs <- rlang::f_rhs(.)
     x <- try_eval_tidy(.)
-    if (is.list(rhs) || is_lcl_chk(x))
+    if (is.list(rhs) || is_local_vld(x))
       x
+    else if (is_local_predicate(x))
+      globalize(x)
     else
       set_empty_msg(.)
   })
 }
-is_lcl_chk <- function(x) {
+is_local_vld <- function(x) {
   inherits(x, "local_validation_checks")
 }
 set_empty_msg <- function(x) {
   list(msg = rlang::quo(""), chk = x)
-}
-
-is_vld <- function(x) {
-  inherits(x, "validation_checks")
 }
