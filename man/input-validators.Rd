@@ -7,7 +7,7 @@
 \alias{globalize}
 \title{Generate input-validation checks}
 \usage{
-localize(p, msg = "")
+localize(p, msg = NULL)
 
 localize_comparison(p, msg = "", open = "{{{", close = "}}}")
 
