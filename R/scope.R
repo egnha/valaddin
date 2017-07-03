@@ -188,11 +188,7 @@ predicate_function.local_predicate <- function(x) {
 }
 #' @export
 predicate_function.global_predicate <- function(x) {
-  strip_attr(x, "vld_pred_expr", "class")
-}
-strip_attr <- function(x, ...) {
-  attrs <- list(...)
-  Reduce(function(., which) `attr<-`(., which, NULL), attrs, x)
+  rlang::eval_tidy(x$chk)
 }
 
 #' @export
