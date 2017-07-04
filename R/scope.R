@@ -79,13 +79,18 @@ NULL
 #'       item has its own error message, the error message is derived from that
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
-localize <- function(p, msg = NULL) {
-  q <- rlang::enquo(p)
-  x <- rlang::quo_expr(q)
-  pred <- as_predicate(q, capture_env(q, parent.frame()))
-  expr <- if (is_lambda(x)) pred$expr else x
-  localize_(pred$fn, expr, msg)
-}
+localize <- fasten(
+  "'msg' must be a string or NULL" :=
+    {is.character(.) && length(.) == 1 || is.null(.)} ~ msg
+)(
+  function(p, msg = NULL) {
+    q <- rlang::enquo(p)
+    x <- rlang::quo_expr(q)
+    pred <- as_predicate(q, capture_env(q, parent.frame()))
+    expr <- if (is_lambda(x)) pred$expr else x
+    localize_(pred$fn, expr, msg)
+  }
+)
 localize_ <- function(fn, expr, msg) {
   force(fn)
   force(expr)
@@ -109,19 +114,24 @@ is_local_predicate <- function(x) {
 
 #' @rdname input-validators
 #' @export
-localize_comparison <- function(p, msg = "", open = "{{{", close = "}}}") {
-  force(msg)
-  force(open)
-  force(close)
-  q <- rlang::enquo(p)
-  env <- capture_env(q, parent.frame())
-  cmp <- as_comparison(q, env)
-  function(.ref, ...) {
-    repr <- list(value = .ref, expr = deparse_collapse(substitute(.ref)))
-    msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
-    localize_(cmp$fn(.ref, ...), cmp$expr, msg)
+localize_comparison <- fasten(
+  "'msg' must be a string or NULL" :=
+  {is.character(.) && length(.) == 1 || is.null(.)} ~ msg
+)(
+  function(p, msg = "", open = "{{{", close = "}}}") {
+    force(msg)
+    force(open)
+    force(close)
+    q <- rlang::enquo(p)
+    env <- capture_env(q, parent.frame())
+    cmp <- as_comparison(q, env)
+    function(.ref, ...) {
+      repr <- list(value = .ref, expr = deparse_collapse(substitute(.ref)))
+      msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
+      localize_(cmp$fn(.ref, ...), cmp$expr, msg)
+    }
   }
-}
+)
 as_comparison <- function(p, env) {
   expr <- rlang::f_rhs(p)
   if (is_lambda(expr)) {

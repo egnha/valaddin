@@ -118,3 +118,21 @@ test_that("globalize(localize(pred)) is check-equivalent to pred", {
   expect_error(ff(0), errmsg_false("predicate(x)"))
   expect_equal(ff, ff_ref)
 })
+
+context("Localized comparisons")
+
+test_that("error is raised when p is not a function/lambda expression", {
+  err_msg <- "Not a function"
+  fake_predicates <- list(NULL, NA, 1:2, "a", mtcars, list(ls), quote(isTRUE))
+  for (x in fake_predicates) {
+    expect_error(localize_comparison(x), err_msg)
+  }
+})
+
+test_that("error is raised when msg is not a string or NULL", {
+  err_msg <- "'msg' must be a string or NULL"
+  fake_msg <- list(NA, c("a", "b"), list("a"), character(0), quote(a))
+  for (x in fake_msg) {
+    expect_error(localize_comparison(isTRUE, x), err_msg)
+  }
+})
