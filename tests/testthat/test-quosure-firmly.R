@@ -82,7 +82,7 @@ test_that("error raised if predicate is not a function or lambda expression", {
   # lambda expressions are OK
   expect_error(firmly(f, {isTRUE(.)}), NA)
   # but other non-functions are not OK
-  fake_predicates <- list(NULL, NA, 1:2, mtcars, list(ls))
+  fake_predicates <- list(NULL, NA, 1:2, mtcars, list(ls), quote(isTRUE))
   for (fake_pred in fake_predicates)
     expect_error(firmly(f, fake_pred), "Not a function")
 })
