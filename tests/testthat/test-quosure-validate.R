@@ -40,9 +40,10 @@ test_that("error listing violations is signaled when validation fails", {
 })
 
 test_that("validify() creates object validator", {
+  n <- nrow(mtcars)
   verify_fail <- validify(
     is.matrix,
-    "Not enough rows: {.}" := {. > nrow(mtcars) + 1} ~ nrow(.),
+    "Not enough rows: {.}" := {. > n + 1} ~ nrow(.),
     {all(c("mpg", "cyl") %in% colnames(.))}
   )
   expect_error(
@@ -51,7 +52,7 @@ test_that("validify() creates object validator", {
   )
   expect_error(
     verify_fail(mtcars),
-    sprintf("Not enough rows: %d", nrow(mtcars))
+    sprintf("Not enough rows: %d", n)
   )
 
   verify_pass <- validify(
@@ -59,7 +60,9 @@ test_that("validify() creates object validator", {
     {nrow(.) > 1},
     all ~ c("mpg", "cyl") %in% colnames(.)
   )
+  # valid object is returned ...
   expect_identical(verify_pass(mtcars), mtcars)
+  # ... invisibly
   expect_identical(
     capture.output(verify_pass(mtcars)),
     character(0)
