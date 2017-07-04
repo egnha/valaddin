@@ -4,7 +4,7 @@ context("Localization")
 
 test_that("error is raised when argument is not a function/lambda expression", {
   err_msg <- "Not a function"
-  fake_predicates <- list(NULL, NA, 1:2, "a", mtcars, list(ls))
+  fake_predicates <- list(NULL, NA, 1:2, "a", mtcars, list(ls), quote(isTRUE))
   for (x in fake_predicates) {
     expect_error(localize(x), err_msg)
   }
