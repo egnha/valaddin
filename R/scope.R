@@ -80,10 +80,9 @@ NULL
 #'       of \code{chk} (i.e., the left-hand side of \code{chk}).
 #'   }
 localize <- fasten(
-  "'msg' must be a string or NULL" :=
-    {is.character(.) && length(.) == 1 || is.null(.)} ~ msg
+  "'msg' must be a string" := {is.character(.) && length(.) == 1} ~ msg
 )(
-  function(p, msg = NULL) {
+  function(p, msg = "") {
     q <- rlang::enquo(p)
     x <- rlang::quo_expr(q)
     pred <- as_predicate(q, capture_env(q, parent.frame()))
@@ -99,7 +98,7 @@ localize_ <- function(fn, expr, msg) {
     function(...) {
       fml <- rlang::new_formula(fn, vld(...), parent.frame())
       structure(
-        (if (is.null(msg)) vld(fml) else vld(msg := fml))[[1]],
+        (if (nzchar(msg)) vld(msg := fml) else vld(fml))[[1]],
         vld_pred_expr = expr,
         class = "local_validation_checks"
       )
@@ -115,8 +114,8 @@ is_local_predicate <- function(x) {
 #' @rdname input-validators
 #' @export
 localize_comparison <- fasten(
-  "'msg' must be a string or NULL" :=
-    {is.character(.) && length(.) == 1 || is.null(.)} ~ msg
+  "'{{.}}' must be a string" :=
+    {is.character(.) && length(.) == 1} ~ vld(msg, open, close)
 )(
   function(p, msg = "", open = "{{{", close = "}}}") {
     force(msg)
@@ -161,7 +160,7 @@ globalize <- fasten(
   function(chkr) {
     env <- environment(chkr)
     structure(
-      (if (is.null(env$msg)) vld(env$fn) else vld(env$msg := env$fn))[[1]],
+      (if (nzchar(env$msg)) vld(env$msg := env$fn) else vld(env$fn))[[1]],
       vld_pred_expr = env$expr,
       class = c("global_predicate", "function")
     )

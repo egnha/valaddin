@@ -138,7 +138,7 @@ test_that("error is raised when p is not a function/lambda expression", {
 })
 
 test_that("error is raised when msg is not a string or NULL", {
-  err_msg <- "'msg' must be a string or NULL"
+  err_msg <- "'msg' must be a string"
   fake_msg <- list(NA, c("a", "b"), list("a"), character(0), quote(a))
   for (x in fake_msg) {
     expect_error(localize_comparison(isTRUE, x), err_msg)
