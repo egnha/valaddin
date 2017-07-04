@@ -112,6 +112,14 @@ test_that("globalization preserves message of localized predicate", {
   expect_error(f2("indeed not"), "x is not true: indeed not")
 })
 
+test_that("global error message overrides that of localized predicate", {
+  f <- function(x) NULL
+  expect_error(
+    firmly(f, !! globalize(localize(isTRUE, "local"), "global"))(0),
+    "global"
+  )
+})
+
 context("Local scope inversion")
 
 test_that("globalize(localize(pred)) is check-equivalent to pred", {
