@@ -116,7 +116,7 @@ is_local_predicate <- function(x) {
 #' @export
 localize_comparison <- fasten(
   "'msg' must be a string or NULL" :=
-  {is.character(.) && length(.) == 1 || is.null(.)} ~ msg
+    {is.character(.) && length(.) == 1 || is.null(.)} ~ msg
 )(
   function(p, msg = "", open = "{{{", close = "}}}") {
     force(msg)
