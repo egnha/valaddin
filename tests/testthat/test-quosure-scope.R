@@ -136,3 +136,37 @@ test_that("error is raised when msg is not a string or NULL", {
     expect_error(localize_comparison(isTRUE, x), err_msg)
   }
 })
+
+test_that("localize_comparison() supports quasiquotation", {
+  f <- function(x, y) x > y
+  lc <- localize_comparison({UQ(f)(., .ref)}, "not positive")
+  expect_error(firmly(function(x, y) NULL, lc(0)(x - y))(2, 1), NA)
+  expect_error(firmly(function(x, y) NULL, lc(0)(x - y))(1, 2), "not positive")
+})
+
+test_that("localized comparison partially applies .ref to predicate", {
+  # .ref will map implicitly to second argument of identical()
+  lc <- localize_comparison(identical, "not identical to .ref")
+  xs <- list(NULL, NA, 1, letters, log, list(log), mtcars, quote(a))
+  # object not in xs
+  x_err <- 0
+  for (x in xs) {
+    p <- lc(x)
+    expect_error(firmly(function(x) NULL, p(x))(x), NA)
+    expect_error(firmly(function(x) NULL, p(x))(x_err), "not identical to .ref")
+  }
+})
+
+test_that("tripled-{} interpolates value of .ref as .ref$value", {
+  lc <- localize_comparison(identical, "not identical to {{{.ref$value}}}")
+  zero <- 0L
+  expect_error(firmly(function(x) NULL, lc(zero))(0L), NA)
+  expect_error(firmly(function(x) NULL, lc(zero))(1), "not identical to 0")
+})
+
+test_that("tripled-{} interpolates expression of .ref as .ref$expr", {
+  lc <- localize_comparison(identical, "not identical to {{{.ref$expr}}}")
+  zero <- 0L
+  expect_error(firmly(function(x) NULL, lc(zero))(0L), NA)
+  expect_error(firmly(function(x) NULL, lc(zero))(1), "not identical to zero")
+})
