@@ -104,7 +104,7 @@ test_that("globalization preserves message of localized predicate", {
   expect_error(f2("indeed not"), "x is not true: indeed not")
 })
 
-context("Scope inversion")
+context("Local scope inversion")
 
 test_that("globalize(localize(pred)) is check-equivalent to pred", {
   predicate <- local({
