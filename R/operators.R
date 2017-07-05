@@ -73,28 +73,6 @@ firmly <- fasten(
 )
 
 #' @export
-print.firm_closure <- function(x, ...) {
-  cat("<firm_closure>\n")
-  cat("\n* Core function:\n")
-  print.default(firm_core(x))
-  cat("\n* Checks (<predicate>:<error message>):\n")
-  chks <- firm_checks(x)
-  if (length(chks)) {
-    labels <- paste0(chks$call, ":\n", encodeString(chks$msg, quote = "\""))
-    cat(enumerate_many(labels))
-  } else {
-    cat("None\n")
-  }
-  cat("\n* Error subclass for check errors:\n")
-  subclass <- firm_error(x)
-  if (!is.null(subclass))
-    cat(paste(subclass, collapse = ", "), "\n")
-  else
-    cat("None\n")
-  invisible(x)
-}
-
-#' @export
 validate <- fasten(
   UQS(chk_error_class)
 )(
@@ -119,6 +97,28 @@ validify <- fasten(
 )
 # name of argument must coincide with name of validate()'s object-argument
 pass <- function(.) invisible(.)
+
+#' @export
+print.firm_closure <- function(x, ...) {
+  cat("<firm_closure>\n")
+  cat("\n* Core function:\n")
+  print.default(firm_core(x))
+  cat("\n* Checks (<predicate>:<error message>):\n")
+  chks <- firm_checks(x)
+  if (length(chks)) {
+    labels <- paste0(chks$call, ":\n", encodeString(chks$msg, quote = "\""))
+    cat(enumerate_many(labels))
+  } else {
+    cat("None\n")
+  }
+  cat("\n* Error subclass for check errors:\n")
+  subclass <- firm_error(x)
+  if (!is.null(subclass))
+    cat(paste(subclass, collapse = ", "), "\n")
+  else
+    cat("None\n")
+  invisible(x)
+}
 
 #' @export
 print.validator <- function(x, ...) {
