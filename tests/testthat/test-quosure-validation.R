@@ -209,3 +209,25 @@ test_that("predicate function doesn't clash with names in calling frame", {
   expect_error(f("private"), NA)
   expect_error(f("not private"), errmsg_false("is_private(x)"))
 })
+
+# Error class -------------------------------------------------------------
+context("Error class")
+
+err_class <- function(x) c(x, "error", "condition")
+
+test_that("default error subclass is 'inputValidationError'", {
+  expect_identical(
+    tryCatch(firmly(identity, isTRUE)(0), error = class),
+    err_class("inputValidationError")
+  )
+})
+
+test_that("error subclass of input validation error is error_class", {
+  f0 <- identity
+  f1 <- firmly(f0, is.numeric, error_class = "myError")
+  f2 <- firmly(f1, error_class = "myNewError")
+  f3 <- firmly(f2, {isTRUE(. > 0)}, error_class = "myNewestError")
+  expect_identical(tryCatch(f1("0"), error = class), err_class("myError"))
+  expect_identical(tryCatch(f2("0"), error = class), err_class("myNewError"))
+  expect_identical(tryCatch(f3(0), error = class), err_class("myNewestError"))
+})
