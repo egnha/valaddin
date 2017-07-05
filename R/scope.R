@@ -1,28 +1,31 @@
-#' Generate input-validation checks
+#' Generate input validation checks
 #'
-#' \code{localize} derives a function that \emph{generates} check formulae of
-#' local scope from a check formula of global scope. \code{globalize} takes such
-#' a check-formula generator and returns the underlying global check formula.
-#' These operations are mutually invertible.
+#' Given a predicate (function), `localize()` returns a function that
+#' _generates_ input validation checks (of local scope) for the predicate.
+#' `globalize()` takes such a check generator and returns the underlying
+#' predicate (wrapped in [vld()]); when `globalize()` is unquoted in a call to
+#' [firmly()] or [fasten()], the corresponding predicate is applied as an input
+#' validation check of global scope.
+#' \cr\cr
+#' The function `predicate_function()`, resp. `predicate_message()`, extracts
+#' the associated predicate function, resp. error message.
 #'
-#' @seealso The notion of \dQuote{scope} is explained in the \emph{Check
-#'   Formulae} section of \link{firmly}.
+#' @param p Predicate function of one argument, for `localize()`, of two or more
+#'   arguments for `localize_comparison()`.
+#' @param msg,value Error message (string). An empty string (the default)
+#'   implies that error messages are to be automatically generated.
+#' @param x Object of class `local_predicate` or `global_predicate`.
 #'
-#'   Ready-made checkers for \link[=type-checkers]{types},
-#'   \link[=bare-type-checkers]{bare types}, \link[=scalar-type-checkers]{scalar
-#'   types}, and \link[=misc-checkers]{miscellaneous predicates} are provided as
-#'   a convenience, and as a model for creating families of check makers.
+#' @details Conceptually, `localize()` and `globalize()` represent inverse
+#'   operations. However, they are _not_ mutually invertible as functions,
+#'   because they are not composable.
+#'
 #' @examples
+#' \dontrun{
 #' chk_pos_gbl <- "Not positive" ~ {. > 0}
 #' chk_pos_lcl <- localize(chk_pos_gbl)
 #' chk_pos_lcl(~x, "y not greater than x" ~ x - y)
 #' # list("Not positive: x" ~ x, "y not greater than x" ~ x - y) ~ {. > 0}
-#'
-#' # localize and globalize are mutual inverses
-#' identical(globalize(localize(chk_pos_gbl)), chk_pos_gbl)  # [1] TRUE
-#' all.equal(localize(globalize(chk_pos_lcl)), chk_pos_lcl)  # [1] TRUE
-#'
-#' \dontrun{
 #'
 #' pass <- function(x, y) "Pass"
 #'
@@ -61,24 +64,11 @@
 #' capped_fib(31)  # Error: "Not <= 30: ceiling(n)"
 #' }
 #'
-#' @name input-validators
+#' @name scope
 NULL
 
-#' @rdname input-validators
+#' @rdname scope
 #' @export
-#' @param chk Check formula of global scope \emph{with} custom error message,
-#'   i.e., a formula of the form \code{<string> ~ <predicate>}.
-#' @return \code{localize} returns a function of class \code{"check_maker"} and
-#'   call signature \code{function(...)}:
-#'   \itemize{
-#'     \item The \code{\dots} are \strong{check items} (see \emph{Check Formulae
-#'       of Local Scope} in the documentation page \link{firmly}).
-#'     \item The return value is the check formula of local scope whose scope is
-#'       comprised of these check items, and whose predicate function is that of
-#'       \code{chk} (i.e., the right-hand side of \code{chk}). Unless a check
-#'       item has its own error message, the error message is derived from that
-#'       of \code{chk} (i.e., the left-hand side of \code{chk}).
-#'   }
 localize <- fasten(
   "'msg' must be a string" := {is.character(.) && length(.) == 1} ~ msg
 )(
@@ -111,22 +101,20 @@ is_local_predicate <- function(x) {
   inherits(x, "local_predicate")
 }
 
-#' @rdname input-validators
+#' @rdname scope
 #' @export
 localize_comparison <- fasten(
-  "'{{.}}' must be a string" :=
-    {is.character(.) && length(.) == 1} ~ vld(msg, open, close)
+  "'msg' must be a string" := {is.character(.) && length(.) == 1} ~ msg
 )(
-  function(p, msg = "", open = "{{{", close = "}}}") {
+  function(p, msg = "") {
     force(msg)
-    force(open)
-    force(close)
     q <- rlang::enquo(p)
     env <- capture_env(q, parent.frame())
     cmp <- as_comparison(q, env)
     function(.ref, ...) {
       repr <- list(value = .ref, expr = deparse_collapse(substitute(.ref)))
-      msg <- glue_text(msg, env, list(.ref = repr), .open = open, .close = close)
+      msg <- glue_text(msg, env, list(.ref = repr),
+                       .open = "{{{", .close = "}}}")
       localize_(cmp$fn(.ref, ...), cmp$expr, msg)
     }
   }
@@ -147,12 +135,10 @@ as_comparison <- function(p, env) {
   list(expr = expr, fn = fn)
 }
 
-#' @rdname input-validators
-#' @export
 #' @param chkr Function of class `local_predicate`, i.e., a function created by
-#'   `localize`.
-#' @return `globalize` returns the global-scope check formula from which the
-#'   function `chkr` is derived.
+#'   `localize()`.
+#' @rdname scope
+#' @export
 globalize <- fasten(
   "'chkr' must be a local predicate (see ?localize)" :=
     is_local_predicate ~ chkr
@@ -167,6 +153,7 @@ globalize <- fasten(
   }
 )
 
+#' @rdname scope
 #' @export
 predicate_function <- function(x) {
   UseMethod("predicate_function")
@@ -180,6 +167,7 @@ predicate_function.global_predicate <- function(x) {
   rlang::eval_tidy(x$chk)
 }
 
+#' @rdname scope
 #' @export
 predicate_message <- function(x) {
   UseMethod("predicate_message")
@@ -193,6 +181,7 @@ predicate_message.global_predicate <- function(x) {
   rlang::eval_tidy(x$msg)
 }
 
+#' @rdname scope
 #' @export
 `predicate_message<-` <- function(x, value) {
   UseMethod("predicate_message<-")
