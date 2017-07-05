@@ -124,3 +124,14 @@ test_that("message of check item is interpolated in the messages's scope", {
   f <- firmly(function(x, y) NULL, chk)
   expect_error(f(FALSE, "y"), "local message")
 })
+
+test_that("error raised if interpolation can't produce string", {
+  expect_error(
+    firmly(identity, "{.}" := isTRUE)(1:2),
+    'Error interpolating message "\\{\\.\\}": not a string \\(has length 2\\)'
+  )
+  expect_error(
+    firmly(identity, "{X}" := isTRUE)(0),
+    "Error interpolating message \"\\{X\\}\": object 'X' not found"
+  )
+})
