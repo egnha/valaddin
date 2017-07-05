@@ -398,3 +398,18 @@ for (x in unlist(predicates, recursive = FALSE)) {
 
 #' @rawNamespace exportPattern("^vld_.*$")
 NULL
+
+nms_vld <- unlist(lapply(list(predicates, comparisons), function(x) {
+  paste0("vld_", vapply(unlist(x, recursive = FALSE), `[[`, character(1), 1))
+}))
+
+#' Predicates
+#'
+#' @evalRd rd_alias(nms_vld)
+#' @evalRd rd_usage(nms_vld)
+#'
+#' @param \dots Expressions to check.
+#' @param .ref Reference object.
+#'
+#' @name predicates
+NULL
