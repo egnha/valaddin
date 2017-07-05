@@ -152,8 +152,8 @@ test_that("error message local to check item supports quasiquotation", {
   expect_error(f("indeed not"), "'x' is not true: indeed not")
 })
 
-# Tidy evaluation of checks -----------------------------------------------
-context("Tidy evaluation of checks")
+# Lexical scope of checks -------------------------------------------------
+context("Lexical scope of checks")
 
 test_that("global predicate function is evaluated in scope of check", {
   f <- local({

@@ -1,4 +1,4 @@
-context("Fasten input validation checks")
+context("Fastening input validation checks")
 
 test_that("error raised when error_class is not NULL or a character vector", {
   f <- function(x) NULL
