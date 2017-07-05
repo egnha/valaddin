@@ -152,6 +152,20 @@ test_that("error message local to check item supports quasiquotation", {
   expect_error(f("indeed not"), "'x' is not true: indeed not")
 })
 
+# Splicing checks ---------------------------------------------------------
+context("Splicing checks")
+
+test_that("checks can be spliced when wrapped by vld()", {
+  chk_pos <- vld("{{.}} is not positive" := {isTRUE(. > 0)})
+  chk_len <- vld("Length is {length(x)}" := length(x))
+  f <- firmly(log, is.numeric, !!! chk_pos, {. == 1} ~ !! chk_len)
+  expect_equal(f(1), 0)
+  expect_error(f("1"), errmsg_false("is.numeric(x)"))
+  expect_error(f(0), "x is not positive")
+  expect_error(f(1:2), "x is not positive")
+  expect_error(f(1:2), "Length is 2")
+})
+
 # Lexical scope of checks -------------------------------------------------
 context("Lexical scope of checks")
 
