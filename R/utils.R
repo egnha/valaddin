@@ -34,10 +34,6 @@ identify_caller <- function(nm) {
     is.call(x) && identical(x[[1]], caller)
 }
 
-names_filled <- function(x) {
-  names(x) %||% character(length(x))
-}
-
 # When gluing, substitute string into call, to avoid making a binding that could
 # inadvertently override one in an environment higher up.
 glue_text <- function(text, env, data = NULL, ...) {
