@@ -38,7 +38,7 @@ loosely <- function(f) {
   if (!is.function(f))
     stop("'f' must be a function", call. = FALSE)
   else if (is_firm(f))
-    firm_core(f)
+    .subset2(environment(f), "f")
   else
     f
 }

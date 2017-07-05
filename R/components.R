@@ -33,20 +33,20 @@
 #' @name components
 NULL
 
-#' @rdname components
-#' @export
-firm_core <- function(x) {
-  .subset2(environment(x), "f")
+firm_closure_extractor <- function(this) {
+  force(this)
+  function(x)
+    if (is_firm(x)) .subset2(environment(x), this) else NULL
 }
 
 #' @rdname components
 #' @export
-firm_checks <- function(x) {
-  .subset2(environment(x), "chks")
-}
+firm_core <- firm_closure_extractor("f")
 
 #' @rdname components
 #' @export
-firm_error <- function(x) {
-  .subset2(environment(x), "error_class")
-}
+firm_checks <- firm_closure_extractor("chks")
+
+#' @rdname components
+#' @export
+firm_error <- firm_closure_extractor("error_class")
