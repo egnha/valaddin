@@ -11,13 +11,13 @@ test_that("object is returned invisibly when validation passes", {
   )
   # ... invisibly
   expect_identical(
-    capture.output(
+    capture_output(
       validate(mtcars,
                is.data.frame,
                {nrow(.) > 1},
                all ~ c("mpg", "cyl") %in% colnames(.))
     ),
-    character(0)
+    ""
   )
 })
 
@@ -63,8 +63,5 @@ test_that("validify() creates object validator", {
   # valid object is returned ...
   expect_identical(verify_pass(mtcars), mtcars)
   # ... invisibly
-  expect_identical(
-    capture.output(verify_pass(mtcars)),
-    character(0)
-  )
+  expect_identical(capture_output(verify_pass(mtcars)), "")
 })
