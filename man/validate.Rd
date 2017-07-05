@@ -4,11 +4,6 @@
 \alias{validate}
 \alias{validify}
 \title{Validate objects}
-\usage{
-validate(., ..., error_class = NULL)
-
-validify(..., error_class = NULL)
-}
 \arguments{
 \item{.}{Object to validate.}
 
@@ -37,4 +32,9 @@ validate(mtcars,
          vld_gt(1000)(nrow(.)),
          vld_has_name("cylinders")(.))}
 
+}
+\usage{
+validate(., ..., error_class = NULL)
+
+validify(..., error_class = NULL)
 }
