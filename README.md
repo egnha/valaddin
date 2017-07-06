@@ -60,7 +60,7 @@ bc2(.5, ".2")
 #> FALSE: is.numeric(y)
 ```
 
-### Use custom error message that are context-aware
+### Use custom error messages that are context-aware
 
 Using the string-interpolation syntax provided by the [glue](https://github.com/tidyverse/glue) package, make error messages more informative, by taking into account the context of an error:
 
