@@ -18,7 +18,7 @@ Additionally, valaddin provides:
 
 -   `loosely()`, to undo the application of input validation checks, at any time, by returning the original function
 
-Moreover, these functions support [tidyverse semantics](https://rpubs.com/hadley/dplyr-programming) such as [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [slicing](http://rlang.tidyverse.org/reference/quasiquotation.html), to provide a flexible yet simple grammar for input validations.
+These functions support [tidyverse semantics](https://rpubs.com/hadley/dplyr-programming) such as [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [splicing](http://rlang.tidyverse.org/reference/quasiquotation.html), to provide a flexible yet simple grammar for input validations.
 
 Installation
 ------------
@@ -75,7 +75,7 @@ bc3(.5i, ".2")
 
 ### Express input validations using tidyverse idioms
 
-valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [slicing](http://rlang.tidyverse.org/reference/quasiquotation.html) semantics for specifying input validation checks. Checks and (custom) error messages are captured as [quosures](http://rlang.tidyverse.org/reference/quosure.html), to ensure that validations, and their error reports, are hygienically evaluated in the intended context—transparently to the user.
+valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [splicing](http://rlang.tidyverse.org/reference/quasiquotation.html) semantics for specifying input validation checks. Checks and (custom) error messages are captured as [quosures](http://rlang.tidyverse.org/reference/quosure.html), to ensure that validations, and their error reports, are hygienically evaluated in the intended context—transparently to the user.
 
 ``` r
 z <- 0
