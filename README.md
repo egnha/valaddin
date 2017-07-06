@@ -182,7 +182,7 @@ In addition to having cleaner code, you can:
 Related packages
 ----------------
 
--   valaddin provides a basic set of predicate functions—prefixed `vld_*()` for easy look-up—to specify common kinds of checks (e.g., is an argument a scalar?, does it have the expected type?, etc.).
+-   valaddin provides a basic set of predicate functions—prefixed `vld_` for easy look-up—to specify common kinds of checks (e.g., is an argument a scalar?, does it have the expected type?, etc.).
 
     Use specialized collections of predicate functions to enrich valaddin’s vocabulary: [assertive](https://bitbucket.org/richierocks/assertive), [assertthat](https://github.com/hadley/assertthat), [checkmate](https://github.com/mllg/checkmate).
 
