@@ -5,266 +5,186 @@ valaddin
 
 [![Travis-CI Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=quosures)](https://travis-ci.org/egnha/valaddin) [![codecov](https://codecov.io/gh/egnha/valaddin/branch/quosures/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin/branch/quosures) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/valaddin)](https://cran.r-project.org/package=valaddin) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Dealing with invalid function inputs is a chronic pain for R users, given R's weakly typed nature. *valaddin* provides pain relief—a lightweight R package that enables you to transform an existing function into a function with input validation checks, *in situ*, in a manner suitable for both programmatic use and interactive sessions.
+Overview
+--------
+
+Dealing with invalid function inputs is a chronic pain for R users, given R's weakly typed nature. valaddin provides pain relief in the form of an adverb, `firmly()`, that enables you to *transform* an existing function into a function with input validation checks, in a manner suitable for both programmatic and interactive use.
+
+Additionally, valaddin provides:
+
+-   `fasten()` to help you write cleaner and more explicit function declarations in your scripts, by providing a *functional operator* that “fastens” a given set of input validations to functions (it simply [curries](https://en.wikipedia.org/wiki/Currying) `firmly()`)
+
+-   `validate()` as syntactic sugar to validate *objects*, by applying input validation to the identity function
+
+-   `loosely()` to undo the application of input validation checks, at any time, by returning the original function
+
+Moreover, these functions support [tidyverse semantics](https://rpubs.com/hadley/dplyr-programming) such as [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [slicing](http://rlang.tidyverse.org/reference/quasiquotation.html), to provide a flexible yet simple grammar for input validations.
 
 Installation
 ------------
 
-Install from [CRAN](https://cran.r-project.org/package=valaddin)
-
-``` r
-install.packages("valaddin")
-```
-
-or get the development version (0.1.0.9000) from GitHub using the [devtools](https://github.com/hadley/devtools) package
+The development version (0.2.0.9000) brings major improvements to the user interface and functionality of valaddin. To install it, use the [devtools](https://github.com/hadley/devtools) package:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("egnha/valaddin", build_vignettes = TRUE)
+devtools::install_github("egnha/valaddin")
 ```
 
-Why use valaddin
-----------------
+The legacy version (0.1.0) remains available on [CRAN](https://cran.r-project.org/package=valaddin).
 
-### Fail fast—save time, spare confusion
+Usage
+-----
 
-You can be more confident your function works correctly, when you know its arguments are well-behaved. But when they aren't, its better to stop immediately and bring them into line, than to let them pass and wreak havoc, exposing yourself to breakages or, worse, silently incorrect results. Validating the inputs of your functions is good [defensive programming](http://adv-r.had.co.nz/Exceptions-Debugging.html#defensive-programming) practice.
-
-Suppose you have a function `secant()`
+To illustrate valaddin's functional approach to input validation, consider the following function, which computes the barycentric coordinates of a point in the plane:
 
 ``` r
-secant <- function(f, x, dx) (f(x + dx) - f(x)) / dx
-```
-
-and you want to ensure that the user (or some code) supplies numerical inputs for `x` and `dx`. Typically, you'd rewrite `secant()` so that it stops if this condition is violated:
-
-``` r
-secant_numeric <- function(f, x, dx) {
-  stopifnot(is.numeric(x), is.numeric(dx))
-  secant(f, x, dx)
+bc <- function(x, y) {
+  c(x, y, 1 - x - y)
 }
-
-secant_numeric(log, 1, .1)
-#> [1] 0.9531018
-
-secant_numeric(log, "1", ".1")
-#> Error: is.numeric(x) is not TRUE
 ```
 
-### The standard approach in R is problematic
+### Input validation via functional transformation
 
-While this works, it's not ideal, even in this simple situation, because
-
--   it's inconvenient for interactive use at the console: you have to declare a new function, and give it a new name (or copy-paste the original function body)
-
--   it doesn't catch all errors, only the first that occurs among the checks
-
--   you're back to square one, if you later realize you need additional checks, or want to skip them altogether.
-
-### valaddin rectifies these shortcomings
-
-valaddin provides a function `firmly()` that takes care of input validation by *transforming* the existing function, instead of forcing you to write a new one. It also helps you by reporting *every* failing check.
+We can imagine applying `bc()` “firmly”—the same as before, but now the inputs are checked to be numeric. To do this, transform `bc()` using `firmly()`, relative to the validation specified by the predicate function `is.numeric`:
 
 ``` r
 library(valaddin)
 
-# Check that `x` and `dx` are numeric
-secant <- firmly(secant, list(~x, ~dx) ~ is.numeric)
+bc2 <- firmly(bc, is.numeric)
 
-secant(log, 1, .1)
-#> [1] 0.9531018
-
-secant(log, "1", ".1")
-#> Error: secant(f = log, x = "1", dx = ".1")
-#> 1) FALSE: is.numeric(x)
-#> 2) FALSE: is.numeric(dx)
-```
-
-To add additional checks, just apply the same procedure again:
-
-``` r
-secant <- firmly(secant, list(~x, ~dx) ~ {length(.) == 1L})
-
-secant(log, "1", c(.1, .01))
-#> Error: secant(f = log, x = "1", dx = c(0.1, 0.01))
-#> 1) FALSE: is.numeric(x)
-#> 2) FALSE: (function(.) {length(.) == 1L})(dx)
-```
-
-Or, alternatively, all in one go:
-
-``` r
-secant <- loosely(secant)  # Retrieves the original function
-secant <- firmly(secant, list(~x, ~dx) ~ {is.numeric(.) && length(.) == 1L})
-
-secant(log, 1, .1)
-#> [1] 0.9531018
-
-secant(log, "1", c(.1, .01))
-#> Error: secant(f = log, x = "1", dx = c(0.1, 0.01))
-#> 1) FALSE: (function(.) {is.numeric(.) && length(.) == 1L})(x)
-#> 2) FALSE: (function(.) {is.numeric(.) && length(.) == 1L})(dx)
-```
-
-### Check anything using a simple, consistent syntax
-
-`firmly()` uses a simple formula syntax to specify arbitrary checks—not just type checks. Every check is a formula of the form `<where to check> ~ <what to  check>`. The "what" part on the right is a *function* that does a check, while the (form of the) "where" part on the left indicates where to apply the check—at which *arguments* or *expressions* thereof.
-
-valaddin provides a number of conveniences to make checks for `firmly()` informative and easy to specify.
-
-#### Use custom error messages
-
-Use a custom error message to clarify the *purpose* of a check:
-
-``` r
-bc <- function(x, y) c(x, y, 1 - x - y)
-
-# Check that `y` is positive
-bc_uhp <- firmly(bc, list("(x, y) not in upper half-plane" ~ y) ~ {. > 0})
-
-bc_uhp(.5, .2)
+bc2(.5, .2)
 #> [1] 0.5 0.2 0.3
 
-bc_uhp(.5, -.2)
-#> Error: bc_uhp(x = 0.5, y = -0.2)
-#> (x, y) not in upper half-plane
-```
-
-#### Easily apply a check to all arguments
-
-Leave the left-hand side of a check formula blank to apply it to all arguments:
-
-``` r
-bc_num <- firmly(bc, ~is.numeric)
-
-bc_num(.5, ".2")
-#> Error: bc_num(x = 0.5, y = ".2")
+bc2(.5, ".2")
+#> Error: bc2(x = 0.5, y = ".2")
 #> FALSE: is.numeric(y)
-
-bc_num(".5", ".2")
-#> Error: bc_num(x = ".5", y = ".2")
-#> 1) FALSE: is.numeric(x)
-#> 2) FALSE: is.numeric(y)
 ```
 
-Or fill in a custom error message:
+### Use custom error message that are context-aware
+
+Using the string-interpolation syntax provided by the [glue](https://github.com/tidyverse/glue) package, make error messages more informative, by taking into account the context of the error:
 
 ``` r
-bc_num <- firmly(bc, "Not numeric" ~ is.numeric)
+bc3 <- firmly(bc, "{{.}} is not numeric (type: {typeof(.)})" := is.numeric)
 
-bc_num(.5, ".2")
-#> Error: bc_num(x = 0.5, y = ".2")
-#> Not numeric: `y`
+bc3(.5i, ".2")
+#> Error: bc3(x = 0+0.5i, y = ".2")
+#> 1) x is not numeric (type: complex)
+#> 2) y is not numeric (type: character)
 ```
 
-#### Check conditions with multi-argument dependencies
+### Express input validations using tidyverse idioms
 
-Use the `isTRUE()` predicate to implement checks depending on multiple arguments or, equivalently, the check maker `vld_true()`:
+valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [slicing](http://rlang.tidyverse.org/reference/quasiquotation.html) semantics for specifying input validation checks. Checks and (custom) error messages are captured as [quosures](http://rlang.tidyverse.org/reference/quosure.html), to ensure that validations are hygienically evaluated in the intended context.
 
 ``` r
-in_triangle <- function(x, y) {x >= 0 && y >= 0 && 1 - x - y >= 0}
-outside <- "(x, y) not in triangle"
+z <- 0
+in_triangle <- vld(
+  "{{.}} is not positive (value is {.})" :=
+    {isTRUE(. > !! z)} ~ vld(x, y, 1 - x - y)
+)
 
-bc_tri <- firmly(bc, list(outside ~ in_triangle(x, y)) ~ isTRUE)
+bc4 <- firmly(bc, is.numeric, !!! in_triangle)
 
-# Or more concisely:
-bc_tri <- firmly(bc, vld_true(outside ~ in_triangle(x, y)))
-
-# Or more concisely still, by relying on an auto-generated error message:
-# bc_tri <- firmly(bc, vld_true(~in_triangle(x, y)))
-
-bc_tri(.5, .2)
+bc4(.5, .2)
 #> [1] 0.5 0.2 0.3
 
-bc_tri(.5, .6)
-#> Error: bc_tri(x = 0.5, y = 0.6)
-#> (x, y) not in triangle
+bc4(.5, .6)
+#> Error: bc4(x = 0.5, y = 0.6)
+#> 1 - x - y is not positive (value is -0.1)
 ```
 
-Alternatively, use the `lift()` function from the [purrr](https://github.com/hadley/purrr) package:
+This reads as follows:
+
+-   `vld()` encapsulates the condition that `x`, `y`, `1 - x - y` are positive, as a formula [definition](http://rlang.tidyverse.org/reference/quosures.html#details). The actual predicate for positivity is succinctly expressed using [magrittr](https://github.com/tidyverse/magrittr)’s shorthand for anonymous functions. The unquoting operator `!!` ensures that the *value* of `z` is “burned into” the check.
+
+-   The additional condition that `(x, y)` lie in a triangle is imposed by splicing it in with the `!!!` operator.
+
+### Validate objects
+
+Validating an object (say, a data frame) is nothing more than applying an input-validated identity function to it. `validate()` is a shorthand for this.
 
 ``` r
-bc_tri <- firmly(bc, list(outside ~ list(x, y)) ~  purrr::lift(in_triangle))
+# All assumptions OK, mtcars returned invisibly
+validate(mtcars,
+         is.data.frame,
+         vld_lt(100)(nrow(.)),
+         vld_has_names(c("mpg", "cyl"))(.))
+
+validate(mtcars,
+         is.data.frame,
+         vld_gt(100)(nrow(.)),
+         vld_has_name("cylinders")(.))
+#> Error: validate(. = mtcars)
+#> 1) nrow(.) is not greater than 100
+#> 2) . does not have name "cylinders"
 ```
 
-### Make your code more intelligible
+### Clarify code structure
 
-To make your functions more intelligible, declare your input assumptions and move the core logic to the fore. You can do this using `firmly()`, in several ways:
+Instead of writing
 
--   Precede the function header with input checks, by explicitly assigning the function to `firmly()`'s `.f` argument:
+``` r
+bc_cluttered <- function(x, y) {
+  if (!is.numeric(x) || length(x) != 1)
+    stop("x is not a number")
+  if (!is.numeric(y) || length(y) != 1)    
+    stop("y is not a number")
+  if (!isTRUE(x > 0))
+    stop("x is not positive")
+  if (!isTRUE(y > 0))
+    stop("y is not in the upper-half plane")
+  if (!isTRUE(1 - x - y > 0))
+    stop("1 - x - y is not positive")
+
+  c(x, y, 1 - x - y)
+}
+```
+
+use `fasten()` to highlight the core logic, while keeping input assumptions in sight:
+
+``` r
+bc_clean <- fasten(
+  "{{.}} is not a number" := {is.numeric(.) && length(.) == 1},
+  "{{.}} is not positive" :=
+    {isTRUE(. > 0)} ~
+      vld(x, "y is not in the upper-half plane" := y, 1 - x - y)
+)(
+  function(x, y) {
+    c(x, y, 1 - x - y)
+  }
+)
+
+bc_clean(.5, .2)
+#> [1] 0.5 0.2 0.3
+
+bc_clean(c(.5, .5), -.2)
+#> Error: bc_clean(x = c(0.5, 0.5), y = -0.2)
+#> 1) x is not positive
+#> 2) 1 - x - y is not positive
+#> 3) y is not in the upper-half plane
+#> 4) x is not a number
+```
+
+In addition to cleaner code, you can:
+
+-   reduce duplication, by using the splicing operator `!!!` to reuse common input validations
+
+-   recover the underlying “unadulterated” function, at any time, using `loosely()`:
 
     ``` r
-    bc <- firmly(
-      ~is.numeric,
-      ~{length(.) == 1L},
-      vld_true(outside ~ in_triangle(x, y)),
-      .f = function(x, y) {
-        c(x, y, 1 - x - y)
-      }
-    )
-
-    bc(.5, .2)
-    #> [1] 0.5 0.2 0.3
-
-    bc(.5, c(.2, .1))
-    #> Error: bc(x = 0.5, y = c(0.2, 0.1))
-    #> FALSE: (function(.) {length(.) == 1L})(y)
-
-    bc(".5", 1)
-    #> Error: bc(x = ".5", y = 1)
-    #> 1) FALSE: is.numeric(x)
-    #> 2) (x, y) not in triangle
+    print(loosely(bc_clean))
+    #> function(x, y) {
+    #>     c(x, y, 1 - x - y)
+    #>   }
     ```
-
--   Use the [magrittr](https://github.com/tidyverse/magrittr) `%>%` operator to deliver input checks, by capturing them as a list with `firmly()`'s `.checklist` argument:
-
-    ``` r
-    library(magrittr)
-
-    bc2 <- list(
-      ~is.numeric,
-      ~{length(.) == 1L},
-      vld_true(outside ~ in_triangle(x, y))
-    ) %>%
-      firmly(function(x, y) {
-        c(x, y, 1 - x - y)
-      },
-      .checklist = .)
-
-    all.equal(bc, bc2)
-    #> [1] TRUE
-    ```
-
--   Better yet, use the `%checkin%` operator (available in the development version):
-
-    ``` r
-    bc3 <- list(
-      ~is.numeric,
-      ~{length(.) == 1L},
-      vld_true(outside ~ in_triangle(x, y))
-    ) %checkin%
-      function(x, y) {
-        c(x, y, 1 - x - y)
-      }
-
-    all.equal(bc, bc3)
-    #> [1] TRUE
-    ```
-
-### Learn more
-
-See the package documentation `?firmly`, `help(p = valaddin)` for detailed information about `firmly()` and its companion functions, and the [vignette](https://cran.r-project.org/package=valaddin/vignettes/valaddin.html) for an overview of use cases.
 
 Related packages
 ----------------
 
--   [assertive](https://bitbucket.org/richierocks/assertive), [assertthat](https://github.com/hadley/assertthat), and [checkmate](https://github.com/mllg/checkmate) provide handy collections of predicate functions that you can use in conjunction with `firmly()`.
+-   valaddin provides a basic set of predicate functions—prefixed `vld_*()` for easy look-up—to specify common kinds of checks (e.g., is an argument a scalar?, does it have the expected type?, etc.). More extensive collections of predicate functions are provided by the following packages: [assertive](https://bitbucket.org/richierocks/assertive), [assertthat](https://github.com/hadley/assertthat), [checkmate](https://github.com/mllg/checkmate).
 
--   [argufy](https://github.com/gaborcsardi/argufy) takes a different approach to input validation, using [roxygen](https://github.com/klutometis/roxygen) comments to specify checks.
-
--   [ensurer](https://github.com/smbache/ensurer) and [assertr](https://github.com/ropensci/assertr) provide a means of validating function values. Additionally, ensurer provides an experimental replacement for `function()` that builds functions with type-validated arguments.
-
--   [typeCheck](https://github.com/jimhester/typeCheck), together with [Types for R](https://github.com/jimhester/types), enables the creation of functions with type-validated arguments by means of special type annotations. This approach is orthogonal to that of valaddin: whereas valaddin specifies input checks as *predicate functions with scope*, typeCheck specifies input checks as *arguments with type*.
+-   Other non-functional approaches to input validation: [argufy](https://github.com/gaborcsardi/argufy), [typeCheck](https://github.com/jimhester/typeCheck), [ensurer](https://github.com/smbache/ensurer).
 
 License
 -------
