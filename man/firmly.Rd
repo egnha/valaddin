@@ -32,6 +32,10 @@ operator} that applies the input validations.
 firmly applied function, i.e., a function created by \code{firmly().}
 }
 }
+\section{Specifying input validations}{
+ \emph{TODO} (see the examples)
+}
+
 \examples{
 \dontrun{
 

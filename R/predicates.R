@@ -405,6 +405,11 @@ nms_vld <- unlist(lapply(list(predicates, comparisons), function(x) {
 
 #' Predicates
 #'
+#' _TODO_
+#' - descriptions
+#' - categorizations
+#' - examples
+#'
 #' @evalRd rd_alias(nms_vld)
 #' @evalRd rd_usage(nms_vld)
 #'

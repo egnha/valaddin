@@ -9,7 +9,12 @@
 \item{.ref}{Reference object.}
 }
 \description{
-Predicates
+\emph{TODO}
+\itemize{
+\item descriptions
+\item categorizations
+\item examples
+}
 }
 \alias{vld_true}
 \alias{vld_is}

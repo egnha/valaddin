@@ -166,6 +166,8 @@ print.validator <- function(x, ...) {
 #'   subclass is `inputValidationError`.
 #' @param x Object to test.
 #'
+#' @section Specifying input validations: _TODO_ (see the examples)
+#'
 #' @seealso [components], [validate].
 #' @examples
 #' \dontrun{
