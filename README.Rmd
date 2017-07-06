@@ -71,7 +71,7 @@ bc <- function(x, y) {
 }
 ```
 
-### When validating inputs, think functional transformation
+### When validating inputs, think _function transformation_
 
 Imagine applying `bc()` “firmly,” exactly as before, but with the assurance that
 the inputs are indeed numeric. To enable this, transform `bc()` using
@@ -210,7 +210,7 @@ In addition to having cleaner code, you can:
 ## Related packages
 
   * valaddin provides a basic set of predicate functions—prefixed `vld_` for
-    easy look-up—to specify common kinds of checks (e.g., is an argument a
+    easy lookup—to specify common kinds of checks (e.g., is an argument a
     scalar?, does it have the expected type?, etc.).
     
     Use specialized collections of predicate functions to enrich valaddin’s
