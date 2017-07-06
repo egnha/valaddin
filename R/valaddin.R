@@ -20,9 +20,6 @@
 #'   \item Vary the strictness of a function according to need and circumstance.
 #' }
 #'
-#' @details For an example-oriented overview of valaddin, see
-#'   \code{vignette("valaddin")}.
-#'
 #' @aliases NULL
 #' @docType package
 #' @name valaddin

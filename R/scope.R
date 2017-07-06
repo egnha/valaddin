@@ -22,46 +22,32 @@
 #'
 #' @examples
 #' \dontrun{
-#' chk_pos_gbl <- "Not positive" ~ {. > 0}
-#' chk_pos_lcl <- localize(chk_pos_gbl)
-#' chk_pos_lcl(~x, "y not greater than x" ~ x - y)
-#' # list("Not positive: x" ~ x, "y not greater than x" ~ x - y) ~ {. > 0}
 #'
-#' pass <- function(x, y) "Pass"
+#' ## Make a positivity checker
+#' chk_positive <- localize({isTRUE(. > 0)}, "{{.}} is not positive")
+#' f <- firmly(function(x, y) "Pass", chk_positive(x, x - y))
 #'
-#' # Impose local positivity checks
-#' f <- firmly(pass, chk_pos_lcl(~x, "y not greater than x" ~ x - y))
-#' f(2, 1)  # [1] "Pass"
-#' f(2, 2)  # Error: "y not greater than x"
-#' f(0, 1)  # Errors: "Not positive: x", "y not greater than x"
+#' f(2, 1)
+#' #> [1] "Pass"
 #'
-#' # Or just check positivity of x
-#' g <- firmly(pass, chk_pos_lcl(~x))
-#' g(1, 0)  # [1] "Pass"
-#' g(0, 0)  # Error: "Not positive: x"
+#' f(1, 2)
+#' #> Error: f(x = 1, y = 2)
+#' #> x - y is not positive
 #'
-#' # In contrast, chk_pos_gbl checks positivity for all arguments
-#' h <- firmly(pass, chk_pos_gbl)
-#' h(2, 2)  # [1] "Pass"
-#' h(1, 0)  # Error: "Not positive: `y`"
-#' h(0, 0)  # Errors: "Not positive: `x`", "Not positive: `y`"
+#' ## Make a length checker, parameterized by .ref
+#' chk_length <-
+#'   localize_comparison(
+#'     {length(.) == .ref}, "{{.}} not of length {{{.ref$value}}}"
+#'   )
+#' ## .ref gets the value 2 (so check that the length is 2)
+#' g <- firmly(function(x, y) "Pass", chk_length(2)(y))
 #'
-#' # Alternatively, globalize the localized checker
-#' h2 <- firmly(pass, globalize(chk_pos_lcl))
-#' all.equal(h, h2)  # [1] TRUE
+#' g(1, 1:2)
+#' #> [1] "Pass"
 #'
-#' # Use localize to make parameterized checkers
-#' chk_lte <- function(n, ...) {
-#'   err_msg <- paste("Not <=", as.character(n))
-#'   localize(err_msg ~ {. <= n})(...)
-#' }
-#' fib <- function(n) {
-#'   if (n <= 1) return(1)
-#'   Recall(n - 1) + Recall(n - 2)
-#' }
-#' capped_fib <- firmly(fib, chk_lte(30, ~ ceiling(n)))
-#' capped_fib(19)  # [1] 6765
-#' capped_fib(31)  # Error: "Not <= 30: ceiling(n)"
+#' g(1:2, 1)
+#' #> Error: g(x = 1)
+#' #> y not of length 2
 #' }
 #'
 #' @name scope

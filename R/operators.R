@@ -170,110 +170,58 @@ print.validator <- function(x, ...) {
 #' @examples
 #' \dontrun{
 #'
-#' dlog <- function(x, h) (log(x + h) - log(x)) / h
+#' bc <- function(x, y) c(x, y, 1 - x - y)
 #'
-#' # Require all arguments to be numeric (auto-generated error message)
-#' dlog_fm <- firmly(dlog, ~is.numeric)
-#' dlog_fm(1, .1)    # [1] 0.9531018
-#' dlog_fm("1", .1)  # Error: "FALSE: is.numeric(x)"
+#' ## Ensure that inputs are numeric
+#' bc1 <- firmly(bc, is.numeric)
 #'
-#' # Require all arguments to be numeric (custom error message)
-#' dlog_fm <- firmly(dlog, "Not numeric" ~ is.numeric)
-#' dlog_fm("1", .1)  # Error: "Not numeric: `x`"
+#' bc1(.5, .2)
+#' #> [1] 0.5 0.2 0.3
 #'
-#' # Alternatively, "globalize" a localized checker (see ?localize, ?globalize)
-#' dlog_fm <- firmly(dlog, globalize(vld_numeric))
-#' dlog_fm("1", .1)  # Error: "Not double/integer: `x`"
+#' bc1(.5, ".2")
+#' #> Error: bc1(x = 0.5, y = ".2")
+#' #> FALSE: is.numeric(y)
 #'
-#'# Predicate functions can be specified anonymously or by name
-#' dlog_fm <- firmly(dlog, list(~x, ~x + h, ~abs(h)) ~ function(x) x > 0)
-#' dlog_fm <- firmly(dlog, list(~x, ~x + h, ~abs(h)) ~ {. > 0})
-#' is_positive <- function(x) x > 0
-#' dlog_fm <- firmly(dlog, list(~x, ~x + h, ~abs(h)) ~ is_positive)
-#' dlog_fm(1, 0)  # Error: "FALSE: is_positive(abs(h))"
+#' ## Use custom error messages
+#' bc2 <- firmly(bc, "{{.}} is not numeric (type: {typeof(.)})" := is.numeric)
 #'
-#' # Describe checks individually using custom error messages
-#' dlog_fm <-
-#'   firmly(dlog,
-#'          list("x not positive" ~ x, ~x + h, "Division by 0 (=h)" ~ abs(h)) ~
-#'            is_positive)
-#' dlog_fm(-1, 0)
-#' # Errors: "x not positive", "FALSE: is_positive(x + h)", "Division by 0 (=h)"
+#' bc2(.5i, ".2")
+#' #> Error: bc2(x = 0+0.5i, y = ".2")
+#' #> 1) x is not numeric (type: complex)
+#' #> 2) y is not numeric (type: character)
 #'
-#' # Specify checks more succinctly by using a (localized) custom checker
-#' req_positive <- localize("Not positive" ~ is_positive)
-#' dlog_fm <- firmly(dlog, req_positive(~x, ~x + h, ~abs(h)))
-#' dlog_fm(1, 0)  # Error: "Not positive: abs(h)"
+#' ## firmly() and fasten() support tidyverse idioms
+#' z <- 0
+#' in_triangle <- vld(
+#'   "{{.}} is not positive (value is {.})" :=
+#'   {isTRUE(. > !! z)} ~ vld(x, y, 1 - x - y)
+#' )
+#' bc3 <- firmly(bc, is.numeric, !!! in_triangle)
 #'
-#' # Combine multiple checks
-#' dlog_fm <- firmly(dlog,
-#'                   "Not numeric" ~ is.numeric,
-#'                   list(~x, ~x + h, "Division by 0" ~ abs(h)) ~ {. > 0})
-#' dlog_fm("1", 0)  # Errors: "Not numeric: `x`", check-eval error, "Division by 0"
+#' bc3(.5, .2)
+#' #> [1] 0.5 0.2 0.3
 #'
-#' # Any check can be expressed using isTRUE
-#' err_msg <- "x, h differ in length"
-#' dlog_fm <- firmly(dlog, list(err_msg ~ length(x) - length(h)) ~ {. == 0L})
-#' dlog_fm(1:2, 0:2)  # Error: "x, h differ in length"
-#' dlog_fm <- firmly(dlog, list(err_msg ~ length(x) == length(h)) ~ isTRUE)
-#' dlog_fm(1:2, 0:2)  # Error: "x, h differ in length"
+#' bc3(.5, .6)
+#' #> Error: bc3(x = 0.5, y = 0.6)
+#' #> 1 - x - y is not positive (value is -0.1)
 #'
-#' # More succinctly, use vld_true
-#' dlog_fm <- firmly(dlog, vld_true(~length(x) == length(h), ~all(abs(h) > 0)))
-#' dlog_fm(1:2, 0:2)
-#' # Errors: "Not TRUE: length(x) == length(h)", "Not TRUE: all(abs(h) > 0)"
-#'
-#' dlog_fm(1:2, 1:2)  # [1] 0.6931472 0.3465736
-#'
-#' # loosely recovers the underlying function
-#' identical(loosely(dlog_fm), dlog)  # [1] TRUE
-#'
-#' # Use .warn_missing when you want to ensure an argument is explicitly given
-#' # (see vignette("valaddin") for an elaboration of this particular example)
-#' as_POSIXct <- firmly(as.POSIXct, .warn_missing = "tz")
-#' Sys.setenv(TZ = "EST")
-#' as_POSIXct("2017-01-01 03:14:16")  # [1] "2017-01-01 03:14:16 EST"
-#'                                    # Warning: "Argument(s) expected ... `tz`"
-#' as_POSIXct("2017-01-01 03:14:16", tz = "UTC")  # [1] "2017-01-01 03:14:16 UTC"
-#' loosely(as_POSIXct)("2017-01-01 03:14:16")     # [1] "2017-01-01 03:14:16 EST"
-#'
-#' # Use firmly to constrain undesirable behavior, e.g., long-running computations
-#' fib <- function(n) {
-#'   if (n <= 1L) return(1L)
-#'   Recall(n - 1) + Recall(n - 2)
-#' }
-#' fib <- firmly(fib, list("`n` capped at 30" ~ ceiling(n)) ~ {. <= 30L})
-#' fib(21)  # [1] 17711 (NB: Validation done only once, not for every recursive call)
-#' fib(31)  # Error: `n` capped at 30
-#'
-#' # Apply fib unrestricted
-#' loosely(fib)(31)  # [1] 2178309 (may take several seconds to finish)
-#'
-#' # firmly won't force an argument that's not involved in checks
-#' g <- firmly(function(x, y) "Pass", list(~x) ~ is.character)
-#' g(c("a", "b"), stop("Not signaled"))  # [1] "Pass"
-#'
-#' # In scripts and packages, it is recommended to use the operator %checkin%
-#' vec_add <- list(
-#'   ~is.numeric,
-#'   list(~length(x) == length(y)) ~ isTRUE,
-#'   .error_class = "inputError"
-#' ) %checkin%
+#' ## Use fasten() to highlight the core logic
+#' bc_clean <- fasten(
+#'   "{{.}} is not a number" := {is.numeric(.) && length(.) == 1},
+#'   "{{.}} is not positive" :=
+#'   {isTRUE(. > 0)} ~
+#'     vld(x, "y is not in the upper-half plane" := y, 1 - x - y)
+#' )(
 #'   function(x, y) {
-#'     x + y
+#'     c(x, y, 1 - x - y)
 #'   }
-#'
-#' # Or call firmly with .f explicitly assigned to the function
-#' vec_add2 <- firmly(
-#'   ~is.numeric,
-#'   list(~length(x) == length(y)) ~ isTRUE,
-#'   .f = function(x, y) {
-#'     x + y
-#'   },
-#'   .error_class = "inputError"
 #' )
 #'
-#' all.equal(vec_add, vec_add2)  # [1] TRUE
+#' ## Recover the underlying function with loosely()
+#' print(loosely(bc_clean))
+#' #> function(x, y) {
+#' #>     c(x, y, 1 - x - y)
+#' #>   }
 #' }
 #'
 #' @name firmly
