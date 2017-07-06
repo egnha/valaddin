@@ -45,7 +45,7 @@ bc <- function(x, y) {
 
 ### When validating inputs, think functional transformation
 
-Imagine applying `bc()` “firmly”, exactly as before, but with the assurance that the inputs are indeed numeric. To enable this, transform `bc()` using `firmly()`, relative to the validation specified by the predicate function `is.numeric()`:
+Imagine applying `bc()` “firmly,” exactly as before, but with the assurance that the inputs are indeed numeric. To enable this, transform `bc()` using `firmly()`, relative to the validation specified by the predicate function `is.numeric()`:
 
 ``` r
 library(valaddin)
