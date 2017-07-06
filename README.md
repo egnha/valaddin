@@ -8,15 +8,15 @@ valaddin
 Overview
 --------
 
-Dealing with invalid function inputs is a chronic pain for R users, given R's weakly typed nature. valaddin provides pain relief in the form of an adverb, `firmly()`, that enables you to *transform* an existing function into a function with input validation checks, in a manner suitable for both programmatic and interactive use.
+Dealing with invalid function inputs is a chronic pain for R users, given R’s weakly typed nature. *valaddin* provides pain relief in the form of an adverb, `firmly()`, that enables you to *transform* an existing function into a function with input validation checks, in a manner suitable for both programmatic and interactive use.
 
 Additionally, valaddin provides:
 
--   `fasten()` to help you write cleaner and more explicit function declarations in your scripts, by providing a *functional operator* that “fastens” a given set of input validations to functions (it simply [curries](https://en.wikipedia.org/wiki/Currying) `firmly()`)
+-   `fasten()`, to help you write cleaner and more explicit function declarations in your scripts, by providing a *functional operator* that “fastens” a given set of input validations to functions (i.e., it [curries](https://en.wikipedia.org/wiki/Currying) `firmly()`)
 
--   `validate()` as syntactic sugar to validate *objects*, by applying input validation to the identity function
+-   `validate()`, as syntactic sugar to validate *objects*, by applying input validation to the identity function
 
--   `loosely()` to undo the application of input validation checks, at any time, by returning the original function
+-   `loosely()`, to undo the application of input validation checks, at any time, by returning the original function
 
 Moreover, these functions support [tidyverse semantics](https://rpubs.com/hadley/dplyr-programming) such as [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [slicing](http://rlang.tidyverse.org/reference/quasiquotation.html), to provide a flexible yet simple grammar for input validations.
 
@@ -35,7 +35,7 @@ The legacy version (0.1.0) remains available on [CRAN](https://cran.r-project.or
 Usage
 -----
 
-To illustrate valaddin's functional approach to input validation, consider the following function, which computes the barycentric coordinates of a point in the plane:
+To illustrate valaddin’s functional approach to input validation, consider the function that computes the barycentric coordinates of a point in the plane:
 
 ``` r
 bc <- function(x, y) {
@@ -43,9 +43,9 @@ bc <- function(x, y) {
 }
 ```
 
-### Input validation via functional transformation
+### When validating inputs, think functional transformation
 
-We can imagine applying `bc()` “firmly”—the same as before, but now the inputs are checked to be numeric. To do this, transform `bc()` using `firmly()`, relative to the validation specified by the predicate function `is.numeric`:
+Imagine applying `bc()` “firmly”, exactly as before, but with the assurance that the inputs are indeed numeric. To enable this, transform `bc()` using `firmly()`, relative to the validation specified by the predicate function `is.numeric()`:
 
 ``` r
 library(valaddin)
@@ -62,7 +62,7 @@ bc2(.5, ".2")
 
 ### Use custom error message that are context-aware
 
-Using the string-interpolation syntax provided by the [glue](https://github.com/tidyverse/glue) package, make error messages more informative, by taking into account the context of the error:
+Using the string-interpolation syntax provided by the [glue](https://github.com/tidyverse/glue) package, make error messages more informative, by taking into account the context of an error:
 
 ``` r
 bc3 <- firmly(bc, "{{.}} is not numeric (type: {typeof(.)})" := is.numeric)
@@ -75,7 +75,7 @@ bc3(.5i, ".2")
 
 ### Express input validations using tidyverse idioms
 
-valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [slicing](http://rlang.tidyverse.org/reference/quasiquotation.html) semantics for specifying input validation checks. Checks and (custom) error messages are captured as [quosures](http://rlang.tidyverse.org/reference/quosure.html), to ensure that validations are hygienically evaluated in the intended context.
+valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [slicing](http://rlang.tidyverse.org/reference/quasiquotation.html) semantics for specifying input validation checks. Checks and (custom) error messages are captured as [quosures](http://rlang.tidyverse.org/reference/quosure.html), to ensure that validations, and their error reports, are hygienically evaluated in the intended context—transparently to the user.
 
 ``` r
 z <- 0
@@ -96,13 +96,13 @@ bc4(.5, .6)
 
 This reads as follows:
 
--   `vld()` encapsulates the condition that `x`, `y`, `1 - x - y` are positive, as a formula [definition](http://rlang.tidyverse.org/reference/quosures.html#details). The actual predicate for positivity is succinctly expressed using [magrittr](https://github.com/tidyverse/magrittr)’s shorthand for anonymous functions. The unquoting operator `!!` ensures that the *value* of `z` is “burned into” the check.
+-   `vld()` encapsulates the condition that `x`, `y`, `1 - x - y` are positive, as a formula [definition](http://rlang.tidyverse.org/reference/quosures.html#details). The predicate itself is succinctly expressed using [magrittr](https://github.com/tidyverse/magrittr)’s shorthand for anonymous functions. The unquoting operator `!!` ensures that the *value* of `z` is “burned into” the check.
 
--   The additional condition that `(x, y)` lie in a triangle is imposed by splicing it in with the `!!!` operator.
+-   The additional condition that `(x, y)` lies in a triangle is imposed by splicing it in with the `!!!` operator.
 
-### Validate objects
+### Use the same grammar to validate objects
 
-Validating an object (say, a data frame) is nothing more than applying an input-validated identity function to it. `validate()` is a shorthand for this.
+Validating an object (say, a data frame) is nothing more than applying an input-validated identity function to it. The function `validate()` provides a shorthand for this.
 
 ``` r
 # All assumptions OK, mtcars returned invisibly
@@ -166,11 +166,11 @@ bc_clean(c(.5, .5), -.2)
 #> 4) x is not a number
 ```
 
-In addition to cleaner code, you can:
+In addition to having cleaner code, you can:
 
 -   reduce duplication, by using the splicing operator `!!!` to reuse common input validations
 
--   recover the underlying “unadulterated” function, at any time, using `loosely()`:
+-   recover the underlying “lean” function, at any time, using `loosely()`:
 
     ``` r
     print(loosely(bc_clean))
@@ -182,7 +182,9 @@ In addition to cleaner code, you can:
 Related packages
 ----------------
 
--   valaddin provides a basic set of predicate functions—prefixed `vld_*()` for easy look-up—to specify common kinds of checks (e.g., is an argument a scalar?, does it have the expected type?, etc.). More extensive collections of predicate functions are provided by the following packages: [assertive](https://bitbucket.org/richierocks/assertive), [assertthat](https://github.com/hadley/assertthat), [checkmate](https://github.com/mllg/checkmate).
+-   valaddin provides a basic set of predicate functions—prefixed `vld_*()` for easy look-up—to specify common kinds of checks (e.g., is an argument a scalar?, does it have the expected type?, etc.).
+
+    Use specialized collections of predicate functions to enrich valaddin’s vocabulary: [assertive](https://bitbucket.org/richierocks/assertive), [assertthat](https://github.com/hadley/assertthat), [checkmate](https://github.com/mllg/checkmate).
 
 -   Other non-functional approaches to input validation: [argufy](https://github.com/gaborcsardi/argufy), [typeCheck](https://github.com/jimhester/typeCheck), [ensurer](https://github.com/smbache/ensurer).
 
