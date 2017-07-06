@@ -60,7 +60,7 @@ bc2(.5, ".2")
 #> FALSE: is.numeric(y)
 ```
 
-### Use custom error messages that are context-aware
+### Specify error messages that are context-aware
 
 Using the string-interpolation syntax provided by the [glue](https://github.com/tidyverse/glue) package, make error messages more informative, by taking into account the context of an error:
 
@@ -75,7 +75,7 @@ bc3(.5i, ".2")
 
 ### Express input validations using tidyverse idioms
 
-valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [splicing](http://rlang.tidyverse.org/reference/quasiquotation.html) semantics for specifying input validation checks. Checks and (custom) error messages are captured as [quosures](http://rlang.tidyverse.org/reference/quosure.html), to ensure that validations, and their error reports, are hygienically evaluated in the intended context—transparently to the user.
+valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquotation.html) and [splicing](http://rlang.tidyverse.org/reference/quasiquotation.html) semantics for specifying input validation checks. Checks and (custom) error messages are captured as [quosures](http://rlang.tidyverse.org/reference/quosure.html), to ensure that validations, and their error reports, are hygienically evaluated in the intended scope—transparently to the user.
 
 ``` r
 z <- 0
