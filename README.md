@@ -186,7 +186,7 @@ Related packages
 
     Use specialized collections of predicate functions to enrich valaddin’s vocabulary: [assertive](https://bitbucket.org/richierocks/assertive), [assertthat](https://github.com/hadley/assertthat), [checkmate](https://github.com/mllg/checkmate).
 
--   Other non-functional approaches to input validation: [argufy](https://github.com/gaborcsardi/argufy), [typeCheck](https://github.com/jimhester/typeCheck), [ensurer](https://github.com/smbache/ensurer).
+-   Other non-functional approaches to input validation: [argufy](https://github.com/gaborcsardi/argufy), [ensurer](https://github.com/smbache/ensurer), [typeCheck](https://github.com/jimhester/typeCheck).
 
 License
 -------

@@ -221,8 +221,8 @@ In addition to having cleaner code, you can:
 
   * Other non-functional approaches to input validation:
     [argufy](https://github.com/gaborcsardi/argufy),
-    [typeCheck](https://github.com/jimhester/typeCheck),
-    [ensurer](https://github.com/smbache/ensurer).
+    [ensurer](https://github.com/smbache/ensurer),
+    [typeCheck](https://github.com/jimhester/typeCheck).
 
 ## License
 
