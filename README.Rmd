@@ -209,20 +209,24 @@ In addition to having cleaner code, you can:
 
 ## Related packages
 
-  * valaddin provides a basic set of predicate functions—prefixed `vld_` for
-    easy lookup—to specify common kinds of checks (e.g., is an argument a
-    scalar?, does it have the expected type?, etc.).
+  * valaddin provides a basic set of predicate functions—prefixed `vld_` for 
+    easy lookup—to specify common kinds of checks, e.g., type and property
+    checks, comparisons, etc.
     
-    Use specialized collections of predicate functions to enrich valaddin’s
-    vocabulary:
-    [assertive](https://bitbucket.org/richierocks/assertive),
-    [assertthat](https://github.com/hadley/assertthat),
-    [checkmate](https://github.com/mllg/checkmate).
+    To enrich valaddin’s vocabulary of predicate functions, use:
+    
+    * specialized collections of predicate functions, such as
+      [assertive](https://bitbucket.org/richierocks/assertive),
+      [assertthat](https://github.com/hadley/assertthat),
+      [checkmate](https://github.com/mllg/checkmate)
+    
+    * [vetr](https://github.com/brodieG/vetr), which provides a concise
+      declarative syntax to create custom predicate functions
 
   * Other non-functional approaches to input validation:
     [argufy](https://github.com/gaborcsardi/argufy),
     [ensurer](https://github.com/smbache/ensurer),
-    [typeCheck](https://github.com/jimhester/typeCheck).
+    [typeCheck](https://github.com/jimhester/typeCheck)
 
 ## License
 
