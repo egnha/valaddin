@@ -6,7 +6,7 @@
 # Infix attribute accessor
 `%@%` <- rlang::`%@%`
 
-#' @importFrom rlang UQ UQE ":="
+#' @importFrom rlang UQ UQS UQE ":="
 NULL
 
 try_eval_tidy <- function(expr, env = rlang::caller_env()) {
