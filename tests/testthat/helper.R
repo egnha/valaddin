@@ -1,5 +1,6 @@
 library(stringr, warn.conflicts = FALSE)
-library(purrr, warn.conflicts = FALSE)
+
+`%>%` <- purrr::`%>%`
 
 errmsg_false <- function(text) {
   esc_perl(message_false(text))
