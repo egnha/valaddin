@@ -37,12 +37,12 @@ partial <- function(`__f`, ...) {
 print.partial_function <- function(x, ...) {
   cat("<partial_function>\n")
   cat("\n* Default values:\n")
-  cat(itemize(environment(x)$defvals), "\n", sep = "")
+  cat(itemize_vals(environment(x)$defvals), "\n", sep = "")
   cat("\n* Original function:\n")
   print(environment(x)$`__f`)
   invisible(x)
 }
-itemize <- function(xs) {
+itemize_vals <- function(xs) {
   xs <- lapply(xs, deparse_collapse)
-  paste(paste(names(xs), xs, sep = ": "), collapse = "\n")
+  paste(sprintf("%s = %s", names(xs), xs), collapse = "\n")
 }
