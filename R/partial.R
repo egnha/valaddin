@@ -16,6 +16,8 @@
 partial <- function(`__f`, ...) {
   force(`__f`)
   defvals <- rlang::dots_list(...)
+  if (length(defvals) == 0)
+    return(`__f`)
   `__subst_defvals` <- function(call)
     as.call(c(`__f`, defvals, rlang::node_cdr(call)))
   structure(
