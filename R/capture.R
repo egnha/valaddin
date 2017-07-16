@@ -5,7 +5,7 @@
 #' @param ... Input-validation checks as error message-check definitions (cf.
 #'   [rlang::dots_definitions()]).
 #' @return List of pairs of quosures, with named components `msg` (error
-#'   message) and `chk` (input validation check), of class `validationChecks`.
+#'   message) and `chk` (input validation check), of class `validation_checks`.
 #'
 #' @examples
 #' # Stipulate that a, b, c are numeric and a > b > c
