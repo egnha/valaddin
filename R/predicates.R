@@ -162,11 +162,11 @@ comparisons$sets <- list(
 )
 
 predicates <- list(
-  boolean     = NULL,
-  type        = NULL,
-  scalar_type = NULL,
-  object      = NULL,
-  property    = NULL
+  boolean  = NULL,
+  type     = NULL,
+  scalar   = NULL,
+  object   = NULL,
+  property = NULL
 )
 predicates$boolean <- list(
   list(
@@ -256,7 +256,7 @@ make_scalar_type_data <- function(xs, prefix) {
     }, names(xs), xs)
   )
 }
-scalar_types <- list(
+scalar <- list(
   atomic    = "atomic vector",
   list      = "list",
   logical   = "logical vector",
@@ -270,7 +270,7 @@ scalar_types <- list(
 is_scalar_numerical <- function(.) {
   typeof(.) %in% c("double", "integer") && length(.) == 1
 }
-predicates$scalar_type <- c(
+predicates$scalar <- c(
   list(
     list(
       "scalar_numerical",
@@ -300,7 +300,7 @@ predicates$scalar_type <- c(
       "{{.}} is not a string"
     )
   ),
-  make_scalar_type_data(scalar_types, "is.")
+  make_scalar_type_data(scalar, "is.")
 )
 predicates$object <- list(
   list(
@@ -399,22 +399,117 @@ for (x in unlist(predicates, recursive = FALSE)) {
 #' @rawNamespace exportPattern("^vld_.*$")
 NULL
 
-nms_vld <- unlist(lapply(list(predicates, comparisons), function(x) {
-  paste0("vld_", vapply(unlist(x, recursive = FALSE), `[[`, character(1), 1))
-}))
+# Documentation -----------------------------------------------------------
 
-#' Predicates
+names_predicates <- function(preds) {
+  lapply(preds, function(x)
+    paste0("vld_", vapply(x, `[[`, character(1), 1))
+  )
+}
+nms_predicates  <- names_predicates(predicates)
+nms_comparisons <- names_predicates(comparisons)
+
+#' Boolean comparison predicates
 #'
-#' _TODO_
-#' - descriptions
-#' - categorizations
-#' - examples
+#' @evalRd rd_alias(nms_comparisons$boolean)
+#' @evalRd rd_usage(nms_comparisons$boolean)
 #'
-#' @evalRd rd_alias(nms_vld)
-#' @evalRd rd_usage(nms_vld)
+#' @param \dots Expressions to validate
+#' @param .ref Comparison object.
 #'
-#' @param \dots Expressions to check.
-#' @param .ref Reference object.
+#' @name comparisons-boolean
+NULL
+
+#' Pattern comparison predicates
 #'
-#' @name predicates
+#' @evalRd rd_alias(nms_comparisons$pattern)
+#' @evalRd rd_usage(nms_comparisons$pattern)
+#'
+#' @param \dots Expressions to validate
+#' @param .ref Comparison object.
+#'
+#' @name comparisons-pattern
+NULL
+
+#' Property comparison predicates
+#'
+#' @evalRd rd_alias(nms_comparisons$property)
+#' @evalRd rd_usage(nms_comparisons$property)
+#'
+#' @param \dots Expressions to validate
+#' @param .ref Comparison object.
+#'
+#' @name comparisons-property
+NULL
+
+#' Relation predicates
+#'
+#' @evalRd rd_alias(nms_comparisons$relation)
+#' @evalRd rd_usage(nms_comparisons$relation)
+#'
+#' @param \dots Expressions to validate
+#' @param .ref Comparison object.
+#'
+#' @name comparisons-relation
+NULL
+
+#' Set comparison predicates
+#'
+#' @evalRd rd_alias(nms_comparisons$sets)
+#' @evalRd rd_usage(nms_comparisons$sets)
+#'
+#' @param \dots Expressions to validate
+#' @param .ref Comparison object.
+#'
+#' @name comparisons-sets
+NULL
+
+#' Boolean predicates
+#'
+#' @evalRd rd_alias(nms_predicates$boolean)
+#' @evalRd rd_usage(nms_predicates$boolean)
+#'
+#' @param \dots Expressions to validate
+#'
+#' @name predicates-boolean
+NULL
+
+#' Type predicates
+#'
+#' @evalRd rd_alias(nms_predicates$type)
+#' @evalRd rd_usage(nms_predicates$type)
+#'
+#' @param \dots Expressions to validate
+#'
+#' @name predicates-type
+NULL
+
+#' Scalar type predicates
+#'
+#' @evalRd rd_alias(nms_predicates$scalar)
+#' @evalRd rd_usage(nms_predicates$scalar)
+#'
+#' @param \dots Expressions to validate
+#'
+#' @name predicates-scalar-type
+NULL
+
+#' Object predicates
+#'
+#' @evalRd rd_alias(nms_predicates$object)
+#' @evalRd rd_usage(nms_predicates$object)
+#'
+#' @param \dots Expressions to validate
+#'
+#' @name predicates-object
+NULL
+
+#' Property predicates
+#'
+#' @evalRd rd_alias(nms_predicates$property)
+#' @evalRd rd_usage(nms_predicates$property)
+#'
+#' @param \dots Expressions to validate
+#'
+#' @name predicates-property
 NULL
