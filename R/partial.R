@@ -42,7 +42,7 @@ print.partial_function <- function(x, ...) {
   print(environment(x)$`__f`)
   invisible(x)
 }
-itemize_vals <- function(xs) {
-  xs <- lapply(xs, deparse_collapse)
-  paste(sprintf("%s = %s", names(xs), xs), collapse = "\n")
+itemize_vals <- function(vals) {
+  vals <- lapply(vals, deparse_collapse)
+  paste(sprintf("%s = %s", names(vals), vals), collapse = "\n")
 }
