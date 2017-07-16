@@ -23,14 +23,24 @@ These functions support [tidyverse semantics](https://rpubs.com/hadley/dplyr-pro
 Installation
 ------------
 
-The development version (0.2.0.9000) brings major improvements to the user interface and functionality of valaddin. To install it, use the [devtools](https://github.com/hadley/devtools) package:
+### Development version (pre-0.3.0)
+
+The development version brings major improvements to the user interface and functionality of valaddin. The main functions `fasten()`, `firmly()`, `loosely()`, `validate()` are considered stable. Work on simplifying and generalizing `localize()` (and, consequently, the predicates prefixed with `vld_`) is in progress.
+
+To install the development version, use the [devtools](https://github.com/hadley/devtools) package:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("egnha/valaddin")
 ```
 
-The legacy version (0.1.0) remains available on [CRAN](https://cran.r-project.org/package=valaddin).
+### Legacy version
+
+The legacy version (0.1.0), which uses a deprecated formula-based syntax for input validation checks, is available on [CRAN](https://cran.r-project.org/package=valaddin). Install it from R with
+
+``` r
+install.packages("valaddin")
+```
 
 Usage
 -----
