@@ -3,18 +3,15 @@
 \name{scope}
 \alias{scope}
 \alias{localize}
-\alias{localize_comparison}
 \alias{globalize}
 \alias{predicate_function}
 \alias{predicate_message}
 \alias{predicate_message<-}
 \title{Generate input validation checks}
 \usage{
-localize(p, msg = "")
+localize(p)
 
-localize_comparison(p, msg = "")
-
-globalize(chkr)
+globalize(lp)
 
 predicate_function(x)
 
@@ -23,38 +20,37 @@ predicate_message(x)
 predicate_message(x) <- value
 }
 \arguments{
-\item{p}{Predicate function of one argument, for \code{localize()}, of two or more
-arguments for \code{localize_comparison()}.}
+\item{p}{Predicate function, or a definition, whose LHS is an error message
+(string) and whose RHS is a predicate function.}
 
-\item{msg, value}{Error message (string). An empty string (the default)
-implies that error messages are to be automatically generated.}
-
-\item{chkr}{Function of class \code{local_predicate}, i.e., a function created by
+\item{lp}{Function of class \code{local_predicate}, i.e., a function created by
 \code{localize()}.}
 
 \item{x}{Object of class \code{local_predicate} or \code{global_predicate}.}
+
+\item{value}{Error message (string).}
 }
 \description{
 Given a predicate (function), \code{localize()} returns a function that
 \emph{generates} input validation checks (of local scope) for the predicate.
-\code{globalize()} takes such a check generator and returns the underlying
-predicate (wrapped in \code{\link[=vld]{vld()}}); when \code{globalize()} is unquoted in a call to
+\code{globalize()} takes such a check generator and returns the underlying error
+message-predicate pair. When \code{globalize()} is unquoted in a call to
 \code{\link[=firmly]{firmly()}} or \code{\link[=fasten]{fasten()}}, the corresponding predicate is applied as an input
 validation check of global scope.
 \cr\cr
-The function \code{predicate_function()}, resp. \code{predicate_message()}, extracts
-the associated predicate function, resp. error message.
+The functions \code{predicate_function()} and \code{predicate_message()} extract the
+associated predicate function and error message.
 }
 \details{
-Conceptually, \code{localize()} and \code{globalize()} represent inverse
-operations. However, they are \emph{not} mutually invertible as functions,
-because they are not composable.
+\code{globalize()} approximately inverts \code{localize()}, by returning the
+underlying message-predicate pair as a named list, rather than as a
+bare predicate function or definition (formula).
 }
 \examples{
 \dontrun{
 
 ## Make a positivity checker
-chk_positive <- localize({isTRUE(. > 0)}, "{{.}} is not positive")
+chk_positive <- localize("{{.}} is not positive" := {isTRUE(. > 0)})
 f <- firmly(function(x, y) "Pass", chk_positive(x, x - y))
 
 f(2, 1)
@@ -64,13 +60,13 @@ f(1, 2)
 #> Error: f(x = 1, y = 2)
 #> x - y is not positive
 
-## Make a length checker, parameterized by .ref
+## Make a parameterized length checker
 chk_length <-
-  localize_comparison(
-    {length(.) == .ref}, "{{.}} not of length {{{.ref$value}}}"
+  localize(
+    "{{.}} not of length {{l}}" := function(., l) length(.) == l
   )
-## .ref gets the value 2 (so check that the length is 2)
-g <- firmly(function(x, y) "Pass", chk_length(2)(y))
+## l gets the value 2 (so check that the length is 2)
+g <- firmly(function(x, y) "Pass", chk_length(l = 2, y))
 
 g(1, 1:2)
 #> [1] "Pass"
