@@ -73,9 +73,7 @@ maybe_error <- function(x) {
   else
     NULL
 }
-is_error <- function(x) {
-  inherits(x, "error")
-}
+is_error <- identify_class("error")
 
 #' Tabulate an input validation check as a data frame
 #'

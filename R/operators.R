@@ -43,9 +43,7 @@ loosely <- function(f) {
     f
 }
 #' @export
-is_firm <- function(x) {
-  inherits(x, "firm_closure")
-}
+is_firm <- identify_class("firm_closure")
 as_firm_closure <- function(f) {
   if (!is_firm(f))
     class(f) <- c("firm_closure", class(f))

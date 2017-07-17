@@ -34,8 +34,9 @@ splice_or_parse_dots <- function(dots) {
   })
 }
 is_spliceable <- function(., x) {
-  is.list(rlang::f_rhs(.)) || inherits(x, "local_validation_checks")
+  is.list(rlang::f_rhs(.)) || is_lcl_vld_chks(x)
 }
+is_lcl_vld_chks <- identify_class("local_validation_checks")
 parse_dot <- function(., x) {
   if (is_local_predicate(x)) globalize(x) else set_empty_msg(.)
 }
@@ -47,6 +48,4 @@ standardize_defs <- function(defs) {
   lapply(defs, `names<-`, c("msg", "chk"))
 }
 
-is_vld <- function(x) {
-  inherits(x, "validation_checks")
-}
+is_vld <- identify_class("validation_checks")

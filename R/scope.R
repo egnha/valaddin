@@ -83,9 +83,7 @@ localize_ <- function(fn, expr, msg) {
   )
 }
 
-is_local_predicate <- function(x) {
-  inherits(x, "local_predicate")
-}
+is_local_predicate <- identify_class("local_predicate")
 
 #' @rdname scope
 #' @export

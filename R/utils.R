@@ -33,6 +33,11 @@ identify_caller <- function(nm) {
   function(x)
     is.call(x) && identical(x[[1]], caller)
 }
+identify_class <- function(cls) {
+  force(cls)
+  function(x)
+    inherits(x, cls)
+}
 
 # When gluing, substitute string into call, to avoid making a binding that could
 # inadvertently override one in an environment higher up.
