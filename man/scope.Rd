@@ -4,20 +4,20 @@
 \alias{scope}
 \alias{localize}
 \alias{globalize}
-\alias{predicate_function}
-\alias{predicate_message}
-\alias{predicate_message<-}
+\alias{pred_function}
+\alias{pred_message}
+\alias{pred_message<-}
 \title{Generate input validation checks}
 \usage{
 localize(p)
 
 globalize(lp)
 
-predicate_function(x)
+pred_function(x)
 
-predicate_message(x)
+pred_message(x)
 
-predicate_message(x) <- value
+pred_message(x) <- value
 }
 \arguments{
 \item{p}{Predicate function, or a definition, whose LHS is an error message
@@ -38,8 +38,8 @@ message-predicate pair. When \code{globalize()} is unquoted in a call to
 \code{\link[=firmly]{firmly()}} or \code{\link[=fasten]{fasten()}}, the corresponding predicate is applied as an input
 validation check of global scope.
 \cr\cr
-The functions \code{predicate_function()} and \code{predicate_message()} extract the
-associated predicate function and error message.
+The functions \code{pred_function()} and \code{pred_message()} extract the associated
+predicate function and error message.
 }
 \details{
 \code{globalize()} approximately inverts \code{localize()}, by returning the

@@ -1,33 +1,33 @@
 context("Predicates")
 
-test_that("predicate_function() gets predicate for local predicates", {
-  expect_identical(predicate_function(localize(isTRUE)), isTRUE)
-  expect_identical(predicate_function(localize(isTRUE, "message")), isTRUE)
+test_that("pred_function() gets predicate for local predicates", {
+  expect_identical(pred_function(localize(isTRUE)), isTRUE)
+  expect_identical(pred_function(localize(isTRUE, "message")), isTRUE)
 })
 
-test_that("predicate_function() gets predicate for global predicates", {
+test_that("pred_function() gets predicate for global predicates", {
   lcl <- localize(isTRUE)
-  expect_identical(predicate_function(globalize(lcl)), isTRUE)
+  expect_identical(pred_function(globalize(lcl)), isTRUE)
 })
 
-test_that("predicate_message() gets predicate for local predicates", {
-  expect_identical(predicate_message(localize(isTRUE, "message")), "message")
-  expect_identical(predicate_message(localize(isTRUE)), "")
+test_that("pred_message() gets predicate for local predicates", {
+  expect_identical(pred_message(localize(isTRUE, "message")), "message")
+  expect_identical(pred_message(localize(isTRUE)), "")
 })
 
-test_that("predicate_message() gets predicate for global predicates", {
-  expect_identical(predicate_message(globalize(localize(isTRUE))), "")
+test_that("pred_message() gets predicate for global predicates", {
+  expect_identical(pred_message(globalize(localize(isTRUE))), "")
   expect_identical(
-    predicate_message(globalize(localize(isTRUE, "message"))),
+    pred_message(globalize(localize(isTRUE, "message"))),
     "message"
   )
 })
 
-test_that("`predicate_message<-()` reassigns message", {
+test_that("`pred_message<-()` reassigns message", {
   lcl <- localize(isTRUE, "old")
-  predicate_message(lcl) <- "new"
+  pred_message(lcl) <- "new"
   gbl <- globalize(localize(isTRUE, "old"))
-  predicate_message(gbl) <- "new"
-  expect_identical(predicate_message(lcl), "new")
-  expect_identical(predicate_message(gbl), "new")
+  pred_message(gbl) <- "new"
+  expect_identical(pred_message(lcl), "new")
+  expect_identical(pred_message(gbl), "new")
 })

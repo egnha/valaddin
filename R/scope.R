@@ -7,8 +7,8 @@
 #' [firmly()] or [fasten()], the corresponding predicate is applied as an input
 #' validation check of global scope.
 #' \cr\cr
-#' The functions `predicate_function()` and `predicate_message()` extract the
-#' associated predicate function and error message.
+#' The functions `pred_function()` and `pred_message()` extract the associated
+#' predicate function and error message.
 #'
 #' @details `globalize()` approximately inverts `localize()`, by returning the
 #'   underlying message-predicate pair as a named list, rather than as a
@@ -115,45 +115,45 @@ globalize <- fasten(
 #' @rdname scope
 #' @export
 #' @param x Object of class `local_predicate` or `global_predicate`.
-predicate_function <- function(x) {
-  UseMethod("predicate_function")
+pred_function <- function(x) {
+  UseMethod("pred_function")
 }
 #' @export
-predicate_function.local_predicate <- function(x) {
+pred_function.local_predicate <- function(x) {
   environment(x)$pred$fn
 }
 #' @export
-predicate_function.global_predicate <- function(x) {
+pred_function.global_predicate <- function(x) {
   rlang::eval_tidy(x$chk)
 }
 
 #' @rdname scope
 #' @export
-predicate_message <- function(x) {
-  UseMethod("predicate_message")
+pred_message <- function(x) {
+  UseMethod("pred_message")
 }
 #' @export
-predicate_message.local_predicate <- function(x) {
+pred_message.local_predicate <- function(x) {
   rlang::eval_tidy(environment(x)$check$msg)
 }
 #' @export
-predicate_message.global_predicate <- function(x) {
+pred_message.global_predicate <- function(x) {
   rlang::eval_tidy(x$msg)
 }
 
 #' @rdname scope
 #' @export
 #' @param value Error message (string).
-`predicate_message<-` <- function(x, value) {
-  UseMethod("predicate_message<-")
+`pred_message<-` <- function(x, value) {
+  UseMethod("pred_message<-")
 }
 #' @export
-`predicate_message<-.local_predicate` <- function(x, value) {
+`pred_message<-.local_predicate` <- function(x, value) {
   rlang::f_rhs(environment(x)$check$msg) <- value
   invisible(x)
 }
 #' @export
-`predicate_message<-.global_predicate` <- function(x, value) {
+`pred_message<-.global_predicate` <- function(x, value) {
   x$msg <- rlang::new_quosure(value, parent.frame())
   invisible(x)
 }
@@ -164,7 +164,7 @@ print.local_predicate <- function(x, ...) {
   cat("\n* Predicate function:\n")
   cat(deparse_collapse(environment(x)$pred$expr), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(predicate_message(x), quote = "\""), "\n")
+  cat(encodeString(pred_message(x), quote = "\""), "\n")
   invisible(x)
 }
 
@@ -174,6 +174,6 @@ print.global_predicate <- function(x, ...) {
   cat("\n* Predicate function:\n")
   cat(deparse_collapse(x %@% "vld_pred_expr"), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(predicate_message(x), quote = "\""), "\n")
+  cat(encodeString(pred_message(x), quote = "\""), "\n")
   invisible(x)
 }
