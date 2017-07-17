@@ -14,7 +14,7 @@ Boolean comparison predicates
 \alias{vld_all_map}
 \alias{vld_any_map}
 \usage{
-vld_all_map(.ref, ...)
+vld_all_map(...)
 
-vld_any_map(.ref, ...)
+vld_any_map(...)
 }

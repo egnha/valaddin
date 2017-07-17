@@ -13,5 +13,5 @@ Pattern comparison predicates
 }
 \alias{vld_grepl}
 \usage{
-vld_grepl(.ref, ...)
+vld_grepl(...)
 }

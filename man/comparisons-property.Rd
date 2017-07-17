@@ -18,15 +18,15 @@ Property comparison predicates
 \alias{vld_has_attrs}
 \alias{vld_inherits}
 \usage{
-vld_has_name(.ref, ...)
+vld_has_name(...)
 
-vld_has_names(.ref, ...)
+vld_has_names(...)
 
-vld_has_length(.ref, ...)
+vld_has_length(...)
 
-vld_has_attr(.ref, ...)
+vld_has_attr(...)
 
-vld_has_attrs(.ref, ...)
+vld_has_attrs(...)
 
-vld_inherits(.ref, ...)
+vld_inherits(...)
 }

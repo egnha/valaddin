@@ -389,11 +389,11 @@ predicates$property <- list(
 
 for (x in unlist(comparisons, recursive = FALSE)) {
   nm <- paste0("vld_", x[[1]])
-  assign(nm, localize_comparison(UQ(x[[2]]), x[[3]]))
+  assign(nm, localize(UQ(x[[3]]) := UQ(x[[2]])))
 }
 for (x in unlist(predicates, recursive = FALSE)) {
   nm <- paste0("vld_", x[[1]])
-  assign(nm, localize(UQ(x[[2]]), x[[3]]))
+  assign(nm, localize(UQ(x[[3]]) := UQ(x[[2]])))
 }
 
 #' @rawNamespace exportPattern("^vld_.*$")

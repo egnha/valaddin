@@ -21,21 +21,21 @@ Set comparison predicates
 \alias{vld_doesnt_intersect}
 \alias{vld_setequal}
 \usage{
-vld_in(.ref, ...)
+vld_in(...)
 
-vld_not_in(.ref, ...)
+vld_not_in(...)
 
-vld_contains(.ref, ...)
+vld_contains(...)
 
-vld_doesnt_contain(.ref, ...)
+vld_doesnt_contain(...)
 
-vld_contained_in(.ref, ...)
+vld_contained_in(...)
 
-vld_not_contained_in(.ref, ...)
+vld_not_contained_in(...)
 
-vld_intersects(.ref, ...)
+vld_intersects(...)
 
-vld_doesnt_intersect(.ref, ...)
+vld_doesnt_intersect(...)
 
-vld_setequal(.ref, ...)
+vld_setequal(...)
 }

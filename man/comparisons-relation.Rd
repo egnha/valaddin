@@ -22,23 +22,23 @@ Relation predicates
 \alias{vld_gte}
 \alias{vld_lte}
 \usage{
-vld_identical(.ref, ...)
+vld_identical(...)
 
-vld_not_identical(.ref, ...)
+vld_not_identical(...)
 
-vld_equal(.ref, ...)
+vld_equal(...)
 
-vld_not_equal(.ref, ...)
+vld_not_equal(...)
 
-vld_all_equal(.ref, ...)
+vld_all_equal(...)
 
-vld_not_all_equal(.ref, ...)
+vld_not_all_equal(...)
 
-vld_gt(.ref, ...)
+vld_gt(...)
 
-vld_lt(.ref, ...)
+vld_lt(...)
 
-vld_gte(.ref, ...)
+vld_gte(...)
 
-vld_lte(.ref, ...)
+vld_lte(...)
 }
