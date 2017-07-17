@@ -57,7 +57,7 @@ localize <- function(p) {
   pred <- as_predicate(check$chk, rlang::f_env(check$chk))
   structure(
     function(...) {
-      args <- categorize_args(...)
+      args <- separate_defvals_exprs(...)
       fn <- partial(pred$fn, UQS(args$defvals))
       # TODO: interpolate the message
       check$chk <- rlang::new_formula(fn, vld(UQS(args$exprs)), parent.frame())
@@ -70,7 +70,7 @@ localize <- function(p) {
     class = "local_predicate"
   )
 }
-categorize_args <- function(...) {
+separate_defvals_exprs <- function(...) {
   dd <- rlang::dots_definitions(...)
   is_named <- nzchar(names(dd$dots))
   list(
