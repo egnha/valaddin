@@ -1,11 +1,12 @@
 #' Capture input validation checks
 #'
-#' @details The order of the input validation checks is not necessarily
-#'   preserved.
 #' @param ... Input-validation checks as error message-check definitions (cf.
 #'   [rlang::dots_definitions()]).
 #' @return List of pairs of quosures, with named components `msg` (error
 #'   message) and `chk` (input validation check), of class `validation_checks`.
+#'
+#' @details The order of the input validation checks is not necessarily
+#'   preserved.
 #'
 #' @examples
 #' # Stipulate that a, b, c are numeric and a > b > c
@@ -17,9 +18,13 @@
 vld <- function(...) {
   dd <- rlang::dots_definitions(...)
   structure(
-    c(splice_or_parse_dots(dd$dots), standardize_defs(dd$defs)),
+    vld_(dd$dots, dd$defs),
     class = "validation_checks"
   )
+}
+
+vld_ <- function(dots, defs) {
+  c(splice_or_parse_dots(dots), standardize_defs(defs))
 }
 
 splice_or_parse_dots <- function(dots) {
