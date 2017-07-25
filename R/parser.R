@@ -46,17 +46,28 @@ as_check_items <- function(x, env) {
 is_vld_expr <- identify_caller("vld")
 as_predicate <- function(q, env) {
   expr <- rlang::get_expr(q)
-  if (is_lambda(expr)) {
-    expr <- new_fn_expr(expr)
-    fn <- eval(expr, env)
-  } else {
+  if (is_lambda(expr))
+    as_lambda(expr, env)
+  else {
     fn <- try_eval_tidy(q, env)
     if (!is.function(fn))
       stop(err_not_function(expr, maybe_error(fn)), call. = FALSE)
+    list(expr = expr, fn = fn)
   }
-  list(expr = expr, fn = fn)
 }
-is_lambda <- identify_caller("{")
+is_lambda <- function(x) {
+  is.call(x) && (x[[1]] == sym_brace || x[[1]] == sym_dot)
+}
+sym_brace <- as.symbol("{")
+sym_dot   <- as.symbol(".")
+as_lambda <- function(x, env) {
+  if (x[[1]] == sym_brace)
+    x <- new_fn_expr(x)
+  else
+    x[[1]] <- nofrills::fn
+  fn <- eval(x, env)
+  list(expr = substitute(fn), fn = fn)
+}
 new_fn_expr <- function(body, args = alist(. = )) {
   call("function", as.pairlist(args), body)
 }
