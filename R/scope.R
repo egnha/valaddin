@@ -59,8 +59,9 @@ localize <- function(p) {
     function(...) {
       args <- separate_defvals_exprs(...)
       fn <- partial(pred$fn, UQS(args$defvals))
-      # TODO: interpolate the message
       check$chk <- rlang::new_formula(fn, vld(UQS(args$exprs)), parent.frame())
+      rlang::f_env(check$msg) <-
+        list2env(args$defvals, parent = rlang::f_env(check$msg))
       structure(
         check,
         vld_pred_expr = as.call(c(pred$expr, args$defvals)),
