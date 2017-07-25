@@ -142,10 +142,9 @@ make_message <- function(msg, env_msg, chk_items, calls) {
   if (nzchar(msg))
     vapply(chk_items, function(.) glue_opp(.$chk, msg, env_msg), character(1))
   else
-    # double-up braces to shield them from glue_text()
-    protect_braces(message_false(calls))
+    protect_braces_from_glue(message_false(calls))
 }
-protect_braces <- function(x) {
+protect_braces_from_glue <- function(x) {
   gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
 }
 message_false <- function(call) {
