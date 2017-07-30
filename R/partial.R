@@ -1,7 +1,8 @@
 #' Bare-bones partial function application
 #'
 #' @param `__f` Function to partially apply.
-#' @param ... Argument values of `__f` to set. Supports splicing via `!!!`.
+#' @param ... Argument values of `__f` to set; they are lazily evaluated.
+#'   Supports splicing via `!!!`.
 #' @return Function of `...` that partially applies `__f`.
 #'
 #' @examples
@@ -15,7 +16,7 @@
 #' @noRd
 partial <- function(`__f`, ...) {
   force(`__f`)
-  defvals <- rlang::dots_list(...)
+  defvals <- rlang::exprs(...)
   if (length(defvals) == 0)
     return(`__f`)
   `__subst_defvals` <- function(call)
@@ -23,7 +24,7 @@ partial <- function(`__f`, ...) {
   structure(
     function(...) {
       call <- `__subst_defvals`(sys.call())
-      eval(call, parent.frame())
+      rlang::eval_bare(call, parent.frame())
     },
     class = "partial_function"
   )
