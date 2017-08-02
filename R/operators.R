@@ -29,8 +29,8 @@ fasten_ <- function(..., error_class = NULL) {
     )
   }
 }
-nomen <- function(sig) {
-  nm <- setdiff(names(sig), "...") %||% character(0)
+nomen <- function(x) {
+  nm <- names(x)[names(x) != "..."] %||% character(0)
   list(nm = nm, sym = lapply(nm, as.symbol))
 }
 #' @export
