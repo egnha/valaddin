@@ -55,34 +55,34 @@ localize <- function(p) {
   q <- rlang::enquo(p)
   check <- as_check(q)
   pred <- as_predicate(check$chk, rlang::f_env(check$chk))
+  update_check <- function(args, env) {
+    f <- partial(pred$fn, UQS(args$defvals))
+    rlang::new_formula(f, vld(UQS(args$exprs)), env)
+  }
   update_message <- function(prom) {
     env <- bind_names_values(prom, rlang::f_env(check$msg))
     rlang::new_quosure(rlang::f_rhs(check$msg), env)
   }
   structure(
-    function(...) {
-      args <- separate_defvals_exprs(...)
-      fn <- partial(pred$fn, UQS(args$defvals))
-      check$chk <- rlang::new_formula(fn, vld(UQS(args$exprs)), parent.frame())
-      rlang::f_env(check$msg) <-
-        list2env(args$defvals, parent = rlang::f_env(check$msg))
-      structure(
-        check,
-        vld_pred_expr = as.call(c(pred$expr, args$defvals)),
-        class = "local_validation_checks"
-      )
-    },
+    `formals<-`(
+      function() {
+        prom <- make_promises()
+        args <- separate_defvals_exprs(...)
+        structure(
+          list(
+            msg = update_message(prom),
+            chk = update_check(args, parent.frame())
+          ),
+          vld_pred_expr = as.call(c(pred$expr, args$defvals)),
+          class = "local_validation_checks"
+        )
+      },
+      value = localize_formals(pred$fn)
+    ),
     class = "local_predicate"
   )
 }
-separate_defvals_exprs <- function(...) {
-  dd <- rlang::dots_definitions(...)
-  is_named <- nzchar(names(dd$dots))
-  list(
-    defvals = lapply(dd$dots[is_named], rlang::eval_tidy),
-    exprs   = vld_(dd$dots[!is_named], dd$defs)
-  )
-}
+
 as_check <- function(q) {
   if (rlang::is_definition(rlang::f_rhs(q))) {
     def <- rlang::f_rhs(q)
@@ -120,6 +120,31 @@ make_promises <- function() {
 promiser <- function(f) {
   fn_promiser <- call("function", formals(f), quote(environment()))
   eval(fn_promiser, environment(f))
+}
+
+separate_defvals_exprs <- function(...) {
+  args <- get_nondot_args()
+  dd <- rlang::dots_definitions(...)
+  is_named <- nzchar(names(dd$dots))
+  list(
+    defvals = c(args, lapply(dd$dots[is_named], rlang::eval_tidy)),
+    exprs   = vld_(dd$dots[!is_named], dd$defs)
+  )
+}
+get_nondot_args <- function() {
+  mc <- match.call(sys.function(-2), call = sys.call(-2), expand.dots = FALSE)
+  mc <- rlang::node_cdr(mc)
+  lapply(mc[names(mc) != "..."], eval, envir = parent.frame(2))
+}
+
+localize_formals <- function(f) {
+  fmls <- liberate_args(rlang::node_cdr(formals(f)))
+  as.pairlist(c(fmls$free, alist(... = ), fmls$set))
+}
+liberate_args <- function(fmls) {
+  fmls <- fmls[names(fmls) != "..."]
+  wo_value <- vapply(fmls, identical, logical(1), y = quote(expr = ))
+  list(free = fmls[wo_value], set = fmls[!wo_value])
 }
 
 is_local_predicate <- identify_class("local_predicate")
