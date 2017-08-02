@@ -55,6 +55,10 @@ localize <- function(p) {
   q <- rlang::enquo(p)
   check <- as_check(q)
   pred <- as_predicate(check$chk, rlang::f_env(check$chk))
+  update_message <- function(prom) {
+    env <- bind_names_values(prom, rlang::f_env(check$msg))
+    rlang::new_quosure(rlang::f_rhs(check$msg), env)
+  }
   structure(
     function(...) {
       args <- separate_defvals_exprs(...)
@@ -89,6 +93,23 @@ as_check <- function(q) {
     )
   } else
     set_empty_msg(q)
+}
+
+bind_names_values <- function(env, parent) {
+  env_bind <- new.env(parent = parent)
+  bindings <- nomen(env)
+  env_bind$.name <- bind_names(bindings, env)
+  env_bind$.value <- bind_values(bindings, env)
+  env_bind
+}
+bind_names <- function(bindings, env) {
+  lapply(`names<-`(bindings$sym, bindings$nm), function(x)
+    eval(substitute(substitute(.x, env), list(.x = x)))
+  )
+}
+bind_values <- function(bindings, env) {
+  expr_vals <- lapply(bindings$sym, function(x) bquote(deparse_collapse(.(x))))
+  bind_promises(bindings$nm, expr_vals, env, emptyenv())
 }
 
 make_promises <- function() {
