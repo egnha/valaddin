@@ -91,6 +91,16 @@ as_check <- function(q) {
     set_empty_msg(q)
 }
 
+make_promises <- function() {
+  f <- sys.function(-1)
+  call <- sys.call(-1)
+  eval_bare(`[[<-`(call, 1, promiser(f)), parent.frame(2))
+}
+promiser <- function(f) {
+  fn_promiser <- call("function", formals(f), quote(environment()))
+  eval(fn_promiser, environment(f))
+}
+
 is_local_predicate <- identify_class("local_predicate")
 
 #' @rdname scope
