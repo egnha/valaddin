@@ -139,12 +139,12 @@ get_nondot_args <- function() {
 
 localize_formals <- function(f) {
   fmls <- segregate_args(rlang::node_cdr(formals(f)))
-  as.pairlist(c(fmls$free, alist(... = ), fmls$set))
+  as.pairlist(c(fmls$wo_value, alist(... = ), fmls$with_value))
 }
 segregate_args <- function(fmls) {
   fmls <- fmls[names(fmls) != "..."]
   wo_value <- vapply(fmls, identical, logical(1), y = quote(expr = ))
-  list(free = fmls[wo_value], set = fmls[!wo_value])
+  list(wo_value = fmls[wo_value], with_value = fmls[!wo_value])
 }
 
 is_local_predicate <- identify_class("local_predicate")
