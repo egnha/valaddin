@@ -52,12 +52,13 @@ NULL
 #' @param p Predicate function, or a definition, whose LHS is an error message
 #'   (string) and whose RHS is a predicate function.
 localize <- function(p) {
-  q <- rlang::enquo(p)
-  check <- as_check(q)
+  check <- as_check(rlang::enquo(p))
   pred <- as_predicate(check$chk, rlang::f_env(check$chk))
-  update_check <- function(args, env) {
-    f <- partial(pred$fn, UQS(args$defvals))
-    rlang::new_formula(f, vld(UQS(args$exprs)), env)
+  new_predicate_expr <- function(args)
+    as.call(c(pred$expr, args))
+  update_check <- function(args, ..., env) {
+    f <- partial(pred$fn, UQS(args))
+    rlang::new_formula(f, vld(...), env)
   }
   update_message <- function(prom) {
     env <- bind_names_values(prom, rlang::f_env(check$msg))
@@ -67,13 +68,13 @@ localize <- function(p) {
     `formals<-`(
       function() {
         prom <- make_promises()
-        args <- separate_defvals_exprs(...)
+        args <- get_nondot_args()
         structure(
           list(
             msg = update_message(prom),
-            chk = update_check(args, parent.frame())
+            chk = update_check(args, ..., env = parent.frame())
           ),
-          vld_pred_expr = as.call(c(pred$expr, args$defvals)),
+          vld_pred_expr = new_predicate_expr(args),
           class = "local_validation_checks"
         )
       },
@@ -122,19 +123,10 @@ promiser <- function(f) {
   eval(fn_promiser, environment(f))
 }
 
-separate_defvals_exprs <- function(...) {
-  args <- get_nondot_args()
-  dd <- rlang::dots_definitions(...)
-  is_named <- nzchar(names(dd$dots))
-  list(
-    defvals = c(args, lapply(dd$dots[is_named], rlang::eval_tidy)),
-    exprs   = vld_(dd$dots[!is_named], dd$defs)
-  )
-}
 get_nondot_args <- function() {
-  mc <- match.call(sys.function(-2), call = sys.call(-2), expand.dots = FALSE)
-  mc <- rlang::node_cdr(mc)
-  lapply(mc[names(mc) != "..."], eval, envir = parent.frame(2))
+  mc <- match.call(sys.function(-1), call = sys.call(-1), expand.dots = FALSE)
+  args <- rlang::node_cdr(mc)
+  args[names(args) != "..."]
 }
 
 localize_formals <- function(f) {
