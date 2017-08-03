@@ -138,10 +138,10 @@ get_nondot_args <- function() {
 }
 
 localize_formals <- function(f) {
-  fmls <- liberate_args(rlang::node_cdr(formals(f)))
+  fmls <- segregate_args(rlang::node_cdr(formals(f)))
   as.pairlist(c(fmls$free, alist(... = ), fmls$set))
 }
-liberate_args <- function(fmls) {
+segregate_args <- function(fmls) {
   fmls <- fmls[names(fmls) != "..."]
   wo_value <- vapply(fmls, identical, logical(1), y = quote(expr = ))
   list(free = fmls[wo_value], set = fmls[!wo_value])
