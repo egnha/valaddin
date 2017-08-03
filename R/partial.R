@@ -1,8 +1,8 @@
 #' Bare-bones partial function application
 #'
 #' @param `__f` Function to partially apply.
-#' @param ... Argument values of `__f` to set; they are lazily evaluated.
-#'   Supports splicing via `!!!`.
+#' @param ... Argument values of `__f` to set. Quasiquotation and splicing
+#'   semantics is supported.
 #' @return Function of `...` that partially applies `__f`.
 #'
 #' @examples
@@ -16,7 +16,7 @@
 #' @noRd
 partial <- function(`__f`, ...) {
   force(`__f`)
-  defvals <- rlang::exprs(...)
+  defvals <- rlang::dots_list(...)
   if (length(defvals) == 0)
     return(`__f`)
   `__subst_defvals` <- function(call)
