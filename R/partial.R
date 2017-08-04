@@ -3,6 +3,9 @@
 #' @param `__f` Function to partially apply.
 #' @param ... Argument values of `__f` to set. Quasiquotation and splicing
 #'   semantics is supported.
+#' @param `__first` Should the set values be placed ahead of the other
+#'   arguments?
+#'
 #' @return Function of `...` that partially applies `__f`.
 #'
 #' @examples
@@ -14,19 +17,23 @@
 #' ls_all <- partial(ls, !!! args)
 #'
 #' @noRd
-partial <- function(`__f`, ...) {
-  force(`__f`)
+partial <- function(`__f`, ..., `__first` = TRUE) {
   defvals <- rlang::dots_list(...)
   if (length(defvals) == 0)
     return(`__f`)
-  `__subst_defvals` <- function(call)
-    as.call(c(`__f`, defvals, rlang::node_cdr(call)))
-  structure(
+  f <- rlang::as_closure(`__f`)
+  if (`__first`)
+    `__subst_defvals` <- function(call)
+      as.call(c(f, defvals, rlang::node_cdr(call)))
+  else
+    `__subst_defvals` <- function(call)
+      as.call(c(f, rlang::node_cdr(call), defvals))
+  `class<-`(
     function(...) {
       call <- `__subst_defvals`(sys.call())
       rlang::eval_bare(call, parent.frame())
     },
-    class = "partial_function"
+    "partial_function"
   )
 }
 
