@@ -56,31 +56,30 @@ localize <- function(p) {
   pred <- as_predicate(check$chk, rlang::f_env(check$chk))
   new_predicate_expr <- function(args)
     as.call(c(pred$expr, args))
-  update_check <- function(args, ..., env) {
+  update_check <- function(args, env, ...) {
     f <- partial(pred$fn, args)
     rlang::new_formula(f, vld(...), env)
   }
-  update_message <- function(prom) {
-    env <- bind_names_values(prom, rlang::f_env(check$msg))
-    rlang::new_quosure(rlang::f_rhs(check$msg), env)
+  update_message <- function(args, env) {
+    env_msg <- bind_expr_value(args, env, rlang::f_env(check$msg))
+    rlang::new_quosure(rlang::f_rhs(check$msg), env_msg)
   }
-  structure(
+  `class<-`(
     `formals<-`(
+      value = localize_formals(pred$fn),
       function() {
-        prom <- make_promises()
-        args <- get_nondot_args()
+        args <- eval_nondot_args()
         structure(
           list(
-            msg = update_message(prom),
-            chk = update_check(args, ..., env = parent.frame())
+            msg = update_message(args, environment()),
+            chk = update_check(args, parent.frame(), ...)
           ),
           vld_pred_expr = new_predicate_expr(args),
           class = "local_validation_checks"
         )
-      },
-      value = localize_formals(pred$fn)
+      }
     ),
-    class = "local_predicate"
+    "local_predicate"
   )
 }
 
@@ -96,41 +95,28 @@ as_check <- function(q) {
     set_empty_msg(q)
 }
 
-bind_names_values <- function(env, parent) {
+bind_expr_value <- function(args, env, parent) {
   env_bind <- new.env(parent = parent)
-  bindings <- nomen(env)
-  env_bind$.name <- bind_names(bindings, env)
-  env_bind$.value <- bind_values(bindings, env)
+  env_bind$.expr <- bind_expr_text(nomen(args), env)
+  env_bind$.value <- lapply(args, deparse_collapse)
   env_bind
 }
-bind_names <- function(bindings, env) {
-  lapply(`names<-`(bindings$sym, bindings$nm), function(x)
-    eval(substitute(substitute(.x, env), list(.x = x)))
+bind_expr_text <- function(nm, env) {
+  lapply(`names<-`(nm$sym, nm$nm), function(sym)
+    deparse_collapse(
+      eval(substitute(substitute(., env), list(. = sym)))
+    )
   )
 }
-bind_values <- function(bindings, env) {
-  expr_vals <- lapply(bindings$sym, function(x) bquote(deparse_collapse(.(x))))
-  bind_promises(bindings$nm, expr_vals, env, emptyenv())
-}
 
-make_promises <- function() {
-  f <- sys.function(-1)
-  call <- sys.call(-1)
-  eval_bare(`[[<-`(call, 1, promiser(f)), parent.frame(2))
-}
-promiser <- function(f) {
-  fn_promiser <- call("function", formals(f), quote(environment()))
-  eval(fn_promiser, environment(f))
-}
-
-get_nondot_args <- function() {
+eval_nondot_args <- function() {
   mc <- match.call(sys.function(-1), call = sys.call(-1), expand.dots = FALSE)
-  args <- rlang::node_cdr(mc)
-  args[names(args) != "..."]
+  nm <- nomen(mc[-1])
+  lapply(`names<-`(nm$sym, nm$nm), rlang::eval_bare, env = parent.frame())
 }
 
 localize_formals <- function(f) {
-  fmls <- segregate_args(rlang::node_cdr(formals(f)))
+  fmls <- segregate_args(formals(f)[-1])
   as.pairlist(c(fmls$wo_value, alist(... = ), fmls$with_value))
 }
 segregate_args <- function(fmls) {
