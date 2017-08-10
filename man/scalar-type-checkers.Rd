@@ -13,8 +13,7 @@ Check formula of local scope.
 }
 \description{
 These functions make check formulae of local scope based on the
-correspondingly named \link[purrr:scalar-type-predicates]{scalar type
-predicate} from the
+correspondingly named scalar type predicate from the
 \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
 package. For example, \code{vld_scalar_atomic} creates check formulae (of
 local scope) for the predicate function
@@ -81,7 +80,7 @@ vld_string(...)
 vld_singleton(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:scalar-type-predicates]{Scalar type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
+Corresponding predicates: Scalar type predicates (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 

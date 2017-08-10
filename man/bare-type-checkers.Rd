@@ -13,8 +13,7 @@ Check formula of local scope.
 }
 \description{
 These functions make check formulae of local scope based on the
-correspondingly named \link[purrr:bare-type-predicates]{bare type predicate}
-from the
+correspondingly named bare type predicate from the
 \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
 package. For example, \code{vld_bare_atomic} creates check formulae (of
 local scope) for the \pkg{purrr} predicate function
@@ -70,7 +69,7 @@ vld_bare_logical(...)
 vld_bare_vector(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:bare-type-predicates]{Bare type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
+Corresponding predicates: Bare type predicates (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 

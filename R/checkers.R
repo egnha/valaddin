@@ -120,7 +120,7 @@ trim <- function(x) trimws(tidy(gather(x)), which = "both")
 link_bare  <- "\\link{%s}"
 link_extfn <- "\\code{\\link[%s]{%s}}"
 link_purrr <- trim("
-  \\link[purrr:%s-predicates]{%s predicates}
+  %s predicates
   (\\href{https://cran.r-project.org/package=purrr}{\\pkg{purrr}})
 ")
 
@@ -132,9 +132,9 @@ predicates <- list(
   misc = sprintf(link_extfn, "base", sort(c(pkg$base$nms, "is.numeric"))) %>%
     c(sprintf(link_extfn, "purrr", c("is_empty", "is_formula"))) %>%
     paste(collapse = ", "),
-  bare   = sprintf(link_purrr, "bare-type", "Bare type"),
-  scalar = sprintf(link_purrr, "scalar-type", "Scalar type"),
-  type   = sprintf(link_purrr, "type", "Type")
+  bare   = sprintf(link_purrr, "Bare type"),
+  scalar = sprintf(link_purrr, "Scalar type"),
+  type   = sprintf(link_purrr, "Type")
 ) %>%
   prefix_with("Corresponding predicates:")
 
@@ -235,7 +235,7 @@ NULL
 #' Type checkers
 #'
 #' These functions make check formulae of local scope based on the
-#' correspondingly named \link[purrr:type-predicates]{type predicate} from the
+#' correspondingly named type predicate from the
 #' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} package, with
 #' the exception that \code{vld_closure} corresponds to the (inaptly named)
 #' \pkg{purrr} predicate \code{\link[purrr]{is_function}}. For example,
@@ -275,8 +275,7 @@ NULL
 #' Bare type checkers
 #'
 #' These functions make check formulae of local scope based on the
-#' correspondingly named \link[purrr:bare-type-predicates]{bare type predicate}
-#' from the
+#' correspondingly named bare type predicate from the
 #' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
 #' package. For example, \code{vld_bare_atomic} creates check formulae (of
 #' local scope) for the \pkg{purrr} predicate function
@@ -317,8 +316,7 @@ NULL
 #' Scalar type checkers
 #'
 #' These functions make check formulae of local scope based on the
-#' correspondingly named \link[purrr:scalar-type-predicates]{scalar type
-#' predicate} from the
+#' correspondingly named scalar type predicate from the
 #' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
 #' package. For example, \code{vld_scalar_atomic} creates check formulae (of
 #' local scope) for the predicate function

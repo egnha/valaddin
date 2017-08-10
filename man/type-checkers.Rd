@@ -13,7 +13,7 @@ Check formula of local scope.
 }
 \description{
 These functions make check formulae of local scope based on the
-correspondingly named \link[purrr:type-predicates]{type predicate} from the
+correspondingly named type predicate from the
 \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} package, with
 the exception that \code{vld_closure} corresponds to the (inaptly named)
 \pkg{purrr} predicate \code{\link[purrr]{is_function}}. For example,
@@ -74,7 +74,7 @@ vld_null(...)
 vld_vector(...)
 }
 \seealso{
-Corresponding predicates: \link[purrr:type-predicates]{Type predicates} (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
+Corresponding predicates: Type predicates (\href{https://cran.r-project.org/package=purrr}{\pkg{purrr}})
 
 \code{\link{globalize}} recovers the underlying check formula of global scope.
 
