@@ -25,6 +25,7 @@ partial <- function(f, vals) {
   )
 }
 
+#' @export
 print.partial_function <- function(x, ...) {
   cat("<partial_function>\n")
   cat("\n* Pre-filled values:\n")
