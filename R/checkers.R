@@ -67,7 +67,8 @@ chkrs <- do.call("c", unname(chkrs_))
 chkrs$vld_numeric <- localize(ff_new(is.numeric, "Not double/integer"))
 chkrs$vld_scalar_numeric <- localize(ff_new(
   quote({is.numeric(.) && length(.) == 1L}), "Not scalar double/integer"))
-chkrs$vld_closure <- localize(ff_new(purrr::is_function, "Not closure"))
+chkrs$vld_closure <- localize(ff_new(
+  quote({typeof(.) == "closure"}), "Not closure"))
 chkrs$vld_true  <- localize(ff_new(is_true, "Not TRUE"))
 chkrs$vld_false <- localize(ff_new(is_false, "Not FALSE"))
 chkrs$vld_all <- localize(ff_new(all, "Not all TRUE"))
