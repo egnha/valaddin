@@ -1,6 +1,6 @@
 # valaddin
 
-## 0.1.0.9000
+## 0.1.2
 
 ### Operator for input validation
 
@@ -76,6 +76,9 @@
   [abae548](https://github.com/egnha/valaddin/commit/abae5480392a6fbf81b6faafcfd097dd6a936829)
   and 
   [dcfdcaf](https://github.com/egnha/valaddin/commit/dcfdcaf24966007794949f66e5108030d17f520f).
+  
+* Minor fixes to documentation, but not code, to ensure compatibility with purrr
+  0.2.3.
 
 ### Deprecated
 
