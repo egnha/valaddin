@@ -57,7 +57,7 @@ localize <- function(p) {
   new_predicate_expr <- function(args)
     as.call(c(pred$expr, args))
   update_check <- function(args, ..., env) {
-    f <- partial(pred$fn, UQS(args))
+    f <- partial(pred$fn, args)
     rlang::new_formula(f, vld(...), env)
   }
   update_message <- function(prom) {
