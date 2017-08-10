@@ -33,12 +33,12 @@ Install from [CRAN](https://cran.r-project.org/package=valaddin)
 install.packages("valaddin")
 ```
 
-or get the development version (0.1.0.9000) from GitHub using the
+or get the development version from GitHub using the
 [devtools](https://github.com/hadley/devtools) package
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("egnha/valaddin", build_vignettes = TRUE)
+devtools::install_github("egnha/valaddin")
 ```
 
 ## Why use valaddin
