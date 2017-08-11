@@ -243,8 +243,7 @@ ways:
     all.equal(bc, bc2)
     ```
 
--   Better yet, use the `%checkin%` operator (available in the development
-    version):
+-   Better yet, use the `%checkin%` operator:
 
     ```{r}
     bc3 <- list(

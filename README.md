@@ -235,7 +235,7 @@ To make your functions more intelligible, declare your input assumptions and mov
     #> [1] TRUE
     ```
 
--   Better yet, use the `%checkin%` operator (available in the development version):
+-   Better yet, use the `%checkin%` operator:
 
     ``` r
     bc3 <- list(
