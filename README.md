@@ -114,20 +114,21 @@ This reads as follows:
 
 Validating an object (say, a data frame) is nothing more than applying an input-validated identity function to it. The function `validate()` provides a shorthand for this.
 
+*\[Once the re-implementation of `localize()` is complete, the following code will work, again\]*
+
 ``` r
 # All assumptions OK, mtcars returned invisibly
 validate(mtcars,
          is.data.frame,
          vld_lt(100)(nrow(.)),
          vld_has_names(c("mpg", "cyl"))(.))
+#> Error: Could not determine whether `vld_lt(100)(nrow(.))` is a function: attempt to apply non-function
 
 validate(mtcars,
          is.data.frame,
          vld_gt(100)(nrow(.)),
          vld_has_name("cylinders")(.))
-#> Error: validate(. = mtcars)
-#> 1) nrow(.) is not greater than 100
-#> 2) . does not have name "cylinders"
+#> Error: Could not determine whether `vld_gt(100)(nrow(.))` is a function: attempt to apply non-function
 ```
 
 ### Clarify code structure

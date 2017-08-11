@@ -157,6 +157,9 @@ Validating an object (say, a data frame) is nothing more than applying an
 input-validated identity function to it. The function `validate()` provides a
 shorthand for this.
 
+_[Once the re-implementation of `localize()` is complete, the following code will
+work, again]_
+
 ```{r error = TRUE, purl = FALSE}
 # All assumptions OK, mtcars returned invisibly
 validate(mtcars,
