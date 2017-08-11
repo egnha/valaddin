@@ -36,7 +36,7 @@ devtools::install_github("egnha/valaddin")
 
 ### Legacy version
 
-The legacy version (0.1.0), which uses a deprecated formula-based syntax for input validation checks, is available on [CRAN](https://cran.r-project.org/package=valaddin). Install it from R with
+The legacy version (0.1.2), which uses a deprecated formula-based syntax for input validation checks, is available on [CRAN](https://cran.r-project.org/package=valaddin). Install it from R with
 
 ``` r
 install.packages("valaddin")
