@@ -16,23 +16,23 @@ parse_checks <- function(chks) {
     local  = tabulate_checks(chklist[!is_global])
   )
 }
-parse_check <- function(.) {
-  chkev <- try_eval_tidy(.$chk)
+parse_check <- function(chk) {
+  chkev <- try_eval_tidy(chk$chk)
   if (rlang::is_formula(chkev)) {
     env_fml <- rlang::f_env(chkev)
     pred <- as_predicate(rlang::f_lhs(chkev), env_fml)
     chk_items <- as_check_items(rlang::f_rhs(chkev), env_fml)
   } else {
-    pred <- as_predicate(.$chk, rlang::f_env(.$chk))
+    pred <- as_predicate(chk$chk, rlang::f_env(chk$chk))
     chk_items <- NULL
   }
-  msg <- rlang::eval_tidy(.$msg)
+  msg <- rlang::eval_tidy(chk$msg)
   list(
     fn        = pred$fn,
-    expr      = (. %@% "vld_pred_expr") %||% pred$expr,
+    expr      = (chk %@% "vld_pred_expr") %||% pred$expr,
     chk_items = chk_items,
     msg       = msg,
-    env_msg   = rlang::f_env(.$msg)
+    env_msg   = rlang::f_env(chk$msg)
   )
 }
 as_check_items <- function(x, env) {
