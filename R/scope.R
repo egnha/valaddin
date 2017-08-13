@@ -66,7 +66,6 @@ localize <- function(p) {
   }
   `class<-`(
     `formals<-`(
-      value = localize_formals(pred$fn),
       function() {
         args <- eval_nondot_args()
         structure(
@@ -77,7 +76,8 @@ localize <- function(p) {
           vld_pred_expr = new_predicate_expr(args),
           class = "local_validation_checks"
         )
-      }
+      },
+      value = localize_formals(pred$fn)
     ),
     "local_predicate"
   )
