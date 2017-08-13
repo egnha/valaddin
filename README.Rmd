@@ -157,20 +157,17 @@ Validating an object (say, a data frame) is nothing more than applying an
 input-validated identity function to it. The function `validate()` provides a
 shorthand for this.
 
-_[Once the re-implementation of `localize()` is complete, the following code will
-work, again]_
-
 ```{r error = TRUE, purl = FALSE}
 # All assumptions OK, mtcars returned invisibly
 validate(mtcars,
          is.data.frame,
-         vld_lt(100)(nrow(.)),
-         vld_has_names(c("mpg", "cyl"))(.))
+         vld_lt(100, nrow(.)),
+         vld_has_names(c("mpg", "cyl"), .))
 
 validate(mtcars,
          is.data.frame,
-         vld_gt(100)(nrow(.)),
-         vld_has_name("cylinders")(.))
+         vld_gt(100, nrow(.)),
+         vld_has_name("cylinders", .))
 ```
 
 ### Clarify code structure
@@ -221,7 +218,7 @@ In addition to having cleaner code, you can:
   
   * recover the underlying “lean” function, at any time, using `loosely()`:
     ```{r}
-    print(loosely(bc_clean))
+    loosely(bc_clean)
     ```
 
 ## Related packages

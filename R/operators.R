@@ -242,17 +242,17 @@ NULL
 #' # All assertions valid: data frame returned (invisibly)
 #' validate(mtcars,
 #'          is.data.frame,
-#'          vld_all_map(is.numeric),
-#'          vld_gt(10)(nrow(.)),
-#'          vld_has_names(c("mpg", "cyl"))(.))
+#'          vld_all_map(is.numeric, .),
+#'          vld_gt(10, nrow(.)),
+#'          vld_has_names(c("mpg", "cyl"), .))
 #'
 #' \dontrun{
 #' # Some assertions invalid: diagnostic error raised
 #' validate(mtcars,
 #'          is.matrix,
-#'          vld_all_map(is.numeric),
-#'          vld_gt(1000)(nrow(.)),
-#'          vld_has_name("cylinders")(.))}
+#'          vld_all_map(is.numeric, .),
+#'          vld_gt(1000, nrow(.)),
+#'          vld_has_name("cylinders", .))}
 #'
 #' @name validate
 NULL
