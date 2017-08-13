@@ -9,23 +9,11 @@
 \description{
 Scalar type predicates
 }
-\alias{vld_scalar_numerical}
 \alias{vld_number}
 \alias{vld_whole_number}
 \alias{vld_boolean}
 \alias{vld_string}
-\alias{vld_scalar_atomic}
-\alias{vld_scalar_list}
-\alias{vld_scalar_logical}
-\alias{vld_scalar_integer}
-\alias{vld_scalar_double}
-\alias{vld_scalar_complex}
-\alias{vld_scalar_character}
-\alias{vld_scalar_raw}
-\alias{vld_scalar_vector}
 \usage{
-vld_scalar_numerical(...)
-
 vld_number(...)
 
 vld_whole_number(...)
@@ -33,22 +21,4 @@ vld_whole_number(...)
 vld_boolean(...)
 
 vld_string(...)
-
-vld_scalar_atomic(...)
-
-vld_scalar_list(...)
-
-vld_scalar_logical(...)
-
-vld_scalar_integer(...)
-
-vld_scalar_double(...)
-
-vld_scalar_complex(...)
-
-vld_scalar_character(...)
-
-vld_scalar_raw(...)
-
-vld_scalar_vector(...)
 }

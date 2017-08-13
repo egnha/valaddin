@@ -15,18 +15,18 @@ Type predicates
 \alias{vld_symbol}
 \alias{vld_pairlist}
 \alias{vld_environment}
-\alias{vld_language}
+\alias{vld_atomic}
 \alias{vld_list}
+\alias{vld_vector}
 \alias{vld_logical}
 \alias{vld_integer}
 \alias{vld_double}
-\alias{vld_complex}
 \alias{vld_character}
 \alias{vld_raw}
 \usage{
 vld_closure(...)
 
-vld_numerical(...)
+vld_numerical(..., n = NULL)
 
 vld_null(...)
 
@@ -36,19 +36,19 @@ vld_pairlist(...)
 
 vld_environment(...)
 
-vld_language(...)
+vld_atomic(..., n = NULL)
 
-vld_list(...)
+vld_list(..., n = NULL)
 
-vld_logical(...)
+vld_vector(..., n = NULL)
 
-vld_integer(...)
+vld_logical(..., n = NULL)
 
-vld_double(...)
+vld_integer(..., n = NULL)
 
-vld_complex(...)
+vld_double(..., n = NULL)
 
-vld_character(...)
+vld_character(..., n = NULL, encoding = NULL)
 
-vld_raw(...)
+vld_raw(..., n = NULL)
 }

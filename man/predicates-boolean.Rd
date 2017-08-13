@@ -14,8 +14,10 @@ Boolean predicates
 \alias{vld_false}
 \alias{vld_not}
 \alias{vld_all}
-\alias{vld_none}
 \alias{vld_any}
+\alias{vld_none}
+\alias{vld_all_map}
+\alias{vld_any_map}
 \usage{
 vld_true(...)
 
@@ -25,9 +27,13 @@ vld_false(...)
 
 vld_not(...)
 
-vld_all(...)
+vld_all(..., na.rm = FALSE)
 
-vld_none(...)
+vld_any(..., na.rm = FALSE)
 
-vld_any(...)
+vld_none(..., na.rm = FALSE)
+
+vld_all_map(f, ..., na.rm = FALSE)
+
+vld_any_map(f, ..., na.rm = FALSE)
 }

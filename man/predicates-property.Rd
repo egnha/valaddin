@@ -13,10 +13,15 @@ Property predicates
 \alias{vld_not_empty}
 \alias{vld_singleton}
 \alias{vld_not_na}
-\alias{vld_has_no_na}
+\alias{vld_without_na}
 \alias{vld_sorted}
-\alias{vld_recursive}
 \alias{vld_named}
+\alias{vld_has_name}
+\alias{vld_has_names}
+\alias{vld_has_length}
+\alias{vld_has_attr}
+\alias{vld_has_attrs}
+\alias{vld_inherits}
 \usage{
 vld_not_null(...)
 
@@ -26,11 +31,21 @@ vld_singleton(...)
 
 vld_not_na(...)
 
-vld_has_no_na(...)
+vld_without_na(...)
 
 vld_sorted(...)
 
-vld_recursive(...)
-
 vld_named(...)
+
+vld_has_name(nm, ...)
+
+vld_has_names(nms, ...)
+
+vld_has_length(n, ...)
+
+vld_has_attr(which, ...)
+
+vld_has_attrs(which, ...)
+
+vld_inherits(what, ..., which = FALSE)
 }
