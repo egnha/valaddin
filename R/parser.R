@@ -134,10 +134,15 @@ deparse_check <- function(expr, chk_items, def_msg, env_msg) {
   envs[!is_gbl] <- lapply(chk_items[!is_gbl], function(.) rlang::f_env(.$msg))
   list(call = calls, msg = msgs, is_msg_gbl = is_gbl, env_msg = envs)
 }
-deparse_call <- function(x, arg) {
-  call <- rlang::expr(UQE(x)(UQE(arg)))
+deparse_call <- function(expr, arg) {
+  expr_arg <- rlang::quo_expr(arg)
+  if (is_partial_fn_expr(expr))
+    call <- as.call(c(rlang::node_car(expr), expr_arg, rlang::node_cdr(expr)))
+  else
+    call <- as.call(c(expr, expr_arg))
   deparse_collapse(call)
 }
+is_partial_fn_expr <- is.call
 make_message <- function(msg, env_msg, chk_items, calls) {
   if (nzchar(msg))
     vapply(chk_items, function(.) glue_opp(.$chk, msg, env_msg), character(1))
