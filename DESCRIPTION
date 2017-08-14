@@ -33,7 +33,7 @@ Collate:
     'parser.R'
     'validation.R'
     'operators.R'
-    'scope.R'
+    'check-scope.R'
     'predicates.R'
     'valaddin.R'
 RoxygenNote: 6.0.1

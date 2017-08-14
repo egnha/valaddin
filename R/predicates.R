@@ -350,7 +350,7 @@ predicates$type <- c(
 
 for (x in unlist(predicates, recursive = FALSE)) {
   nm <- paste0("vld_", x[[1]])
-  assign(nm, localize(UQ(x[[3]]) := UQ(x[[2]])))
+  assign(nm, lcl(UQ(x[[3]]) := UQ(x[[2]])))
 }
 
 #' @rawNamespace exportPattern("^vld_.*$")

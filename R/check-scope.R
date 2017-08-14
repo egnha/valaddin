@@ -1,24 +1,24 @@
 #' Generate input validation checks
 #'
-#' Given a predicate (function), `localize()` returns a function that
-#' _generates_ input validation checks (of local scope) for the predicate.
-#' `globalize()` takes such a check generator and returns the underlying error
-#' message-predicate pair. When `globalize()` is unquoted in a call to
-#' [firmly()] or [fasten()], the corresponding predicate is applied as an input
-#' validation check of global scope.
+#' Given a predicate (function), `lcl()` returns a function that _generates_
+#' input validation checks (of local scope) for the predicate. `gbl()` takes
+#' such a check generator and returns the underlying error message-predicate
+#' pair. When `gbl()` is unquoted in a call to [firmly()] or [fasten()], the
+#' corresponding predicate is applied as an input validation check of global
+#' scope.
 #' \cr\cr
-#' The functions `pred_function()` and `pred_message()` extract the associated
-#' predicate function and error message.
+#' The functions `pred_fn()` and `pred_msg()` extract the associated predicate
+#' function and error message.
 #'
-#' @details `globalize()` approximately inverts `localize()`, by returning the
-#'   underlying message-predicate pair as a named list, rather than as a
-#'   bare predicate function or definition (formula).
+#' @details `gbl()` approximately inverts `lcl()`, by returning the underlying
+#'   message-predicate pair as a named list, rather than as a bare predicate
+#'   function or definition (formula).
 #'
 #' @examples
 #' \dontrun{
 #'
 #' ## Make a positivity checker
-#' chk_positive <- localize("{{.}} is not positive" := {isTRUE(. > 0)})
+#' chk_positive <- lcl("{{.}} is not positive" := {isTRUE(. > 0)})
 #' f <- firmly(function(x, y) "Pass", chk_positive(x, x - y))
 #'
 #' f(2, 1)
@@ -30,9 +30,8 @@
 #'
 #' ## Make a parameterized length checker
 #' chk_length <-
-#'   localize(
-#'     "{{.}} not of length {{l}}" := function(., l) length(.) == l
-#'   )
+#'   lcl("{{.}} not of length {{.value$l}}" := function(., l) length(.) == l)
+#'
 #' ## l gets the value 2 (so check that the length is 2)
 #' g <- firmly(function(x, y) "Pass", chk_length(l = 2, y))
 #'
@@ -40,18 +39,28 @@
 #' #> [1] "Pass"
 #'
 #' g(1:2, 1)
-#' #> Error: g(x = 1)
+#' #> Error: g(x = 1:2, y = 1)
 #' #> y not of length 2
+#'
+#' ## To apply a local predicate to all arguments, invoke gbl() on it
+#' f <- firmly(function(x, y) "Pass", gbl(vld_double(n = 1)))
+#'
+#' f(pi, 1)
+#' #> [1] "Pass"
+#'
+#' f(pi, runif(3))
+#' #> Error: f(x = pi, y = runif(3))
+#' #> y is not a double vector of length 1
 #' }
 #'
-#' @name scope
+#' @name check-scope
 NULL
 
-#' @rdname scope
+#' @rdname check-scope
 #' @export
 #' @param p Predicate function, or a definition, whose LHS is an error message
 #'   (string) and whose RHS is a predicate function.
-localize <- function(p) {
+lcl <- function(p) {
   check <- as_check(rlang::enquo(p))
   pred <- as_predicate(check$chk, rlang::f_env(check$chk))
   new_predicate_expr <- function(args)
@@ -127,68 +136,68 @@ segregate_args <- function(fmls) {
 
 is_local_predicate <- identify_class("local_predicate")
 
-#' @rdname scope
+#' @rdname check-scope
 #' @export
-#' @param lp Function of class `local_predicate`, i.e., a function created by
-#'   `localize()`.
-globalize <- fasten(
-  "'lp' must be a local predicate (see ?localize)" :=
-    is_local_predicate ~ lp
+#' @param x Function of class `local_validation_checks`.
+gbl <- fasten(
+  "'x' must be a local validation check" :=
+    {inherits(., "local_validation_checks")} ~ x
 )(
-  function(lp) {
-    pred <- environment(lp)$pred
-    check <- environment(lp)$check
-    check$chk <- rlang::new_quosure(pred$fn, rlang::f_env(check$chk))
+  function(x) {
+    pred <- rlang::f_lhs(x$chk)
     structure(
-      check,
-      vld_pred_expr = pred$expr,
+      list(
+        msg = x$msg,
+        chk = rlang::new_quosure(pred, rlang::f_env(x$chk))
+      ),
+      vld_pred_expr = x %@% "vld_pred_expr",
       class = "global_predicate"
     )
   }
 )
 
-#' @rdname scope
+#' @rdname check-scope
 #' @export
 #' @param x Object of class `local_predicate` or `global_predicate`.
-pred_function <- function(x) {
-  UseMethod("pred_function")
+pred_fn <- function(x) {
+  UseMethod("pred_fn")
 }
 #' @export
-pred_function.local_predicate <- function(x) {
+pred_fn.local_predicate <- function(x) {
   environment(x)$pred$fn
 }
 #' @export
-pred_function.global_predicate <- function(x) {
+pred_fn.global_predicate <- function(x) {
   rlang::eval_tidy(x$chk)
 }
 
-#' @rdname scope
+#' @rdname check-scope
 #' @export
-pred_message <- function(x) {
-  UseMethod("pred_message")
+pred_msg <- function(x) {
+  UseMethod("pred_msg")
 }
 #' @export
-pred_message.local_predicate <- function(x) {
+pred_msg.local_predicate <- function(x) {
   rlang::eval_tidy(environment(x)$check$msg)
 }
 #' @export
-pred_message.global_predicate <- function(x) {
+pred_msg.global_predicate <- function(x) {
   rlang::eval_tidy(x$msg)
 }
 
-#' @rdname scope
+#' @rdname check-scope
 #' @export
 #' @param value Error message (string).
-`pred_message<-` <- function(x, value) {
-  UseMethod("pred_message<-")
+`pred_msg<-` <- function(x, value) {
+  UseMethod("pred_msg<-")
 }
 #' @export
-`pred_message<-.local_predicate` <- function(x, value) {
-  rlang::f_rhs(environment(x)$check$msg) <- value
+`pred_msg<-.local_predicate` <- function(x, value) {
+  environment(x)$check$msg <- rlang::new_quosure(value, parent.frame())
   invisible(x)
 }
 #' @export
-`pred_message<-.global_predicate` <- function(x, value) {
+`pred_msg<-.global_predicate` <- function(x, value) {
   x$msg <- rlang::new_quosure(value, parent.frame())
   invisible(x)
 }
@@ -199,7 +208,7 @@ print.local_predicate <- function(x, ...) {
   cat("\n* Predicate function:\n")
   cat(deparse_collapse(environment(x)$pred$expr), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(pred_message(x), quote = "\""), "\n")
+  cat(encodeString(pred_msg(x), quote = "\""), "\n")
   invisible(x)
 }
 
@@ -209,6 +218,6 @@ print.global_predicate <- function(x, ...) {
   cat("\n* Predicate function:\n")
   cat(deparse_collapse(x %@% "vld_pred_expr"), "\n")
   cat("\n* Error message:\n")
-  cat(encodeString(pred_message(x), quote = "\""), "\n")
+  cat(encodeString(pred_msg(x), quote = "\""), "\n")
   invisible(x)
 }
