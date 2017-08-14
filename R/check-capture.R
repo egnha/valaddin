@@ -29,17 +29,17 @@ vld_ <- function(dots, defs) {
 
 splice_or_parse_dots <- function(dots) {
   lapply(dots, function(.) {
-    x <- try_eval_tidy(.)
-    if (is_spliceable(., x)) x else parse_dot(., x)
+    .eval <- try_eval_tidy(.)
+    if (is_spliceable(., .eval)) .eval else set_empty_msg(.)
   })
 }
-is_spliceable <- function(., x) {
-  is.list(rlang::f_rhs(.)) || is_lcl_vld_chks(x)
+is_spliceable <- function(., .eval) {
+  is.list(rlang::f_rhs(.)) ||
+    is_global_predicate(.eval) ||
+    is_local_validation_checks(.eval)
 }
-is_lcl_vld_chks <- identify_class("local_validation_checks")
-parse_dot <- function(., x) {
-  if (is_local_predicate(x)) globalize(x) else set_empty_msg(.)
-}
+is_global_predicate <- identify_class("global_predicate")
+is_local_validation_checks <- identify_class("local_validation_checks")
 set_empty_msg <- function(x) {
   list(msg = rlang::quo(""), chk = x)
 }

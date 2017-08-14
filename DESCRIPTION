@@ -29,7 +29,7 @@ Collate:
     'partial.R'
     'rawrd.R'
     'components.R'
-    'capture.R'
+    'check-capture.R'
     'parser.R'
     'validation.R'
     'operators.R'
