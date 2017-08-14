@@ -12,6 +12,11 @@ This version is a major redesign of the API, which introduces:
 * Programmable error messages via literal string interpolation
   (provided by [glue](https://github.com/tidyverse/glue))
 
+### Other changes
+
+* `firm_checks()` is no longer exported, since it exposes a detail of the
+  implementation of `fasten()` and `firmly()`.
+
 ## 0.1.0.9000
 
 ### Operator for input validation

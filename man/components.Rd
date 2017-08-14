@@ -3,13 +3,10 @@
 \name{components}
 \alias{components}
 \alias{firm_core}
-\alias{firm_checks}
 \alias{firm_error}
 \title{Decompose a firmly applied function}
 \usage{
 firm_core(x)
-
-firm_checks(x)
 
 firm_error(x)
 }
@@ -19,11 +16,8 @@ firm_error(x)
 \value{
 If \code{x} is a firmly applied function:
 \itemize{
-\item \code{firm_core()} returns a function.
-\item \code{firm_checks()} returns a data frame with components \code{pred}
-(quosure), \code{expr} (quosure), \code{call} (character), \code{msg}
-(character), \code{is_msg_gbl} (logical), \code{env_msg} (environment).
-\item \code{firm_error()} returns a character vector.
+\item \code{firm_core()} returns a function
+\item \code{firm_error()} returns a character vector
 }
 
 In the absence of the component to be extracted, these functions return
@@ -34,10 +28,9 @@ Decompose a firmly applied function (i.e., a function created by \code{\link[=fi
 or \code{\link[=fasten]{fasten()}}):
 \itemize{
 \item \code{firm_core()} extracts the underlying \dQuote{core} function—the function
-that is called when all arguments are valid.
-\item \code{firm_checks()} extracts the checks.
+that is called when all arguments are valid
 \item \code{firm_error()} extracts the subclass of the error condition that is
-signaled when an input validation error occurs.
+signaled when an input validation error occurs
 }
 }
 \details{
@@ -48,7 +41,6 @@ function as a closure.
 f <- function(x, y, ...) NULL
 ff <- firmly(f, is.numeric, {isTRUE(. > 0)} ~ vld(x, y - x))
 identical(firm_core(ff), f)  # [1] TRUE
-firm_checks(ff)              # 4 x 6 data frame
 firm_error(ff)               # [1] "inputValidationError"
 
 }
