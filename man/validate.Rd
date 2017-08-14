@@ -22,7 +22,7 @@ validate(mtcars,
          is.data.frame,
          vld_all_map(is.numeric, .),
          vld_gt(10, nrow(.)),
-         vld_has_names(c("mpg", "cyl"),.))
+         vld_has_names(c("mpg", "cyl"), .))
 
 \dontrun{
 # Some assertions invalid: diagnostic error raised
