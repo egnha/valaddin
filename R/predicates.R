@@ -87,16 +87,6 @@ predicates$object <- list(
     "function",
     is.function,
     "{{.}} is not a function"
-  ),
-  list(
-    "quosure",
-    rlang::is_quosure,
-    "{{.}} is not a quosure"
-  ),
-  list(
-    "quosures",
-    rlang::is_quosures,
-    "{{.}} is not a list of quosures"
   )
 )
 predicates$pattern <- list(
@@ -197,12 +187,12 @@ predicates$relation <- list(
   ),
   list(
     "all_equal",
-    function(., target, ...) isTRUE(all.equal(target, ., ...)),
+    function(., target) isTRUE(all.equal(target, .)),
     "{{.}} is not (all) equal to {{.expr$target}}"
   ),
   list(
     "not_all_equal",
-    function(., target, ...) rlang::is_false(all.equal(target, ., ...)),
+    function(., target) rlang::is_false(all.equal(target, .)),
     "{{.}} is (all) equal to {{.expr$target}}"
   ),
   list(
