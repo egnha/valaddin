@@ -18,6 +18,7 @@ Boolean predicates
 \alias{vld_none}
 \alias{vld_all_map}
 \alias{vld_any_map}
+\alias{vld_none_map}
 \usage{
 vld_true(...)
 
@@ -36,4 +37,6 @@ vld_none(..., na.rm = FALSE)
 vld_all_map(f, ..., na.rm = FALSE)
 
 vld_any_map(f, ..., na.rm = FALSE)
+
+vld_none_map(f, ..., na.rm = FALSE)
 }

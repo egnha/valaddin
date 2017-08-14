@@ -15,8 +15,6 @@ Object predicates
 \alias{vld_matrix}
 \alias{vld_formula}
 \alias{vld_function}
-\alias{vld_quosure}
-\alias{vld_quosures}
 \usage{
 vld_call(...)
 
@@ -29,8 +27,4 @@ vld_matrix(...)
 vld_formula(...)
 
 vld_function(...)
-
-vld_quosure(...)
-
-vld_quosures(...)
 }
