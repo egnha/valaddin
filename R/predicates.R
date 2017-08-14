@@ -55,6 +55,12 @@ predicates$boolean <- list(
     function(., f, na.rm = FALSE)
       any(vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm),
     "{{.}} is all false when mapped by {{.expr$f}}"
+  ),
+  list(
+    "none_map",
+    function(., f, na.rm = FALSE)
+      all(! vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm),
+    "{{.}} not all false when mapped by {{.expr$f}}"
   )
 )
 predicates$object <- list(
