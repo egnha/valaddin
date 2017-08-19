@@ -363,86 +363,188 @@ NULL
 
 # Documentation -----------------------------------------------------------
 
-nms_predicates <- lapply(predicates, function(x)
-  paste0("vld_", vapply(x, `[[`, character(1), 1))
+nms_checkers <- lapply(predicates, function(x) {
+  nms <- vapply(x, `[[`, character(1), 1)
+  paste0("vld_", nms)
+})
+# Order types as they appear in the "R Language Definition" manual
+nms_checkers$type <- c(
+  "vld_null",
+  "vld_symbol",
+  "vld_pairlist",
+  "vld_closure",
+  "vld_environment",
+  "vld_language",
+  "vld_atomic",
+  "vld_vector",
+  "vld_logical",
+  "vld_numerical",
+  "vld_integer",
+  "vld_double",
+  "vld_complex",
+  "vld_character",
+  "vld_list",
+  "vld_raw"
 )
 
-#' Boolean predicates
+#' Boolean checkers
 #'
-#' @evalRd rd_alias(nms_predicates$boolean)
-#' @evalRd rd_usage(nms_predicates$boolean)
+#' @evalRd rd_alias(nms_checkers$boolean)
+#' @evalRd rd_usage(nms_checkers$boolean)
 #'
-#' @param \dots Expressions to validate
+#' @param \dots Expressions to validate.
+#' @param f Function to map over the expressions to validate.
+#' @param na.rm Should `NA` values be disregarded?
 #'
-#' @name predicates-boolean
+#' @examples
+#' f <- function(x, y) NULL
+#'
+#' ## Require x, y to have the same length
+#' foo <- firmly(f, vld_true(length(x) == length(y)))
+#' foo(runif(3), rnorm(3))
+#' \dontrun{
+#' foo(runif(2), rnorm(3))}
+#'
+#' ## Require x to contain only non-empty objects
+#' error_msg <- "{{.}} contains empty objects"
+#' bar <- firmly(f, error_msg := vld_all_map(~ length(.) != 0, x))
+#' bar(1:2)
+#' \dontrun{
+#' bar(list(1, NULL))}
+#'
+#' ## Or more efficiently:
+#' baz <- firmly(f, vld_all("x contains empty objects" := lengths(x) != 0))
+#' baz(1:2)
+#' \dontrun{
+#' baz(list(1, NULL))}
+#'
+#' @name checker-boolean
 NULL
 
-#' Object predicates
+#' Object checkers
 #'
-#' @evalRd rd_alias(nms_predicates$object)
-#' @evalRd rd_usage(nms_predicates$object)
+#' @evalRd rd_alias(nms_checkers$object)
+#' @evalRd rd_usage(nms_checkers$object)
 #'
-#' @param \dots Expressions to validate
+#' @param \dots Expressions to validate.
 #'
-#' @name predicates-object
+#' @examples
+#' row_sums <- firmly(rowSums, vld_matrix(x))
+#' row_sums(matrix(1:6, 2, 3))
+#' \dontrun{
+#' row_sums(mtcars)}
+#'
+#' @name checker-object
 NULL
 
-#' Pattern predicates
+#' Pattern checkers
 #'
-#' @evalRd rd_alias(nms_predicates$pattern)
-#' @evalRd rd_usage(nms_predicates$pattern)
+#' @evalRd rd_alias(nms_checkers$pattern)
+#' @evalRd rd_usage(nms_checkers$pattern)
 #'
-#' @param \dots Expressions to validate
+#' @param \dots Expressions to validate.
+#' @param pattern Regular expression.
+#' @param ignore.case Should pattern matching ignore case?
+#' @param perl Should Perl-compatible regular expressions be used?
 #'
-#' @name predicates-pattern
+#' @seealso [grepl()]
+#'
+#' @examples
+#' ymd <- function(y, m, d) paste(y, m, d, sep = "/")
+#' too_old <- "Not a 21st-century year"
+#' recent_ymd <-
+#'   firmly(ymd, too_old := vld_grepl("^20[[:digit:]]{2}$", as.character(y)))
+#' recent_ymd(2017, 01, 01)
+#' \dontrun{
+#' recent_ymd(1999, 01, 01)}
+#'
+#' @name checker-pattern
 NULL
 
-#' Property predicates
+#' Property checkers
 #'
-#' @evalRd rd_alias(nms_predicates$property)
-#' @evalRd rd_usage(nms_predicates$property)
+#' @evalRd rd_alias(nms_checkers$property)
+#' @evalRd rd_usage(nms_checkers$property)
 #'
-#' @param \dots Expressions to validate
+#' @param \dots Expressions to validate.
+#' @param nm,nms Name(s).
+#' @param n Length of vector or list.
+#' @param which Object attribute(s).
+#' @param what Class name.
 #'
-#' @name predicates-property
+#' @name checker-property
 NULL
 
-#' Relation predicates
+#' Relation checkers
 #'
-#' @evalRd rd_alias(nms_predicates$relation)
-#' @evalRd rd_usage(nms_predicates$relation)
+#' @evalRd rd_alias(nms_checkers$relation)
+#' @evalRd rd_usage(nms_checkers$relation)
 #'
-#' @param \dots Expressions to validate
+#' @param \dots Expressions to validate.
+#' @param to Object to match.
+#' @param lwr,upr Lower/upper bound.
+#' @param na.rm Should `NA` values be disregarded?
 #'
-#' @name predicates-relation
+#' @seealso [all.equal()], [identical()]
+#'
+#' @name checker-relation
 NULL
 
-#' Scalar type predicates
+#' Scalar type checkers
 #'
-#' @evalRd rd_alias(nms_predicates$scalar)
-#' @evalRd rd_usage(nms_predicates$scalar)
+#' @evalRd rd_alias(nms_checkers$scalar)
+#' @evalRd rd_usage(nms_checkers$scalar)
 #'
-#' @param \dots Expressions to validate
+#' @param \dots Expressions to validate.
 #'
-#' @name predicates-scalar-type
+#' @seealso [vld_singleton()]
+#'
+#' @name checker-scalar-type
 NULL
 
-#' Set comparison predicates
+#' Set comparison checkers
 #'
-#' @evalRd rd_alias(nms_predicates$sets)
-#' @evalRd rd_usage(nms_predicates$sets)
+#' @evalRd rd_alias(nms_checkers$sets)
+#' @evalRd rd_usage(nms_checkers$sets)
 #'
 #' @param \dots Expressions to validate
+#' @param set Vector to compare.
 #'
-#' @name predicates-sets
+#' @name checker-sets
 NULL
 
-#' Type predicates
+#' Type checkers
 #'
-#' @evalRd rd_alias(nms_predicates$type)
-#' @evalRd rd_usage(nms_predicates$type)
+#' @evalRd rd_alias(nms_checkers$type)
+#' @evalRd rd_usage(nms_checkers$type)
 #'
-#' @param \dots Expressions to validate
+#' @param \dots Expressions to validate.
+#' @param n Length of vector.
+#' @param encoding Encoding of a string or character vector. One of `UTF-8`,
+#'   `latin1`, or `unknown`.
 #'
-#' @name predicates-type
+#' @seealso [Type predicates][rlang::type-predicates]
+#'
+#' @examples
+#' f <- function(x, y, z) NULL
+#'
+#' ## Require all arguments to be integer (vectors)
+#' foo <- firmly(f, vld_integer())
+#' foo(0L, 1:2, length(letters))
+#' \dontrun{
+#' foo(0L, c(1, 2), length(letters))}
+#'
+#' ## Require all arguments to be scalar integers
+#' bar <- firmly(f, vld_integer(n = 1))
+#' bar(0L, 1L, length(NA))
+#' \dontrun{
+#' bar(0L, 1L, lengths(letters))}
+#'
+#' ## Require x, y to be character (vectors), and z to be an length-1 list
+#' baz <- firmly(f, vld_character(x, y), vld_list(n = 1, z))
+#' baz(letters, "text", list(1))
+#' \dontrun{
+#' baz(0, "text", list(1, 2))}
+#'
+#' @name checker-type
 NULL
