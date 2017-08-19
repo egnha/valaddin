@@ -3,35 +3,36 @@ chk_error_class <- vld(
     {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
 )
 fasten_ <- function(..., error_class = NULL) {
-  chk_parts <- parse_checks(vld(...))
+  checks <- parse_checks(vld(...))
+  assemble_checks <- function(checks_prev, args) {
+    check_all_args <- check_at_args(args)
+    chks <- do.call("rbind", c(
+      list(checks_prev),
+      list(checks$local),
+      list(check_all_args(checks$global))
+    ))
+    chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
+    chks
+  }
   error_class <- error_class[nzchar(error_class)]
   function(f) {
     sig <- formals(f)
     arg <- nomen(sig)
-    error_class_na <- is.null(firm_checks(f)) || length(error_class) == 0
-    if (length(arg$nm) == 0 || is.null(chk_parts) && error_class_na) {
+    error_class_na <- rlang::is_empty(firm_checks(f)) || rlang::is_empty(error_class)
+    if (rlang::is_empty(arg$nm) || rlang::is_empty(checks) && error_class_na)
       return(f)
-    }
-    chks <-
-      do.call("rbind", c(
-        list(firm_checks(f)),
-        list(chk_parts$local),
-        list(localize_at(chk_parts$global, arg$sym))
-      ))
-    chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
+    chks <- assemble_checks(firm_checks(f), arg$sym)
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
-    as_firm_closure(
-      with_sig(
-        validation_closure(loosely(f), chks, sig, arg, error_class),
-        sig,
-        attributes(f)
-      )
-    )
+    fasten_checks(f, chks, sig, arg, error_class)
   }
 }
 nomen <- function(x) {
   nm <- names(x)[names(x) != "..."] %||% character(0)
   list(nm = nm, sym = lapply(nm, as.symbol))
+}
+fasten_checks <- function(f, chks, sig, arg, error_class) {
+  fn_fastened <- validation_closure(loosely(f), chks, sig, arg, error_class)
+  as_firm_closure(with_sig(fn_fastened, sig, attributes(f)))
 }
 #' @export
 loosely <- function(f) {
@@ -43,7 +44,7 @@ loosely <- function(f) {
     f
 }
 #' @export
-is_firm <- identify_class("firm_closure")
+is_firm <- check_is_class("firm_closure")
 as_firm_closure <- function(f) {
   if (!is_firm(f))
     class(f) <- c("firm_closure", class(f))
