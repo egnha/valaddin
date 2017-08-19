@@ -54,17 +54,3 @@ enumerate_many <- function(x, many = 2) {
   else
     paste0(x, "\n")
 }
-
-partial <- function(f, arg_fill) {
-  if (is_empty(arg_fill))
-    return(f)
-  f <- as_closure(f)
-  fill_args <- function() {
-    arg_call <- node_cdr(sys.call(-1))
-    as.call(c(f, arg_fill, arg_call))
-  }
-  function(...) {
-    call <- fill_args()
-    eval_bare(call, parent.frame())
-  }
-}
