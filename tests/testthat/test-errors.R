@@ -16,6 +16,11 @@ test_that("named global check uses name as error message", {
   f <- firmly(function(x, y) NULL, "Not true" := isTRUE)
   expect_n_errors(1, f, list(x = FALSE, y = TRUE), "Not true")
   expect_n_errors(2, f, list(x = FALSE, y = FALSE), "Not true")
+
+  chk_true <- checker("Don't use this message" := isTRUE)
+  g <- firmly(function(x, y) NULL, "Not true" := chk_true())
+  expect_n_errors(1, g, list(x = FALSE, y = TRUE), "Not true")
+  expect_n_errors(2, g, list(x = FALSE, y = FALSE), "Not true")
 })
 
 test_that("named local check uses name as error message", {
