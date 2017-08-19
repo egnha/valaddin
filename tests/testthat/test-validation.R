@@ -67,6 +67,10 @@ test_that("global lambda expression is interpreted as a predicate function", {
   f <- firmly(function(x, y) NULL, {. > z})
   expect_error(f(1, 1), NA)
   expect_error(f(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
+
+  f <- firmly(function(x, y) NULL, .(. ~ . > z))
+  expect_error(f(1, 1), NA)
+  expect_error_perl(f(0), errmsg_false("(function (.) . > z)(x)"))
 })
 
 test_that("local lambda expression is interpreted as a predicate function", {
@@ -74,6 +78,10 @@ test_that("local lambda expression is interpreted as a predicate function", {
   f <- firmly(function(x, y) NULL, {. > z} ~ x)
   expect_error(f(1, stop("!")), NA)
   expect_error(f(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
+
+  f <- firmly(function(x, y) NULL, .(. ~ . > z) ~ x)
+  expect_error(f(1, stop("!")), NA)
+  expect_error_perl(f(0), errmsg_false("(function (.) . > z)(x)"))
 })
 
 # Quasiquotation ----------------------------------------------------------
