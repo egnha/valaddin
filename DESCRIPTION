@@ -25,6 +25,7 @@ VignetteBuilder: knitr
 URL: https://github.com/egnha/valaddin
 BugReports: https://github.com/egnha/valaddin/issues
 Collate:
+    'valaddin.R'
     'utils.R'
     'rd.R'
     'parser.R'
@@ -34,6 +35,5 @@ Collate:
     'validation.R'
     'operators.R'
     'predicates.R'
-    'valaddin.R'
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)

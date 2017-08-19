@@ -8,10 +8,10 @@
 #'
 #' @noRd
 parse_checks <- function(chks) {
-  if (rlang::is_empty(chks))
+  if (is_empty(chks))
     return(NULL)
   chklist <- lapply(chks, parse_check)
-  is_global <- vapply(chklist, function(.) rlang::is_empty(.$chk_items), logical(1))
+  is_global <- vapply(chklist, function(.) is_empty(.$chk_items), logical(1))
   list(
     global = chklist[is_global],
     local  = tabulate_checks(chklist[!is_global])
@@ -22,8 +22,8 @@ parse_check <- function(x) {
 }
 decompose_message <- function(msg) {
   list(
-    msg = rlang::eval_tidy(msg),
-    env_msg = rlang::f_env(msg)
+    msg = eval_tidy(msg),
+    env_msg = f_env(msg)
   )
 }
 decompose_check <- function(x) {
@@ -31,22 +31,22 @@ decompose_check <- function(x) {
     return(x[c("fn", "expr", "chk_items")])
   chk <- x$chk
   chk_eval <- try_eval_tidy(chk)
-  if (rlang::is_formula(chk_eval)) {
-    env <- rlang::f_env(chk_eval)
+  if (is_formula(chk_eval)) {
+    env <- f_env(chk_eval)
     fml <- get_check_formula(chk, chk_eval)
     c(
-      as_predicate(rlang::f_lhs(fml), env),
-      chk_items = list(as_check_items(rlang::f_rhs(fml), env))
+      as_predicate(f_lhs(fml), env),
+      chk_items = list(as_check_items(f_rhs(fml), env))
     )
   } else
     c(
-      as_predicate(chk, rlang::f_env(chk)),
+      as_predicate(chk, f_env(chk)),
       chk_items = list(NULL)
     )
 }
 get_check_formula <- function(chk, chk_eval) {
-  x <- rlang::f_rhs(chk)
-  if (rlang::is_formula(x))
+  x <- f_rhs(chk)
+  if (is_formula(x))
     x
   else
     chk_eval
@@ -57,11 +57,11 @@ as_check_items <- function(x, env) {
   else if (is_vld(x))
     x
   else
-    list(set_empty_msg(rlang::new_quosure(x, env)))
+    list(set_empty_msg(new_quosure(x, env)))
 }
 is_vld_expr <- check_is_caller("vld")
 as_predicate <- function(q, env) {
-  expr <- rlang::get_expr(q)
+  expr <- get_expr(q)
   if (is_lambda(expr))
     as_lambda(expr, env)
   else {
@@ -88,7 +88,7 @@ new_fn_expr <- function(body, args = alist(. = )) {
   call("function", as.pairlist(args), body)
 }
 err_not_function <- function(x, fault = NULL) {
-  x <- rlang::expr_label(x)
+  x <- expr_label(x)
   if (is.null(fault))
     sprintf("Not a function: %s", x)
   else
@@ -104,7 +104,7 @@ is_error <- check_is_class("error")
 
 check_at_args <- function(args) {
   quo_args <- lapply(args, function(.)
-    set_empty_msg(rlang::new_quosure(., emptyenv()))
+    set_empty_msg(new_quosure(., emptyenv()))
   )
   function(xs) {
     for (i in seq_along(xs))
@@ -125,13 +125,13 @@ tabulate_check <- function(x) {
 
 deparse_check <- function(expr, chk_items, msg_default, env_msg) {
   calls <- vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
-  msgs <- vapply(chk_items, function(.) rlang::eval_tidy(.$msg), character(1))
+  msgs <- vapply(chk_items, function(.) eval_tidy(.$msg), character(1))
   is_gbl <- !nzchar(msgs)
   msgs[is_gbl] <-
     make_message(msg_default, env_msg, chk_items[is_gbl], calls[is_gbl])
   envs <- vector("list", length(chk_items))
   envs[ is_gbl] <- list(env_msg)
-  envs[!is_gbl] <- lapply(chk_items[!is_gbl], function(.) rlang::f_env(.$msg))
+  envs[!is_gbl] <- lapply(chk_items[!is_gbl], function(.) f_env(.$msg))
   list(
     call       = calls,
     msg        = msgs,
@@ -140,9 +140,9 @@ deparse_check <- function(expr, chk_items, msg_default, env_msg) {
   )
 }
 deparse_call <- function(expr, arg) {
-  expr_arg <- rlang::quo_expr(arg)
+  expr_arg <- quo_expr(arg)
   if (is_chkr_predicate_expr(expr))
-    call <- as.call(c(rlang::node_car(expr), expr_arg, rlang::node_cdr(expr)))
+    call <- as.call(c(node_car(expr), expr_arg, node_cdr(expr)))
   else
     call <- as.call(c(expr, expr_arg))
   deparse_collapse(call)
@@ -167,7 +167,7 @@ glue_opp <- function(qdot, text, env) {
   glue_text(
     text,
     env,
-    list(. = rlang::quo_text(qdot)),
+    list(. = quo_text(qdot)),
     .open = "{{",
     .close = "}}"
   )

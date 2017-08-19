@@ -48,19 +48,19 @@ predicates$boolean <- list(
     "all_map",
     "{{.}} is not all true when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      all(vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm)
+      all(vapply(., as_function(f), logical(1)), na.rm = na.rm)
   ),
   list(
     "any_map",
     "{{.}} is all false when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      any(vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm)
+      any(vapply(., as_function(f), logical(1)), na.rm = na.rm)
   ),
   list(
     "none_map",
     "{{.}} not all false when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      all(! vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm)
+      all(! vapply(., as_function(f), logical(1)), na.rm = na.rm)
   )
 )
 predicates$object <- list(
@@ -122,7 +122,7 @@ predicates$property <- list(
   list(
     "not_na",
     "{{.}} is NA",
-    function(.) !rlang::is_na(.)
+    function(.) !is_na(.)
   ),
   list(
     "without_na",
@@ -137,7 +137,7 @@ predicates$property <- list(
   list(
     "named",
     "{{.}} is not named",
-    rlang::is_named
+    is_named
   ),
   list(
     "has_name",

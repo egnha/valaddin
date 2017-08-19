@@ -71,12 +71,12 @@
 #'
 #' @export
 checker <- function(p) {
-  `__chkr_chk` <- as_check(rlang::enquo(p))
-  `__chkr_pred` <- as_predicate(`__chkr_chk`$chk, rlang::f_env(`__chkr_chk`$chk))
+  `__chkr_chk` <- as_check(enquo(p))
+  `__chkr_pred` <- as_predicate(`__chkr_chk`$chk, f_env(`__chkr_chk`$chk))
   `__msg` <- function(args, env) {
-    env_msg <- bind_expr_value(args, env, rlang::f_env(`__chkr_chk`$msg))
-    msg <- rlang::f_rhs(`__chkr_chk`$msg)
-    rlang::new_quosure(msg, env_msg)
+    env_msg <- bind_expr_value(args, env, f_env(`__chkr_chk`$msg))
+    msg <- f_rhs(`__chkr_chk`$msg)
+    new_quosure(msg, env_msg)
   }
   `__fn` <- function(args) {
     partial(`__chkr_pred`$fn, args)
@@ -101,12 +101,12 @@ checker <- function(p) {
 }
 
 as_check <- function(q) {
-  if (rlang::is_definition(rlang::f_rhs(q))) {
-    def <- rlang::f_rhs(q)
-    env <- rlang::f_env(q)
+  if (is_definition(f_rhs(q))) {
+    def <- f_rhs(q)
+    env <- f_env(q)
     list(
-      msg = rlang::new_quosure(rlang::f_lhs(def), env),
-      chk = rlang::new_quosure(rlang::f_rhs(def), env)
+      msg = new_quosure(f_lhs(def), env),
+      chk = new_quosure(f_rhs(def), env)
     )
   } else
     set_empty_msg(q)
@@ -129,7 +129,7 @@ bind_expr_text <- function(nm, env) {
 `__eval_nondot_args` <- function() {
   mc <- match.call(sys.function(-1), call = sys.call(-1), expand.dots = FALSE)
   nm <- nomen(mc[-1])
-  lapply(`names<-`(nm$sym, nm$nm), rlang::eval_bare, env = parent.frame())
+  lapply(`names<-`(nm$sym, nm$nm), eval_bare, env = parent.frame())
 }
 
 rearrange_formals <- function(f) {
@@ -170,7 +170,7 @@ chkr_expr <- function(x) {
 #' @rdname checker
 #' @export
 chkr_message <- function(x) {
-  rlang::eval_tidy(environment(x)$`__chkr_chk`$msg)
+  eval_tidy(environment(x)$`__chkr_chk`$msg)
 }
 
 #' @rdname checker
@@ -185,6 +185,6 @@ chkr_predicate <- function(x) {
 #' @param value Error message.
 #' @export
 `chkr_message<-` <- function(x, env = parent.frame(), value) {
-  environment(x)$`__chkr_chk`$msg <- rlang::new_quosure(value, env)
+  environment(x)$`__chkr_chk`$msg <- new_quosure(value, env)
   invisible(x)
 }

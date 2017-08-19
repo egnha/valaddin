@@ -18,8 +18,8 @@ fasten_ <- function(..., error_class = NULL) {
   function(f) {
     sig <- formals(f)
     arg <- nomen(sig)
-    error_class_na <- rlang::is_empty(firm_checks(f)) || rlang::is_empty(error_class)
-    if (rlang::is_empty(arg$nm) || rlang::is_empty(checks) && error_class_na)
+    error_class_na <- is_empty(firm_checks(f)) || is_empty(error_class)
+    if (is_empty(arg$nm) || is_empty(checks) && error_class_na)
       return(f)
     chks <- assemble_checks(firm_checks(f), arg$sym)
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
@@ -66,7 +66,7 @@ firmly <- fasten(
 )(
   function(f, ..., error_class = NULL) {
     if (is.primitive(f))
-      f <- rlang::as_closure(f)
+      f <- as_closure(f)
     fasten_(..., error_class = error_class)(f)
   }
 )

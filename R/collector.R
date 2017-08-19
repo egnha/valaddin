@@ -29,7 +29,7 @@
 #'
 #' @export
 vld <- function(...) {
-  dd <- rlang::dots_definitions(...)
+  dd <- dots_definitions(...)
   if (all_empty(dd))
     return(NULL)
   vld_(dd$dots, dd$defs)
@@ -46,13 +46,13 @@ interp_message_check_pairs <- function(dots) {
 }
 interp_message_check_pair <- function(x) {
   x_eval <- try_eval_tidy(x)
-  if (is.list(rlang::f_rhs(x)) || is_chkr_validation(x_eval))
+  if (is.list(f_rhs(x)) || is_chkr_validation(x_eval))
     x_eval
   else
     set_empty_msg(x)
 }
 set_empty_msg <- function(x) {
-  list(msg = rlang::quo(""), chk = x)
+  list(msg = quo(""), chk = x)
 }
 
 as_message_check_pairs <- function(defs) {

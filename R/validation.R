@@ -1,4 +1,3 @@
-#' @importFrom rlang eval_bare
 validation_closure <- function(f, chks, sig, arg, error_class) {
   force(f)
   force(error_class)
@@ -78,8 +77,8 @@ bind_promises <- function(nms, exprs, env_eval, parent) {
 express_check <- function(exprs, nms) {
   lapply(seq_along(exprs), function(i)
     list(
-      expr = rlang::expr(UQ(as.name(nms[[i]]))(UQE(exprs[[i]]))),
-      env  = rlang::get_env(exprs[[i]])
+      expr = expr(UQ(as.name(nms[[i]]))(UQE(exprs[[i]]))),
+      env  = get_env(exprs[[i]])
     )
   )
 }
@@ -87,7 +86,7 @@ express_check <- function(exprs, nms) {
 problems <- function(chks, verdict, env) {
   vapply(seq_along(verdict), function(i) {
     out <- verdict[[i]]
-    if (rlang::is_false(out))
+    if (is_false(out))
       err_invalid_input(chks[i, ], env)
     else if (is_error(out))
       err_eval_error(chks$call[[i]], out)
@@ -113,7 +112,7 @@ err_invalid_input <- function(., env) {
 }
 bind_as_dot <- function(q, env) {
   env_dot <- new.env(parent = env)
-  eval(bquote(delayedAssign(".", .(rlang::quo_expr(q)), env, env_dot)))
+  eval(bquote(delayedAssign(".", .(quo_expr(q)), env, env_dot)))
   env_dot
 }
 err_msg_error <- function(call, msg, err) {

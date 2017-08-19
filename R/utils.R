@@ -1,22 +1,14 @@
-#' @importFrom nofrills fn as_fn
-NULL
-
 `%||%` <- function(x, y) {
-  if (rlang::is_empty(x)) y else x
+  if (is_empty(x)) y else x
 }
 
 all_empty <- function(xs) {
   all(lengths(xs) == 0)
 }
 
-`%@%` <- rlang::`%@%`
-
-#' @importFrom rlang UQ UQS UQE ":="
-NULL
-
 try_eval_tidy <- function(expr, env = parent.frame()) {
   tryCatch(
-    rlang::eval_tidy(expr, env = env),
+    eval_tidy(expr, env = env),
     error = identity
   )
 }
@@ -76,15 +68,15 @@ comma_collapse <- function(x, width = 60) {
 }
 
 partial <- function(f, arg_fill) {
-  if (rlang::is_empty(arg_fill))
+  if (is_empty(arg_fill))
     return(f)
-  f <- rlang::as_closure(f)
+  f <- as_closure(f)
   fill_args <- function() {
-    arg_call <- rlang::node_cdr(sys.call(-1))
+    arg_call <- node_cdr(sys.call(-1))
     as.call(c(f, arg_fill, arg_call))
   }
   function(...) {
     call <- fill_args()
-    rlang::eval_bare(call, parent.frame())
+    eval_bare(call, parent.frame())
   }
 }
