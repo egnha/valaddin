@@ -1,54 +1,53 @@
 #' @importFrom nofrills fn as_fn
 NULL
 
-# Empty-default operator
 `%||%` <- function(x, y) {
-  if (is.null(x) || length(x) == 0) y else x
+  if (rlang::is_empty(x)) y else x
 }
 
-# Infix attribute accessor
+all_empty <- function(xs) {
+  all(lengths(xs) == 0)
+}
+
 `%@%` <- rlang::`%@%`
 
 #' @importFrom rlang UQ UQS UQE ":="
 NULL
 
-try_eval_tidy <- function(expr, env = rlang::caller_env()) {
+try_eval_tidy <- function(expr, env = parent.frame()) {
   tryCatch(
     rlang::eval_tidy(expr, env = env),
     error = identity
   )
 }
 
-# A quosure environment is for tidyeval, not introspection;
-# therefore, it is not necessarily the calling environment,
-# which needs to be tracked, separately.
-# cf. https://github.com/tidyverse/rlang/issues/185
-capture_env <- function(x, env) {
-  env_x <- rlang::f_env(x)
-  if (identical(env_x, emptyenv()))
-    env
-  else
-    env_x
+make_as <- function(this) {
+  is_this <- paste("is", this, sep = "_")
+  function(x)
+    `attr<-`(x, is_this, TRUE)
 }
-
-identify_caller <- function(nm) {
+check_is <- function(this) {
+  is_this <- paste("is", this, sep = "_")
+  function(x)
+    isTRUE(attr(x, is_this, exact = TRUE))
+}
+check_is_caller <- function(nm) {
   caller <- as.name(nm)
   function(x)
     is.call(x) && identical(x[[1]], caller)
 }
-identify_class <- function(cls) {
+check_is_class <- function(cls) {
   force(cls)
   function(x)
     inherits(x, cls)
 }
 
-# When gluing, substitute string into call, to avoid making a binding that could
-# inadvertently override one in an environment higher up.
+# Substitute string into call, to avoid making a binding that could take
+# precedence over those in higher environments
 glue_text <- function(text, env, data = NULL, ...) {
   eval(bquote(glue::glue_data(.x = data, .(text), .envir = env, ...)))
 }
 
-# Deparse a language object as a single string
 deparse_collapse <- function(x) {
   d <- deparse(x)
   if (length(d) > 1)
@@ -57,7 +56,6 @@ deparse_collapse <- function(x) {
     d
 }
 
-# Collapse a character vector into an enumerated string
 enumerate_many <- function(x, many = 2) {
   if (length(x) >= many)
     paste(
@@ -75,4 +73,18 @@ comma_collapse <- function(x, width = 60) {
     sprintf("%s ... [TRUNCATED]", substr(x_str, 1, width))
   else
     x_str
+}
+
+partial <- function(f, arg_fill) {
+  if (rlang::is_empty(arg_fill))
+    return(f)
+  f <- rlang::as_closure(f)
+  fill_args <- function() {
+    arg_call <- rlang::node_cdr(sys.call(-1))
+    as.call(c(f, arg_fill, arg_call))
+  }
+  function(...) {
+    call <- fill_args()
+    rlang::eval_bare(call, parent.frame())
+  }
 }
