@@ -64,9 +64,10 @@ context("Lambda predicate function")
 
 test_that("global lambda expression is interpreted as a predicate function", {
   z <- 0
+
   f <- firmly(function(x, y) NULL, {. > z})
   expect_error(f(1, 1), NA)
-  expect_error(f(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
+  expect_error_perl(f(0), errmsg_false("(function (.) {. > z})(x)"))
 
   f <- firmly(function(x, y) NULL, .(. ~ . > z))
   expect_error(f(1, 1), NA)
@@ -75,9 +76,10 @@ test_that("global lambda expression is interpreted as a predicate function", {
 
 test_that("local lambda expression is interpreted as a predicate function", {
   z <- 0
+
   f <- firmly(function(x, y) NULL, {. > z} ~ x)
   expect_error(f(1, stop("!")), NA)
-  expect_error(f(0), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
+  expect_error_perl(f(0), errmsg_false("(function (.) {. > z})(x)"))
 
   f <- firmly(function(x, y) NULL, .(. ~ . > z) ~ x)
   expect_error(f(1, stop("!")), NA)
@@ -89,39 +91,28 @@ context("Quasiquotation")
 
 test_that("global predicate function supports quasiquotation", {
   zero <- 0
-  predicate1 <- rlang::quo(function(x) x > zero)
-  predicate2 <- local({
+  pred1 <- rlang::quo(function(x) x > zero)
+  pred2 <- local({
     z <- 0
     rlang::quo({. > z})
   })
-  f <- firmly(function(x, y) NULL,
-              !! predicate1,
-              {. > !! zero},
-              UQ(predicate2))
+  f <- firmly(function(x, y) NULL, !! pred1, {. > !! zero}, UQ(pred2))
   expect_error(f(1, 1), NA)
-  expect_error(f(0, 1), errmsg_false("(function(x) x > zero)(x)"), perl = TRUE)
-  expect_error(f(0, 1), errmsg_false("(function(.) {. > z})(x)"), perl = TRUE)
-  expect_error(f(0, 1), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
+  expect_error_perl(f(0, 1), errmsg_false("(function(x) x > zero)(x)"))
+  expect_error_perl(f(0, 1), errmsg_false("(function (.) {. > z})(x)"))
+  expect_error_perl(f(0, 1), errmsg_false("(function (.) {. > 0})(x)"))
 })
 
 test_that("local predicate function supports quasiquotation", {
   zero <- 0
-  predicate1 <- local({
+  predicate <- local({
     z <- 0
-    rlang::quo(function(x1) x1 > z)
+    function(x) x > z
   })
-  predicate2 <- local({
-    z <- 0
-    function(x2) {x2 > z}
-  })
-  f <- firmly(function(x, y) NULL,
-              UQ(predicate1) ~ x,
-              UQ(predicate2) ~ y,
-              {. > !! zero} ~ x)
+  f <- firmly(function(x, y) NULL, UQ(predicate) ~ y, {. > !! zero} ~ x)
   expect_error(f(1, 1), NA)
-  expect_error(f(0, 0), errmsg_false("(function(x1) x1 > z)(x)"), perl = TRUE)
-  expect_error(f(0, 0), errmsg_false("(function(.) {. > 0})(x)"), perl = TRUE)
-  expect_error(f(0, 0), errmsg_false("(function (x2) {x2 > z})(y)"), perl = TRUE)
+  expect_error_perl(f(0, 0), errmsg_false("(function (x) x > z)(y)"))
+  expect_error_perl(f(0, 0), errmsg_false("(function (.) {. > 0})(x)"))
 })
 
 test_that("check items support quasiquotation", {
@@ -132,18 +123,14 @@ test_that("check items support quasiquotation", {
   two <- 2
   f <- firmly(function(x, y) NULL, {. > 0} ~ vld(x - !! two, !! q))
   expect_error(f(3, 2), NA)
-  expect_error(f(2, 1),
-               errmsg_false("(function(.) {. > 0})(x - 2)"), perl = TRUE)
-  expect_error(f(2, 1),
-               errmsg_false("(function(.) {. > 0})(y - one)"), perl = TRUE)
+  expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(x - 2)"))
+  expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(y - one)"))
 
   check_items <- vld(x - !! two, !! q)
   f <- firmly(function(x, y) NULL, {. > 0} ~ !! check_items)
   expect_error(f(3, 2), NA)
-  expect_error(f(2, 1),
-               errmsg_false("(function(.) {. > 0})(x - 2)"), perl = TRUE)
-  expect_error(f(2, 1),
-               errmsg_false("(function(.) {. > 0})(y - one)"), perl = TRUE)
+  expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(x - 2)"))
+  expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(y - one)"))
 })
 
 test_that("error message for global check supports quasiquotation", {
