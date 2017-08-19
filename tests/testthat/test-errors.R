@@ -54,11 +54,11 @@ context("String-interpolation of error messages")
 
 test_that("error messages of named global check interpolate dot", {
   f <- local({
-    s_quote <- function(x) encodeString(x, quote = "'")
+    squote <- function(x) encodeString(x, quote = "'")
     is_scalar <- function(x) length(x) == 1L
     firmly(
       function(x, y) NULL,
-      "{{s_quote(.)}} is not a scalar (length is {length(.)})" := is_scalar
+      "{{squote(.)}} is not a scalar (length is {length(.)})" := is_scalar
     )
   })
   expect_error(f(x = 1:3), esc_perl("'x' is not a scalar (length is 3)"))
@@ -71,30 +71,37 @@ test_that("dot in global check message always stands for current argument", {
   expect_error(f("x-value", TRUE), "literal: x; value: x-value")
 })
 
-test_that("dot in local check message does not stand for current argument", {
-  f <- firmly(function(x, .) NULL,
-              "literal: {{.}}, value: {.}" := isTRUE ~
-                vld("x: {x}, dot: {.}" := x, .))
+test_that("dot in local check message matches literal '.' binding", {
+  f <- firmly(
+    function(x, .) NULL,
+    "literal: {{.}}, value: {.}" := isTRUE ~ vld("x: {x}, dot: {.}" := x, .)
+  )
   expect_error(f(TRUE, "dot"), "literal: ., value: dot")
   expect_error(f("x", TRUE), "x: x, dot: TRUE")
 })
 
 test_that("error messages of named local check interpolate dot", {
   f <- local({
-    s_quote <- function(x) encodeString(x, quote = "'")
+    squote <- function(x) encodeString(x, quote = "'")
     is_scalar <- function(x) length(x) == 1L
     firmly(
       function(x, y) NULL,
-      "{{s_quote(.)}} is not a scalar (length is {length(.)})" :=
+      "{{squote(.)}} is not a scalar (length is {length(.)})" :=
         is_scalar ~ vld(x, x - y)
     )
   })
-  expect_error(f(1:2),
-               esc_perl("'x' is not a scalar (length is 2)"))
-  expect_error(f(1:2, 1:2),
-               esc_perl("'x' is not a scalar (length is 2)"))
-  expect_error(f(1:3, 4:6),
-               esc_perl("'x - y' is not a scalar (length is 3)"))
+  expect_error(
+    f(1:2),
+    esc_perl("'x' is not a scalar (length is 2)")
+  )
+  expect_error(
+    f(1:2, 1:2),
+    esc_perl("'x' is not a scalar (length is 2)")
+  )
+  expect_error(
+    f(1:3, 4:6),
+    esc_perl("'x - y' is not a scalar (length is 3)")
+  )
 })
 
 test_that("error messages of unnamed global check don't interpolate dot", {
