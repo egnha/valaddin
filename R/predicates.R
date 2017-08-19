@@ -11,288 +11,277 @@ predicates <- list(
 predicates$boolean <- list(
   list(
     "true",
-    isTRUE,
-    "{{.}} is not true"
+    "{{.}} is not true",
+    isTRUE
   ),
   list(
     "is",
-    isTRUE,
-    "{{.}} is not true"
+    "{{.}} is not true",
+    isTRUE
   ),
   list(
     "false",
-    function(.) identical(., FALSE),
-    "{{.}} is not false"
+    "{{.}} is not false",
+    function(.) identical(., FALSE)
   ),
   list(
     "not",
-    function(.) identical(., FALSE),
-    "{{.}} is not false"
+    "{{.}} is not false",
+    function(.) identical(., FALSE)
   ),
   list(
     "all",
-    function(., na.rm = FALSE) all(., na.rm = na.rm),
-    "{{.}} is not all true"
+    "{{.}} is not all true",
+    function(., na.rm = FALSE) all(., na.rm = na.rm)
   ),
   list(
     "any",
-    function(., na.rm = FALSE) any(., na.rm = na.rm),
-    "{{.}} is all false"
+    "{{.}} is all false",
+    function(., na.rm = FALSE) any(., na.rm = na.rm)
   ),
   list(
     "none",
-    function(., na.rm = FALSE) all(! ., na.rm = na.rm),
-    "{{.}} not all false"
+    "{{.}} not all false",
+    function(., na.rm = FALSE) all(! ., na.rm = na.rm)
   ),
   list(
     "all_map",
+    "{{.}} is not all true when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      all(vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm),
-    "{{.}} is not all true when mapped by {{.expr$f}}"
+      all(vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm)
   ),
   list(
     "any_map",
+    "{{.}} is all false when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      any(vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm),
-    "{{.}} is all false when mapped by {{.expr$f}}"
+      any(vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm)
   ),
   list(
     "none_map",
+    "{{.}} not all false when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      all(! vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm),
-    "{{.}} not all false when mapped by {{.expr$f}}"
+      all(! vapply(., rlang::as_function(f), logical(1)), na.rm = na.rm)
   )
 )
 predicates$object <- list(
   list(
     "call",
-    is.call,
-    "{{.}} is not a call"
+    "{{.}} is not a call",
+    is.call
   ),
   list(
     "factor",
-    is.factor,
-    "{{.}} is not a factor"
+    "{{.}} is not a factor",
+    is.factor
   ),
   list(
     "data_frame",
-    is.data.frame,
-    "{{.}} is not a data frame"
+    "{{.}} is not a data frame",
+    is.data.frame
   ),
   list(
     "matrix",
-    is.matrix,
-    "{{.}} is not a matrix"
+    "{{.}} is not a matrix",
+    is.matrix
   ),
   list(
     "formula",
-    function(.) inherits(., "formula"),
-    "{{.}} is not a formula"
+    "{{.}} is not a formula",
+    function(.) inherits(., "formula")
   ),
   list(
     "function",
-    is.function,
-    "{{.}} is not a function"
+    "{{.}} is not a function",
+    is.function
   )
 )
 predicates$pattern <- list(
   list(
     "grepl",
+    "Pattern {{.expr$pattern}} is not matched in {{.}}",
     function(., pattern, ignore.case = FALSE, perl = FALSE)
-      all(grepl(pattern, ., ignore.case = ignore.case, perl = perl)),
-    "Pattern {{.expr$pattern}} is not matched in {{.}}"
+      all(grepl(pattern, ., ignore.case = ignore.case, perl = perl))
   )
 )
 predicates$property <- list(
   list(
     "not_null",
-    function(.) !is.null(.),
-    "{{.}} is NULL"
+    "{{.}} is NULL",
+    function(.) !is.null(.)
   ),
   list(
     "not_empty",
-    function(.) length(.) != 0,
-    "{{.}} is empty"
+    "{{.}} is empty",
+    function(.) length(.) != 0
   ),
   list(
     "singleton",
-    function(.) length(.) == 1,
-    "{{.}} is not a singleton"
+    "{{.}} is not a singleton",
+    function(.) length(.) == 1
   ),
   list(
     "not_na",
-    function(.) !is.na(.),
-    "{{.}} is NA"
+    "{{.}} is NA",
+    function(.) !rlang::is_na(.)
   ),
   list(
     "without_na",
-    function(.) !anyNA(.),
-    "{{.}} has an NA"
+    "{{.}} has an NA",
+    function(.) !anyNA(.)
   ),
   list(
     "sorted",
-    function(.) !is.unsorted(.),
-    "{{.}} is not sorted"
+    "{{.}} is not sorted",
+    function(.) !is.unsorted(.)
   ),
   list(
     "named",
-    rlang::is_named,
-    "{{.}} is not named"
+    "{{.}} is not named",
+    rlang::is_named
   ),
   list(
     "has_name",
-    function(., nm) isTRUE(nm %in% names(.)),
-    "{{.}} does not have name {{.value$nm}}"
+    "{{.}} does not have name {{.value$nm}}",
+    function(., nm) isTRUE(nm %in% names(.))
   ),
   list(
     "has_names",
-    function(., nms) all(nms %in% names(.)),
-    "{{.expr$nms}} are not all names of {{.}}"
+    "{{.expr$nms}} are not all names of {{.}}",
+    function(., nms) all(nms %in% names(.))
   ),
   list(
     "has_length",
-    function(., n) length(.) == n,
-    "{{.}} is not of length {{.value$n}}"
+    "{{.}} is not of length {{.value$n}}",
+    function(., n) length(.) == n
   ),
   list(
     "has_attr",
-    function(., which) !is.null(attr(., which, exact = TRUE)),
-    "{{.}} does not have attribute {{.value$which}}"
+    "{{.}} does not have attribute {{.value$which}}",
+    function(., which) !is.null(attr(., which, exact = TRUE))
   ),
   list(
     "has_attrs",
-    function(., which) all(which %in% names(attributes(.))),
-    "{{.expr$which}} are not all attributes of {{.}}"
+    "{{.expr$which}} are not all attributes of {{.}}",
+    function(., which) all(which %in% names(attributes(.)))
   ),
   list(
     "inherits",
-    inherits,
-    '{{.}} is not of class "{{.value$what}}"'
+    '{{.}} is not of class "{{.value$what}}"',
+    function(., what) inherits(., what)
   )
 )
 predicates$relation <- list(
   list(
     "identical",
-    function(., y) identical(., y),
-    "{{.}} is not identical to {{.expr$y}}"
+    "{{.}} is not identical to {{.expr$to}}",
+    function(., to) identical(., to)
   ),
   list(
     "not_identical",
-    function(., y) !identical(., y),
-    "{{.}} is identical to {{.expr$y}}"
+    "{{.}} is identical to {{.expr$to}}",
+    function(., to) !identical(., to)
   ),
   list(
     "equal",
-    function(., y) isTRUE(. == y),
-    "{{.}} is not equal to {{.expr$y}}"
+    "{{.}} does not equal {{.expr$to}}",
+    function(., to) isTRUE(all.equal(to, .))
   ),
   list(
     "not_equal",
-    function(., y) isTRUE(. != y),
-    "{{.}} equals {{.expr$y}}"
+    "{{.}} equals {{.expr$to}}",
+    function(., to) !isTRUE(all.equal(to, .))
   ),
   list(
-    "all_equal",
-    function(., target) isTRUE(all.equal(target, .)),
-    "{{.}} is not (all) equal to {{.expr$target}}"
+    "equivalent",
+    "{{.}} is not equivalent to {{.expr$to}}",
+    function(., to) isTRUE(all.equal(to, ., check.attributes = FALSE))
   ),
   list(
-    "not_all_equal",
-    function(., target) rlang::is_false(all.equal(target, .)),
-    "{{.}} is (all) equal to {{.expr$target}}"
+    "not_equivalent",
+    "{{.}} is equivalent to {{.expr$to}}",
+    function(., to) !isTRUE(all.equal(to, ., check.attributes = FALSE))
   ),
   list(
     "gt",
-    function(., lwr) isTRUE(. > lwr),
-    "{{.}} is not greater than {{.value$lwr}}"
+    "{{.}} is not greater than {{.value$lwr}}",
+    function(., lwr, na.rm = FALSE) all(. > lwr, na.rm = na.rm)
   ),
   list(
     "lt",
-    function(., upr) isTRUE(. < upr),
-    "{{.}} is not less than {{.value$upr}}"
+    "{{.}} is not less than {{.value$upr}}",
+    function(., upr, na.rm = FALSE) all(. < upr, na.rm = na.rm)
   ),
   list(
     "gte",
-    function(., lwr) isTRUE(. >= lwr),
-    "{{.}} is not greater than or equal to {{.value$lwr}}"
+    "{{.}} is not greater than or equal to {{.value$lwr}}",
+    function(., lwr, na.rm = FALSE) all(. >= lwr, na.rm = na.rm)
   ),
   list(
     "lte",
-    function(., upr) isTRUE(. <= upr),
-    "{{.}} is not less than or equal to {{.value$upr}}"
+    "{{.}} is not less than or equal to {{.value$upr}}",
+    function(., upr, na.rm = FALSE) all(. <= upr, na.rm = na.rm)
   )
 )
 predicates$scalar <- list(
   list(
     "number",
+    "{{.}} is not a number",
     function(.)
-      typeof(.) %in% c("double", "integer") && length(.) == 1 && !is.na(.),
-    "{{.}} is not a number"
-  ),
-  list(
-    "whole_number",
-    function(.)
-      is.integer(.) && length(.) == 1 && !is.na(.),
-    "{{.}} is not a whole number"
+      typeof(.) %in% c("double", "integer") && length(.) == 1 && !is.na(.)
   ),
   list(
     "boolean",
+    "{{.}} is not a boolean",
     function(.)
-      is.logical(.) && length(.) == 1 && !is.na(.),
-    "{{.}} is not a boolean"
+      is.logical(.) && length(.) == 1 && !is.na(.)
   ),
   list(
     "string",
+    "{{.}} is not a string",
     function(.)
-      is.character(.) && length(.) == 1 && !is.na(.),
-    "{{.}} is not a string"
+      is.character(.) && length(.) == 1 && !is.na(.)
   )
 )
 predicates$sets <- list(
   list(
     "in",
-    function(., set) isTRUE(. %in% set),
-    "{{.}} is not in {{.expr$set}}"
+    "{{.}} is not in {{.expr$set}}",
+    function(., set) isTRUE(. %in% set)
   ),
   list(
     "not_in",
-    function(., set) isTRUE(! . %in% set),
-    "{{.}} is in {{.expr$set}}"
+    "{{.}} is in {{.expr$set}}",
+    function(., set) isTRUE(! . %in% set)
   ),
   list(
-    "contains",
-    function(., set) all(set %in% .),
-    "{{.}} does not contain {{.expr$set}}"
+    "include",
+    "{{.}} does not include {{.expr$set}}",
+    function(., set) all(set %in% .)
   ),
   list(
-    "doesnt_contain",
-    function(., set) any(! set %in% .),
-    "{{.}} contains {{.expr$set}}"
+    "exclude",
+    "{{.}} intersects {{.expr$set}}",
+    function(., set) all(! set %in% .)
   ),
   list(
-    "contained_in",
-    function(., set) all(. %in% set),
-    "{{.}} is not contained in {{.expr$set}}"
+    "within",
+    "{{.}} is not contained in {{.expr$set}}",
+    function(., set) all(. %in% set)
   ),
   list(
-    "not_contained_in",
-    function(., set) any(! . %in% set),
-    "{{.}} is contained in {{.expr$set}}"
+    "intersect",
+    "{{.}} is disjoint from {{.expr$set}}",
+    function(., set) length(intersect(., set)) != 0
   ),
   list(
-    "intersects",
-    function(., set) length(intersect(., set)) != 0,
-    "{{.}} does not intersect {{.expr$set}}"
-  ),
-  list(
-    "doesnt_intersect",
-    function(., set) length(intersect(., set)) == 0,
-    "{{.}} intersects {{.expr$set}}"
+    "avoid",
+    "{{.}} intersects {{.expr$set}}",
+    function(., set) length(intersect(., set)) == 0
   ),
   list(
     "setequal",
-    function(., set) setequal(., set),
-    "{{.}} and {{.expr$set}} are not equal as sets"
+    "{{.}} and {{.expr$set}} are not equal as sets",
+    function(., set) setequal(., set)
   )
 )
 make_predicate_data <- function(ns, xs, prefix) {
@@ -300,8 +289,8 @@ make_predicate_data <- function(ns, xs, prefix) {
     Map(function(nm, this) {
       list(
         nm,
-        getExportedValue(ns, paste0(prefix, nm)),
-        sprintf("{{.}} is not %s", this)
+        sprintf("{{.}} is not %s", this),
+        getExportedValue(ns, paste0(prefix, nm))
       )
     }, names(xs), xs)
   )
@@ -329,19 +318,35 @@ predicates$type <- c(
   list(
     list(
       "closure",
-      function(.) typeof(.) == "closure",
-      "{{.}} is not a closure"
+      "{{.}} is not a closure",
+      function(.) typeof(.) == "closure"
+    ),
+    list(
+      "language",
+      "{{.}} is not of type 'language'",
+      function(.) typeof(.) == "language"
     ),
     list(
       "numerical",
+      "{{.}} is not a numerical vector{{of_length(.value$n)}}",
       function(., n = NULL) {
         if (!typeof(.) %in% c("double", "integer"))
           return(FALSE)
         if (!is.null(n) && length(.) != n)
           return(FALSE)
         TRUE
-      },
-      "{{.}} is not a numerical vector{{of_length(.value$n)}}"
+      }
+    ),
+    list(
+      "complex",
+      "{{.}} is not a complex vector{{of_length(.value$n)}}",
+      function(., n = NULL) {
+        if (!typeof(.) == "complex")
+          return(FALSE)
+        if (!is.null(n) && length(.) != n)
+          return(FALSE)
+        TRUE
+      }
     )
   ),
   make_predicate_data("base", types_base, "is."),
@@ -350,10 +355,10 @@ predicates$type <- c(
 
 for (x in unlist(predicates, recursive = FALSE)) {
   nm <- paste0("vld_", x[[1]])
-  assign(nm, lcl(UQ(x[[3]]) := UQ(x[[2]])))
+  assign(nm, checker(UQ(x[[2]]) := UQ(x[[3]])))
 }
 
-#' @rawNamespace exportPattern("^vld_.*$")
+#' @rawNamespace exportPattern("^vld_.+$")
 NULL
 
 # Documentation -----------------------------------------------------------
