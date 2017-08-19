@@ -7,4 +7,4 @@ r_github_packages:
   - jimhester/covr
 
 after_success:
-  - Rscript -e 'covr::codecov(function_exclusions = "^print\\.", line_exclusions = list("R/rawrd.R"))'
+  - Rscript -e 'covr::codecov(function_exclusions = "^print\\.", line_exclusions = list("R/rd.R"))'
