@@ -112,19 +112,19 @@ This reads as follows:
 
 ### Use the same grammar to validate objects
 
-Validating an object (say, a data frame) is nothing more than applying an input-validated identity function to it. The function `validate()` provides a shorthand for this.
+Validating an object (say, a data frame) is nothing other than applying an input-validated identity function to it. The function `validate()` provides a shorthand for this.
 
 ``` r
 # All assumptions OK, mtcars returned invisibly
 validate(mtcars,
          is.data.frame,
          vld_lt(100, nrow(.)),
-         vld_has_names(c("mpg", "cyl"), .))
+         vld_has_names(c("mpg", "cyl")))
 
 validate(mtcars,
          is.data.frame,
          vld_gt(100, nrow(.)),
-         vld_has_name("cylinders", .))
+         vld_has_name("cylinders"))
 #> Error: validate(. = mtcars)
 #> 1) nrow(.) is not greater than 100
 #> 2) . does not have name "cylinders"
