@@ -1,4 +1,4 @@
-context("Capturing input validation checks")
+context("Collecting input validation checks")
 
 test_that("definitions are encoded as message-check quosure pairs", {
   expect_equivalent(
