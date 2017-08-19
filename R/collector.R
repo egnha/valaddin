@@ -30,7 +30,7 @@
 #' @export
 vld <- function(...) {
   dd <- dots_definitions(...)
-  if (all_empty(dd))
+  if (all(lengths(dd) == 0))
     return(NULL)
   vld_(dd$dots, dd$defs)
 }

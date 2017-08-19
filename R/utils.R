@@ -2,10 +2,6 @@
   if (is_empty(x)) y else x
 }
 
-all_empty <- function(xs) {
-  all(lengths(xs) == 0)
-}
-
 try_eval_tidy <- function(expr, env = parent.frame()) {
   tryCatch(
     eval_tidy(expr, env = env),
