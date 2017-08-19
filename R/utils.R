@@ -59,14 +59,6 @@ enumerate_many <- function(x, many = 2) {
     paste0(x, "\n")
 }
 
-comma_collapse <- function(x, width = 60) {
-  x_str <- paste(x, collapse = ", ")
-  if (nchar(x_str) > width)
-    sprintf("%s ... [TRUNCATED]", substr(x_str, 1, width))
-  else
-    x_str
-}
-
 partial <- function(f, arg_fill) {
   if (is_empty(arg_fill))
     return(f)
