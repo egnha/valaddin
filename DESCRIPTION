@@ -27,9 +27,9 @@ BugReports: https://github.com/egnha/valaddin/issues
 Collate:
     'utils.R'
     'partial.R'
-    'rawrd.R'
     'components.R'
     'check-capture.R'
+    'rd.R'
     'parser.R'
     'validation.R'
     'operators.R'
