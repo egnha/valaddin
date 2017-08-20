@@ -27,8 +27,8 @@ fasten_ <- function(..., error_class = NULL) {
   }
 }
 nomen <- function(x) {
-  nm <- names(x)[names(x) != "..."] %||% character(0)
-  list(nm = nm, sym = lapply(nm, as.symbol))
+  nms <- names_nondot(x)
+  list(nm = nms, sym = lapply(nms, as.symbol))
 }
 fasten_checks <- function(f, chks, sig, arg, error_class) {
   fn_fastened <- validation_closure(loosely(f), chks, sig, arg, error_class)

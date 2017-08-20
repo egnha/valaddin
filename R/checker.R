@@ -98,7 +98,7 @@ checker <- function(...p, ...) {
     as_chkr_predicate_expr(call_with_args)
   }
   chkr_formals <- rearrange_formals(`__chkr_pred`$fn)
-  `__eval_nondot_args` <- arg_evaluator(nomen(chkr_formals)$nm, ...)
+  `__eval_nondot_args` <- arg_evaluator(names_nondot(chkr_formals), ...)
   chkr <- function(...) {
     args <- `__eval_nondot_args`()
     `__as_chkr_validation`(

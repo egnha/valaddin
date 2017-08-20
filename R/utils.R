@@ -54,3 +54,7 @@ enumerate_many <- function(x, many = 2) {
   else
     paste0(x, "\n")
 }
+
+names_nondot <- function(x) {
+  names(x)[names(x) != "..."] %||% character(0)
+}
