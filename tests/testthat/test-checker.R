@@ -136,3 +136,20 @@ test_that("`chkr_message<-()` sets message", {
   chkr_message(lp) <- "new"
   expect_identical(chkr_message(lp), "new")
 })
+
+context("Parameterized checkers")
+
+test_that("predicate arguments can be transformed", {
+  ISTRUE <- isTRUE
+  get_function <- function(x) get(toupper(x), mode = "function")
+  chk <- checker("Nope" := function(., pred) pred(.), pred = get_function)
+
+  expect_error(
+    firmly(function(x) NULL, chk("bogus")),
+    "object 'BOGUS' of mode 'function' was not found"
+  )
+
+  foo <- firmly(function(x) NULL, chk("istrue"))
+  expect_error(foo(TRUE), NA)
+  expect_error(foo(FALSE), "Nope")
+})

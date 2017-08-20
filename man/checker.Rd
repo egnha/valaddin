@@ -7,7 +7,7 @@
 \alias{chkr_message<-}
 \title{Generate input validation checks}
 \usage{
-checker(p)
+checker(...p, ...)
 
 chkr_message(x)
 
@@ -16,8 +16,11 @@ chkr_predicate(x)
 chkr_message(x, env = parent.frame()) <- value
 }
 \arguments{
-\item{p}{Predicate function or a definition whose LHS is an error message
+\item{...p}{Predicate function or a definition whose LHS is an error message
 (string) and RHS is a predicate function.}
+
+\item{...}{Predicate-argument transformers as named functions; see
+\emph{Predicate-argument transformers}.}
 
 \item{x}{Function created by \code{checker()}.}
 
@@ -41,6 +44,10 @@ function and error message.
 \item \code{.expr} pronoun
 \item \code{.value} pronoun
 }
+}
+
+\section{Predicate-argument transformers}{
+ TODO
 }
 
 \examples{
@@ -87,6 +94,13 @@ baz(1, 2:3)}
 baz <- firmly(f, chk_len(l = !! len))
 \dontrun{
 baz(1, 2:3)}
+
+## Predicate arguments can be (pre-)transformed
+chk_with <- checker(.(., f ~ f(.)), f = rlang::as_function)
+foobar <- firmly(f, "{{.}} not positive" := chk_with(~ . > 0))
+foobar(1, 2)
+\dontrun{
+foobar(1, 0)}
 
 }
 \seealso{

@@ -5,8 +5,10 @@
 #' `chkr_predicate()` and `chkr_message()` extract the associated predicate
 #' function and error message.
 #'
-#' @param p Predicate function or a definition whose LHS is an error message
+#' @param ...p Predicate function or a definition whose LHS is an error message
 #'   (string) and RHS is a predicate function.
+#' @param ... Predicate-argument transformers as named functions; see
+#'   _Predicate-argument transformers_.
 #'
 #' @return Function that generates input validation checks.
 #'
@@ -14,6 +16,8 @@
 #'   - double \code{\{\{} vs single \code{\{}
 #'   - `.expr` pronoun
 #'   - `.value` pronoun
+#'
+#' @section Predicate-argument transformers: TODO
 #'
 #' @seealso [Boolean checkers][checker-boolean],
 #'   [Object checkers][checker-object],
@@ -69,9 +73,16 @@
 #' \dontrun{
 #' baz(1, 2:3)}
 #'
+#' ## Predicate arguments can be (pre-)transformed
+#' chk_with <- checker(.(., f ~ f(.)), f = rlang::as_function)
+#' foobar <- firmly(f, "{{.}} not positive" := chk_with(~ . > 0))
+#' foobar(1, 2)
+#' \dontrun{
+#' foobar(1, 0)}
+#'
 #' @export
-checker <- function(p) {
-  `__chkr_chk` <- as_check(enquo(p))
+checker <- function(...p, ...) {
+  `__chkr_chk` <- as_check(enquo(...p))
   `__chkr_pred` <- as_predicate(`__chkr_chk`$chk, f_env(`__chkr_chk`$chk))
   `__msg` <- function(args, env) {
     env_msg <- bind_expr_value(args, env, f_env(`__chkr_chk`$msg))
@@ -86,6 +97,8 @@ checker <- function(p) {
     call_with_args <- as.call(c(`__chkr_pred`$expr, args))
     as_chkr_predicate_expr(call_with_args)
   }
+  chkr_formals <- rearrange_formals(`__chkr_pred`$fn)
+  `__eval_nondot_args` <- arg_evaluator(nomen(chkr_formals)$nm, ...)
   chkr <- function(...) {
     args <- `__eval_nondot_args`()
     `__as_chkr_validation`(
@@ -95,7 +108,7 @@ checker <- function(p) {
       expr      = `__expr`(args)
     )
   }
-  formals(chkr) <- rearrange_formals(`__chkr_pred`$fn)
+  formals(chkr) <- chkr_formals
   class(chkr) <- "valaddin_checker"
   chkr
 }
@@ -140,10 +153,42 @@ partial <- function(f, arg_fill) {
   }
 }
 
-`__eval_nondot_args` <- function() {
-  mc <- match.call(sys.function(-1), call = sys.call(-1), expand.dots = FALSE)
+arg_evaluator <- function(nms_valid, ...) {
+  fns <- dots_list(...)
+  if (is_empty(fns))
+    eval_nondot_args
+  else {
+    validate_names(names(fns), nms_valid)
+    transform_args(fns)
+  }
+}
+validate_names <- function(nms, nms_valid) {
+  is_invalid <- ! nms %in% nms_valid
+  if (any(is_invalid)) {
+    nms_invalid <- paste(nms[is_invalid], collapse = ", ")
+    abort(sprintf("Not predicate argument names: %s", nms_invalid))
+  }
+}
+transform_args <- function(fns) {
+  nms_fns <- names(fns)
+  transform <- function(args, env) {
+    nms_args <- names(args)
+    nms_mut_arg <- nms_args[nms_args %in% nms_fns]
+    nms_mut_env <- nms_fns[!nms_fns %in% nms_args]
+    args[nms_mut_arg] <- lapply(nms_mut_arg, function(.) fns[[.]](args[[.]]))
+    args_mut <- lapply(nms_mut_env, function(.) fns[[.]](env[[.]]))
+    names(args_mut) <- nms_mut_env
+    c(args, args_mut)
+  }
+  function() {
+    args <- eval_nondot_args(2)
+    transform(args, parent.frame())
+  }
+}
+eval_nondot_args <- function(n = 1) {
+  mc <- match.call(sys.function(-n), call = sys.call(-n), expand.dots = FALSE)
   nm <- nomen(mc[-1])
-  lapply(`names<-`(nm$sym, nm$nm), eval_bare, env = parent.frame())
+  lapply(`names<-`(nm$sym, nm$nm), eval_bare, env = parent.frame(n))
 }
 
 rearrange_formals <- function(f) {
