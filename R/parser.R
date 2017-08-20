@@ -53,7 +53,7 @@ get_check_formula <- function(chk, chk_eval) {
 }
 as_check_items <- function(x, env) {
   if (is_vld_expr(x))
-    eval(x, env)
+    eval_bare(x, env)
   else if (is_vld(x))
     x
   else
@@ -81,7 +81,7 @@ as_lambda <- function(x, env) {
     x <- new_fn_expr(x)
   else
     x[[1]] <- nofrills::fn
-  fn <- eval(x, env)
+  fn <- eval_bare(x, env)
   list(expr = substitute(fn), fn = fn)
 }
 new_fn_expr <- function(body, args = alist(. = )) {

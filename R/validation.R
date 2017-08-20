@@ -7,9 +7,9 @@ validation_closure <- function(f, chks, sig, arg, error_class) {
   nms_pred <- name_predicates(seq_along(chks$pred), chks$expr)
   env_pred <- bind_predicates(nms_pred, chks$pred)
   make_promises <-
-    eval(call("function", sig, quote(environment())), environment(f))
+    eval_bare(call("function", sig, quote(environment())), environment(f))
   new_validation_env <- function(call, env) {
-    env_prom <- eval(`[[<-`(call, 1, make_promises), env)
+    env_prom <- eval_bare(`[[<-`(call, 1, make_promises), env)
     bind_promises(nms, syms, env_prom, env_pred)
   }
   exprs <- express_check(chks$expr, nms_pred)
@@ -69,7 +69,7 @@ bind_predicates <- function(nms, preds) {
 bind_promises <- function(nms, exprs, env_eval, parent) {
   env_assign <- new.env(parent = parent)
   for (i in seq_along(nms))
-    eval(bquote(
+    eval_bare(bquote(
       delayedAssign(.(nms[[i]]), .(exprs[[i]]), env_eval, env_assign)
     ))
   env_assign
@@ -112,7 +112,7 @@ err_invalid_input <- function(., env) {
 }
 bind_as_dot <- function(q, env) {
   env_dot <- new.env(parent = env)
-  eval(bquote(delayedAssign(".", .(quo_expr(q)), env, env_dot)))
+  eval_bare(bquote(delayedAssign(".", .(quo_expr(q)), env, env_dot)))
   env_dot
 }
 err_msg_error <- function(call, msg, err) {

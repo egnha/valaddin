@@ -139,7 +139,7 @@ bind_expr_value <- function(args, env, parent) {
 bind_expr_text <- function(nm, env) {
   lapply(`names<-`(nm$sym, nm$nm), function(sym)
     deparse_collapse(
-      eval(substitute(substitute(., env), list(. = sym)))
+      eval_bare(substitute(substitute(., env), list(. = sym)))
     )
   )
 }
