@@ -67,7 +67,7 @@ as_predicate <- function(q, env) {
   else {
     fn <- try_eval_tidy(q, env)
     if (!is.function(fn))
-      stop(err_not_function(expr, maybe_error(fn)), call. = FALSE)
+      abort(err_not_function(expr, maybe_error(fn)))
     list(expr = expr, fn = fn)
   }
 }

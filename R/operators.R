@@ -37,7 +37,7 @@ fasten_checks <- function(f, chks, sig, arg, error_class) {
 #' @export
 loosely <- function(f) {
   if (!is.function(f))
-    stop("'f' must be a function", call. = FALSE)
+    abort("'f' must be a function")
   else if (is_firm(f))
     .subset2(environment(f), "f")
   else
