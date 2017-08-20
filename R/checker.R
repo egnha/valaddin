@@ -5,21 +5,26 @@
 #' `chkr_predicate()` and `chkr_message()` extract the associated predicate
 #' function and error message.
 #'
-#' @param ...p Predicate function or a definition whose LHS is an error message
-#'   (string) and RHS is a predicate function.
-#' @param ... Predicate-argument transformers as named functions; see
-#'   _Predicate-argument transformers_.
+#' @param ..p Predicate function, or a definition whose LHS is an error message
+#'   (string) and RHS is a predicate function (see _Specifying predicate
+#'   functions_).
+#' @param ... Predicate-argument transformers as named functions (see
+#'   _Transforming predicate arguments_).
 #'
 #' @return Function that generates input validation checks.
 #'
-#' @section Specifying error messages: TODO
+#' @section Specifying error messages: TODO:
 #'   - double \code{\{\{} vs single \code{\{}
 #'   - `.expr` pronoun
 #'   - `.value` pronoun
 #'
-#' @section Predicate-argument transformers: TODO
+#' @section Specifying predicate functions: TODO: ways to specify function
+#'   literals
 #'
-#' @seealso [Boolean checkers][checker-boolean],
+#' @section Transforming predicate arguments: TODO
+#'
+#' @seealso
+#'   [Boolean checkers][checker-boolean],
 #'   [Object checkers][checker-object],
 #'   [Pattern checkers][checker-pattern],
 #'   [Property checkers][checker-property],
@@ -68,14 +73,14 @@
 #' baz(1, 2:3)}
 #'
 #' ## Since the error message encodes the expression of `l` (i.e., `.expr$l`),
-#' ## unquote if you want to show the value of `l`
+#' ## unquote if you want to show the value of `l` instead
 #' baz <- firmly(f, chk_len(l = !! len))
 #' \dontrun{
 #' baz(1, 2:3)}
 #'
 #' ## Predicate arguments can be (pre-)transformed
 #' chk_with <- checker(.(., f ~ f(.)), f = rlang::as_function)
-#' foobar <- firmly(f, "{{.}} not positive" := chk_with(~ . > 0))
+#' foobar <- firmly(f, "{{.}} is not positive" := chk_with(~ . > 0))
 #' foobar(1, 2)
 #' \dontrun{
 #' foobar(1, 0)}
@@ -225,23 +230,21 @@ print.valaddin_checker <- function(x, ...) {
 chkr_expr <- function(x) {
   environment(x)$`__chkr_pred`$expr
 }
-
-#' @rdname checker
-#' @export
-chkr_message <- function(x) {
-  eval_tidy(environment(x)$`__chkr_chk`$msg)
-}
-
 #' @rdname checker
 #' @param x Function created by `checker()`.
 #' @export
 chkr_predicate <- function(x) {
   environment(x)$`__chkr_pred`$fn
 }
-
 #' @rdname checker
-#' @param env Environment of the error message `value`.
-#' @param value Error message.
+#' @export
+chkr_message <- function(x) {
+  eval_tidy(environment(x)$`__chkr_chk`$msg)
+}
+#' @rdname checker
+#' @param env Environment that is in scope if and when the error-message string
+#'   is produced (and interpolated).
+#' @param value Error message (string).
 #' @export
 `chkr_message<-` <- function(x, env = parent.frame(), value) {
   environment(x)$`__chkr_chk`$msg <- new_quosure(value, env)

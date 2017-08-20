@@ -2,31 +2,33 @@
 % Please edit documentation in R/checker.R
 \name{checker}
 \alias{checker}
-\alias{chkr_message}
 \alias{chkr_predicate}
+\alias{chkr_message}
 \alias{chkr_message<-}
 \title{Generate input validation checks}
 \usage{
-checker(...p, ...)
-
-chkr_message(x)
+checker(..p, ...)
 
 chkr_predicate(x)
+
+chkr_message(x)
 
 chkr_message(x, env = parent.frame()) <- value
 }
 \arguments{
-\item{...p}{Predicate function or a definition whose LHS is an error message
-(string) and RHS is a predicate function.}
+\item{..p}{Predicate function, or a definition whose LHS is an error message
+(string) and RHS is a predicate function (see \emph{Specifying predicate
+functions}).}
 
-\item{...}{Predicate-argument transformers as named functions; see
-\emph{Predicate-argument transformers}.}
+\item{...}{Predicate-argument transformers as named functions (see
+\emph{Transforming predicate arguments}).}
 
 \item{x}{Function created by \code{checker()}.}
 
-\item{env}{Environment of the error message \code{value}.}
+\item{env}{Environment that is in scope if and when the error-message string
+is produced (and interpolated).}
 
-\item{value}{Error message.}
+\item{value}{Error message (string).}
 }
 \value{
 Function that generates input validation checks.
@@ -38,7 +40,7 @@ input validation checks for use with \code{\link[=firmly]{firmly()}} or \code{\l
 function and error message.
 }
 \section{Specifying error messages}{
- TODO
+ TODO:
 \itemize{
 \item double \code{\{\{} vs single \code{\{}
 \item \code{.expr} pronoun
@@ -46,7 +48,12 @@ function and error message.
 }
 }
 
-\section{Predicate-argument transformers}{
+\section{Specifying predicate functions}{
+ TODO: ways to specify function
+literals
+}
+
+\section{Transforming predicate arguments}{
  TODO
 }
 
@@ -90,14 +97,14 @@ baz <- firmly(f, chk_len(l = len))
 baz(1, 2:3)}
 
 ## Since the error message encodes the expression of `l` (i.e., `.expr$l`),
-## unquote if you want to show the value of `l`
+## unquote if you want to show the value of `l` instead
 baz <- firmly(f, chk_len(l = !! len))
 \dontrun{
 baz(1, 2:3)}
 
 ## Predicate arguments can be (pre-)transformed
 chk_with <- checker(.(., f ~ f(.)), f = rlang::as_function)
-foobar <- firmly(f, "{{.}} not positive" := chk_with(~ . > 0))
+foobar <- firmly(f, "{{.}} is not positive" := chk_with(~ . > 0))
 foobar(1, 2)
 \dontrun{
 foobar(1, 0)}
