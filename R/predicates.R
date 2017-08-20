@@ -48,19 +48,23 @@ predicates$boolean <- list(
     "all_map",
     "{{.}} is not all true when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      all(vapply(., as_function(f), logical(1)), na.rm = na.rm)
+      all(vapply(., f, logical(1)), na.rm = na.rm),
+    transformer = list(f = as_function)
   ),
   list(
     "any_map",
     "{{.}} is all false when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      any(vapply(., as_function(f), logical(1)), na.rm = na.rm)
+      any(vapply(., f, logical(1)), na.rm = na.rm),
+    transformer = list(f = as_function)
+
   ),
   list(
     "none_map",
     "{{.}} not all false when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      all(! vapply(., as_function(f), logical(1)), na.rm = na.rm)
+      all(! vapply(., f, logical(1)), na.rm = na.rm),
+    transformer = list(f = as_function)
   )
 )
 predicates$object <- list(
@@ -355,7 +359,8 @@ predicates$type <- c(
 
 for (x in unlist(predicates, recursive = FALSE)) {
   nm <- paste0("vld_", x[[1]])
-  assign(nm, checker(UQ(x[[2]]) := UQ(x[[3]])))
+  transformer <- x$transformer %||% list()
+  assign(nm, checker(UQ(x[[2]]) := UQ(x[[3]]), UQS(transformer)))
 }
 
 #' @rawNamespace exportPattern("^vld_.+$")
