@@ -42,7 +42,7 @@ predicates$boolean <- list(
   list(
     "none",
     "{{.}} not all false",
-    function(., na.rm = FALSE) all(! ., na.rm = na.rm)
+    function(., na.rm = FALSE) all(!., na.rm = na.rm)
   ),
   list(
     "all_map",
@@ -57,13 +57,12 @@ predicates$boolean <- list(
     function(., f, na.rm = FALSE)
       any(vapply(., f, logical(1)), na.rm = na.rm),
     transformer = list(f = as_function)
-
   ),
   list(
     "none_map",
     "{{.}} not all false when mapped by {{.expr$f}}",
     function(., f, na.rm = FALSE)
-      all(! vapply(., f, logical(1)), na.rm = na.rm),
+      all(!vapply(., f, logical(1)), na.rm = na.rm),
     transformer = list(f = as_function)
   )
 )
@@ -334,7 +333,7 @@ predicates$type <- c(
       "numerical",
       "{{.}} is not a numerical vector{{of_length(.value$n)}}",
       function(., n = NULL) {
-        if (!typeof(.) %in% c("double", "integer"))
+        if (! typeof(.) %in% c("double", "integer"))
           return(FALSE)
         if (!is.null(n) && length(.) != n)
           return(FALSE)
@@ -345,7 +344,7 @@ predicates$type <- c(
       "complex",
       "{{.}} is not a complex vector{{of_length(.value$n)}}",
       function(., n = NULL) {
-        if (!typeof(.) == "complex")
+        if (typeof(.) != "complex")
           return(FALSE)
         if (!is.null(n) && length(.) != n)
           return(FALSE)
