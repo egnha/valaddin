@@ -90,7 +90,7 @@ new_fn_expr <- function(body, args = alist(. = )) {
 err_not_function <- function(x, fault = NULL) {
   x <- expr_label(x)
   if (is.null(fault))
-    sprintf("Not a function: %s", x)
+    paste("Not a function:", x)
   else
     sprintf("Could not determine whether %s is a function: %s", x, fault)
 }
@@ -157,7 +157,7 @@ protect_braces_from_glue <- function(x) {
   gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
 }
 message_false <- function(call) {
-  sprintf("FALSE: %s", call)
+  paste("FALSE:", call)
 }
 # glue strings, "oppositely," e.g., with `qdot` as `quo(x)`,
 #   "length of {{sQuote(.)}}: {length(.)}"

@@ -292,7 +292,7 @@ make_predicate_data <- function(ns, xs, prefix) {
     Map(function(nm, this) {
       list(
         nm,
-        sprintf("{{.}} is not %s", this),
+        paste("{{.}} is not", this),
         getExportedValue(ns, paste0(prefix, nm))
       )
     }, names(xs), xs)
@@ -315,7 +315,7 @@ types_rlang <- list(
   raw         = "a raw vector{{of_length(.value$n)}}"
 )
 of_length <- function(n) {
-  if (is.null(n)) "" else sprintf(" of length %s", n)
+  if (is.null(n)) "" else paste(" of length", n)
 }
 predicates$type <- c(
   list(

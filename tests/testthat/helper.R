@@ -5,7 +5,7 @@ errmsg_false <- function(text) {
   esc_perl(message_false(text))
 }
 errmsg_error <- function(text) {
-  esc_perl(sprintf("Error evaluating check %s", text))
+  esc_perl(paste("Error evaluating check", text))
 }
 errmsg_invalid <- function(call, out) {
   esc_perl(err_invalid_value(call, out))

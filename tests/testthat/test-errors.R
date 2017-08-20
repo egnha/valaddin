@@ -118,7 +118,7 @@ test_that("error messages of unnamed local check don't interpolate dot", {
 
 test_that("message of global check is interpolated in the messages's scope", {
   chk <- local({
-    bar <- function(x) sprintf("local text: %s", x)
+    bar <- function(x) paste("local text:", x)
     vld("{{bar(.)}}; value: {.}" := isTRUE)
   })
   bar <- function(x) "bogus"  # should be ignored by string interpolation
