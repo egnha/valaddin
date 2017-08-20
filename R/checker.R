@@ -81,8 +81,8 @@
 #' foobar(1, 0)}
 #'
 #' @export
-checker <- function(...p, ...) {
-  `__chkr_chk` <- as_check(enquo(...p))
+checker <- function(..p, ...) {
+  `__chkr_chk` <- as_check(enquo(..p))
   `__chkr_pred` <- as_predicate(`__chkr_chk`$chk, f_env(`__chkr_chk`$chk))
   `__msg` <- function(args, env) {
     env_msg <- bind_expr_value(args, env, f_env(`__chkr_chk`$msg))
