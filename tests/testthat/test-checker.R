@@ -153,3 +153,10 @@ test_that("predicate arguments can be transformed", {
   expect_error(foo(TRUE), NA)
   expect_error(foo(FALSE), "Nope")
 })
+
+test_that("error signaled if transformer doesn't match predicate argument", {
+  expect_error(
+    checker(function(., .f) .f(.), f = get),
+    "Not predicate argument name\\(s\\): f"
+  )
+})

@@ -166,7 +166,7 @@ validate_names <- function(nms, nms_valid) {
   is_invalid <- ! nms %in% nms_valid
   if (any(is_invalid)) {
     nms_invalid <- paste(nms[is_invalid], collapse = ", ")
-    abort(sprintf("Not predicate argument names: %s", nms_invalid))
+    abort(sprintf("Not predicate argument name(s): %s", nms_invalid))
   }
 }
 transform_args <- function(fns) {
