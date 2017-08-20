@@ -25,22 +25,20 @@ Installation
 
 ### Development version (pre-0.3.0)
 
-The development version brings major improvements to the user interface and functionality of valaddin. The main functions `fasten()`, `firmly()`, `loosely()`, `validate()` are considered stable. Work on simplifying and generalizing `localize()` (and, consequently, the predicates prefixed with `vld_`) is in progress.
-
-To install the development version, use the [devtools](https://github.com/hadley/devtools) package:
-
 ``` r
 # install.packages("devtools")
 devtools::install_github("egnha/valaddin")
 ```
 
-### Legacy version
+The development version brings major improvements to the user interface and functionality of valaddin. The main functions `fasten()`, `firmly()`, `loosely()`, `validate()` are considered stable.
 
-The legacy version (0.1.2), which uses a deprecated formula-based syntax for input validation checks, is available on [CRAN](https://cran.r-project.org/package=valaddin). Install it from R with
+### CRAN version (0.1.2)
 
 ``` r
 install.packages("valaddin")
 ```
+
+Though recently updated (2017-08-11), the current [CRAN version](https://cran.r-project.org/package=valaddin) still uses the soon-to-be deprecated formula-based syntax for input validation checks. This is somewhat faster at input validation than the current development version, but at the expense of syntactic flexibility.
 
 Usage
 -----
