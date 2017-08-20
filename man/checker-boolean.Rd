@@ -29,7 +29,7 @@ bar(1:2)
 \dontrun{
 bar(list(1, NULL))}
 
-## Or more efficiently:
+## Or more efficiently, in a vectorized manner:
 baz <- firmly(f, vld_all("x contains empty objects" := lengths(x) != 0))
 baz(1:2)
 \dontrun{
