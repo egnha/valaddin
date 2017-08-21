@@ -17,21 +17,20 @@ fasten_ <- function(..., error_class = NULL) {
   error_class <- error_class[nzchar(error_class)]
   function(f) {
     sig <- formals(f)
-    arg <- nomen(sig)
+    args <- nomen(sig)
     error_class_na <- is_empty(firm_checks(f)) || is_empty(error_class)
-    if (is_empty(arg$nm) || is_empty(checks) && error_class_na)
+    if (is_empty(args) || is_empty(checks) && error_class_na)
       return(f)
-    chks <- assemble_checks(firm_checks(f), arg$sym)
+    chks <- assemble_checks(firm_checks(f), args)
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
-    fasten_checks(f, chks, sig, arg, error_class)
+    fasten_checks(f, chks, sig, args, error_class)
   }
 }
-nomen <- function(x) {
-  nms <- names_nondot(x)
-  list(nm = nms, sym = lapply(nms, as.symbol))
+deduplicate <- function(xs, by) {
+  xs[rev(!duplicated(rev(xs[[by]]))), , drop = FALSE]
 }
-fasten_checks <- function(f, chks, sig, arg, error_class) {
-  fn_fastened <- validation_closure(loosely(f), chks, sig, arg, error_class)
+fasten_checks <- function(f, chks, sig, args, error_class) {
+  fn_fastened <- validation_closure(loosely(f), chks, sig, args, error_class)
   as_firm_closure(with_sig(fn_fastened, sig, attributes(f)))
 }
 #' @export

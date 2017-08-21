@@ -136,8 +136,8 @@ bind_expr_value <- function(args, env, parent) {
   env_bind$.value <- lapply(args, deparse_collapse)
   env_bind
 }
-bind_expr_text <- function(nm, env) {
-  lapply(`names<-`(nm$sym, nm$nm), function(sym)
+bind_expr_text <- function(nmn, env) {
+  lapply(nmn, function(sym)
     deparse_collapse(
       eval_bare(substitute(substitute(., env), list(. = sym)))
     )
@@ -192,8 +192,8 @@ transform_args <- function(fns) {
 }
 eval_nondot_args <- function(n = 1) {
   mc <- match.call(sys.function(-n), call = sys.call(-n), expand.dots = FALSE)
-  nm <- nomen(mc[-1])
-  lapply(`names<-`(nm$sym, nm$nm), eval_bare, env = parent.frame(n))
+  args <- nomen(mc[-1])
+  lapply(args, eval_bare, env = parent.frame(n))
 }
 
 rearrange_formals <- function(f) {

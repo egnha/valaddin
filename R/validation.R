@@ -1,16 +1,14 @@
-validation_closure <- function(f, chks, sig, arg, error_class) {
+validation_closure <- function(f, chks, sig, args, error_class) {
   force(f)
   force(error_class)
 
-  nms <- arg$nm
-  syms <- arg$sym
   nms_pred <- name_predicates(seq_along(chks$pred), chks$expr)
   env_pred <- bind_predicates(nms_pred, chks$pred)
   make_promises <-
     eval_bare(call("function", sig, quote(environment())), environment(f))
   new_validation_env <- function(call, env) {
     env_prom <- eval_bare(`[[<-`(call, 1, make_promises), env)
-    bind_promises(nms, syms, env_prom, env_pred)
+    bind_promises(args, env_prom, env_pred)
   }
   exprs <- express_check(chks$expr, nms_pred)
   error <- function(call, verdict, fail, env) {
@@ -66,11 +64,12 @@ bind_predicates <- function(nms, preds) {
   }
   env
 }
-bind_promises <- function(nms, exprs, env_eval, parent) {
+bind_promises <- function(args, env_eval, parent) {
+  nms <- names(args)
   env_assign <- new.env(parent = parent)
   for (i in seq_along(nms))
     eval_bare(bquote(
-      delayedAssign(.(nms[[i]]), .(exprs[[i]]), env_eval, env_assign)
+      delayedAssign(.(nms[[i]]), .(args[[i]]), env_eval, env_assign)
     ))
   env_assign
 }

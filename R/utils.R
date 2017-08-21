@@ -56,6 +56,11 @@ enumerate <- function(x) {
   paste(enumerations, collapse = "")
 }
 
+nomen <- function(x) {
+  nms <- names_nondot(x)
+  names(nms) <- nms
+  lapply(nms, as.name)
+}
 names_nondot <- function(x) {
   names(x)[names(x) != "..."] %||% character(0)
 }
