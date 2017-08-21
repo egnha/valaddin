@@ -11,8 +11,7 @@ fasten_ <- function(..., error_class = NULL) {
       list(checks$local),
       list(check_all_args(checks$global))
     ))
-    chks <- chks[rev(!duplicated(rev(chks$call))), , drop = FALSE]
-    chks
+    deduplicate(chks, by = "call")
   }
   error_class <- error_class[nzchar(error_class)]
   function(f) {
