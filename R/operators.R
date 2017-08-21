@@ -17,8 +17,8 @@ fasten_ <- function(..., error_class = NULL) {
   function(f) {
     sig <- formals(f)
     args <- nomen(sig)
-    error_class_na <- is_empty(firm_checks(f)) || is_empty(error_class)
-    if (is_empty(args) || is_empty(checks) && error_class_na)
+    is_errcls_irrelevant <- is_empty(firm_checks(f)) || is_empty(error_class)
+    if (is_empty(args) || is_empty(checks) && is_errcls_irrelevant)
       return(f)
     chks <- assemble_checks(firm_checks(f), args)
     error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
