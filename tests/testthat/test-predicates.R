@@ -122,6 +122,8 @@ test_that("type predicates work", {
   expect_pass_fail(vld_logical(n = 1), TRUE, c(TRUE, TRUE))
   expect_pass_fail(vld_integer(), 0L, 0.0)
   expect_pass_fail(vld_integer(n = 1), 1L, 1:2)
+  expect_pass_fail(vld_integerish(), c(1.0, 2.0), 0.000001)
+  expect_pass_fail(vld_integerish(n = 1), 1.0, c(1.0, 2.0))
   expect_pass_fail(vld_double(), 1.1, 0L)
   expect_pass_fail(vld_double(n = 1), 1.1, c(0.0, 1.1))
   expect_pass_fail(vld_complex(), c(1 + 2i, 1i), 0)

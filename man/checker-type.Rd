@@ -50,6 +50,7 @@ baz(0, "text", list(1, 2))}
 \alias{vld_logical}
 \alias{vld_numerical}
 \alias{vld_integer}
+\alias{vld_integerish}
 \alias{vld_double}
 \alias{vld_complex}
 \alias{vld_character}
@@ -77,6 +78,8 @@ vld_logical(..., n = NULL)
 vld_numerical(..., n = NULL)
 
 vld_integer(..., n = NULL)
+
+vld_integerish(..., n = NULL)
 
 vld_double(..., n = NULL)
 

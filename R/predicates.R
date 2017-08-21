@@ -305,14 +305,15 @@ types_base <- list(
   environment = "an environment"
 )
 types_rlang <- list(
-  atomic      = "an atomic vector{{of_length(.value$n)}}",
-  list        = "a list{{of_length(.value$n)}}",
-  vector      = "an atomic vector or list{{of_length(.value$n)}}",
-  logical     = "a logical vector{{of_length(.value$n)}}",
-  integer     = "an integer vector{{of_length(.value$n)}}",
-  double      = "a double vector{{of_length(.value$n)}}",
-  character   = "a character vector{{of_length(.value$n)}}",
-  raw         = "a raw vector{{of_length(.value$n)}}"
+  atomic     = "an atomic vector{{of_length(.value$n)}}",
+  list       = "a list{{of_length(.value$n)}}",
+  vector     = "an atomic vector or list{{of_length(.value$n)}}",
+  logical    = "a logical vector{{of_length(.value$n)}}",
+  integer    = "an integer vector{{of_length(.value$n)}}",
+  integerish = "an integerish vector{{of_length(.value$n)}}",
+  double     = "a double vector{{of_length(.value$n)}}",
+  character  = "a character vector{{of_length(.value$n)}}",
+  raw        = "a raw vector{{of_length(.value$n)}}"
 )
 of_length <- function(n) {
   if (is.null(n)) "" else paste(" of length", n)
@@ -384,6 +385,7 @@ nms_checkers$type <- c(
   "vld_logical",
   "vld_numerical",
   "vld_integer",
+  "vld_integerish",
   "vld_double",
   "vld_complex",
   "vld_character",
