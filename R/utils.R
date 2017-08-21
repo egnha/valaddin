@@ -46,13 +46,14 @@ deparse_collapse <- function(x) {
 
 enumerate_many <- function(x, many = 2) {
   if (length(x) >= many)
-    paste(
-      vapply(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]]),
-             character(1)),
-      collapse = ""
-    )
+    enumerate(x)
   else
     paste0(x, "\n")
+}
+enumerate <- function(x) {
+  enumerations <-
+    vapply(seq_along(x), function(i) sprintf("%d) %s\n", i, x[[i]]), "")
+  paste(enumerations, collapse = "")
 }
 
 names_nondot <- function(x) {
