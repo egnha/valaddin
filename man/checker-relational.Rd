@@ -15,6 +15,15 @@
 \description{
 Relational checkers
 }
+\examples{
+f <- function(x, y) log(y - x) / log(x)
+foo <- firmly(f, vld_gt(0, x - 1, "y not greater than x" := y - x))
+foo(2, 4)
+\dontrun{
+foo(1, 2)
+foo(2, 2)}
+
+}
 \seealso{
 \code{\link[=all.equal]{all.equal()}}, \code{\link[=identical]{identical()}}
 }

@@ -532,6 +532,14 @@ NULL
 #'
 #' @seealso [all.equal()], [identical()]
 #'
+#' @examples
+#' f <- function(x, y) log(y - x) / log(x)
+#' foo <- firmly(f, vld_gt(0, x - 1, "y not greater than x" := y - x))
+#' foo(2, 4)
+#' \dontrun{
+#' foo(1, 2)
+#' foo(2, 2)}
+#'
 #' @name checker-relational
 NULL
 
