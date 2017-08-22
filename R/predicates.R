@@ -483,6 +483,13 @@ NULL
 #' @param which Object attribute(s).
 #' @param what Class name.
 #'
+#' @examples
+#' f <- function(x, y) NULL
+#' foo <- firmly(f, "x, y are not disjoint" := vld_empty(intersect(x, y)))
+#' foo(letters[1:3], letters[4:5])
+#' \dontrun{
+#' foo(letters[1:3], letters[3:5])}
+#'
 #' @name checker-property
 NULL
 

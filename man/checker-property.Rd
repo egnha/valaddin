@@ -17,6 +17,14 @@
 \description{
 Property checkers
 }
+\examples{
+f <- function(x, y) NULL
+foo <- firmly(f, "x, y are not disjoint" := vld_empty(intersect(x, y)))
+foo(letters[1:3], letters[4:5])
+\dontrun{
+foo(letters[1:3], letters[3:5])}
+
+}
 \seealso{
 \code{\link[=vld_null]{vld_null()}}, \code{\link[=vld_not_null]{vld_not_null()}}
 }
