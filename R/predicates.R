@@ -483,6 +483,8 @@ NULL
 #' @param which Object attribute(s).
 #' @param what Class name.
 #'
+#' @seealso [vld_null()], [vld_not_null()]
+#'
 #' @examples
 #' f <- function(x, y) NULL
 #' foo <- firmly(f, "x, y are not disjoint" := vld_empty(intersect(x, y)))
