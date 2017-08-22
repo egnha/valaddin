@@ -20,6 +20,7 @@ Property checkers
 \seealso{
 \code{\link[=vld_null]{vld_null()}}, \code{\link[=vld_not_null]{vld_not_null()}}
 }
+\alias{vld_empty}
 \alias{vld_not_empty}
 \alias{vld_singleton}
 \alias{vld_not_na}
@@ -32,6 +33,7 @@ Property checkers
 \alias{vld_has_attrs}
 \alias{vld_inherits}
 \usage{
+vld_empty(...)
 
 vld_not_empty(...)
 
