@@ -502,18 +502,6 @@ NULL
 #' @name checker-relation
 NULL
 
-#' Scalar type checkers
-#'
-#' @evalRd rd_alias(nms_checkers$scalar)
-#' @evalRd rd_usage(nms_checkers$scalar)
-#'
-#' @param \dots Expressions to validate.
-#'
-#' @seealso [vld_singleton()]
-#'
-#' @name checker-scalar-type
-NULL
-
 #' Set comparison checkers
 #'
 #' @evalRd rd_alias(nms_checkers$sets)

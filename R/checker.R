@@ -29,7 +29,6 @@
 #'   [Pattern checkers][checker-pattern],
 #'   [Property checkers][checker-property],
 #'   [Relation checkers][checker-relation],
-#'   [Scalar type checkers][checker-scalar-type],
 #'   [Set comparison checkers][checker-sets],
 #'   [Type checkers][checker-type]
 #'
