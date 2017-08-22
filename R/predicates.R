@@ -107,9 +107,9 @@ predicates$pattern <- list(
 )
 predicates$property <- list(
   list(
-    "not_null",
-    "{{.}} is NULL",
-    function(.) !is.null(.)
+    "empty",
+    "{{.}} is not empty",
+    is_empty
   ),
   list(
     "not_empty",
@@ -300,6 +300,11 @@ of_length <- function(n) {
 predicates$type <- c(
   list(
     list(
+      "not_null",
+      "{{.}} is NULL",
+      function(.) !is.null(.)
+    ),
+    list(
       "closure",
       "{{.}} is not a closure",
       function(.) typeof(.) == "closure"
@@ -372,6 +377,7 @@ nms_checkers <- lapply(predicates, function(x) {
 # Order types as they appear in the "R Language Definition" manual
 nms_checkers$type <- c(
   "vld_null",
+  "vld_not_null",
   "vld_symbol",
   "vld_pairlist",
   "vld_closure",

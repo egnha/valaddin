@@ -40,6 +40,7 @@ baz(0, "text", list(1, 2))}
 \link[rlang:type-predicates]{Type predicates}
 }
 \alias{vld_null}
+\alias{vld_not_null}
 \alias{vld_symbol}
 \alias{vld_pairlist}
 \alias{vld_closure}
@@ -61,6 +62,8 @@ baz(0, "text", list(1, 2))}
 \alias{vld_raw}
 \usage{
 vld_null(...)
+
+vld_not_null(...)
 
 vld_symbol(...)
 
