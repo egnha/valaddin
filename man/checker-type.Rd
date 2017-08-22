@@ -48,12 +48,15 @@ baz(0, "text", list(1, 2))}
 \alias{vld_atomic}
 \alias{vld_vector}
 \alias{vld_logical}
+\alias{vld_boolean}
 \alias{vld_numerical}
+\alias{vld_number}
 \alias{vld_integer}
 \alias{vld_integerish}
 \alias{vld_double}
 \alias{vld_complex}
 \alias{vld_character}
+\alias{vld_string}
 \alias{vld_list}
 \alias{vld_raw}
 \usage{
@@ -75,7 +78,11 @@ vld_vector(..., n = NULL)
 
 vld_logical(..., n = NULL)
 
+vld_boolean(...)
+
 vld_numerical(..., n = NULL)
+
+vld_number(...)
 
 vld_integer(..., n = NULL)
 
@@ -86,6 +93,8 @@ vld_double(..., n = NULL)
 vld_complex(..., n = NULL)
 
 vld_character(..., n = NULL, encoding = NULL)
+
+vld_string(...)
 
 vld_list(..., n = NULL)
 

@@ -4,7 +4,6 @@ predicates <- list(
   pattern  = NULL,
   property = NULL,
   relation = NULL,
-  scalar   = NULL,
   sets     = NULL,
   type     = NULL
 )
@@ -225,26 +224,6 @@ predicates$relation <- list(
     function(., upr, na.rm = FALSE) all(. <= upr, na.rm = na.rm)
   )
 )
-predicates$scalar <- list(
-  list(
-    "number",
-    "{{.}} is not a number",
-    function(.)
-      typeof(.) %in% c("double", "integer") && length(.) == 1 && !is.na(.)
-  ),
-  list(
-    "boolean",
-    "{{.}} is not a boolean",
-    function(.)
-      is.logical(.) && length(.) == 1 && !is.na(.)
-  ),
-  list(
-    "string",
-    "{{.}} is not a string",
-    function(.)
-      is.character(.) && length(.) == 1 && !is.na(.)
-  )
-)
 predicates$sets <- list(
   list(
     "in",
@@ -351,6 +330,24 @@ predicates$type <- c(
           return(FALSE)
         TRUE
       }
+    ),
+    list(
+      "number",
+      "{{.}} is not a number",
+      function(.)
+        typeof(.) %in% c("double", "integer") && length(.) == 1 && !is.na(.)
+    ),
+    list(
+      "boolean",
+      "{{.}} is not a boolean",
+      function(.)
+        is.logical(.) && length(.) == 1 && !is.na(.)
+    ),
+    list(
+      "string",
+      "{{.}} is not a string",
+      function(.)
+        is.character(.) && length(.) == 1 && !is.na(.)
     )
   ),
   make_predicate_data("base", types_base, "is."),
@@ -383,12 +380,15 @@ nms_checkers$type <- c(
   "vld_atomic",
   "vld_vector",
   "vld_logical",
+  "vld_boolean",
   "vld_numerical",
+  "vld_number",
   "vld_integer",
   "vld_integerish",
   "vld_double",
   "vld_complex",
   "vld_character",
+  "vld_string",
   "vld_list",
   "vld_raw"
 )
