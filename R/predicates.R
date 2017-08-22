@@ -522,7 +522,11 @@ NULL
 #' @param encoding Encoding of a string or character vector. One of `UTF-8`,
 #'   `latin1`, or `unknown`.
 #'
-#' @seealso [Type predicates][rlang::type-predicates]
+#' @seealso
+#'   - [Type predicates][rlang::type-predicates], which underlie the
+#'     length-dependent checkers (except `vld_numerical()`)
+#'   - [Object checkers][checker-object], for verifying identities that are not
+#'     characterized by type, e.g., data frames, which have type `list`
 #'
 #' @examples
 #' f <- function(x, y, z) NULL

@@ -37,7 +37,12 @@ baz(0, "text", list(1, 2))}
 
 }
 \seealso{
-\link[rlang:type-predicates]{Type predicates}
+\itemize{
+\item \link[rlang:type-predicates]{Type predicates}, which underlie the
+length-dependent checkers (except \code{vld_numerical()})
+\item \link[=checker-object]{Object checkers}, for verifying identities that are not
+characterized by type, e.g., data frames, which have type \code{list}
+}
 }
 \alias{vld_null}
 \alias{vld_not_null}
