@@ -479,7 +479,7 @@ NULL
 #'
 #' @param \dots Expressions to validate.
 #' @param nm,nms Name(s).
-#' @param n Length of vector or list.
+#' @param n Length.
 #' @param which Object attribute(s).
 #' @param what Class name.
 #'
@@ -514,7 +514,7 @@ NULL
 #' @evalRd rd_usage(nms_checkers$sets)
 #'
 #' @param \dots Expressions to validate
-#' @param set Vector to compare.
+#' @param set Reference set (as a vector).
 #'
 #' @name checker-sets
 NULL
@@ -525,7 +525,7 @@ NULL
 #' @evalRd rd_usage(nms_checkers$type)
 #'
 #' @param \dots Expressions to validate.
-#' @param n Length of vector.
+#' @param n Length.
 #' @param encoding Encoding of a string or character vector. One of `UTF-8`,
 #'   `latin1`, or `unknown`.
 #'

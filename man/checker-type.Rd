@@ -6,7 +6,7 @@
 \arguments{
 \item{\dots}{Expressions to validate.}
 
-\item{n}{Length of vector.}
+\item{n}{Length.}
 
 \item{encoding}{Encoding of a string or character vector. One of \code{UTF-8},
 \code{latin1}, or \code{unknown}.}

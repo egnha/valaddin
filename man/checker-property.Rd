@@ -8,7 +8,7 @@
 
 \item{nm, nms}{Name(s).}
 
-\item{n}{Length of vector or list.}
+\item{n}{Length.}
 
 \item{which}{Object attribute(s).}
 

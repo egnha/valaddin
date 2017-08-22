@@ -6,7 +6,7 @@
 \arguments{
 \item{\dots}{Expressions to validate}
 
-\item{set}{Vector to compare.}
+\item{set}{Reference set (as a vector).}
 }
 \description{
 Set comparison checkers
