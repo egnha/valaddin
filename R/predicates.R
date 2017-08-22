@@ -463,8 +463,8 @@ NULL
 #' @examples
 #' ymd <- function(y, m, d) paste(y, m, d, sep = "/")
 #' too_old <- "Not a 21st-century year"
-#' recent_ymd <-
-#'   firmly(ymd, too_old := vld_grepl("^20[[:digit:]]{2}$", as.character(y)))
+#' recent_ymd <- firmly(ymd, too_old := vld_grepl("^20[[:digit:]]{2}$", y))
+#'
 #' recent_ymd(2017, 01, 01)
 #' \dontrun{
 #' recent_ymd(1999, 01, 01)}
