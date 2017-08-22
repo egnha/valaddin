@@ -103,6 +103,18 @@ predicates$pattern <- list(
     "Pattern {{.expr$pattern}} is not matched in {{.}}",
     function(., pattern, ignore.case = FALSE, perl = FALSE)
       all(grepl(pattern, ., ignore.case = ignore.case, perl = perl))
+  ),
+  list(
+    "starts_with",
+    "Not every entry of {{.}} starts with {{.expr$prefix}}",
+    function(., prefix, na.rm = FALSE)
+      all(startsWith(as.character(.), prefix), na.rm = na.rm)
+  ),
+  list(
+    "ends_with",
+    "Not every entry of {{.}} ends with {{.expr$suffix}}",
+    function(., suffix, na.rm = FALSE)
+      all(endsWith(as.character(.), suffix), na.rm = na.rm)
   )
 )
 predicates$property <- list(
@@ -457,17 +469,30 @@ NULL
 #' @param pattern Regular expression.
 #' @param ignore.case Should pattern matching ignore case?
 #' @param perl Should Perl-compatible regular expressions be used?
+#' @param prefix,suffix String to match.
+#' @param na.rm Should `NA` values be disregarded?
 #'
-#' @seealso [grepl()]
+#' @details To maintain consistency with [grepl()], `vld_starts_with()` and
+#'   `vld_ends_with()` coerce to `character` before matching.
+#'
+#' @seealso [grepl()], [startsWith()], [endsWith()]
 #'
 #' @examples
 #' ymd <- function(y, m, d) paste(y, m, d, sep = "/")
+#'
 #' too_old <- "Not a 21st-century year"
 #' recent_ymd <- firmly(ymd, too_old := vld_grepl("^20[[:digit:]]{2}$", y))
 #'
 #' recent_ymd(2017, 01, 01)
 #' \dontrun{
 #' recent_ymd(1999, 01, 01)}
+#'
+#' way_too_old <- "Pre-2010 year is too old"
+#' more_recent_ymd <- firmly(ymd, way_too_old := vld_starts_with("201", y))
+#'
+#' more_recent_ymd(2017, 01, 01)
+#' \dontrun{
+#' more_recent_ymd(2001, 01, 01)}
 #'
 #' @name checker-pattern
 NULL
