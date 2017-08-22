@@ -482,19 +482,19 @@ NULL
 #' @name checker-property
 NULL
 
-#' Relation checkers
+#' Relational checkers
 #'
 #' @evalRd rd_alias(nms_checkers$relation)
 #' @evalRd rd_usage(nms_checkers$relation)
 #'
 #' @param \dots Expressions to validate.
-#' @param to Object to match.
+#' @param to Reference object.
 #' @param lwr,upr Lower/upper bound.
 #' @param na.rm Should `NA` values be disregarded?
 #'
 #' @seealso [all.equal()], [identical()]
 #'
-#' @name checker-relation
+#' @name checker-relational
 NULL
 
 #' Set comparison checkers

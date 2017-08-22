@@ -115,7 +115,7 @@ foobar(1, 0)}
 \link[=checker-object]{Object checkers},
 \link[=checker-pattern]{Pattern checkers},
 \link[=checker-property]{Property checkers},
-\link[=checker-relation]{Relation checkers},
+\link[=checker-relational]{Relational checkers},
 \link[=checker-sets]{Set comparison checkers},
 \link[=checker-type]{Type checkers}
 }
