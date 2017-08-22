@@ -12,9 +12,14 @@ Object checkers
 \examples{
 row_sums <- firmly(rowSums, vld_matrix(x))
 row_sums(matrix(1:6, 2, 3))
+
+## Meaningless to sum across rows when column units differ
 \dontrun{
 row_sums(mtcars)}
 
+}
+\seealso{
+\link[=checker-type]{Type checkers}
 }
 \alias{vld_call}
 \alias{vld_factor}

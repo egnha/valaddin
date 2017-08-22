@@ -438,8 +438,12 @@ NULL
 #' @examples
 #' row_sums <- firmly(rowSums, vld_matrix(x))
 #' row_sums(matrix(1:6, 2, 3))
+#'
+#' ## Meaningless to sum across rows when column units differ
 #' \dontrun{
 #' row_sums(mtcars)}
+#'
+#' @seealso [Type checkers][checker-type]
 #'
 #' @name checker-object
 NULL
