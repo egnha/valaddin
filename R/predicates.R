@@ -132,11 +132,6 @@ predicates$property <- list(
     function(.) !anyNA(.)
   ),
   list(
-    "sorted",
-    "{{.}} is not sorted",
-    function(.) !is.unsorted(.)
-  ),
-  list(
     "named",
     "{{.}} is not named",
     is_named

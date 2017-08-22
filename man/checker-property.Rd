@@ -24,7 +24,6 @@ Property checkers
 \alias{vld_singleton}
 \alias{vld_not_na}
 \alias{vld_without_na}
-\alias{vld_sorted}
 \alias{vld_named}
 \alias{vld_has_name}
 \alias{vld_has_names}
@@ -41,8 +40,6 @@ vld_singleton(...)
 vld_not_na(...)
 
 vld_without_na(...)
-
-vld_sorted(...)
 
 vld_named(...)
 
