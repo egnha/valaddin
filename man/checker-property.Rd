@@ -26,6 +26,7 @@ foo(letters[1:3], letters[3:5])}
 
 }
 \seealso{
+\link[=checker-sets]{Set comparison checkers},
 \code{\link[=vld_null]{vld_null()}}, \code{\link[=vld_not_null]{vld_not_null()}}
 }
 \alias{vld_empty}

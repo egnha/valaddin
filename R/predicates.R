@@ -508,7 +508,8 @@ NULL
 #' @param which Object attribute(s).
 #' @param what Class name.
 #'
-#' @seealso [vld_null()], [vld_not_null()]
+#' @seealso [Set comparison checkers][checker-sets],
+#'   [vld_null()], [vld_not_null()]
 #'
 #' @examples
 #' f <- function(x, y) NULL
@@ -550,6 +551,8 @@ NULL
 #'
 #' @param \dots Expressions to validate
 #' @param set Reference set (as a vector).
+#'
+#' @seealso [Set operations][setequal()], [Property checkers][checker-property]
 #'
 #' @examples
 #' s3methods <- function(x) {

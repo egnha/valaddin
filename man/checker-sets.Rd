@@ -33,6 +33,9 @@ foo(mdl, data)
 foo(NULL, data)}
 
 }
+\seealso{
+\link[=setequal]{Set operations}, \link[=checker-property]{Property checkers}
+}
 \alias{vld_in}
 \alias{vld_not_in}
 \alias{vld_include}
