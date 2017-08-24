@@ -296,7 +296,6 @@ types_rlang <- list(
   vector     = "an atomic vector or list{{of_length(.value$n)}}",
   logical    = "a logical vector{{of_length(.value$n)}}",
   integer    = "an integer vector{{of_length(.value$n)}}",
-  integerish = "an integerish vector{{of_length(.value$n)}}",
   double     = "a double vector{{of_length(.value$n)}}",
   character  = "a character vector{{of_length(.value$n)}}",
   raw        = "a raw vector{{of_length(.value$n)}}"
@@ -330,6 +329,17 @@ predicates$type <- c(
         if (!is.null(n) && length(.) != n)
           return(FALSE)
         TRUE
+      }
+    ),
+    list(
+      "integerish",
+      "{{.}} is not an integerish vector{{of_length(.value$n)}}",
+      function(., n = NULL) {
+        if (! typeof(.) %in% c("double", "integer"))
+          return(FALSE)
+        if (!is.null(n) && length(.) != n)
+          return(FALSE)
+        all(. == as.integer(.))
       }
     ),
     list(
