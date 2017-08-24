@@ -11,6 +11,28 @@
 \description{
 Set comparison checkers
 }
+\examples{
+s3methods <- function(x) {
+  methods <- attr(methods(class = class(x)), "info")
+  with(methods, generic[!isS4])
+}
+foo <- fasten(
+  vld_include("predict", s3methods(object))
+)(
+  function(object, data) {
+    pred <- predict(object, data)
+    "Do something with prediction"
+  }
+)
+
+mdl <- lm(mpg ~ wt, mtcars[1:10, ])
+data <- mtcars[11:12, ]
+
+foo(mdl, data)
+\dontrun{
+foo(NULL, data)}
+
+}
 \alias{vld_in}
 \alias{vld_not_in}
 \alias{vld_include}
