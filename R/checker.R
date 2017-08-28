@@ -161,7 +161,7 @@ prioritize_err_msg <- function(first, second) {
 #'
 #' @export
 vld_err_msg <- function(f) {
-  (f %@% "valaddin_error_message_quo") %||% empty_msg
+  attr(f, "valaddin_error_message_quo", exact = TRUE) %||% empty_msg
 }
 
 #' @param env Environment that is in scope when the `\{\{`-enclosed substrings
