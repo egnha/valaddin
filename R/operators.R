@@ -1,9 +1,9 @@
-chk_error_class <- vld(
+chk_error_class <- vld_checks(
   "'error_class' must be NULL or a character vector without NAs" :=
-    {is.null(.) || is.character(.) && !anyNA(.)} ~ error_class
+    {is.null(.) || is.character(.) && !anyNA(.)}(error_class)
 )
 fasten_ <- function(..., error_class = NULL) {
-  checks <- parse_checks(vld(...))
+  checks <- parse_checks(...)
   assemble_checks <- function(checks_prev, args) {
     check_all_args <- check_at_args(args)
     chks <- do.call("rbind", c(
@@ -59,7 +59,7 @@ fasten <- fasten_(UQS(chk_error_class))(fasten_)
 
 #' @export
 firmly <- fasten(
-  "'f' must be a function" := is.function ~ f,
+  "'f' must be a function" := is.function(f),
   UQS(chk_error_class)
 )(
   function(f, ..., error_class = NULL) {
