@@ -11,12 +11,8 @@ new_vld_collector <- function(f) {
 collect_with <- function(f) {
   collect_unnamed <- collect_unnamed_with(f)
   collect_named <- collect_named_with(f)
-  function(dots, defs) {
-    c(
-      lapply(dots, collect_unnamed),
-      lapply(defs, collect_named)
-    )
-  }
+  function(dots, defs)
+    c(lapply(dots, collect_unnamed), lapply(defs, collect_named))
 }
 
 collect_unnamed_with <- function(f) {
@@ -55,14 +51,13 @@ unpack_quosure <- function(x) {
 
 as_call <- function(x) {
   expr <- f_rhs(x)
-  if (is_call_head(expr))
+  if (is_bare_head(expr))
     f_rhs(x) <- new_language(expr)
   x
 }
-is_call_head <- function(x) {
+is_bare_head <- function(x) {
   !is.call(x) ||
-    is_block(x) || is_fn_declaration(x) ||
-    is_ns_public(x) || is_ns_private(x)
+    is_block(x) || is_fn_declaration(x) || is_ns_public(x) || is_ns_private(x)
 }
 check_is_symb <- function(nm) {
   symb <- as.symbol(nm)
