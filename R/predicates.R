@@ -310,13 +310,14 @@ predicates$set <- list(
     function(x, set) setequal(x, set)
   )
 )
-make_predicate_data <- function(ns, xs, prefix) {
+make_predicate_data <- function(ns, xs, prefix, env = baseenv()) {
   unname(
     Map(function(nm, this) {
       list(
         nm,
         paste("{{.}} is not", this),
-        getExportedValue(ns, paste0(prefix, nm))
+        getExportedValue(ns, paste0(prefix, nm)),
+        env = env
       )
     }, names(xs), xs)
   )
@@ -328,7 +329,6 @@ types_base <- list(
   environment = "an environment"
 )
 types_rlang <- list(
-  closure    = "a closure",
   atomic     = "an atomic vector{{of_length(.value$n)}}",
   list       = "a list{{of_length(.value$n)}}",
   vector     = "an atomic vector or list{{of_length(.value$n)}}",
@@ -349,6 +349,11 @@ predicates$type <- c(
       function(x) !is.null(x)
     ),
     list(
+      "closure",
+      "{{.}} is not a closure",
+      is_closure
+    ),
+    list(
       "language",
       "{{.}} is not of type 'language'",
       function(x) typeof(x) == "language"
@@ -362,7 +367,8 @@ predicates$type <- c(
         if (!is.null(n) && length(x) != n)
           return(FALSE)
         TRUE
-      }
+      },
+      env = environment()
     ),
     list(
       "integerish",
@@ -373,7 +379,8 @@ predicates$type <- c(
         if (!is.null(n) && length(x) != n)
           return(FALSE)
         all(x == as.integer(x))
-      }
+      },
+      env = environment()
     ),
     list(
       "complex",
@@ -384,7 +391,8 @@ predicates$type <- c(
         if (!is.null(n) && length(x) != n)
           return(FALSE)
         TRUE
-      }
+      },
+      env = environment()
     ),
     list(
       "number",
@@ -406,7 +414,7 @@ predicates$type <- c(
     )
   ),
   make_predicate_data("base", types_base, "is."),
-  make_predicate_data("rlang", types_rlang, "is_")
+  make_predicate_data("rlang", types_rlang, "is_", environment())
 )
 
 for (x in unlist(predicates, recursive = FALSE)) {
