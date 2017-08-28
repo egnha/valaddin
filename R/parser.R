@@ -71,36 +71,6 @@ as_predicate <- function(q, env) {
     list(expr = expr, fn = fn)
   }
 }
-is_lambda <- function(x) {
-  is.call(x) && (x[[1]] == sym_brace || x[[1]] == sym_dot)
-}
-sym_brace <- as.symbol("{")
-sym_dot   <- as.symbol(".")
-as_lambda <- function(x, env) {
-  if (x[[1]] == sym_brace)
-    x <- new_fn_expr(x)
-  else
-    x[[1]] <- nofrills::fn
-  fn <- eval_bare(x, env)
-  list(expr = substitute(fn), fn = fn)
-}
-new_fn_expr <- function(body, args = alist(. = )) {
-  call("function", as.pairlist(args), body)
-}
-err_not_function <- function(x, fault = NULL) {
-  x <- expr_label(x)
-  if (is.null(fault))
-    paste("Not a function:", x)
-  else
-    sprintf("Could not determine whether %s is a function: %s", x, fault)
-}
-maybe_error <- function(x) {
-  if (is_error(x))
-    conditionMessage(x)
-  else
-    NULL
-}
-is_error <- check_is_class("error")
 
 check_at_args <- function(args) {
   quo_args <- lapply(args, function(.)

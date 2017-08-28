@@ -29,6 +29,7 @@ check_is_class <- function(cls) {
   function(x)
     inherits(x, cls)
 }
+is_error <- check_is_class("error")
 
 # Substitute string into call, to avoid making a binding that could take
 # precedence over those in higher environments
