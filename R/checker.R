@@ -172,6 +172,8 @@ vld_err_msg <- function(f) {
 #' @export
 #' @rdname vld_err_msg
 `vld_err_msg<-` <- function(f, env = parent.frame(), value) {
+  if (!is_closure(f))
+    abort("Can only set error message for a closure")
   if (is_string(value))
     msg <- new_quosure(value, env)
   else if (is_quosure(value) && is_string(f_rhs(value)))

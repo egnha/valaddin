@@ -411,8 +411,9 @@ predicates$type <- c(
 
 for (x in unlist(predicates, recursive = FALSE)) {
   nm <- paste0("vld_", x[[1]])
-  vld_err_msg(x[[3]]) <- x[[2]]
-  assign(nm, x[[3]])
+  pred <- as_closure(x[[3]])
+  vld_err_msg(pred) <- new_quosure(x[[2]], x$env %||% baseenv())
+  assign(nm, pred)
 }
 
 #' @rawNamespace exportPattern("^vld_.+$")
