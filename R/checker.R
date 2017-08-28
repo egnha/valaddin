@@ -73,7 +73,7 @@ checker <- function(pred, msg = empty_msg) {
   `__pred_expr` <- function(args) as.call(c(pred$expr, args))
   fmls <- rearrange_formals(pred$fn)
   if (is_empty(names_nondot(fmls)))
-    `__eval_nondot_args` <- function() list()
+    `__eval_nondot_args` <- list
   else
     `__eval_nondot_args` <- eval_nondot_args
   chkr <- function(...) {
