@@ -1,10 +1,50 @@
+#' Basic predicates for validation
+#'
+#' @description The following predicate functions augment predicates from the
+#'   \pkg{base} and \pkg{rlang} packages to enable them to produce informative
+#'   error messages when used as checks in [fasten()], [firmly()], [validify()],
+#'   [validate()].
+#'
+#' - [Boolean predicates][predicates-boolean]
+#' - [Object predicates][predicates-object]
+#' - [Pattern predicates][predicates-pattern]
+#' - [Property predicates][predicates-property]
+#' - [Relational predicates][predicates-relational]
+#' - [Set predicates][predicates-set]
+#' - [Type predicates][predicates-type]
+#'
+#' @examples
+#' ## vld_double() and rlang::is_double() are identical as functions
+#' vld_double(runif(2))
+#' vld_double(runif(2), n = 1)
+#' vld_double(1:2)
+#' rlang::is_double(runif(2))
+#' rlang::is_double(runif(2), n = 1)
+#' rlang::is_double(1:2)
+#'
+#' ## But when rlang::is_double() is used in firmly(),
+#' ## it produces an auto-generated error message ...
+#' \dontrun{
+#' firmly(function(x) x, rlang::is_double(n = 1))(runif(2))}
+#'
+#' ## ... whereas vld_double() produces a specialized error message
+#' \dontrun{
+#' firmly(function(x) x, vld_double(n = 1))(runif(2))}
+#'
+#' \dontrun{
+#' validate(mtcars, is.matrix, {"cylinder" %in% names(.)})
+#' validate(mtcars, vld_matrix, vld_has_name("cylinder"))}
+#'
+#' @name predicates
+NULL
+
 predicates <- list(
   boolean  = NULL,
   object   = NULL,
   pattern  = NULL,
   property = NULL,
   relation = NULL,
-  sets     = NULL,
+  set      = NULL,
   type     = NULL
 )
 predicates$boolean <- list(
@@ -21,48 +61,45 @@ predicates$boolean <- list(
   list(
     "false",
     "{{.}} is not false",
-    function(.) identical(., FALSE)
+    function(x) identical(x, FALSE)
   ),
   list(
     "not",
     "{{.}} is not false",
-    function(.) identical(., FALSE)
+    function(x) identical(x, FALSE)
   ),
   list(
     "all",
     "{{.}} is not all true",
-    function(., na.rm = FALSE) all(., na.rm = na.rm)
+    function(x, na.rm = FALSE) all(x, na.rm = na.rm)
   ),
   list(
     "any",
     "{{.}} is all false",
-    function(., na.rm = FALSE) any(., na.rm = na.rm)
+    function(x, na.rm = FALSE) any(x, na.rm = na.rm)
   ),
   list(
     "none",
     "{{.}} not all false",
-    function(., na.rm = FALSE) all(!., na.rm = na.rm)
+    function(x, na.rm = FALSE) all(!x, na.rm = na.rm)
   ),
   list(
     "all_map",
     "{{.}} is not all true when mapped by {{.expr$f}}",
-    function(., f, na.rm = FALSE)
-      all(vapply(., f, logical(1)), na.rm = na.rm),
-    transformer = list(f = as_function)
+    function(x, f, na.rm = FALSE)
+      all(vapply(x, f, logical(1)), na.rm = na.rm)
   ),
   list(
     "any_map",
     "{{.}} is all false when mapped by {{.expr$f}}",
-    function(., f, na.rm = FALSE)
-      any(vapply(., f, logical(1)), na.rm = na.rm),
-    transformer = list(f = as_function)
+    function(x, f, na.rm = FALSE)
+      any(vapply(x, f, logical(1)), na.rm = na.rm)
   ),
   list(
     "none_map",
     "{{.}} not all false when mapped by {{.expr$f}}",
-    function(., f, na.rm = FALSE)
-      all(!vapply(., f, logical(1)), na.rm = na.rm),
-    transformer = list(f = as_function)
+    function(x, f, na.rm = FALSE)
+      all(!vapply(x, f, logical(1)), na.rm = na.rm)
   )
 )
 predicates$object <- list(
@@ -89,7 +126,7 @@ predicates$object <- list(
   list(
     "formula",
     "{{.}} is not a formula",
-    function(.) inherits(., "formula")
+    function(x) inherits(x, "formula")
   ),
   list(
     "function",
@@ -101,20 +138,20 @@ predicates$pattern <- list(
   list(
     "grepl",
     "Pattern {{.expr$pattern}} is not matched in {{.}}",
-    function(., pattern, ignore.case = FALSE, perl = FALSE)
-      all(grepl(pattern, ., ignore.case = ignore.case, perl = perl))
+    function(x, pattern, ignore.case = FALSE, perl = FALSE)
+      all(grepl(pattern, x, ignore.case = ignore.case, perl = perl))
   ),
   list(
     "starts_with",
     "Not every entry of {{.}} starts with {{.expr$prefix}}",
-    function(., prefix, na.rm = FALSE)
-      all(startsWith(as.character(.), prefix), na.rm = na.rm)
+    function(x, prefix, na.rm = FALSE)
+      all(startsWith(as.character(x), prefix), na.rm = na.rm)
   ),
   list(
     "ends_with",
     "Not every entry of {{.}} ends with {{.expr$suffix}}",
-    function(., suffix, na.rm = FALSE)
-      all(endsWith(as.character(.), suffix), na.rm = na.rm)
+    function(x, suffix, na.rm = FALSE)
+      all(endsWith(as.character(x), suffix), na.rm = na.rm)
   )
 )
 predicates$property <- list(
@@ -126,22 +163,22 @@ predicates$property <- list(
   list(
     "not_empty",
     "{{.}} is empty",
-    function(.) length(.) != 0
+    function(x) length(x) != 0
   ),
   list(
     "singleton",
     "{{.}} is not a singleton",
-    function(.) length(.) == 1
+    function(x) length(x) == 1
   ),
   list(
     "not_na",
     "{{.}} is NA",
-    function(.) !is_na(.)
+    function(x) !is_na(x)
   ),
   list(
     "without_na",
     "{{.}} has an NA",
-    function(.) !anyNA(.)
+    function(x) !anyNA(x)
   ),
   list(
     "named",
@@ -151,126 +188,126 @@ predicates$property <- list(
   list(
     "has_name",
     "{{.}} does not have name {{.value$nm}}",
-    function(., nm) isTRUE(nm %in% names(.))
+    function(x, nm) isTRUE(nm %in% names(x))
   ),
   list(
     "has_names",
     "{{.expr$nms}} are not all names of {{.}}",
-    function(., nms) all(nms %in% names(.))
+    function(x, nms) all(nms %in% names(x))
   ),
   list(
     "has_length",
     "{{.}} is not of length {{.value$n}}",
-    function(., n) length(.) == n
+    function(x, n) length(x) == n
   ),
   list(
     "has_attr",
     "{{.}} does not have attribute {{.value$which}}",
-    function(., which) !is.null(attr(., which, exact = TRUE))
+    function(x, which) !is.null(attr(x, which, exact = TRUE))
   ),
   list(
     "has_attrs",
     "{{.expr$which}} are not all attributes of {{.}}",
-    function(., which) all(which %in% names(attributes(.)))
+    function(x, which) all(which %in% names(attributes(x)))
   ),
   list(
     "inherits",
     '{{.}} is not of class "{{.value$what}}"',
-    function(., what) inherits(., what)
+    function(x, what) inherits(x, what)
   )
 )
 predicates$relation <- list(
   list(
     "identical",
     "{{.}} is not identical to {{.expr$to}}",
-    function(., to) identical(., to)
+    function(x, to) identical(x, to)
   ),
   list(
     "not_identical",
     "{{.}} is identical to {{.expr$to}}",
-    function(., to) !identical(., to)
+    function(x, to) !identical(x, to)
   ),
   list(
     "equal",
     "{{.}} does not equal {{.expr$to}}",
-    function(., to) isTRUE(all.equal(to, .))
+    function(x, to) isTRUE(all.equal(to, x))
   ),
   list(
     "not_equal",
     "{{.}} equals {{.expr$to}}",
-    function(., to) !isTRUE(all.equal(to, .))
+    function(x, to) !isTRUE(all.equal(to, x))
   ),
   list(
     "equivalent",
     "{{.}} is not equivalent to {{.expr$to}}",
-    function(., to) isTRUE(all.equal(to, ., check.attributes = FALSE))
+    function(x, to) isTRUE(all.equal(to, x, check.attributes = FALSE))
   ),
   list(
     "not_equivalent",
     "{{.}} is equivalent to {{.expr$to}}",
-    function(., to) !isTRUE(all.equal(to, ., check.attributes = FALSE))
+    function(x, to) !isTRUE(all.equal(to, x, check.attributes = FALSE))
   ),
   list(
     "gt",
     "{{.}} is not greater than {{.value$lwr}}",
-    function(., lwr, na.rm = FALSE) all(. > lwr, na.rm = na.rm)
+    function(x, lwr, na.rm = FALSE) all(x > lwr, na.rm = na.rm)
   ),
   list(
     "lt",
     "{{.}} is not less than {{.value$upr}}",
-    function(., upr, na.rm = FALSE) all(. < upr, na.rm = na.rm)
+    function(x, upr, na.rm = FALSE) all(x < upr, na.rm = na.rm)
   ),
   list(
     "gte",
     "{{.}} is not greater than or equal to {{.value$lwr}}",
-    function(., lwr, na.rm = FALSE) all(. >= lwr, na.rm = na.rm)
+    function(x, lwr, na.rm = FALSE) all(x >= lwr, na.rm = na.rm)
   ),
   list(
     "lte",
     "{{.}} is not less than or equal to {{.value$upr}}",
-    function(., upr, na.rm = FALSE) all(. <= upr, na.rm = na.rm)
+    function(x, upr, na.rm = FALSE) all(x <= upr, na.rm = na.rm)
   )
 )
-predicates$sets <- list(
+predicates$set <- list(
   list(
     "in",
     "{{.}} is not in {{.expr$set}}",
-    function(., set) isTRUE(. %in% set)
+    function(x, set) isTRUE(x %in% set)
   ),
   list(
     "not_in",
     "{{.}} is in {{.expr$set}}",
-    function(., set) isTRUE(! . %in% set)
+    function(x, set) isTRUE(! x %in% set)
   ),
   list(
     "include",
     "{{.}} does not include {{.expr$set}}",
-    function(., set) all(set %in% .)
+    function(x, set) all(set %in% x)
   ),
   list(
     "exclude",
     "{{.}} intersects {{.expr$set}}",
-    function(., set) all(! set %in% .)
+    function(x, set) all(! set %in% x)
   ),
   list(
     "within",
     "{{.}} is not contained in {{.expr$set}}",
-    function(., set) all(. %in% set)
+    function(x, set) all(x %in% set)
   ),
   list(
     "intersect",
     "{{.}} is disjoint from {{.expr$set}}",
-    function(., set) length(intersect(., set)) != 0
+    function(x, set) length(intersect(x, set)) != 0
   ),
   list(
     "avoid",
     "{{.}} intersects {{.expr$set}}",
-    function(., set) length(intersect(., set)) == 0
+    function(x, set) length(intersect(x, set)) == 0
   ),
   list(
     "setequal",
     "{{.}} and {{.expr$set}} are not equal as sets",
-    function(., set) setequal(., set)
+    function(x, set) setequal(x, set)
   )
 )
 make_predicate_data <- function(ns, xs, prefix) {
@@ -291,6 +328,7 @@ types_base <- list(
   environment = "an environment"
 )
 types_rlang <- list(
+  closure    = "a closure",
   atomic     = "an atomic vector{{of_length(.value$n)}}",
   list       = "a list{{of_length(.value$n)}}",
   vector     = "an atomic vector or list{{of_length(.value$n)}}",
@@ -308,25 +346,20 @@ predicates$type <- c(
     list(
       "not_null",
       "{{.}} is NULL",
-      function(.) !is.null(.)
-    ),
-    list(
-      "closure",
-      "{{.}} is not a closure",
-      function(.) typeof(.) == "closure"
+      function(x) !is.null(x)
     ),
     list(
       "language",
       "{{.}} is not of type 'language'",
-      function(.) typeof(.) == "language"
+      function(x) typeof(x) == "language"
     ),
     list(
       "numerical",
       "{{.}} is not a numerical vector{{of_length(.value$n)}}",
-      function(., n = NULL) {
-        if (! typeof(.) %in% c("double", "integer"))
+      function(x, n = NULL) {
+        if (! typeof(x) %in% c("double", "integer"))
           return(FALSE)
-        if (!is.null(n) && length(.) != n)
+        if (!is.null(n) && length(x) != n)
           return(FALSE)
         TRUE
       }
@@ -334,21 +367,21 @@ predicates$type <- c(
     list(
       "integerish",
       "{{.}} is not an integerish vector{{of_length(.value$n)}}",
-      function(., n = NULL) {
-        if (! typeof(.) %in% c("double", "integer"))
+      function(x, n = NULL) {
+        if (! typeof(x) %in% c("double", "integer"))
           return(FALSE)
-        if (!is.null(n) && length(.) != n)
+        if (!is.null(n) && length(x) != n)
           return(FALSE)
-        all(. == as.integer(.))
+        all(x == as.integer(x))
       }
     ),
     list(
       "complex",
       "{{.}} is not a complex vector{{of_length(.value$n)}}",
-      function(., n = NULL) {
-        if (typeof(.) != "complex")
+      function(x, n = NULL) {
+        if (typeof(x) != "complex")
           return(FALSE)
-        if (!is.null(n) && length(.) != n)
+        if (!is.null(n) && length(x) != n)
           return(FALSE)
         TRUE
       }
@@ -356,20 +389,20 @@ predicates$type <- c(
     list(
       "number",
       "{{.}} is not a number",
-      function(.)
-        typeof(.) %in% c("double", "integer") && length(.) == 1 && !is.na(.)
+      function(x)
+        typeof(x) %in% c("double", "integer") && length(x) == 1 && !is.na(x)
     ),
     list(
       "boolean",
       "{{.}} is not a boolean",
-      function(.)
-        is.logical(.) && length(.) == 1 && !is.na(.)
+      function(x)
+        is.logical(x) && length(x) == 1 && !is.na(x)
     ),
     list(
       "string",
       "{{.}} is not a string",
-      function(.)
-        is.character(.) && length(.) == 1 && !is.na(.)
+      function(x)
+        is.character(x) && length(x) == 1 && !is.na(x)
     )
   ),
   make_predicate_data("base", types_base, "is."),
@@ -378,8 +411,8 @@ predicates$type <- c(
 
 for (x in unlist(predicates, recursive = FALSE)) {
   nm <- paste0("vld_", x[[1]])
-  transformer <- x$transformer %||% list()
-  assign(nm, checker(UQ(x[[2]]) := UQ(x[[3]]), UQS(transformer)))
+  vld_err_msg(x[[3]]) <- x[[2]]
+  assign(nm, x[[3]])
 }
 
 #' @rawNamespace exportPattern("^vld_.+$")
@@ -387,12 +420,12 @@ NULL
 
 # Documentation -----------------------------------------------------------
 
-nms_checkers <- lapply(predicates, function(x) {
+nms_predicates <- lapply(predicates, function(x) {
   nms <- vapply(x, `[[`, character(1), 1)
   paste0("vld_", nms)
 })
 # Order types as they appear in the "R Language Definition" manual
-nms_checkers$type <- c(
+nms_predicates$type <- c(
   "vld_null",
   "vld_not_null",
   "vld_symbol",
@@ -416,12 +449,12 @@ nms_checkers$type <- c(
   "vld_raw"
 )
 
-#' Boolean checkers
+#' Boolean predicates
 #'
-#' @evalRd rd_alias(nms_checkers$boolean)
-#' @evalRd rd_usage(nms_checkers$boolean)
+#' @evalRd rd_alias(nms_predicates$boolean)
+#' @evalRd rd_usage(nms_predicates$boolean)
 #'
-#' @param \dots Expressions to validate.
+#' @param x Object to test.
 #' @param f Function to map over the expressions to validate.
 #' @param na.rm Should `NA` values be disregarded?
 #'
@@ -436,7 +469,7 @@ nms_checkers$type <- c(
 #'
 #' ## Require x to contain only non-empty objects
 #' error_msg <- "{{.}} contains empty objects"
-#' bar <- firmly(f, error_msg := vld_all_map(~ length(.) != 0, x))
+#' bar <- firmly(f, !! error_msg := vld_all_map(function(.) length(.) != 0, x))
 #' bar(1:2)
 #' \dontrun{
 #' bar(list(1, NULL))}
@@ -447,15 +480,15 @@ nms_checkers$type <- c(
 #' \dontrun{
 #' baz(list(1, NULL))}
 #'
-#' @name checker-boolean
+#' @name predicates-boolean
 NULL
 
-#' Object checkers
+#' Object predicates
 #'
-#' @evalRd rd_alias(nms_checkers$object)
-#' @evalRd rd_usage(nms_checkers$object)
+#' @evalRd rd_alias(nms_predicates$object)
+#' @evalRd rd_usage(nms_predicates$object)
 #'
-#' @param \dots Expressions to validate.
+#' @param x Object to test.
 #'
 #' @examples
 #' row_sums <- firmly(rowSums, vld_matrix(x))
@@ -465,17 +498,17 @@ NULL
 #' \dontrun{
 #' row_sums(mtcars)}
 #'
-#' @seealso [Type checkers][checker-type]
+#' @seealso [Type predicates][predicates-type]
 #'
-#' @name checker-object
+#' @name predicates-object
 NULL
 
-#' Pattern checkers
+#' Pattern predicates
 #'
-#' @evalRd rd_alias(nms_checkers$pattern)
-#' @evalRd rd_usage(nms_checkers$pattern)
+#' @evalRd rd_alias(nms_predicates$pattern)
+#' @evalRd rd_usage(nms_predicates$pattern)
 #'
-#' @param \dots Expressions to validate.
+#' @param x Object to test.
 #' @param pattern Regular expression.
 #' @param ignore.case Should pattern matching ignore case?
 #' @param perl Should Perl-compatible regular expressions be used?
@@ -491,34 +524,34 @@ NULL
 #' ymd <- function(y, m, d) paste(y, m, d, sep = "/")
 #'
 #' too_old <- "Not a 21st-century year"
-#' recent_ymd <- firmly(ymd, too_old := vld_grepl("^20[[:digit:]]{2}$", y))
+#' recent_ymd <- firmly(ymd, !! too_old := vld_grepl("^20[[:digit:]]{2}$", y))
 #'
 #' recent_ymd(2017, 01, 01)
 #' \dontrun{
 #' recent_ymd(1999, 01, 01)}
 #'
 #' way_too_old <- "Pre-2010 year is too old"
-#' more_recent_ymd <- firmly(ymd, way_too_old := vld_starts_with("201", y))
+#' more_recent_ymd <- firmly(ymd, !! way_too_old := vld_starts_with("201", y))
 #'
 #' more_recent_ymd(2017, 01, 01)
 #' \dontrun{
 #' more_recent_ymd(2001, 01, 01)}
 #'
-#' @name checker-pattern
+#' @name predicates-pattern
 NULL
 
-#' Property checkers
+#' Property predicates
 #'
-#' @evalRd rd_alias(nms_checkers$property)
-#' @evalRd rd_usage(nms_checkers$property)
+#' @evalRd rd_alias(nms_predicates$property)
+#' @evalRd rd_usage(nms_predicates$property)
 #'
-#' @param \dots Expressions to validate.
+#' @param x Object to test.
 #' @param nm,nms Name(s).
 #' @param n Length.
 #' @param which Object attribute(s).
 #' @param what Class name.
 #'
-#' @seealso [Set comparison checkers][checker-sets],
+#' @seealso [Set predicates][predicates-set],
 #'   [vld_null()], [vld_not_null()]
 #'
 #' @examples
@@ -528,15 +561,15 @@ NULL
 #' \dontrun{
 #' foo(letters[1:3], letters[3:5])}
 #'
-#' @name checker-property
+#' @name predicates-property
 NULL
 
-#' Relational checkers
+#' Relational predicates
 #'
-#' @evalRd rd_alias(nms_checkers$relation)
-#' @evalRd rd_usage(nms_checkers$relation)
+#' @evalRd rd_alias(nms_predicates$relation)
+#' @evalRd rd_usage(nms_predicates$relation)
 #'
-#' @param \dots Expressions to validate.
+#' @param x Object to test.
 #' @param to Reference object.
 #' @param lwr,upr Lower/upper bound.
 #' @param na.rm Should `NA` values be disregarded?
@@ -551,18 +584,19 @@ NULL
 #' foo(1, 2)
 #' foo(2, 2)}
 #'
-#' @name checker-relational
+#' @name predicates-relational
 NULL
 
-#' Set comparison checkers
+#' Set predicates
 #'
-#' @evalRd rd_alias(nms_checkers$sets)
-#' @evalRd rd_usage(nms_checkers$sets)
+#' @evalRd rd_alias(nms_predicates$set)
+#' @evalRd rd_usage(nms_predicates$set)
 #'
-#' @param \dots Expressions to validate
+#' @param x Object to test.
 #' @param set Reference set (as a vector).
 #'
-#' @seealso [Set operations][setequal()], [Property checkers][checker-property]
+#' @seealso [Set operations][setequal()],
+#'   [Property predicates][predicates-property]
 #'
 #' @examples
 #' s3methods <- function(x) {
@@ -585,24 +619,24 @@ NULL
 #' \dontrun{
 #' foo(NULL, data)}
 #'
-#' @name checker-sets
+#' @name predicates-set
 NULL
 
-#' Type checkers
+#' Type predicates
 #'
-#' @evalRd rd_alias(nms_checkers$type)
-#' @evalRd rd_usage(nms_checkers$type)
+#' @evalRd rd_alias(nms_predicates$type)
+#' @evalRd rd_usage(nms_predicates$type)
 #'
-#' @param \dots Expressions to validate.
+#' @param x Object to test.
 #' @param n Length.
 #' @param encoding Encoding of a string or character vector. One of `UTF-8`,
 #'   `latin1`, or `unknown`.
 #'
 #' @seealso
-#'   - [Type predicates][rlang::type-predicates], which underlie the
-#'     length-dependent checkers (except `vld_numerical()`)
-#'   - [Object checkers][checker-object], for verifying identities that are not
-#'     characterized by type, e.g., data frames, which have type `list`
+#'   - [rlang type predicates][rlang::type-predicates], which underlie the
+#'     length-dependent predicates (except `vld_numerical()`)
+#'   - [Object predicates][predicates-object], for verifying identities that are
+#'     not characterized by type, e.g., data frames, which have type `list`
 #'
 #' @examples
 #' f <- function(x, y, z) NULL
@@ -625,5 +659,5 @@ NULL
 #' \dontrun{
 #' baz(0, "text", list(1, 2))}
 #'
-#' @name checker-type
+#' @name predicates-type
 NULL
