@@ -13,8 +13,7 @@ Depends:
     R (>= 3.2.0)
 Imports:
     rlang (>= 0.1.2),
-    glue (>= 1.1.1),
-    nofrills (>= 0.1.0)
+    glue (>= 1.1.1)
 Suggests:
     testthat,
     purrr,
