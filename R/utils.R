@@ -9,21 +9,6 @@ try_eval_tidy <- function(expr, env = parent.frame()) {
   )
 }
 
-make_as <- function(this) {
-  is_this <- paste("is", this, sep = "_")
-  function(x)
-    `attr<-`(x, is_this, TRUE)
-}
-check_is <- function(this) {
-  is_this <- paste("is", this, sep = "_")
-  function(x)
-    isTRUE(attr(x, is_this, exact = TRUE))
-}
-check_is_caller <- function(nm) {
-  caller <- as.name(nm)
-  function(x)
-    is.call(x) && identical(x[[1]], caller)
-}
 check_is_class <- function(cls) {
   force(cls)
   function(x)
