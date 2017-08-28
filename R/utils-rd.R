@@ -12,7 +12,7 @@ call_sig_fn <- function(nm, width) {
   # Allowed range of values for width.cutoff parameter of deparse()
   stopifnot(width >= 20, width <= 500)
 
-  sig <- formals(get(nm, mode = "function"))
+  sig <- formals(as_closure(get(nm, mode = "function")))
   expr_chr <- sub(
     "^function", nm,
     paste(deparse(call("function", sig, quote(expr = ))), collapse = "")
