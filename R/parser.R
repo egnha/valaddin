@@ -1,75 +1,30 @@
 #' Parse input validation checks
 #'
-#' @param chks List of input-validation checks, as output by [vld()].
+#' @param ... Input-validation checks.
 #'
 #' @return List of parsed input validation checks, separated by scope: global vs
 #'   local. Complete parsing of global checks is deferred until the formal
 #'   arguments of the function are known.
 #'
 #' @noRd
-parse_checks <- function(chks) {
+parse_checks <- function(...) {
+  chks <- vld_checks(...)
   if (is_empty(chks))
     return(NULL)
-  chklist <- lapply(chks, parse_check)
-  is_global <- vapply(chklist, function(.) is_empty(.$chk_items), logical(1))
+  chkrs <- lapply(chks, as_checker)
+  is_gbl <- vapply(chkrs, has_no_check_items, logical(1))
   list(
-    global = chklist[is_global],
-    local  = tabulate_checks(chklist[!is_global])
+    global = chkrs[is_gbl],
+    local  = tabulate_checks(chkrs[!is_gbl])
   )
 }
-parse_check <- function(x) {
-  c(decompose_check(x), decompose_message(x$msg))
+as_checker <- function(chk) {
+  call <- f_rhs(chk$chk)
+  pred <- new_quosure(lang_head(call), f_env(chk$chk))
+  eval_bare(`[[<-`(call, 1, checker(pred, chk$msg)))
 }
-decompose_message <- function(msg) {
-  list(
-    msg = eval_tidy(msg),
-    env_msg = f_env(msg)
-  )
-}
-decompose_check <- function(x) {
-  if (is_chkr_validation(x))
-    return(x[c("fn", "expr", "chk_items")])
-  chk <- x$chk
-  chk_eval <- try_eval_tidy(chk)
-  if (is_formula(chk_eval)) {
-    env <- f_env(chk_eval)
-    fml <- get_check_formula(chk, chk_eval)
-    c(
-      as_predicate(f_lhs(fml), env),
-      chk_items = list(as_check_items(f_rhs(fml), env))
-    )
-  } else
-    c(
-      as_predicate(chk, f_env(chk)),
-      chk_items = list(NULL)
-    )
-}
-get_check_formula <- function(chk, chk_eval) {
-  x <- f_rhs(chk)
-  if (is_formula(x))
-    x
-  else
-    chk_eval
-}
-as_check_items <- function(x, env) {
-  if (is_vld_expr(x))
-    eval_bare(x, env)
-  else if (is_vld(x))
-    x
-  else
-    list(set_empty_msg(new_quosure(x, env)))
-}
-is_vld_expr <- check_is_caller("vld")
-as_predicate <- function(q, env) {
-  expr <- get_expr(q)
-  if (is_lambda(expr))
-    as_lambda(expr, env)
-  else {
-    fn <- try_eval_tidy(q, env)
-    if (!is.function(fn))
-      abort(err_not_function(expr, maybe_error(fn)))
-    list(expr = expr, fn = fn)
-  }
+has_no_check_items <- function(chkr) {
+  is_empty(chkr$chk_items)
 }
 
 check_at_args <- function(args) {
@@ -94,8 +49,9 @@ tabulate_check <- function(x) {
 }
 
 deparse_check <- function(expr, chk_items, msg_default, env_msg) {
+  msg_default <- eval_tidy(msg_default)
   calls <- vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
-  msgs <- vapply(chk_items, function(.) eval_tidy(.$msg), character(1))
+  msgs <- vapply(chk_items, function(.) f_rhs(.$msg), character(1))
   is_gbl <- !nzchar(msgs)
   msgs[is_gbl] <-
     make_message(msg_default, env_msg, chk_items[is_gbl], calls[is_gbl])
@@ -111,10 +67,7 @@ deparse_check <- function(expr, chk_items, msg_default, env_msg) {
 }
 deparse_call <- function(expr, arg) {
   expr_arg <- quo_expr(arg)
-  if (is_chkr_predicate_expr(expr))
-    call <- as.call(c(node_car(expr), expr_arg, node_cdr(expr)))
-  else
-    call <- as.call(c(expr, expr_arg))
+  call <- as.call(c(node_car(expr), expr_arg, node_cdr(expr)))
   deparse_collapse(call)
 }
 make_message <- function(msg, env_msg, chk_items, calls) {
