@@ -138,14 +138,14 @@ prioritize_err_msg <- function(first, second) {
 #' @return Quosure of a string.
 #'
 #' @examples
-#' is_integer <- is.integer
+#' is_integer <- rlang::as_closure(is.integer)
 #' vld_err_msg(is_integer) <- "{{.}} not of integer type (type: {typeof(.)})"
 #' vld_err_msg(is_integer)
 #'
 #' foo <- firmly(identity, is_integer)
 #' foo(1:3)
 #' \dontrun{
-#' foo(runif(1:3))}
+#' foo(runif(3))}
 #'
 #' is_integer <- rlang::is_integer
 #' msg <- local({
@@ -164,10 +164,15 @@ vld_err_msg <- function(f) {
   attr(f, "valaddin_error_message_quo", exact = TRUE) %||% empty_msg
 }
 
-#' @param env Environment that is in scope when the `\{\{`-enclosed substrings
-#'   of the error message are interpolated.
+#' @param env Environment that is in scope when any `\{\{`-enclosed substring
+#'   of the error message is interpolated.
 #' @param value Error message (string or [quosure][rlang::quosure] of a
 #'   string).
+#'
+#' @details An error message can only be set for predicate functions that are
+#'   [closures][base::function]. Thus if you want to set an error message of a
+#'   [primitive][base::Primitive] predicate, e.g., `is.nan()`, transform `f`
+#'   with [rlang::as_closure()].
 #'
 #' @export
 #' @rdname vld_err_msg

@@ -15,8 +15,8 @@ new_err_msg(msg, env = parent.frame())
 \arguments{
 \item{f}{Predicate function.}
 
-\item{env}{Environment that is in scope when the \code{\{\{}-enclosed substrings
-of the error message are interpolated.}
+\item{env}{Environment that is in scope when any \code{\{\{}-enclosed substring
+of the error message is interpolated.}
 
 \item{value}{Error message (string or \link[rlang:quosure]{quosure} of a
 string).}
@@ -29,15 +29,21 @@ Quosure of a string.
 \description{
 Get or set a validation error message
 }
+\details{
+An error message can only be set for predicate functions that are
+\link[base:function]{closures}. Thus if you want to set an error message of a
+\link[base:Primitive]{primitive} predicate, e.g., \code{is.nan()}, transform \code{f}
+with \code{\link[rlang:as_closure]{rlang::as_closure()}}.
+}
 \examples{
-is_integer <- is.integer
+is_integer <- rlang::as_closure(is.integer)
 vld_err_msg(is_integer) <- "{{.}} not of integer type (type: {typeof(.)})"
 vld_err_msg(is_integer)
 
 foo <- firmly(identity, is_integer)
 foo(1:3)
 \dontrun{
-foo(runif(1:3))}
+foo(runif(3))}
 
 is_integer <- rlang::is_integer
 msg <- local({
