@@ -310,7 +310,7 @@ predicates$set <- list(
     function(x, set) setequal(x, set)
   )
 )
-make_predicate_data <- function(ns, xs, prefix, env = baseenv()) {
+make_predicate_data <- function(ns, xs, prefix, env) {
   unname(
     Map(function(nm, this) {
       list(
@@ -338,9 +338,11 @@ types_rlang <- list(
   character  = "a character vector{{of_length(.value$n)}}",
   raw        = "a raw vector{{of_length(.value$n)}}"
 )
-of_length <- function(n) {
-  if (is.null(n)) "" else paste(" of length", n)
-}
+env_formatter <- new.env(parent = baseenv())
+env_formatter$of_length <- evalq(
+  function(n) if (is.null(n)) "" else paste(" of length", n),
+  env_formatter
+)
 predicates$type <- c(
   list(
     list(
@@ -368,7 +370,7 @@ predicates$type <- c(
           return(FALSE)
         TRUE
       },
-      env = environment()
+      env = env_formatter
     ),
     list(
       "integerish",
@@ -380,7 +382,7 @@ predicates$type <- c(
           return(FALSE)
         all(x == as.integer(x))
       },
-      env = environment()
+      env = env_formatter
     ),
     list(
       "complex",
@@ -392,7 +394,7 @@ predicates$type <- c(
           return(FALSE)
         TRUE
       },
-      env = environment()
+      env = env_formatter
     ),
     list(
       "number",
@@ -413,8 +415,8 @@ predicates$type <- c(
         is.character(x) && length(x) == 1 && !is.na(x)
     )
   ),
-  make_predicate_data("base", types_base, "is."),
-  make_predicate_data("rlang", types_rlang, "is_", environment())
+  make_predicate_data("base", types_base, "is.", baseenv()),
+  make_predicate_data("rlang", types_rlang, "is_", env_formatter)
 )
 
 for (x in unlist(predicates, recursive = FALSE)) {
