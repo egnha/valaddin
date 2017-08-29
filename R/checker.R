@@ -173,7 +173,9 @@ vld_err_msg <- function(f) {
 #' @rdname vld_err_msg
 `vld_err_msg<-` <- function(f, env = parent.frame(), value) {
   if (!is_closure(f))
-    abort("Can only set error message for a closure")
+    abort("Can only set error message for predicates that are closures")
+  if (!is.environment(env))
+    abort("'env' must be an environment")
   if (is_string(value))
     msg <- new_quosure(value, env)
   else if (is_quosure(value) && is_string(f_rhs(value)))
@@ -190,6 +192,8 @@ vld_err_msg <- function(f) {
 new_err_msg <- function(msg, env = parent.frame()) {
   if (!is_string(msg))
     abort("Error message much be a string")
+  if (!is.environment(env))
+    abort("'env' must be an environment")
   new_quosure(msg, env)
 }
 
