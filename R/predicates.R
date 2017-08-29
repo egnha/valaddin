@@ -85,19 +85,19 @@ predicates$boolean <- list(
   ),
   list(
     "all_map",
-    "{{.}} is not all true when mapped by {{.expr$f}}",
+    "{{.}} is not all true when mapped by {{.expr$.f}}",
     function(x, .f, na.rm = FALSE)
       all(vapply(x, .f, logical(1)), na.rm = na.rm)
   ),
   list(
     "any_map",
-    "{{.}} is all false when mapped by {{.expr$f}}",
+    "{{.}} is all false when mapped by {{.expr$.f}}",
     function(x, .f, na.rm = FALSE)
       any(vapply(x, .f, logical(1)), na.rm = na.rm)
   ),
   list(
     "none_map",
-    "{{.}} not all false when mapped by {{.expr$f}}",
+    "{{.}} not all false when mapped by {{.expr$.f}}",
     function(x, .f, na.rm = FALSE)
       all(!vapply(x, .f, logical(1)), na.rm = na.rm)
   )
