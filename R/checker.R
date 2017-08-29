@@ -5,58 +5,6 @@
 #'
 #' @return Function that generates input validation checks.
 #'
-#' @examples
-#' f <- function(x, y) "Pass"
-#'
-#' ## Make a positivity checker
-#' chk_pos <- checker("{{.}} is not positive" := {isTRUE(. > 0)})
-#' foo <- firmly(f, chk_pos(x, x - y))
-#'
-#' foo(2, 1)
-#' \dontrun{
-#' foo(1, 2)}
-#'
-#' ## Make a parameterized length checker
-#' msg <- "{{.}} not of length {{.value$l}} (actual length: {length(.)})"
-#' chk_len <- checker(msg := function(., l) length(.) == l)
-#'
-#' ## Equivalently, use abbreviated notation for anonymous functions
-#' chk_len <- checker(msg := .(., l ~ length(.) == l))
-#'
-#' bar <- firmly(f, chk_len(l = 2, y))
-#'
-#' bar(1, 1:2)
-#' \dontrun{
-#' bar(1:2, 1)}
-#'
-#' ## Apply a checker to all function arguments, by specifying none explicitly
-#' baz <- firmly(f, chk_len(1))
-#'
-#' baz(1, 2)
-#' \dontrun{
-#' baz(1, 2:3)}
-#'
-#' ## Rewrite the error message
-#' chkr_message(chk_len) <- "Length of {{.}} is {length(.)} not {{.expr$l}}"
-#'
-#' len <- 1
-#' baz <- firmly(f, chk_len(l = len))
-#' \dontrun{
-#' baz(1, 2:3)}
-#'
-#' ## Since the error message encodes the expression of `l` (i.e., `.expr$l`),
-#' ## unquote if you want to show the value of `l` instead
-#' baz <- firmly(f, chk_len(l = !! len))
-#' \dontrun{
-#' baz(1, 2:3)}
-#'
-#' ## Predicate arguments can be (pre-)transformed
-#' chk_with <- checker(.(., f ~ f(.)), f = rlang::as_function)
-#' foobar <- firmly(f, "{{.}} is not positive" := chk_with(~ . > 0))
-#' foobar(1, 2)
-#' \dontrun{
-#' foobar(1, 0)}
-#'
 #' @noRd
 checker <- function(pred, msg = empty_msg) {
   pred <- as_predicate(pred)

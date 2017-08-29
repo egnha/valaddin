@@ -2,16 +2,28 @@
 % Please edit documentation in R/collectors.R
 \name{vld_checks}
 \alias{vld_checks}
-\alias{vld_exprs}
 \title{Specify validation checks}
 \usage{
 vld_checks(...)
-
-vld_exprs(...)
 }
 \arguments{
-\item{...}{Checks or expressions to check.}
+\item{...}{Validation checks.}
 }
 \description{
 Specify validation checks
+}
+\examples{
+f <- function(x, y) "Pass"
+
+## Make a positivity checker
+chk_pos <- vld_checks("{{.}} is not positive" := {isTRUE(. > 0)}(x, x - y))
+foo <- firmly(f, !!! chk_pos)
+
+foo(2, 1)
+\dontrun{
+foo(1, 2)}
+
+}
+\seealso{
+\code{\link[=vld_exprs]{vld_exprs()}}
 }
