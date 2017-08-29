@@ -31,7 +31,7 @@ set_empty_msg <- function(x) {
 is_empty_msg <- function(msg) {
   !nzchar(f_rhs(msg))
 }
-empty_msg <- quo("")
+empty_msg <- new_quosure("", emptyenv())
 
 collect_named_with <- function(f) {
   force(f)
