@@ -86,20 +86,20 @@ predicates$boolean <- list(
   list(
     "all_map",
     "{{.}} is not all true when mapped by {{.expr$f}}",
-    function(x, f, na.rm = FALSE)
-      all(vapply(x, f, logical(1)), na.rm = na.rm)
+    function(x, .f, na.rm = FALSE)
+      all(vapply(x, .f, logical(1)), na.rm = na.rm)
   ),
   list(
     "any_map",
     "{{.}} is all false when mapped by {{.expr$f}}",
-    function(x, f, na.rm = FALSE)
-      any(vapply(x, f, logical(1)), na.rm = na.rm)
+    function(x, .f, na.rm = FALSE)
+      any(vapply(x, .f, logical(1)), na.rm = na.rm)
   ),
   list(
     "none_map",
     "{{.}} not all false when mapped by {{.expr$f}}",
-    function(x, f, na.rm = FALSE)
-      all(!vapply(x, f, logical(1)), na.rm = na.rm)
+    function(x, .f, na.rm = FALSE)
+      all(!vapply(x, .f, logical(1)), na.rm = na.rm)
   )
 )
 predicates$object <- list(
@@ -466,7 +466,7 @@ nms_predicates$type <- c(
 #' @evalRd rd_usage(nms_predicates$boolean)
 #'
 #' @param x Object to test.
-#' @param f Function to map over the expressions to validate.
+#' @param .f Function to map over the expressions to validate.
 #' @param na.rm Should `NA` values be disregarded?
 #'
 #' @examples

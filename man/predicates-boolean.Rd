@@ -6,7 +6,7 @@
 \arguments{
 \item{x}{Object to test.}
 
-\item{f}{Function to map over the expressions to validate.}
+\item{.f}{Function to map over the expressions to validate.}
 
 \item{na.rm}{Should \code{NA} values be disregarded?}
 }
@@ -61,9 +61,9 @@ vld_any(x, na.rm = FALSE)
 
 vld_none(x, na.rm = FALSE)
 
-vld_all_map(x, f, na.rm = FALSE)
+vld_all_map(x, .f, na.rm = FALSE)
 
-vld_any_map(x, f, na.rm = FALSE)
+vld_any_map(x, .f, na.rm = FALSE)
 
-vld_none_map(x, f, na.rm = FALSE)
+vld_none_map(x, .f, na.rm = FALSE)
 }
