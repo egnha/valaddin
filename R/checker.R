@@ -161,7 +161,7 @@ prioritize_err_msg <- function(first, second) {
 #'
 #' @export
 vld_err_msg <- function(f) {
-  attr(f, "valaddin_error_message_quo", exact = TRUE) %||% empty_msg
+  environment(f)$`__valaddin_error_message_quo` %||% empty_msg
 }
 
 #' @param env Environment that is in scope when any `\{\{`-enclosed substring
@@ -187,7 +187,10 @@ vld_err_msg <- function(f) {
     msg <- value
   else
     abort("Error message must be a string or quosure (of a string)")
-  `attr<-`(f, "valaddin_error_message_quo", msg)
+  env_msg <- new.env(parent = environment(f))
+  environment(f) <- env_msg
+  env_msg$`__valaddin_error_message_quo` <- msg
+  invisible(f)
 }
 
 #' @param msg Error message (string).
