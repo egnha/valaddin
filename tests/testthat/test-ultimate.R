@@ -1,13 +1,5 @@
 context("Ultimate validation syntax")
 
-only <- function(x, not) {
-  sprintf("(?!.*%s).*%s.*$", not, x)
-}
-both <- function(x, y) {
-  # Need (?s:.)* because .* won't match newline as Perl regex
-  sprintf("(%s(?s:.)*%s)|(%s(?s:.)*%s)", x, y, y, x)
-}
-
 f <- function(x, y) NULL
 
 false_x <- only(errmsg_false("isTRUE(x)"), not = errmsg_false("isTRUE(y)"))

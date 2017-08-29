@@ -34,3 +34,11 @@ expect_n_errors <- function(n, f, args, pattern) {
   } %>%
     expect_equal(n)
 }
+
+only <- function(x, not) {
+  sprintf("(?!.*%s).*%s.*$", not, x)
+}
+both <- function(x, y) {
+  # Need (?s:.)* because .* won't match newline as Perl regex
+  sprintf("(%s(?s:.)*%s)|(%s(?s:.)*%s)", x, y, y, x)
+}
