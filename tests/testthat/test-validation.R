@@ -34,12 +34,12 @@ context("Local check")
 
 test_that("check formula with non-vld() RHS checks whole RHS expression", {
   # check of a bare argument
-  f <- firmly(function(x, y) NULL, isTRUE ~ x)
+  f <- firmly(function(x, y) NULL, isTRUE(x))
   expect_error(f(TRUE, stop("!")), NA)
   expect_error(f(FALSE), errmsg_false("isTRUE(x)"))
 
   # check of an expression of arguments
-  f <- firmly(function(x, y) NULL, isTRUE ~ length(x) == 1L)
+  f <- firmly(function(x, y) NULL, isTRUE(length(x) == 1L))
   expect_error(f(1, stop("!")), NA)
   expect_error(f(1:2), errmsg_false("isTRUE(length(x) == 1L)"))
 })
@@ -47,13 +47,13 @@ test_that("check formula with non-vld() RHS checks whole RHS expression", {
 test_that("check formula with vld() RHS checks contained expressions", {
   is_positive <- function(x) isTRUE(x > 0)
 
-  f <- firmly(function(x, y) NULL, is_positive ~ vld(x, y, x - y))
+  f <- firmly(function(x, y) NULL, is_positive(x, y, x - y))
   expect_error(f(2, 1), NA)
   expect_error(f(0, 1), errmsg_false("is_positive(x)"))
   expect_error(f(0, 1), errmsg_false("is_positive(x - y)"))
 
-  check_items <- vld(x, y, x - y)
-  f <- firmly(function(x, y) NULL, is_positive ~ !! check_items)
+  check_items <- vld_exprs(x, y, x - y)
+  f <- firmly(function(x, y) NULL, is_positive(!!! check_items))
   expect_error(f(2, 1), NA)
   expect_error(f(0, 1), errmsg_false("is_positive(x)"))
   expect_error(f(0, 1), errmsg_false("is_positive(x - y)"))
@@ -64,26 +64,16 @@ context("Lambda predicate function")
 
 test_that("global lambda expression is interpreted as a predicate function", {
   z <- 0
-
   f <- firmly(function(x, y) NULL, {. > z})
   expect_error(f(1, 1), NA)
   expect_error_perl(f(0), errmsg_false("(function (.) {. > z})(x)"))
-
-  f <- firmly(function(x, y) NULL, .(. ~ . > z))
-  expect_error(f(1, 1), NA)
-  expect_error_perl(f(0), errmsg_false("(function (.) . > z)(x)"))
 })
 
 test_that("local lambda expression is interpreted as a predicate function", {
   z <- 0
-
-  f <- firmly(function(x, y) NULL, {. > z} ~ x)
+  f <- firmly(function(x, y) NULL, {. > z}(x))
   expect_error(f(1, stop("!")), NA)
   expect_error_perl(f(0), errmsg_false("(function (.) {. > z})(x)"))
-
-  f <- firmly(function(x, y) NULL, .(. ~ . > z) ~ x)
-  expect_error(f(1, stop("!")), NA)
-  expect_error_perl(f(0), errmsg_false("(function (.) . > z)(x)"))
 })
 
 # Quasiquotation ----------------------------------------------------------
@@ -109,7 +99,7 @@ test_that("local predicate function supports quasiquotation", {
     z <- 0
     function(x) x > z
   })
-  f <- firmly(function(x, y) NULL, UQ(predicate) ~ y, {. > !! zero} ~ x)
+  f <- firmly(function(x, y) NULL, UQ(predicate)(y), {. > !! zero}(x))
   expect_error(f(1, 1), NA)
   expect_error_perl(f(0, 0), errmsg_false("(function (x) x > z)(y)"))
   expect_error_perl(f(0, 0), errmsg_false("(function (.) {. > 0})(x)"))
@@ -121,13 +111,13 @@ test_that("check items support quasiquotation", {
     rlang::quo(y - one)
   })
   two <- 2
-  f <- firmly(function(x, y) NULL, {. > 0} ~ vld(x - !! two, !! q))
+  f <- firmly(function(x, y) NULL, {. > 0}(x - !! two, !! q))
   expect_error(f(3, 2), NA)
   expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(x - 2)"))
   expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(y - one)"))
 
-  check_items <- vld(x - !! two, !! q)
-  f <- firmly(function(x, y) NULL, {. > 0} ~ !! check_items)
+  check_items <- vld_exprs(x - !! two, !! q)
+  f <- firmly(function(x, y) NULL, {. > 0}(!!! check_items))
   expect_error(f(3, 2), NA)
   expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(x - 2)"))
   expect_error_perl(f(2, 1), errmsg_false("(function (.) {. > 0})(y - one)"))
@@ -142,7 +132,7 @@ test_that("error message for global check supports quasiquotation", {
 
 test_that("error message local to check item supports quasiquotation", {
   msg <- "'x' is not true: {x}"
-  f <- firmly(function(x, y) NULL, isTRUE ~ vld(!! msg := x))
+  f <- firmly(function(x, y) NULL, isTRUE(!! msg := x))
   expect_error(f(TRUE), NA)
   expect_error(f("indeed not"), "'x' is not true: indeed not")
 })
@@ -151,9 +141,9 @@ test_that("error message local to check item supports quasiquotation", {
 context("Splicing checks")
 
 test_that("checks can be spliced when wrapped by vld()", {
-  chk_pos <- vld("{{.}} is not positive" := {isTRUE(. > 0)})
-  chk_len <- vld("Length is {length(x)}" := length(x))
-  f <- firmly(log, is.numeric, !!! chk_pos, {. == 1} ~ !! chk_len)
+  chk_pos <- vld_checks("{{.}} is not positive" := {isTRUE(. > 0)})
+  chk_len <- vld_exprs("Length is {length(x)}" := length(x))
+  f <- firmly(log, is.numeric, !!! chk_pos, {. == 1}(!!! chk_len))
   expect_equal(f(1), 0)
   expect_error(f("1"), errmsg_false("is.numeric(x)"))
   expect_error(f(0), "x is not positive")
@@ -179,7 +169,7 @@ test_that("local predicate function is evaluated in scope of check item", {
   f <- local({
     private <- "private"
     is_private <- function(.) identical(., private)
-    firmly(function(x) NULL, is_private ~ x)
+    firmly(function(x) NULL, is_private(x))
   })
   private <- "not private"  # should be ignored by f
   expect_error(f("private"), NA)
@@ -190,7 +180,7 @@ test_that("input validation is evaluated in environment of check item", {
   f <- local({
     private <- "private"
     predicate <- base::identical
-    firmly(function(x) NULL, isTRUE ~ predicate(x, private))
+    firmly(function(x) NULL, isTRUE(predicate(x, private)))
   })
   private <- "not private"         # private and predicate
   predicate <- function(...) TRUE  # should be ignored by f
@@ -201,7 +191,7 @@ test_that("input validation is evaluated in environment of check item", {
 test_that("check-item names don't clash with names in calling frame", {
   f <- local({
     private <- "private"
-    firmly(function(x) NULL, isTRUE ~ identical(x, private))
+    firmly(function(x) NULL, isTRUE(identical(x, private)))
   })
   private <- "not private"  # should be ignored by f
   expect_error(f("private"), NA)
@@ -212,7 +202,7 @@ test_that("predicate function doesn't clash with names in calling frame", {
   f <- local({
     private <- "private"
     is_private <- function(.) identical(., private)
-    firmly(function(x) NULL, is_private ~ x)
+    firmly(function(x) NULL, is_private(x))
   })
   is_private <- function(...) FALSE  # should be ignored by f
   expect_error(f("private"), NA)
