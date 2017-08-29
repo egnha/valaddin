@@ -14,7 +14,7 @@ test_that("firm_core returns NULL for non-firmly applied functions", {
 test_that("firm_checks gets data frame of checks for firmly applied function", {
   f <- firmly(function(x, y) NULL,
               "{{.}} not numeric" := is.numeric,
-              {isTRUE(. > 0)} ~ vld("x not greater than y" := x - y))
+              {isTRUE(. > 0)}("x not greater than y" := x - y))
   chks <- firm_checks(f)
   nms <- c("pred", "expr", "call", "msg", "env_msg", "is_msg_gbl")
   expect_true(is.data.frame(chks))
