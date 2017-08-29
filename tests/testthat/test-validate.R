@@ -6,7 +6,7 @@ test_that("object is returned invisibly when validation passes", {
     validate(mtcars,
              is.data.frame,
              {nrow(.) > 1},
-             all ~ c("mpg", "cyl") %in% colnames(.)),
+             all(c("mpg", "cyl") %in% colnames(.))),
     mtcars
   )
   # ... invisibly
@@ -15,7 +15,7 @@ test_that("object is returned invisibly when validation passes", {
       validate(mtcars,
                is.data.frame,
                {nrow(.) > 1},
-               all ~ c("mpg", "cyl") %in% colnames(.))
+               all(c("mpg", "cyl") %in% colnames(.)))
     ),
     ""
   )
@@ -26,14 +26,14 @@ test_that("error listing violations is signaled when validation fails", {
   expect_error(
     validate(mtcars,
              is.matrix,
-             "Not enough rows: {.}" := {. > n + 1} ~ nrow(.),
+             "Not enough rows: {.}" := {. > n + 1}(nrow(.)),
              {all(c("mpg", "cyl") %in% colnames(.))}),
     errmsg_false("is.matrix(.)")
   )
   expect_error(
     validate(mtcars,
              is.matrix,
-             "Not enough rows: {.}" := {. > n + 1} ~ nrow(.),
+             "Not enough rows: {.}" := {. > n + 1}(nrow(.)),
              {all(c("mpg", "cyl") %in% colnames(.))}),
     paste("Not enough rows:", nrow(mtcars))
   )
@@ -43,7 +43,7 @@ test_that("validify() creates object validator", {
   n <- nrow(mtcars)
   verify_fail <- validify(
     is.matrix,
-    "Not enough rows: {.}" := {. > n + 1} ~ nrow(.),
+    "Not enough rows: {.}" := {. > n + 1}(nrow(.)),
     {all(c("mpg", "cyl") %in% colnames(.))}
   )
   expect_error(
@@ -58,7 +58,7 @@ test_that("validify() creates object validator", {
   verify_pass <- validify(
     is.data.frame,
     {nrow(.) > 1},
-    all ~ c("mpg", "cyl") %in% colnames(.)
+    all(c("mpg", "cyl") %in% colnames(.))
   )
   # valid object is returned ...
   expect_identical(verify_pass(mtcars), mtcars)
