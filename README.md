@@ -87,7 +87,7 @@ valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquo
 
 ``` r
 z <- 0
-in_triangle <- vld_checks(
+in_triangle <- vld_spec(
   "{{.}} is not positive (value is {.})" :=
     {isTRUE(. > !! z)}(x, y, 1 - x - y)
 )
@@ -104,7 +104,7 @@ bc4(.5, .6)
 
 This reads as follows:
 
--   `vld_checks()` encapsulates the condition that `x`, `y`, `1 - x - y` are positive, as a formula [definition](http://rlang.tidyverse.org/reference/quosures.html#details). The predicate itself is succinctly expressed using [magrittr](https://github.com/tidyverse/magrittr)’s shorthand for anonymous functions. The unquoting operator `!!` ensures that the *value* of `z` is “burned into” the check.
+-   `vld_spec()` encapsulates the condition that `x`, `y`, `1 - x - y` are positive, as a formula [definition](http://rlang.tidyverse.org/reference/quosures.html#details). The predicate itself is succinctly expressed using [magrittr](https://github.com/tidyverse/magrittr)’s shorthand for anonymous functions. The unquoting operator `!!` ensures that the *value* of `z` is “burned into” the check.
 
 -   The additional condition that `(x, y)` lies in a triangle is imposed by splicing it in with the `!!!` operator.
 
