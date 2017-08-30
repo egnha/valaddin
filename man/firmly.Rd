@@ -9,7 +9,7 @@
 \arguments{
 \item{f}{Function.}
 
-\item{\dots}{Input validation checks.}
+\item{...}{Input validation checks.}
 
 \item{error_class}{Subclass of the error condition to be raised when an input
 validation error occurs (character). If \code{NULL} (the default), the error
@@ -22,14 +22,15 @@ The main functions of valaddin apply or undo input validation checks to
 functions:
 \itemize{
 \item \code{firmly()} transforms a function into a function with input validation
-checks.
+checks
 \item \code{loosely()} undoes the application of \code{firmly()}, by returning the
-original function (without checks).
+original function (without checks)
 \item \code{fasten()} is a \href{https://en.wikipedia.org/wiki/Currying}{currying} of
 \code{firmly()}: given a set of input validations, it returns a \emph{functional
-operator} that applies the input validations.
+operator} that applies the input validations
 \item \code{is_firm()} is a predicate function that checks whether an object is a
-firmly applied function, i.e., a function created by \code{firmly().}
+firmly applied function, i.e., a function created by \code{fasten()} or
+\code{firmly()}
 }
 }
 \section{Specifying input validations}{
@@ -37,49 +38,35 @@ firmly applied function, i.e., a function created by \code{firmly().}
 }
 
 \examples{
-\dontrun{
-
 bc <- function(x, y) c(x, y, 1 - x - y)
 
 ## Ensure that inputs are numeric
 bc1 <- firmly(bc, is.numeric)
-
 bc1(.5, .2)
-#> [1] 0.5 0.2 0.3
-
-bc1(.5, ".2")
-#> Error: bc1(x = 0.5, y = ".2")
-#> FALSE: is.numeric(y)
+\dontrun{
+bc1(.5, ".2")}
 
 ## Use custom error messages
 bc2 <- firmly(bc, "{{.}} is not numeric (type: {typeof(.)})" := is.numeric)
+\dontrun{
+bc2(.5i, ".2")}
 
-bc2(.5i, ".2")
-#> Error: bc2(x = 0+0.5i, y = ".2")
-#> 1) x is not numeric (type: complex)
-#> 2) y is not numeric (type: character)
-
-## firmly() and fasten() support tidyverse idioms
+## Fix values using Tidyverse quasiquotation
 z <- 0
-in_triangle <- vld(
+in_triangle <- vld_checks(
   "{{.}} is not positive (value is {.})" :=
-  {isTRUE(. > !! z)} ~ vld(x, y, 1 - x - y)
+    {isTRUE(. > !! z)}(x, y, 1 - x - y)
 )
 bc3 <- firmly(bc, is.numeric, !!! in_triangle)
-
 bc3(.5, .2)
-#> [1] 0.5 0.2 0.3
+\dontrun{
+bc3(.5, .6)}
 
-bc3(.5, .6)
-#> Error: bc3(x = 0.5, y = 0.6)
-#> 1 - x - y is not positive (value is -0.1)
-
-## Use fasten() to highlight the core logic
+## Highlight the core logic with fasten()
 bc_clean <- fasten(
   "{{.}} is not a number" := {is.numeric(.) && length(.) == 1},
   "{{.}} is not positive" :=
-  {isTRUE(. > 0)} ~
-    vld(x, "y is not in the upper-half plane" := y, 1 - x - y)
+    {isTRUE(. > 0)}(x, "y is not in the upper-half plane" := y, 1 - x - y)
 )(
   function(x, y) {
     c(x, y, 1 - x - y)
@@ -87,15 +74,12 @@ bc_clean <- fasten(
 )
 
 ## Recover the underlying function with loosely()
-print(loosely(bc_clean))
-#> function(x, y) {
-#>     c(x, y, 1 - x - y)
-#>   }
-}
+loosely(bc_clean)
 
 }
 \seealso{
-\link{components}, \link{validate}.
+\code{\link[=vld_checks]{vld_checks()}}, \code{\link[=vld_exprs]{vld_exprs()}}, \link{validate}, \link{components},
+\link{predicates}
 }
 \usage{
 firmly(f, ..., error_class = NULL)
