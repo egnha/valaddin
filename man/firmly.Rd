@@ -53,7 +53,7 @@ bc2(.5i, ".2")}
 
 ## Fix values using Tidyverse quasiquotation
 z <- 0
-in_triangle <- vld_checks(
+in_triangle <- vld_spec(
   "{{.}} is not positive (value is {.})" :=
     {isTRUE(. > !! z)}(x, y, 1 - x - y)
 )
@@ -78,7 +78,7 @@ loosely(bc_clean)
 
 }
 \seealso{
-\code{\link[=vld_checks]{vld_checks()}}, \code{\link[=vld_exprs]{vld_exprs()}}, \link{validate}, \link{components},
+\code{\link[=vld_spec]{vld_spec()}}, \code{\link[=vld_exprs]{vld_exprs()}}, \link{validate}, \link{components},
 \link{predicates}
 }
 \usage{

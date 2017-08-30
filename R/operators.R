@@ -1,4 +1,4 @@
-chk_error_class <- vld_checks(
+chk_error_class <- vld_spec(
   "'error_class' must be NULL or a character vector without NAs" :=
     {is.null(.) || is.character(.) && !anyNA(.)}(error_class)
 )
@@ -165,7 +165,7 @@ print.validator <- function(x, ...) {
 #'
 #' @section Specifying input validations: _TODO_ (see the examples)
 #'
-#' @seealso [vld_checks()], [vld_exprs()], [validate], [components],
+#' @seealso [vld_spec()], [vld_exprs()], [validate], [components],
 #'   [predicates]
 #'
 #' @examples
@@ -184,7 +184,7 @@ print.validator <- function(x, ...) {
 #'
 #' ## Fix values using Tidyverse quasiquotation
 #' z <- 0
-#' in_triangle <- vld_checks(
+#' in_triangle <- vld_spec(
 #'   "{{.}} is not positive (value is {.})" :=
 #'     {isTRUE(. > !! z)}(x, y, 1 - x - y)
 #' )

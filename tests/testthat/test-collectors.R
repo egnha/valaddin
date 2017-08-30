@@ -12,7 +12,7 @@ both_false <- function(this, that) {
 context("Bare checks")
 
 test_that("symbol collected as global predicate", {
-  foo <- firmly(f, !!! vld_checks(isTRUE))
+  foo <- firmly(f, !!! vld_spec(isTRUE))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(foo(FALSE, TRUE), only_false("isTRUE(x)", "isTRUE(y)"))
   expect_error_perl(foo(TRUE, FALSE), only_false("isTRUE(y)", "isTRUE(x)"))
@@ -20,7 +20,7 @@ test_that("symbol collected as global predicate", {
 })
 
 test_that("namespace-qualified symbol collected as global predicate", {
-  foo <- firmly(f, !!! vld_checks(base::isTRUE))
+  foo <- firmly(f, !!! vld_spec(base::isTRUE))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(
     foo(FALSE, TRUE),
@@ -37,7 +37,7 @@ test_that("namespace-qualified symbol collected as global predicate", {
 })
 
 test_that("function declaration collected as global predicate", {
-  foo <- firmly(f, !!! vld_checks(function(x) isTRUE(x)))
+  foo <- firmly(f, !!! vld_spec(function(x) isTRUE(x)))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(
     foo(FALSE, TRUE),
@@ -54,7 +54,7 @@ test_that("function declaration collected as global predicate", {
 })
 
 test_that("lambda-function collected as global predicate", {
-  foo <- firmly(f, !!! vld_checks({isTRUE(.)}))
+  foo <- firmly(f, !!! vld_spec({isTRUE(.)}))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(
     foo(FALSE, TRUE),
@@ -71,11 +71,11 @@ test_that("lambda-function collected as global predicate", {
 })
 
 test_that("call collected as local predicate", {
-  foo <- firmly(f, !!! vld_checks(isTRUE(x)))
+  foo <- firmly(f, !!! vld_spec(isTRUE(x)))
   expect_error_perl(foo(TRUE, FALSE), NA)
   expect_error_perl(foo(FALSE, TRUE), only_false("isTRUE(x)", "isTRUE(y)"))
 
-  foo <- firmly(f, !!! vld_checks(isTRUE(x, y)))
+  foo <- firmly(f, !!! vld_spec(isTRUE(x, y)))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(foo(FALSE, TRUE), only_false("isTRUE(x)", "isTRUE(y)"))
   expect_error_perl(foo(TRUE, FALSE), only_false("isTRUE(y)", "isTRUE(x)"))
@@ -84,7 +84,7 @@ test_that("call collected as local predicate", {
 
 test_that("unquoted (quosure) function collected as global predicate", {
   bar <- function(.) isTRUE(.)
-  foo <- firmly(f, !!! vld_checks(!! bar))
+  foo <- firmly(f, !!! vld_spec(!! bar))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(
     foo(FALSE, TRUE),
@@ -100,7 +100,7 @@ test_that("unquoted (quosure) function collected as global predicate", {
   )
 
   bar <- rlang::quo(isTRUE)
-  foo <- firmly(f, !!! vld_checks(!! bar))
+  foo <- firmly(f, !!! vld_spec(!! bar))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(foo(FALSE, TRUE), only_false("isTRUE(x)", "isTRUE(y)"))
   expect_error_perl(foo(TRUE, FALSE), only_false("isTRUE(y)", "isTRUE(x)"))
@@ -109,12 +109,12 @@ test_that("unquoted (quosure) function collected as global predicate", {
 
 test_that("unquoted (quosure) call collected as local predicate", {
   bar <- quote(isTRUE(x))
-  foo <- firmly(f, !!! vld_checks(!! bar))
+  foo <- firmly(f, !!! vld_spec(!! bar))
   expect_error_perl(foo(TRUE, FALSE), NA)
   expect_error_perl(foo(FALSE, TRUE), only_false("isTRUE(x)", "isTRUE(y)"))
 
   bar <- rlang::quo(isTRUE(x))
-  foo <- firmly(f, !!! vld_checks(!! bar))
+  foo <- firmly(f, !!! vld_spec(!! bar))
   expect_error_perl(foo(TRUE, FALSE), NA)
   expect_error_perl(foo(FALSE, TRUE), only_false("isTRUE(x)", "isTRUE(y)"))
 })
@@ -122,7 +122,7 @@ test_that("unquoted (quosure) call collected as local predicate", {
 context("Named checks")
 
 test_that("named symbol collected as global predicate with error message", {
-  foo <- firmly(f, !!! vld_checks("error {{.}}" := isTRUE))
+  foo <- firmly(f, !!! vld_spec("error {{.}}" := isTRUE))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(foo(FALSE, TRUE), only("error x", "error y"))
   expect_error_perl(foo(TRUE, FALSE), only("error y", "error x"))
@@ -130,11 +130,11 @@ test_that("named symbol collected as global predicate with error message", {
 })
 
 test_that("named call collected as local predicate with error message", {
-  foo <- firmly(f, !!! vld_checks("error {{.}}" := isTRUE(x)))
+  foo <- firmly(f, !!! vld_spec("error {{.}}" := isTRUE(x)))
   expect_error_perl(foo(TRUE, FALSE), NA)
   expect_error_perl(foo(FALSE, TRUE), only("error x", "error y"))
 
-  foo <- firmly(f, !!! vld_checks("error {{.}}" := isTRUE(x, y)))
+  foo <- firmly(f, !!! vld_spec("error {{.}}" := isTRUE(x, y)))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(foo(FALSE, TRUE), only("error x", "error y"))
   expect_error_perl(foo(TRUE, FALSE), only("error y", "error x"))
@@ -146,7 +146,7 @@ test_that("name of symbol can be unquoted", {
     message <- "error"
     rlang::new_quosure("{message} {{.}}")
   })
-  foo <- firmly(f, !!! vld_checks(!! msg := isTRUE))
+  foo <- firmly(f, !!! vld_spec(!! msg := isTRUE))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(foo(FALSE, TRUE), only("error x", "error y"))
   expect_error_perl(foo(TRUE, FALSE), only("error y", "error x"))
@@ -159,11 +159,11 @@ test_that("name of call can be unquoted", {
     rlang::new_quosure("{message} {{.}}")
   })
 
-  foo <- firmly(f, !!! vld_checks(!! msg := isTRUE(x)))
+  foo <- firmly(f, !!! vld_spec(!! msg := isTRUE(x)))
   expect_error_perl(foo(TRUE, FALSE), NA)
   expect_error_perl(foo(FALSE, TRUE), only("error x", "error y"))
 
-  foo <- firmly(f, !!! vld_checks(!! msg := isTRUE(x, y)))
+  foo <- firmly(f, !!! vld_spec(!! msg := isTRUE(x, y)))
   expect_error(foo(TRUE, TRUE), NA)
   expect_error_perl(foo(FALSE, TRUE), only("error x", "error y"))
   expect_error_perl(foo(TRUE, FALSE), only("error y", "error x"))

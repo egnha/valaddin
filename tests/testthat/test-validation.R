@@ -141,7 +141,7 @@ test_that("error message local to check item supports quasiquotation", {
 context("Splicing checks")
 
 test_that("checks can be spliced when wrapped by vld()", {
-  chk_pos <- vld_checks("{{.}} is not positive" := {isTRUE(. > 0)})
+  chk_pos <- vld_spec("{{.}} is not positive" := {isTRUE(. > 0)})
   chk_len <- vld_exprs("Length is {length(x)}" := length(x))
   f <- firmly(log, is.numeric, !!! chk_pos, {. == 1}(!!! chk_len))
   expect_equal(f(1), 0)

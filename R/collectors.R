@@ -79,7 +79,7 @@ is_ns_private     <- check_is_symb(":::")
 #' f <- function(x, y) "Pass"
 #'
 #' ## Make a positivity checker
-#' chk_pos <- vld_checks("{{.}} is not positive" := {isTRUE(. > 0)}(x, x - y))
+#' chk_pos <- vld_spec("{{.}} is not positive" := {isTRUE(. > 0)}(x, x - y))
 #' foo <- firmly(f, !!! chk_pos)
 #'
 #' foo(2, 1)
@@ -87,13 +87,13 @@ is_ns_private     <- check_is_symb(":::")
 #' foo(1, 2)}
 #'
 #' @export
-vld_checks <- new_vld_collector(as_call)
+vld_spec <- new_vld_collector(as_call)
 
 #' Specify validation expressions
 #'
 #' @param ... Expressions to validate.
 #'
-#' @seealso [vld_checks()]
+#' @seealso [vld_spec()]
 #'
 #' @examples
 #' f <- function(x, y) "Pass"

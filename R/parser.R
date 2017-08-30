@@ -8,7 +8,7 @@
 #'
 #' @noRd
 parse_checks <- function(...) {
-  chks <- vld_checks(...)
+  chks <- vld_spec(...)
   if (is_empty(chks))
     return(NULL)
   chkrs <- lapply(chks, as_checker)

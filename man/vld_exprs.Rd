@@ -25,5 +25,5 @@ foo(1, 2)}
 
 }
 \seealso{
-\code{\link[=vld_checks]{vld_checks()}}
+\code{\link[=vld_spec]{vld_spec()}}
 }
