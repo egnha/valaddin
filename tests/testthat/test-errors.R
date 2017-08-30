@@ -139,3 +139,37 @@ test_that("error raised if interpolation can't produce string", {
     "Error interpolating message \"\\{X\\}\": object 'X' not found"
   )
 })
+
+# Get and set error messages ----------------------------------------------
+
+context("Get and set")
+
+f <- function(x) NULL
+
+test_that("can set error message", {
+  is_true <- isTRUE
+  env <- new.env()
+
+  vld_err_msg(is_true) <- "new message"
+  expect_error(firmly(f, is_true)(FALSE), "new message")
+
+  env$local <- "newer message"
+  vld_err_msg(is_true) <- new_err_msg("{local}", env)
+  expect_error(firmly(f, is_true)(FALSE), "newer message")
+
+  env$local <- "newest message"
+  vld_err_msg(is_true, env) <- "{local}"
+  expect_error(firmly(f, is_true)(FALSE), "newest message")
+})
+
+test_that("can get error message", {
+  is_true <- isTRUE
+  vld_err_msg(is_true) <- "message"
+  expect_identical(rlang::eval_tidy(vld_err_msg(is_true)), "message")
+  expect_identical(rlang::f_env(vld_err_msg(is_true)), environment())
+})
+
+test_that("get empty string error message when none set", {
+  expect_identical(rlang::eval_tidy(vld_err_msg(isTRUE)), "")
+  expect_identical(rlang::f_env(vld_err_msg(isTRUE)), emptyenv())
+})
