@@ -23,7 +23,7 @@ as_checker <- function(chk) {
   env <- f_env(chk$chk)
   pred <- new_quosure(lang_head(call), env)
   call[[1]] <- checker(pred, chk$msg)
-  eval_bare(call, env)
+  eval(call, env)
 }
 has_no_check_items <- function(chkr) {
   is_empty(chkr$chk_items)

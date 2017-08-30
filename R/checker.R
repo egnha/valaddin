@@ -50,7 +50,7 @@ is_lambda <- function(x) {
   is.call(x) && is_block(x)
 }
 as_lambda_fn <- function(x, env) {
-  fn <- eval_bare(new_fn_expr(x), env)
+  fn <- eval(new_fn_expr(x), env)
   list(fn = fn, expr = substitute(fn))
 }
 new_fn_expr <- function(body, args = alist(. = )) {
@@ -169,7 +169,7 @@ bind_expr_value <- function(args, env, parent) {
 bind_expr_text <- function(syms, env) {
   lapply(syms, function(sym)
     deparse_collapse(
-      eval_bare(substitute(substitute(., env), list(. = sym)))
+      eval(substitute(substitute(., env), list(. = sym)))
     )
   )
 }
@@ -184,7 +184,7 @@ partial <- function(f, arg_fill) {
   }
   function(...) {
     call <- fill_args()
-    eval_bare(call, parent.frame())
+    eval(call, parent.frame())
   }
 }
 
@@ -201,5 +201,5 @@ segregate_args <- function(fmls) {
 eval_nondot_args <- function() {
   mc <- match.call(sys.function(-1), call = sys.call(-1), expand.dots = FALSE)
   args <- nomen(mc[-1])
-  lapply(args, eval_bare, env = parent.frame())
+  lapply(args, eval, envir = parent.frame())
 }

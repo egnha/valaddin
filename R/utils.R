@@ -19,7 +19,7 @@ is_error <- check_is_class("error")
 # Substitute string into call, to avoid making a binding that could take
 # precedence over those in higher environments
 glue_text <- function(text, env, data = NULL, ...) {
-  eval_bare(bquote(glue::glue_data(.x = data, .(text), .envir = env, ...)))
+  eval(bquote(glue::glue_data(.x = data, .(text), .envir = env, ...)))
 }
 
 deparse_collapse <- function(x) {
