@@ -90,6 +90,7 @@ test_that("set predicates work", {
   expect_pass_fail(vld_include, letters, letters[-1], set = "a")
   expect_pass_fail(vld_exclude, letters[-1], letters, set = "a")
   expect_pass_fail(vld_within, c("a", "b"), c("a", "b", "C"), set = letters)
+  expect_pass_fail(vld_intersect, c("a", "b"), c("A", "B"), set = letters)
   expect_pass_fail(vld_avoid, letters[-1], letters, set = "a")
   expect_pass_fail(vld_setequal, rev(letters), letters[-1], set = letters)
 })
