@@ -87,9 +87,9 @@ valaddin supports [quasiquotation](http://rlang.tidyverse.org/reference/quasiquo
 
 ``` r
 z <- 0
-in_triangle <- vld(
+in_triangle <- vld_checks(
   "{{.}} is not positive (value is {.})" :=
-    {isTRUE(. > !! z)} ~ vld(x, y, 1 - x - y)
+    {isTRUE(. > !! z)}(x, y, 1 - x - y)
 )
 
 bc4 <- firmly(bc, is.numeric, !!! in_triangle)
@@ -104,7 +104,7 @@ bc4(.5, .6)
 
 This reads as follows:
 
--   `vld()` encapsulates the condition that `x`, `y`, `1 - x - y` are positive, as a formula [definition](http://rlang.tidyverse.org/reference/quosures.html#details). The predicate itself is succinctly expressed using [magrittr](https://github.com/tidyverse/magrittr)’s shorthand for anonymous functions. The unquoting operator `!!` ensures that the *value* of `z` is “burned into” the check.
+-   `vld_checks()` encapsulates the condition that `x`, `y`, `1 - x - y` are positive, as a formula [definition](http://rlang.tidyverse.org/reference/quosures.html#details). The predicate itself is succinctly expressed using [magrittr](https://github.com/tidyverse/magrittr)’s shorthand for anonymous functions. The unquoting operator `!!` ensures that the *value* of `z` is “burned into” the check.
 
 -   The additional condition that `(x, y)` lies in a triangle is imposed by splicing it in with the `!!!` operator.
 
@@ -155,8 +155,7 @@ use `fasten()` to highlight the core logic, while keeping input assumptions in s
 bc_clean <- fasten(
   "{{.}} is not a number" := {is.numeric(.) && length(.) == 1},
   "{{.}} is not positive" :=
-    {isTRUE(. > 0)} ~
-      vld(x, "y is not in the upper-half plane" := y, 1 - x - y)
+    {isTRUE(. > 0)}(x, "y is not in the upper-half plane" := y, 1 - x - y)
 )(
   function(x, y) {
     c(x, y, 1 - x - y)
