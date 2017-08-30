@@ -107,7 +107,7 @@ test_that("unquoted (quosure) function collected as global predicate", {
   expect_error_perl(foo(FALSE, FALSE), both_false("isTRUE(x)", "isTRUE(y)"))
 })
 
-test_that("unquoted (quosure) call collected as global predicate", {
+test_that("unquoted (quosure) call collected as local predicate", {
   bar <- quote(isTRUE(x))
   foo <- firmly(f, !!! vld_checks(!! bar))
   expect_error_perl(foo(TRUE, FALSE), NA)
