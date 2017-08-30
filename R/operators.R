@@ -75,7 +75,7 @@ validate <- fasten(
 )(
   function(., ..., error_class = NULL) {
     validate <- loosely(validify)(..., error_class = error_class)
-    eval_bare(bquote(validate(.(substitute(.)))))
+    eval(bquote(validate(.(substitute(.)))))
   }
 )
 

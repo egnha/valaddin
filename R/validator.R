@@ -43,7 +43,7 @@ validation_closure <- function(f, chks, sig, args, error_class) {
     )
     pass <- vapply(verdict, isTRUE, logical(1))
     if (all(pass))
-      eval_bare(`[[<-`(call, 1, .subset2(encl, "f")), parent.frame())
+      eval(`[[<-`(call, 1, .subset2(encl, "f")), parent.frame())
     else
       stop(.subset2(encl, "error")(match.call(), verdict, !pass, venv))
   }
