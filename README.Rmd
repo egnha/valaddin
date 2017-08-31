@@ -237,6 +237,16 @@ In addition to having cleaner code, you can:
     [argufy](https://github.com/gaborcsardi/argufy),
     [ensurer](https://github.com/smbache/ensurer),
     [typeCheck](https://github.com/jimhester/typeCheck)
+    
+## Acknowledgement
+
+valaddin makes essential use of the [rlang](https://github.com/tidyverse/rlang)
+package by [Lionel Henry](https://github.com/lionel-) and
+[Hadley Wickham](https://github.com/hadley), which provides the engine for
+quasiquotation and expression capture. The
+[glue](https://github.com/tidyverse/glue) package by
+[Jim Hester](https://github.com/jimhester) enables string interpolation of error
+messages.
 
 ## License
 
