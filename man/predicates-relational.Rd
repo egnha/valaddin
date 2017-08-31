@@ -17,7 +17,7 @@ Relational predicates
 }
 \examples{
 f <- function(x, y) log(y - x) / log(x)
-foo <- firmly(f, vld_gt(0, x - 1, "y not greater than x" := y - x))
+foo <- firmly(f, chk_gt(0, x - 1, "y not greater than x" := y - x))
 foo(2, 4)
 \dontrun{
 foo(1, 2)
@@ -27,34 +27,34 @@ foo(2, 2)}
 \seealso{
 \code{\link[=all.equal]{all.equal()}}, \code{\link[=identical]{identical()}}
 }
-\alias{vld_identical}
-\alias{vld_not_identical}
-\alias{vld_equal}
-\alias{vld_not_equal}
-\alias{vld_equivalent}
-\alias{vld_not_equivalent}
-\alias{vld_gt}
-\alias{vld_lt}
-\alias{vld_gte}
-\alias{vld_lte}
+\alias{chk_identical}
+\alias{chk_not_identical}
+\alias{chk_equal}
+\alias{chk_not_equal}
+\alias{chk_equivalent}
+\alias{chk_not_equivalent}
+\alias{chk_gt}
+\alias{chk_lt}
+\alias{chk_gte}
+\alias{chk_lte}
 \usage{
-vld_identical(x, to)
+chk_identical(x, to)
 
-vld_not_identical(x, to)
+chk_not_identical(x, to)
 
-vld_equal(x, to)
+chk_equal(x, to)
 
-vld_not_equal(x, to)
+chk_not_equal(x, to)
 
-vld_equivalent(x, to)
+chk_equivalent(x, to)
 
-vld_not_equivalent(x, to)
+chk_not_equivalent(x, to)
 
-vld_gt(x, lwr, na.rm = FALSE)
+chk_gt(x, lwr, na.rm = FALSE)
 
-vld_lt(x, upr, na.rm = FALSE)
+chk_lt(x, upr, na.rm = FALSE)
 
-vld_gte(x, lwr, na.rm = FALSE)
+chk_gte(x, lwr, na.rm = FALSE)
 
-vld_lte(x, upr, na.rm = FALSE)
+chk_lte(x, upr, na.rm = FALSE)
 }

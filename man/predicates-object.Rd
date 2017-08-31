@@ -10,7 +10,7 @@
 Object predicates
 }
 \examples{
-row_sums <- firmly(rowSums, vld_matrix(x))
+row_sums <- firmly(rowSums, chk_matrix(x))
 row_sums(matrix(1:6, 2, 3))
 
 ## Meaningless to sum across rows when column units differ
@@ -21,22 +21,22 @@ row_sums(mtcars)}
 \seealso{
 \link[=predicates-type]{Type predicates}
 }
-\alias{vld_call}
-\alias{vld_factor}
-\alias{vld_data_frame}
-\alias{vld_matrix}
-\alias{vld_formula}
-\alias{vld_function}
+\alias{chk_call}
+\alias{chk_factor}
+\alias{chk_data_frame}
+\alias{chk_matrix}
+\alias{chk_formula}
+\alias{chk_function}
 \usage{
-vld_call(x)
+chk_call(x)
 
-vld_factor(x)
+chk_factor(x)
 
-vld_data_frame(x)
+chk_data_frame(x)
 
-vld_matrix(x)
+chk_matrix(x)
 
-vld_formula(x)
+chk_formula(x)
 
-vld_function(x)
+chk_function(x)
 }

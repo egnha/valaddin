@@ -20,21 +20,21 @@
 Pattern predicates
 }
 \details{
-To maintain consistency with \code{\link[=grepl]{grepl()}}, \code{vld_starts_with()} and
-\code{vld_ends_with()} coerce to \code{character} before matching.
+To maintain consistency with \code{\link[=grepl]{grepl()}}, \code{chk_starts_with()} and
+\code{chk_ends_with()} coerce to \code{character} before matching.
 }
 \examples{
 ymd <- function(y, m, d) paste(y, m, d, sep = "/")
 
 too_old <- "Not a 21st-century year"
-recent_ymd <- firmly(ymd, !! too_old := vld_grepl("^20[[:digit:]]{2}$", y))
+recent_ymd <- firmly(ymd, !! too_old := chk_grepl("^20[[:digit:]]{2}$", y))
 
 recent_ymd(2017, 01, 01)
 \dontrun{
 recent_ymd(1999, 01, 01)}
 
 way_too_old <- "Pre-2010 year is too old"
-more_recent_ymd <- firmly(ymd, !! way_too_old := vld_starts_with("201", y))
+more_recent_ymd <- firmly(ymd, !! way_too_old := chk_starts_with("201", y))
 
 more_recent_ymd(2017, 01, 01)
 \dontrun{
@@ -44,13 +44,13 @@ more_recent_ymd(2001, 01, 01)}
 \seealso{
 \code{\link[=grepl]{grepl()}}, \code{\link[=startsWith]{startsWith()}}, \code{\link[=endsWith]{endsWith()}}
 }
-\alias{vld_grepl}
-\alias{vld_starts_with}
-\alias{vld_ends_with}
+\alias{chk_grepl}
+\alias{chk_starts_with}
+\alias{chk_ends_with}
 \usage{
-vld_grepl(x, pattern, ignore.case = FALSE, perl = FALSE)
+chk_grepl(x, pattern, ignore.case = FALSE, perl = FALSE)
 
-vld_starts_with(x, prefix, na.rm = FALSE)
+chk_starts_with(x, prefix, na.rm = FALSE)
 
-vld_ends_with(x, suffix, na.rm = FALSE)
+chk_ends_with(x, suffix, na.rm = FALSE)
 }

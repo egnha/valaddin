@@ -19,10 +19,10 @@ error messages when used as checks in \code{\link[=fasten]{fasten()}}, \code{\li
 }
 }
 \examples{
-## vld_double() and rlang::is_double() are identical as functions
-vld_double(runif(2))
-vld_double(runif(2), n = 1)
-vld_double(1:2)
+## chk_double() and rlang::is_double() are identical as functions
+chk_double(runif(2))
+chk_double(runif(2), n = 1)
+chk_double(1:2)
 rlang::is_double(runif(2))
 rlang::is_double(runif(2), n = 1)
 rlang::is_double(1:2)
@@ -32,12 +32,12 @@ rlang::is_double(1:2)
 \dontrun{
 firmly(function(x) x, rlang::is_double(n = 1))(runif(2))}
 
-## ... whereas vld_double() produces a specialized error message
+## ... whereas chk_double() produces a specialized error message
 \dontrun{
-firmly(function(x) x, vld_double(n = 1))(runif(2))}
+firmly(function(x) x, chk_double(n = 1))(runif(2))}
 
 \dontrun{
 validate(mtcars, is.matrix, {"cylinder" \%in\% names(.)})
-validate(mtcars, vld_matrix, vld_has_name("cylinder"))}
+validate(mtcars, chk_matrix, chk_has_name("cylinder"))}
 
 }

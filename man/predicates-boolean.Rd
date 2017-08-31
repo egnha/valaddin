@@ -17,53 +17,53 @@ Boolean predicates
 f <- function(x, y) NULL
 
 ## Require x, y to have the same length
-foo <- firmly(f, vld_true(length(x) == length(y)))
+foo <- firmly(f, chk_true(length(x) == length(y)))
 foo(runif(3), rnorm(3))
 \dontrun{
 foo(runif(2), rnorm(3))}
 
 ## Require x to contain only non-empty objects
-error_msg <- "{{.}} contains empty objects"
-bar <- firmly(f, !! error_msg := vld_all_map(function(.) length(.) != 0, x))
+msg <- "{{.}} contains empty objects"
+bar <- firmly(f, !! msg := chk_all_map(function(.) length(.) != 0, x))
 bar(1:2)
 \dontrun{
 bar(list(1, NULL))}
 
 ## Or more efficiently, in a vectorized manner:
-baz <- firmly(f, vld_all("x contains empty objects" := lengths(x) != 0))
+baz <- firmly(f, chk_all("x contains empty objects" := lengths(x) != 0))
 baz(1:2)
 \dontrun{
 baz(list(1, NULL))}
 
 }
-\alias{vld_true}
-\alias{vld_is}
-\alias{vld_false}
-\alias{vld_not}
-\alias{vld_all}
-\alias{vld_any}
-\alias{vld_none}
-\alias{vld_all_map}
-\alias{vld_any_map}
-\alias{vld_none_map}
+\alias{chk_true}
+\alias{chk_is}
+\alias{chk_false}
+\alias{chk_not}
+\alias{chk_all}
+\alias{chk_any}
+\alias{chk_none}
+\alias{chk_all_map}
+\alias{chk_any_map}
+\alias{chk_none_map}
 \usage{
-vld_true(x)
+chk_true(x)
 
-vld_is(x)
+chk_is(x)
 
-vld_false(x)
+chk_false(x)
 
-vld_not(x)
+chk_not(x)
 
-vld_all(x, na.rm = FALSE)
+chk_all(x, na.rm = FALSE)
 
-vld_any(x, na.rm = FALSE)
+chk_any(x, na.rm = FALSE)
 
-vld_none(x, na.rm = FALSE)
+chk_none(x, na.rm = FALSE)
 
-vld_all_map(x, .f, na.rm = FALSE)
+chk_all_map(x, .f, na.rm = FALSE)
 
-vld_any_map(x, .f, na.rm = FALSE)
+chk_any_map(x, .f, na.rm = FALSE)
 
-vld_none_map(x, .f, na.rm = FALSE)
+chk_none_map(x, .f, na.rm = FALSE)
 }

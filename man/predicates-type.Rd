@@ -18,19 +18,19 @@ Type predicates
 f <- function(x, y, z) NULL
 
 ## Require all arguments to be integer (vectors)
-foo <- firmly(f, vld_integer())
+foo <- firmly(f, chk_integer())
 foo(0L, 1:2, length(letters))
 \dontrun{
 foo(0L, c(1, 2), length(letters))}
 
 ## Require all arguments to be scalar integers
-bar <- firmly(f, vld_integer(n = 1))
+bar <- firmly(f, chk_integer(n = 1))
 bar(0L, 1L, length(NA))
 \dontrun{
 bar(0L, 1L, lengths(letters))}
 
 ## Require x, y to be character (vectors), and z to be an length-1 list
-baz <- firmly(f, vld_character(x, y), vld_list(n = 1, z))
+baz <- firmly(f, chk_character(x, y), chk_list(n = 1, z))
 baz(letters, "text", list(1))
 \dontrun{
 baz(0, "text", list(1, 2))}
@@ -39,72 +39,72 @@ baz(0, "text", list(1, 2))}
 \seealso{
 \itemize{
 \item \link[rlang:type-predicates]{rlang type predicates}, which underlie the
-length-dependent predicates (except \code{vld_numerical()})
+length-dependent predicates (except \code{chk_numerical()})
 \item \link[=predicates-object]{Object predicates}, for verifying identities that are
 not characterized by type, e.g., data frames, which have type \code{list}
 }
 }
-\alias{vld_null}
-\alias{vld_not_null}
-\alias{vld_symbol}
-\alias{vld_pairlist}
-\alias{vld_closure}
-\alias{vld_environment}
-\alias{vld_language}
-\alias{vld_atomic}
-\alias{vld_vector}
-\alias{vld_logical}
-\alias{vld_boolean}
-\alias{vld_numerical}
-\alias{vld_number}
-\alias{vld_integer}
-\alias{vld_integerish}
-\alias{vld_double}
-\alias{vld_complex}
-\alias{vld_character}
-\alias{vld_string}
-\alias{vld_list}
-\alias{vld_raw}
+\alias{chk_null}
+\alias{chk_not_null}
+\alias{chk_symbol}
+\alias{chk_pairlist}
+\alias{chk_closure}
+\alias{chk_environment}
+\alias{chk_language}
+\alias{chk_atomic}
+\alias{chk_vector}
+\alias{chk_logical}
+\alias{chk_boolean}
+\alias{chk_numerical}
+\alias{chk_number}
+\alias{chk_integer}
+\alias{chk_integerish}
+\alias{chk_double}
+\alias{chk_complex}
+\alias{chk_character}
+\alias{chk_string}
+\alias{chk_list}
+\alias{chk_raw}
 \usage{
-vld_null(x)
+chk_null(x)
 
-vld_not_null(x)
+chk_not_null(x)
 
-vld_symbol(x)
+chk_symbol(x)
 
-vld_pairlist(x)
+chk_pairlist(x)
 
-vld_closure(x)
+chk_closure(x)
 
-vld_environment(x)
+chk_environment(x)
 
-vld_language(x)
+chk_language(x)
 
-vld_atomic(x, n = NULL)
+chk_atomic(x, n = NULL)
 
-vld_vector(x, n = NULL)
+chk_vector(x, n = NULL)
 
-vld_logical(x, n = NULL)
+chk_logical(x, n = NULL)
 
-vld_boolean(x)
+chk_boolean(x)
 
-vld_numerical(x, n = NULL)
+chk_numerical(x, n = NULL)
 
-vld_number(x)
+chk_number(x)
 
-vld_integer(x, n = NULL)
+chk_integer(x, n = NULL)
 
-vld_integerish(x, n = NULL)
+chk_integerish(x, n = NULL)
 
-vld_double(x, n = NULL)
+chk_double(x, n = NULL)
 
-vld_complex(x, n = NULL)
+chk_complex(x, n = NULL)
 
-vld_character(x, n = NULL, encoding = NULL)
+chk_character(x, n = NULL, encoding = NULL)
 
-vld_string(x)
+chk_string(x)
 
-vld_list(x, n = NULL)
+chk_list(x, n = NULL)
 
-vld_raw(x, n = NULL)
+chk_raw(x, n = NULL)
 }

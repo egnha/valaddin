@@ -99,8 +99,8 @@ vld_spec <- new_vld_collector(as_call)
 #' f <- function(x, y) "Pass"
 #'
 #' ## Make a positivity checker
-#' chk_exprs <- vld_exprs(x, x - y)
-#' foo <- firmly(f, "{{.}} is not positive" := {isTRUE(. > 0)}(!!! chk_exprs))
+#' exprs <- vld_exprs(x, x - y)
+#' foo <- firmly(f, "{{.}} is not positive" := {isTRUE(. > 0)}(!!! exprs))
 #'
 #' foo(2, 1)
 #' \dontrun{

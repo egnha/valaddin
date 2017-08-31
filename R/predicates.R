@@ -14,10 +14,10 @@
 #' - [Type predicates][predicates-type]
 #'
 #' @examples
-#' ## vld_double() and rlang::is_double() are identical as functions
-#' vld_double(runif(2))
-#' vld_double(runif(2), n = 1)
-#' vld_double(1:2)
+#' ## chk_double() and rlang::is_double() are identical as functions
+#' chk_double(runif(2))
+#' chk_double(runif(2), n = 1)
+#' chk_double(1:2)
 #' rlang::is_double(runif(2))
 #' rlang::is_double(runif(2), n = 1)
 #' rlang::is_double(1:2)
@@ -27,13 +27,13 @@
 #' \dontrun{
 #' firmly(function(x) x, rlang::is_double(n = 1))(runif(2))}
 #'
-#' ## ... whereas vld_double() produces a specialized error message
+#' ## ... whereas chk_double() produces a specialized error message
 #' \dontrun{
-#' firmly(function(x) x, vld_double(n = 1))(runif(2))}
+#' firmly(function(x) x, chk_double(n = 1))(runif(2))}
 #'
 #' \dontrun{
 #' validate(mtcars, is.matrix, {"cylinder" %in% names(.)})
-#' validate(mtcars, vld_matrix, vld_has_name("cylinder"))}
+#' validate(mtcars, chk_matrix, chk_has_name("cylinder"))}
 #'
 #' @name predicates
 NULL
@@ -420,44 +420,44 @@ predicates$type <- c(
 )
 
 for (x in unlist(predicates, recursive = FALSE)) {
-  nm <- paste0("vld_", x[[1]])
+  nm <- paste0("chk_", x[[1]])
   pred <- as_closure(x[[3]])
-  vld_err_msg(pred) <- new_quosure(x[[2]], x$env %||% baseenv())
+  error_msg(pred) <- new_quosure(x[[2]], x$env %||% baseenv())
   assign(nm, pred)
 }
 
-#' @rawNamespace exportPattern("^vld_.+$")
+#' @rawNamespace exportPattern("^chk_.+$")
 NULL
 
 # Documentation -----------------------------------------------------------
 
 nms_predicates <- lapply(predicates, function(x) {
   nms <- vapply(x, `[[`, character(1), 1)
-  paste0("vld_", nms)
+  paste0("chk_", nms)
 })
 # Order types as they appear in the "R Language Definition" manual
 nms_predicates$type <- c(
-  "vld_null",
-  "vld_not_null",
-  "vld_symbol",
-  "vld_pairlist",
-  "vld_closure",
-  "vld_environment",
-  "vld_language",
-  "vld_atomic",
-  "vld_vector",
-  "vld_logical",
-  "vld_boolean",
-  "vld_numerical",
-  "vld_number",
-  "vld_integer",
-  "vld_integerish",
-  "vld_double",
-  "vld_complex",
-  "vld_character",
-  "vld_string",
-  "vld_list",
-  "vld_raw"
+  "chk_null",
+  "chk_not_null",
+  "chk_symbol",
+  "chk_pairlist",
+  "chk_closure",
+  "chk_environment",
+  "chk_language",
+  "chk_atomic",
+  "chk_vector",
+  "chk_logical",
+  "chk_boolean",
+  "chk_numerical",
+  "chk_number",
+  "chk_integer",
+  "chk_integerish",
+  "chk_double",
+  "chk_complex",
+  "chk_character",
+  "chk_string",
+  "chk_list",
+  "chk_raw"
 )
 
 #' Boolean predicates
@@ -473,20 +473,20 @@ nms_predicates$type <- c(
 #' f <- function(x, y) NULL
 #'
 #' ## Require x, y to have the same length
-#' foo <- firmly(f, vld_true(length(x) == length(y)))
+#' foo <- firmly(f, chk_true(length(x) == length(y)))
 #' foo(runif(3), rnorm(3))
 #' \dontrun{
 #' foo(runif(2), rnorm(3))}
 #'
 #' ## Require x to contain only non-empty objects
-#' error_msg <- "{{.}} contains empty objects"
-#' bar <- firmly(f, !! error_msg := vld_all_map(function(.) length(.) != 0, x))
+#' msg <- "{{.}} contains empty objects"
+#' bar <- firmly(f, !! msg := chk_all_map(function(.) length(.) != 0, x))
 #' bar(1:2)
 #' \dontrun{
 #' bar(list(1, NULL))}
 #'
 #' ## Or more efficiently, in a vectorized manner:
-#' baz <- firmly(f, vld_all("x contains empty objects" := lengths(x) != 0))
+#' baz <- firmly(f, chk_all("x contains empty objects" := lengths(x) != 0))
 #' baz(1:2)
 #' \dontrun{
 #' baz(list(1, NULL))}
@@ -502,7 +502,7 @@ NULL
 #' @param x Object to test.
 #'
 #' @examples
-#' row_sums <- firmly(rowSums, vld_matrix(x))
+#' row_sums <- firmly(rowSums, chk_matrix(x))
 #' row_sums(matrix(1:6, 2, 3))
 #'
 #' ## Meaningless to sum across rows when column units differ
@@ -526,8 +526,8 @@ NULL
 #' @param prefix,suffix String to match.
 #' @param na.rm Should `NA` values be disregarded?
 #'
-#' @details To maintain consistency with [grepl()], `vld_starts_with()` and
-#'   `vld_ends_with()` coerce to `character` before matching.
+#' @details To maintain consistency with [grepl()], `chk_starts_with()` and
+#'   `chk_ends_with()` coerce to `character` before matching.
 #'
 #' @seealso [grepl()], [startsWith()], [endsWith()]
 #'
@@ -535,14 +535,14 @@ NULL
 #' ymd <- function(y, m, d) paste(y, m, d, sep = "/")
 #'
 #' too_old <- "Not a 21st-century year"
-#' recent_ymd <- firmly(ymd, !! too_old := vld_grepl("^20[[:digit:]]{2}$", y))
+#' recent_ymd <- firmly(ymd, !! too_old := chk_grepl("^20[[:digit:]]{2}$", y))
 #'
 #' recent_ymd(2017, 01, 01)
 #' \dontrun{
 #' recent_ymd(1999, 01, 01)}
 #'
 #' way_too_old <- "Pre-2010 year is too old"
-#' more_recent_ymd <- firmly(ymd, !! way_too_old := vld_starts_with("201", y))
+#' more_recent_ymd <- firmly(ymd, !! way_too_old := chk_starts_with("201", y))
 #'
 #' more_recent_ymd(2017, 01, 01)
 #' \dontrun{
@@ -563,11 +563,11 @@ NULL
 #' @param what Class name.
 #'
 #' @seealso [Set predicates][predicates-set],
-#'   [vld_null()], [vld_not_null()]
+#'   [chk_null()], [chk_not_null()]
 #'
 #' @examples
 #' f <- function(x, y) NULL
-#' foo <- firmly(f, "x, y are not disjoint" := vld_empty(intersect(x, y)))
+#' foo <- firmly(f, "x, y are not disjoint" := chk_empty(intersect(x, y)))
 #' foo(letters[1:3], letters[4:5])
 #' \dontrun{
 #' foo(letters[1:3], letters[3:5])}
@@ -589,7 +589,7 @@ NULL
 #'
 #' @examples
 #' f <- function(x, y) log(y - x) / log(x)
-#' foo <- firmly(f, vld_gt(0, x - 1, "y not greater than x" := y - x))
+#' foo <- firmly(f, chk_gt(0, x - 1, "y not greater than x" := y - x))
 #' foo(2, 4)
 #' \dontrun{
 #' foo(1, 2)
@@ -615,7 +615,7 @@ NULL
 #'   with(methods, generic[!isS4])
 #' }
 #' foo <- fasten(
-#'   vld_include("predict", s3methods(object))
+#'   chk_include("predict", s3methods(object))
 #' )(
 #'   function(object, data) {
 #'     pred <- predict(object, data)
@@ -645,7 +645,7 @@ NULL
 #'
 #' @seealso
 #'   - [rlang type predicates][rlang::type-predicates], which underlie the
-#'     length-dependent predicates (except `vld_numerical()`)
+#'     length-dependent predicates (except `chk_numerical()`)
 #'   - [Object predicates][predicates-object], for verifying identities that are
 #'     not characterized by type, e.g., data frames, which have type `list`
 #'
@@ -653,19 +653,19 @@ NULL
 #' f <- function(x, y, z) NULL
 #'
 #' ## Require all arguments to be integer (vectors)
-#' foo <- firmly(f, vld_integer())
+#' foo <- firmly(f, chk_integer())
 #' foo(0L, 1:2, length(letters))
 #' \dontrun{
 #' foo(0L, c(1, 2), length(letters))}
 #'
 #' ## Require all arguments to be scalar integers
-#' bar <- firmly(f, vld_integer(n = 1))
+#' bar <- firmly(f, chk_integer(n = 1))
 #' bar(0L, 1L, length(NA))
 #' \dontrun{
 #' bar(0L, 1L, lengths(letters))}
 #'
 #' ## Require x, y to be character (vectors), and z to be an length-1 list
-#' baz <- firmly(f, vld_character(x, y), vld_list(n = 1, z))
+#' baz <- firmly(f, chk_character(x, y), chk_list(n = 1, z))
 #' baz(letters, "text", list(1))
 #' \dontrun{
 #' baz(0, "text", list(1, 2))}

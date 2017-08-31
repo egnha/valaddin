@@ -19,7 +19,7 @@ Property predicates
 }
 \examples{
 f <- function(x, y) NULL
-foo <- firmly(f, "x, y are not disjoint" := vld_empty(intersect(x, y)))
+foo <- firmly(f, "x, y are not disjoint" := chk_empty(intersect(x, y)))
 foo(letters[1:3], letters[4:5])
 \dontrun{
 foo(letters[1:3], letters[3:5])}
@@ -27,42 +27,42 @@ foo(letters[1:3], letters[3:5])}
 }
 \seealso{
 \link[=predicates-set]{Set predicates},
-\code{\link[=vld_null]{vld_null()}}, \code{\link[=vld_not_null]{vld_not_null()}}
+\code{\link[=chk_null]{chk_null()}}, \code{\link[=chk_not_null]{chk_not_null()}}
 }
-\alias{vld_empty}
-\alias{vld_not_empty}
-\alias{vld_singleton}
-\alias{vld_not_na}
-\alias{vld_without_na}
-\alias{vld_named}
-\alias{vld_has_name}
-\alias{vld_has_names}
-\alias{vld_has_length}
-\alias{vld_has_attr}
-\alias{vld_has_attrs}
-\alias{vld_inherits}
+\alias{chk_empty}
+\alias{chk_not_empty}
+\alias{chk_singleton}
+\alias{chk_not_na}
+\alias{chk_without_na}
+\alias{chk_named}
+\alias{chk_has_name}
+\alias{chk_has_names}
+\alias{chk_has_length}
+\alias{chk_has_attr}
+\alias{chk_has_attrs}
+\alias{chk_inherits}
 \usage{
-vld_empty(x)
+chk_empty(x)
 
-vld_not_empty(x)
+chk_not_empty(x)
 
-vld_singleton(x)
+chk_singleton(x)
 
-vld_not_na(x)
+chk_not_na(x)
 
-vld_without_na(x)
+chk_without_na(x)
 
-vld_named(x)
+chk_named(x)
 
-vld_has_name(x, nm)
+chk_has_name(x, nm)
 
-vld_has_names(x, nms)
+chk_has_names(x, nms)
 
-vld_has_length(x, n)
+chk_has_length(x, n)
 
-vld_has_attr(x, which)
+chk_has_attr(x, which)
 
-vld_has_attrs(x, which)
+chk_has_attrs(x, which)
 
-vld_inherits(x, what)
+chk_inherits(x, what)
 }

@@ -17,7 +17,7 @@ s3methods <- function(x) {
   with(methods, generic[!isS4])
 }
 foo <- fasten(
-  vld_include("predict", s3methods(object))
+  chk_include("predict", s3methods(object))
 )(
   function(object, data) {
     pred <- predict(object, data)
@@ -37,28 +37,28 @@ foo(NULL, data)}
 \link[=setequal]{Set operations},
 \link[=predicates-property]{Property predicates}
 }
-\alias{vld_in}
-\alias{vld_not_in}
-\alias{vld_include}
-\alias{vld_exclude}
-\alias{vld_within}
-\alias{vld_intersect}
-\alias{vld_avoid}
-\alias{vld_setequal}
+\alias{chk_in}
+\alias{chk_not_in}
+\alias{chk_include}
+\alias{chk_exclude}
+\alias{chk_within}
+\alias{chk_intersect}
+\alias{chk_avoid}
+\alias{chk_setequal}
 \usage{
-vld_in(x, set)
+chk_in(x, set)
 
-vld_not_in(x, set)
+chk_not_in(x, set)
 
-vld_include(x, set)
+chk_include(x, set)
 
-vld_exclude(x, set)
+chk_exclude(x, set)
 
-vld_within(x, set)
+chk_within(x, set)
 
-vld_intersect(x, set)
+chk_intersect(x, set)
 
-vld_avoid(x, set)
+chk_avoid(x, set)
 
-vld_setequal(x, set)
+chk_setequal(x, set)
 }
