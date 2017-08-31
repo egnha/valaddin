@@ -102,9 +102,9 @@ err_invalid_input <- function(., env) {
       err_msg_error(.$call[[1]], .$msg[[1]], conditionMessage(e))
   )
   l <- length(errmsg)
-  if (l == 1) {
+  if (l == 1)
     errmsg
-  } else {
+  else {
     not_string <- sprintf("not a string (has length %d)", l)
     err_msg_error(.$call[[1]], .$msg[[1]], not_string)
   }
