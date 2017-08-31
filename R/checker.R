@@ -74,7 +74,7 @@ err_not_fn <- function(q, fault) {
 
 prioritize_err_msg <- function(first, second) {
   if (is_empty_msg(first))
-    vld_err_msg(second)
+    error_msg(second)
   else
     first
 }
@@ -87,8 +87,8 @@ prioritize_err_msg <- function(first, second) {
 #'
 #' @examples
 #' is_integer <- rlang::as_closure(is.integer)
-#' vld_err_msg(is_integer) <- "{{.}} not of integer type (type: {typeof(.)})"
-#' vld_err_msg(is_integer)
+#' error_msg(is_integer) <- "{{.}} not of integer type (type: {typeof(.)})"
+#' error_msg(is_integer)
 #'
 #' foo <- firmly(identity, is_integer)
 #' foo(1:3)
@@ -98,9 +98,9 @@ prioritize_err_msg <- function(first, second) {
 #' is_integer <- rlang::is_integer
 #' msg <- local({
 #'   len <- function(n) if (is.null(n)) "" else paste(" of length", n)
-#'   new_err_msg("{{.}} is not an integer vector{{len(.value$n)}}")
+#'   new_error_msg("{{.}} is not an integer vector{{len(.value$n)}}")
 #' })
-#' vld_err_msg(is_integer) <- msg
+#' error_msg(is_integer) <- msg
 #'
 #' foo <- firmly(identity, is_integer(n = 3))
 #' foo(1:3)
@@ -108,7 +108,7 @@ prioritize_err_msg <- function(first, second) {
 #' foo(1:2)}
 #'
 #' @export
-vld_err_msg <- function(f) {
+error_msg <- function(f) {
   environment(f)$`__valaddin_error_message` %||% empty_msg
 }
 
@@ -123,8 +123,8 @@ vld_err_msg <- function(f) {
 #'   with [rlang::as_closure()].
 #'
 #' @export
-#' @rdname vld_err_msg
-`vld_err_msg<-` <- function(f, env = parent.frame(), value) {
+#' @rdname error_msg
+`error_msg<-` <- function(f, env = parent.frame(), value) {
   if (!is_closure(f))
     abort("Can only set error message for predicates that are closures")
   if (!is.environment(env))
@@ -144,8 +144,8 @@ vld_err_msg <- function(f) {
 #' @param msg Error message (string).
 #'
 #' @export
-#' @rdname vld_err_msg
-new_err_msg <- function(msg, env = parent.frame()) {
+#' @rdname error_msg
+new_error_msg <- function(msg, env = parent.frame()) {
   if (!is_string(msg))
     abort("Error message much be a string")
   if (!is.environment(env))
