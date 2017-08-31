@@ -116,13 +116,13 @@ Validating an object (say, a data frame) is nothing other than applying an input
 # All assumptions OK, mtcars returned invisibly
 validate(mtcars,
          is.data.frame,
-         vld_lt(100, nrow(.)),
-         vld_has_names(c("mpg", "cyl")))
+         chk_lt(100, nrow(.)),
+         chk_has_names(c("mpg", "cyl")))
 
 validate(mtcars,
          is.data.frame,
-         vld_gt(100, nrow(.)),
-         vld_has_name("cylinders"))
+         chk_gt(100, nrow(.)),
+         chk_has_name("cylinders"))
 #> Error: validate(. = mtcars)
 #> 1) nrow(.) is not greater than 100
 #> 2) . does not have name "cylinders"
@@ -189,7 +189,7 @@ In addition to having cleaner code, you can:
 Related packages
 ----------------
 
--   valaddin provides a basic set of predicate functions—prefixed `vld_` for easy lookup—to specify common kinds of checks, e.g., type and property checks, comparisons, etc.
+-   valaddin provides a basic set of predicate functions—prefixed `chk_` for easy lookup—to specify common kinds of checks, e.g., type and property checks, comparisons, etc.
 
     To enrich valaddin’s vocabulary of predicate functions, use:
 
