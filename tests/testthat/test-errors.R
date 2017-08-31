@@ -49,6 +49,18 @@ test_that("auto-message is used if error message fails to be created", {
   expect_error(f(FALSE), "Error interpolating message")
 })
 
+
+# Quasi-predicates --------------------------------------------------------
+
+context("Quasi-predicates")
+
+test_that("quasi-predicate returning string reports string as error message", {
+  is_true <- function(x) if (isTRUE(x)) TRUE else "Not true"
+  f <-  firmly(function(x) NULL, is_true)
+  expect_error(f(TRUE), NA)
+  expect_error(f(FALSE), "Not true")
+})
+
 # String-interpolation of error messages ----------------------------------
 
 context("String-interpolation of error messages")

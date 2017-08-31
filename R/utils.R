@@ -15,6 +15,10 @@ check_is_class <- function(cls) {
     inherits(x, cls)
 }
 is_error <- check_is_class("error")
+# stricter and slightly faster than rlang::is_string()
+is_string <- function(x) {
+  is.character(x) && length(x) == 1 && !is.na(x)
+}
 
 # Substitute string into call, to avoid making a binding that could take
 # precedence over those in higher environments

@@ -87,6 +87,8 @@ problems <- function(chks, verdict, env) {
     out <- verdict[[i]]
     if (is_false(out))
       err_invalid_input(chks[i, ], env)
+    else if (is_string(out))
+      out
     else if (is_error(out))
       err_eval_error(chks$call[[i]], out)
     else
