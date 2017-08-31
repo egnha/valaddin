@@ -78,8 +78,8 @@ loosely(bc_clean)
 
 }
 \seealso{
-\code{\link[=vld_spec]{vld_spec()}}, \code{\link[=vld_exprs]{vld_exprs()}}, \link{validate}, \link{components},
-\link{predicates}
+\code{\link[=vld_spec]{vld_spec()}}, \code{\link[=vld_exprs]{vld_exprs()}}, \link{validate},
+\code{\link[=firm_core]{firm_core()}}, \code{\link[=firm_error]{firm_error()}}, \link{predicates}
 }
 \usage{
 firmly(f, ..., error_class = NULL)

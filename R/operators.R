@@ -165,8 +165,8 @@ print.validator <- function(x, ...) {
 #'
 #' @section Specifying input validations: _TODO_ (see the examples)
 #'
-#' @seealso [vld_spec()], [vld_exprs()], [validate], [components],
-#'   [predicates]
+#' @seealso [vld_spec()], [vld_exprs()], [validate],
+#'   [firm_core()], [firm_error()], [predicates]
 #'
 #' @examples
 #' bc <- function(x, y) c(x, y, 1 - x - y)
