@@ -85,14 +85,12 @@ validify <- fasten(
 )(
   function(..., error_class = NULL) {
     error_class <- error_class %||% "objectValidationError"
-    structure(
-      fasten_(..., error_class = error_class)(pass),
-      class = c("validator", "firm_closure", "function")
+    `class<-`(
+      fasten_(..., error_class = error_class)(function(.) invisible(.)),
+      c("validator", "firm_closure")
     )
   }
 )
-# name of argument must coincide with name of validate()'s object-argument
-pass <- function(.) invisible(.)
 
 #' @export
 print.firm_closure <- function(x, ...) {

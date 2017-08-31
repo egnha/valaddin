@@ -14,7 +14,7 @@ validation_closure <- function(f, chks, sig, args, error_class) {
   error <- function(call, verdict, fail, env) {
     err_call <- deparse_w_defval(call)
     err_msgs <- problems(chks[fail, ], verdict[fail], env)
-    structure(
+    `class<-`(
       list(
         message    = paste(err_call, enumerate_many(err_msgs), sep = "\n"),
         call       = NULL,
@@ -22,7 +22,7 @@ validation_closure <- function(f, chks, sig, args, error_class) {
         error_call = chks[fail, ]$call,
         error_msgs = err_msgs
       ),
-      class = c(error_class, "error", "condition")
+      c(error_class, "error", "condition")
     )
   }
   deparse_w_defval <- function(call) {
