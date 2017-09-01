@@ -2,13 +2,6 @@ context("Collecting validation checks")
 
 f <- function(x, y) NULL
 
-only_false <- function(this, not_this) {
-  only(errmsg_false(this), errmsg_false(not_this))
-}
-both_false <- function(this, that) {
-  both(errmsg_false(this), errmsg_false(that))
-}
-
 context("Bare checks")
 
 test_that("symbol collected as global predicate", {

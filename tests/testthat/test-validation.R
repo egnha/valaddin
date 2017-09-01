@@ -209,6 +209,33 @@ test_that("predicate function doesn't clash with names in calling frame", {
   expect_error(f("not private"), errmsg_false("is_private(x)"))
 })
 
+test_that("messages, predicate, check expressions are independently scoped", {
+  msg <- local({
+    f <- toupper
+    message <- "x-message"
+    new_error_msg("{message} {{f(.)}}")
+  })
+  is_positive <- local({
+    f <- isTRUE
+    function(.) f(. > 0)
+  })
+  x <- local({
+    f <- function(a) a - 1
+    rlang::quo(f(x))
+  })
+
+  f <- function(a) a - 2
+  message <- "y-message"
+
+  bar <- function(x, y) NULL
+  foo <- firmly(bar, !! msg := is_positive(!! x, "{message} {y}" := f(y)))
+
+  expect_error(foo(2, 3), NA)
+  expect_error_perl(foo(1, 3), only("x-message F\\(X\\)", "y-message 3"))
+  expect_error_perl(foo(2, 2), only("y-message 2", "x-message F\\(X\\)"))
+  expect_error_perl(foo(1, 2), both("x-message F\\(X\\)", "y-message 2"))
+})
+
 # Error class -------------------------------------------------------------
 context("Error class")
 

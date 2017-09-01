@@ -42,3 +42,9 @@ both <- function(x, y) {
   # Need (?s:.)* because .* won't match newline as Perl regex
   sprintf("(%s(?s:.)*%s)|(%s(?s:.)*%s)", x, y, y, x)
 }
+only_false <- function(this, not_this) {
+  only(errmsg_false(this), errmsg_false(not_this))
+}
+both_false <- function(this, that) {
+  both(errmsg_false(this), errmsg_false(that))
+}
