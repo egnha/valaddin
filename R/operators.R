@@ -87,7 +87,7 @@ validator <- fasten(
     error_class <- error_class %||% "objectValidationError"
     `class<-`(
       fasten_(..., error_class = error_class)(function(.) invisible(.)),
-      c("validator", "firm_closure")
+      "validator"
     )
   }
 )
