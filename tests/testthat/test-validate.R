@@ -39,9 +39,9 @@ test_that("error listing violations is signaled when validation fails", {
   )
 })
 
-test_that("validify() creates object validator", {
+test_that("validator() creates object validator", {
   n <- nrow(mtcars)
-  verify_fail <- validify(
+  verify_fail <- validator(
     is.matrix,
     "Not enough rows: {.}" := {. > n + 1}(nrow(.)),
     {all(c("mpg", "cyl") %in% colnames(.))}
@@ -55,7 +55,7 @@ test_that("validify() creates object validator", {
     paste("Not enough rows:", n)
   )
 
-  verify_pass <- validify(
+  verify_pass <- validator(
     is.data.frame,
     {nrow(.) > 1},
     all(c("mpg", "cyl") %in% colnames(.))

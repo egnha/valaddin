@@ -6,8 +6,8 @@
 \description{
 The following predicate functions augment predicates from the
 \pkg{base} and \pkg{rlang} packages to enable them to produce informative
-error messages when used as checks in \code{\link[=fasten]{fasten()}}, \code{\link[=firmly]{firmly()}}, \code{\link[=validify]{validify()}},
-\code{\link[=validate]{validate()}}.
+error messages when used as checks in \code{\link[=fasten]{fasten()}}, \code{\link[=firmly]{firmly()}},
+\code{\link[=validator]{validator()}}, \code{\link[=validate]{validate()}}.
 \itemize{
 \item \link[=predicates-boolean]{Boolean predicates}
 \item \link[=predicates-object]{Object predicates}

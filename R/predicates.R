@@ -2,8 +2,8 @@
 #'
 #' @description The following predicate functions augment predicates from the
 #'   \pkg{base} and \pkg{rlang} packages to enable them to produce informative
-#'   error messages when used as checks in [fasten()], [firmly()], [validify()],
-#'   [validate()].
+#'   error messages when used as checks in [fasten()], [firmly()],
+#'   [validator()], [validate()].
 #'
 #' - [Boolean predicates][predicates-boolean]
 #' - [Object predicates][predicates-object]

@@ -2,7 +2,7 @@
 % Please edit documentation in R/operators.R
 \name{validate}
 \alias{validate}
-\alias{validify}
+\alias{validator}
 \title{Validate objects}
 \arguments{
 \item{.}{Object to validate.}
@@ -36,5 +36,5 @@ validate(mtcars,
 \usage{
 validate(., ..., error_class = NULL)
 
-validify(..., error_class = NULL)
+validator(..., error_class = NULL)
 }

@@ -74,13 +74,13 @@ validate <- fasten(
   UQS(check_error_class)
 )(
   function(., ..., error_class = NULL) {
-    validate <- loosely(validify)(..., error_class = error_class)
+    validate <- loosely(validator)(..., error_class = error_class)
     eval(bquote(validate(.(substitute(.)))))
   }
 )
 
 #' @export
-validify <- fasten(
+validator <- fasten(
   UQS(check_error_class)
 )(
   function(..., error_class = NULL) {
@@ -210,8 +210,8 @@ NULL
 
 #' Validate objects
 #'
-#' @aliases validate validify
-#' @evalRd rd_usage(c("validate", "validify"))
+#' @aliases validate validator
+#' @evalRd rd_usage(c("validate", "validator"))
 #'
 #' @param . Object to validate.
 #' @param ... Input validation checks.
