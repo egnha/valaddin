@@ -112,15 +112,15 @@ error_msg <- function(f) {
   environment(f)$`__valaddin_error_message` %||% empty_msg
 }
 
-#' @param env Environment that is in scope when any `\{\{`-enclosed substring
-#'   of the error message is interpolated.
+#' @param env Environment that is in scope when a `\{\{...\}\}` substring of the
+#'   error message is interpolated.
 #' @param value Error message (string or [quosure][rlang::quosure] of a
 #'   string).
 #'
 #' @details An error message can only be set for predicate functions that are
-#'   [closures][base::function]. Thus if you want to set an error message of a
-#'   [primitive][base::Primitive] predicate, e.g., `is.nan()`, transform `f`
-#'   with [rlang::as_closure()].
+#'   [closures][base::function]. To set an error message of a
+#'   [primitive][base::Primitive] predicate, e.g., `is.array()`, transform it to
+#'   a closure with [rlang::as_closure()].
 #'
 #' @export
 #' @rdname error_msg
