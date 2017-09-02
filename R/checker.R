@@ -156,19 +156,19 @@ new_error_msg <- function(msg, env = parent.frame()) {
 get_text <- function(q) {
   text <- f_rhs(q)
   if (!is_string(text))
-    abort(paste("Not a string:", deparse_collapse(text)))
+    abort(paste("Not a string:", deparse_str(text)))
   text
 }
 
 bind_expr_value <- function(args, env, parent) {
   env_bind <- new.env(parent = parent)
   env_bind$.expr <- bind_expr_text(nomen(args), env)
-  env_bind$.value <- lapply(args, deparse_collapse)
+  env_bind$.value <- lapply(args, deparse_str)
   env_bind
 }
 bind_expr_text <- function(syms, env) {
   lapply(syms, function(sym)
-    deparse_collapse(
+    deparse_str(
       eval(substitute(substitute(., env), list(. = sym)))
     )
   )

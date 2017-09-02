@@ -26,7 +26,7 @@ glue_text <- function(text, env, data = NULL, ...) {
   eval(bquote(glue::glue_data(.x = data, .(text), .envir = env, ...)))
 }
 
-deparse_collapse <- function(x) {
+deparse_str <- function(x) {
   d <- deparse(x)
   if (length(d) > 1)
     paste(trimws(gsub("\\s+", " ", d), which = "left"), collapse = "")

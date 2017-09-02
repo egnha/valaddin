@@ -70,7 +70,7 @@ deparse_check <- function(expr, chk_items, msg_default, env_msg) {
 deparse_call <- function(expr, arg) {
   expr_arg <- quo_expr(arg)
   call <- as.call(c(node_car(expr), expr_arg, node_cdr(expr)))
-  deparse_collapse(call)
+  deparse_str(call)
 }
 make_message <- function(msg, env_msg, chk_items, calls) {
   if (nzchar(msg))

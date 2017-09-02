@@ -28,7 +28,7 @@ validation_closure <- function(f, chks, sig, args, error_class) {
   deparse_w_defval <- function(call) {
     sig[names(call[-1])] <- call[-1]
     sig <- sig[!vapply(sig, identical, logical(1), quote(expr = ))]
-    deparse_collapse(as.call(c(call[[1]], sig)))
+    deparse_str(as.call(c(call[[1]], sig)))
   }
 
   function() {
@@ -124,5 +124,5 @@ err_eval_error <- function(call, out) {
   sprintf("Error evaluating check %s: %s", call, conditionMessage(out))
 }
 err_invalid_value <- function(call, out) {
-  sprintf("Predicate value %s not TRUE/FALSE: %s", call, deparse_collapse(out))
+  sprintf("Predicate value %s not TRUE/FALSE: %s", call, deparse_str(out))
 }
