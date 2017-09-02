@@ -1,4 +1,4 @@
-check_error_class <- vld_spec(
+error_class_chk <- vld_spec(
   "'error_class' must be NULL or a character vector without NAs" :=
     {is.null(.) || is.character(.) && !anyNA(.)}(error_class)
 )
@@ -55,12 +55,12 @@ with_sig <- function(f, sig, attrs) {
 }
 
 #' @export
-fasten <- fasten_(UQS(check_error_class))(fasten_)
+fasten <- fasten_(UQS(error_class_chk))(fasten_)
 
 #' @export
 firmly <- fasten(
   "'f' must be a function" := is.function(f),
-  UQS(check_error_class)
+  UQS(error_class_chk)
 )(
   function(f, ..., error_class = NULL) {
     if (is.primitive(f))
@@ -71,7 +71,7 @@ firmly <- fasten(
 
 #' @export
 validate <- fasten(
-  UQS(check_error_class)
+  UQS(error_class_chk)
 )(
   function(., ..., error_class = NULL) {
     validate <- loosely(validator)(..., error_class = error_class)
@@ -81,7 +81,7 @@ validate <- fasten(
 
 #' @export
 validator <- fasten(
-  UQS(check_error_class)
+  UQS(error_class_chk)
 )(
   function(..., error_class = NULL) {
     error_class <- error_class %||% "objectValidationError"
