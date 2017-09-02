@@ -7,7 +7,7 @@
 vld_exprs(...)
 }
 \arguments{
-\item{...}{Expressions to validate.}
+\item{...}{Expressions to validate (with support for quasiquotation).}
 }
 \description{
 Specify validation expressions

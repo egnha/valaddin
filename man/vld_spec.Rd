@@ -7,7 +7,7 @@
 vld_spec(...)
 }
 \arguments{
-\item{...}{Validation checks.}
+\item{...}{Validation checks (with support for quasiquotation).}
 }
 \description{
 Specify validation checks

@@ -75,7 +75,7 @@ is_subsetter      <- check_is_symb("[[")
 
 #' Specify validation checks
 #'
-#' @param ... Validation checks.
+#' @param ... Validation checks (with support for quasiquotation).
 #'
 #' @seealso [vld_exprs()]
 #'
@@ -95,7 +95,7 @@ vld_spec <- new_vld_collector(as_call)
 
 #' Specify validation expressions
 #'
-#' @param ... Expressions to validate.
+#' @param ... Expressions to validate (with support for quasiquotation).
 #'
 #' @seealso [vld_spec()]
 #'
