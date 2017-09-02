@@ -138,15 +138,15 @@ print.validator <- function(x, ...) {
 
 #' Apply a function firmly
 #'
-#' The main functions of valaddin apply or undo input validation checks to
+#' The main functions of \pkg{valaddin} apply or undo input validation checks to
 #' functions:
 #'   - `firmly()` transforms a function into a function with input validation
 #'      checks
 #'   - `loosely()` undoes the application of `firmly()`, by returning the
 #'      original function (without checks)
 #'   - `fasten()` is a [currying](https://en.wikipedia.org/wiki/Currying) of
-#'     `firmly()`: given a set of input validations, it returns a _functional
-#'     operator_ that applies the input validations
+#'     `firmly()`: that is, given a set of input validations, it returns a
+#'     _operator_ that applies the input validations to functions
 #'   - `is_firm()` is a predicate function that checks whether an object is a
 #'     firmly applied function, i.e., a function created by `fasten()` or
 #'     `firmly()`
@@ -155,13 +155,107 @@ print.validator <- function(x, ...) {
 #' @evalRd rd_usage(c("firmly", "fasten", "loosely", "is_firm"))
 #'
 #' @param f Function.
-#' @param ... Input validation checks.
+#' @param ... Input validation checks (with support for quasiquotation).
 #' @param error_class Subclass of the error condition to be raised when an input
 #'   validation error occurs (character). If `NULL` (the default), the error
 #'   subclass is `inputValidationError`.
 #' @param x Object to test.
 #'
-#' @section Specifying input validations: _TODO_ (see the examples)
+#' @section How to specify validation checks: A _validation check_ is specified
+#'   by a predicate function: if the predicate yields `TRUE`, the check passes,
+#'   otherwise the check fails. Any predicate function will do, provided its
+#'   first argument is the object to be checked.
+#'
+#'   \subsection{Apply a validation check to all arguments}{
+#'   Simply write the predicate when you want to apply it to all (named)
+#'   arguments.
+#'
+#'   **Example** — To transform the function
+#'   ````
+#'   add <- function(x, y, z) x + y + z
+#'   ````
+#'   so that every argument is checked to be numeric, use the predicate
+#'   `is.numeric()`:
+#'   ```
+#'   add_num <- firmly(add, is.numeric)
+#'   add_num(1, 2, 3)        # 6
+#'   add_num(1, 2, "three")  # Error: 'FALSE: is.numeric(z)'
+#'   ```
+#'   }
+#'
+#'   \subsection{Restrict a validation check to specific expressions}{
+#'   Specifiy expressions (of arguments) when you want to restrict the scope of
+#'   a check.
+#'
+#'   **Example** — To require that `y` and `z` are numeric (but not `x`
+#'   necessarily), specify them as arguments of `is.numeric()` (this works even
+#'   though `is.numeric()`, as a function, only takes a single argument):
+#'   ```
+#'   add_num_yz <- firmly(add, is.numeric(y, z))
+#'   add_num_yz(TRUE, 2, 3)     # 6
+#'   add_num_yz(TRUE, TRUE, 3)  # Error: 'FALSE: is.numeric(y)'
+#'   ```
+#'   }
+#'
+#'   \subsection{Set predicate parameters}{
+#'   If a predicate has (named) parameters, you can set them as part of the
+#'   check. The format for setting the parameters of a predicate, as a
+#'   validation check, is
+#'   ```
+#'   predicate(<params_wo_default_value>, ..., <params_w_default_value>)
+#'   ```
+#'   where `...` is filled by the expressions to check, which you may omit when
+#'   you intend to check all arguments. The order of predicate arguments is
+#'   preserved within the two groups (parameters without default value vs those
+#'   with default value).
+#'
+#'   Thus the rule for setting the parameters of `predicate()` as a _validation
+#'   check_ is the same as that of `predicate()` as a _function_.
+#'
+#'   **Example** — You can match a regular expression with the following wrapper
+#'   around `grepl()`:
+#'   ```
+#'   matches_regex <- function(x, regex, case_sensitive = TRUE) {
+#'     isTRUE(grepl(regex, x, ignore.case = !case_sensitive))
+#'   }
+#'   ```
+#'   As a validation check, the format for setting the parameters of this
+#'   predicate is
+#'   ```
+#'   matches_regex(regex, ..., case_sensitive = TRUE)
+#'   ```
+#'   Thus the value of `regex` must be set, and may be matched by position.
+#'   Setting `case_sensitive` is optional, and must be done by name.
+#'   ```
+#'   scot <- function(me, you) {
+#'     paste0("A'm ", me, ", whaur ye fae, ", you, "?")
+#'   }
+#'   scot <- firmly(scot, matches_regex("^mc.*$", case_sensitive = FALSE, me))
+#'   scot("McDonald", "George")  # "A'm McDonald, whaur ye fae, George?"
+#'   scot("o'neill", "George")   # Error
+#'   ```
+#'   }
+#'
+#'   \subsection{Succinctly express short predicates}{
+#'   Short predicates of a single argument can be succinct expressed by their
+#'   body alone (enclosed in curly braces). Use `.` to indicate the argument.
+#'
+#'   **Example** — Monotonicity of arguments can be expressed using an ordinary
+#'   (anonymous) function declaration
+#'   ```
+#'   add_inc <- firmly(add, (function(.) isTRUE(. > 0))(y - x, z - y))
+#'   add_inc(1, 2, 3)  # 6
+#'   add_inc(1, 2, 2)  # Error: 'FALSE: (function(.) isTRUE(. > 0))(z - y)'
+#'   ```
+#'   or more succinctly like so
+#'   ```
+#'   add_inc <- firmly(add, {isTRUE(. > 0)}(y - x, z - y))
+#'   add_inc(1, 2, 3)  # 6
+#'   add_inc(1, 2, 2)  # Error: 'FALSE: (function (.) {isTRUE(. > 0)})(z - y)'
+#'   ```
+#'   }
+#'
+#' @section How to specify error messages: TODO
 #'
 #' @seealso [vld_spec()], [vld_exprs()], [validate],
 #'   [firm_core()], [firm_error()], [predicates]

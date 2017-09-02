@@ -9,7 +9,7 @@
 \arguments{
 \item{f}{Function.}
 
-\item{...}{Input validation checks.}
+\item{...}{Input validation checks (with support for quasiquotation).}
 
 \item{error_class}{Subclass of the error condition to be raised when an input
 validation error occurs (character). If \code{NULL} (the default), the error
@@ -18,7 +18,7 @@ subclass is \code{inputValidationError}.}
 \item{x}{Object to test.}
 }
 \description{
-The main functions of valaddin apply or undo input validation checks to
+The main functions of \pkg{valaddin} apply or undo input validation checks to
 functions:
 \itemize{
 \item \code{firmly()} transforms a function into a function with input validation
@@ -26,15 +26,102 @@ checks
 \item \code{loosely()} undoes the application of \code{firmly()}, by returning the
 original function (without checks)
 \item \code{fasten()} is a \href{https://en.wikipedia.org/wiki/Currying}{currying} of
-\code{firmly()}: given a set of input validations, it returns a \emph{functional
-operator} that applies the input validations
+\code{firmly()}: that is, given a set of input validations, it returns a
+\emph{operator} that applies the input validations to functions
 \item \code{is_firm()} is a predicate function that checks whether an object is a
 firmly applied function, i.e., a function created by \code{fasten()} or
 \code{firmly()}
 }
 }
-\section{Specifying input validations}{
- \emph{TODO} (see the examples)
+\section{How to specify validation checks}{
+ A \emph{validation check} is specified
+by a predicate function: if the predicate yields \code{TRUE}, the check passes,
+otherwise the check fails. Any predicate function will do, provided its
+first argument is the object to be checked.
+
+\subsection{Apply a validation check to all arguments}{
+Simply write the predicate when you want to apply it to all (named)
+arguments.
+
+\strong{Example} — To transform the function\preformatted{add <- function(x, y, z) x + y + z
+}
+
+so that every argument is checked to be numeric, use the predicate
+\code{is.numeric()}:\preformatted{add_num <- firmly(add, is.numeric)
+add_num(1, 2, 3)        # 6
+add_num(1, 2, "three")  # Error: 'FALSE: is.numeric(z)'
+}
+
+}
+
+\subsection{Restrict a validation check to specific expressions}{
+Specifiy expressions (of arguments) when you want to restrict the scope of
+a check.
+
+\strong{Example} — To require that \code{y} and \code{z} are numeric (but not \code{x}
+necessarily), specify them as arguments of \code{is.numeric()} (this works even
+though \code{is.numeric()}, as a function, only takes a single argument):\preformatted{add_num_yz <- firmly(add, is.numeric(y, z))
+add_num_yz(TRUE, 2, 3)     # 6
+add_num_yz(TRUE, TRUE, 3)  # Error: 'FALSE: is.numeric(y)'
+}
+
+}
+
+\subsection{Set predicate parameters}{
+If a predicate has (named) parameters, you can set them as part of the
+check. The format for setting the parameters of a predicate, as a
+validation check, is\preformatted{predicate(<params_wo_default_value>, ..., <params_w_default_value>)
+}
+
+where \code{...} is filled by the expressions to check, which you may omit when
+you intend to check all arguments. The order of predicate arguments is
+preserved within the two groups (parameters without default value vs those
+with default value).
+
+Thus the rule for setting the parameters of \code{predicate()} as a \emph{validation
+check} is the same as that of \code{predicate()} as a \emph{function}.
+
+\strong{Example} — You can match a regular expression with the following wrapper
+around \code{grepl()}:\preformatted{matches_regex <- function(x, regex, case_sensitive = TRUE) {
+  isTRUE(grepl(regex, x, ignore.case = !case_sensitive))
+}
+}
+
+As a validation check, the format for setting the parameters of this
+predicate is\preformatted{matches_regex(regex, ..., case_sensitive = TRUE)
+}
+
+Thus the value of \code{regex} must be set, and may be matched by position.
+Setting \code{case_sensitive} is optional, and must be done by name.\preformatted{scot <- function(me, you) {
+  paste0("A'm ", me, ", whaur ye fae, ", you, "?")
+}
+scot <- firmly(scot, matches_regex("^mc.*$", case_sensitive = FALSE, me))
+scot("McDonald", "George")  # "A'm McDonald, whaur ye fae, George?"
+scot("o'neill", "George")   # Error
+}
+
+}
+
+\subsection{Succinctly express short predicates}{
+Short predicates of a single argument can be succinct expressed by their
+body alone (enclosed in curly braces). Use \code{.} to indicate the argument.
+
+\strong{Example} — Monotonicity of arguments can be expressed using an ordinary
+(anonymous) function declaration\preformatted{add_inc <- firmly(add, (function(.) isTRUE(. > 0))(y - x, z - y))
+add_inc(1, 2, 3)  # 6
+add_inc(1, 2, 2)  # Error: 'FALSE: (function(.) isTRUE(. > 0))(z - y)'
+}
+
+or more succinctly like so\preformatted{add_inc <- firmly(add, {isTRUE(. > 0)}(y - x, z - y))
+add_inc(1, 2, 3)  # 6
+add_inc(1, 2, 2)  # Error: 'FALSE: (function (.) {isTRUE(. > 0)})(z - y)'
+}
+
+}
+}
+
+\section{How to specify error messages}{
+ TODO
 }
 
 \examples{
