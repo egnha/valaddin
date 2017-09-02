@@ -51,12 +51,11 @@ tabulate_check <- function(x) {
 }
 
 deparse_check <- function(expr, chk_items, msg_default, env_msg) {
-  msg_default <- eval_tidy(msg_default)
+  msg <- eval_tidy(msg_default)
   calls <- vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
   msgs <- vapply(chk_items, function(.) f_rhs(.$msg), character(1))
   is_gbl <- !nzchar(msgs)
-  msgs[is_gbl] <-
-    make_messages(msg_default, env_msg, chk_items[is_gbl], calls[is_gbl])
+  msgs[is_gbl] <- interp_msgs(msg, env_msg, chk_items[is_gbl], calls[is_gbl])
   envs <- vector("list", length(chk_items))
   envs[ is_gbl] <- list(env_msg)
   envs[!is_gbl] <- lapply(chk_items[!is_gbl], function(.) f_env(.$msg))
@@ -72,7 +71,7 @@ deparse_call <- function(expr, arg) {
   call <- as.call(c(node_car(expr), expr_arg, node_cdr(expr)))
   deparse_str(call)
 }
-make_messages <- function(msg, env_msg, chk_items, calls) {
+interp_msgs <- function(msg, env_msg, chk_items, calls) {
   if (nzchar(msg))
     vapply(chk_items, interp_with_dot, character(1), text = msg, env = env_msg)
   else
