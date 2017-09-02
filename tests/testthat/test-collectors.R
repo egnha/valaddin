@@ -63,6 +63,25 @@ test_that("lambda-function collected as global predicate", {
   )
 })
 
+test_that("subsetted function collected as global predicate", {
+  x <- list(fun = isTRUE)
+
+  foo <- firmly(f, !!! vld_spec(x$fun))
+  expect_error(foo(TRUE, TRUE), NA)
+  expect_error_perl(foo(FALSE, TRUE), only_false("x$fun(x)", "x$fun(y)"))
+  expect_error_perl(foo(TRUE, FALSE), only_false("x$fun(y)", "x$fun(x)"))
+  expect_error_perl(foo(FALSE, FALSE), both_false("x$fun(x)", "x$fun(y)"))
+
+  foo <- firmly(f, !!! vld_spec(x[['fun']]))
+  expect_error(foo(TRUE, TRUE), NA)
+  expect_error_perl(foo(FALSE, TRUE),
+                    only_false("x[[\"fun\"]](x)", "x[[\"fun\"]](y)"))
+  expect_error_perl(foo(TRUE, FALSE),
+                    only_false("x[[\"fun\"]](y)", "x[[\"fun\"]](x)"))
+  expect_error_perl(foo(FALSE, FALSE),
+                    both_false("x[[\"fun\"]](x)", "x[[\"fun\"]](y)"))
+})
+
 test_that("call collected as local predicate", {
   foo <- firmly(f, !!! vld_spec(isTRUE(x)))
   expect_error_perl(foo(TRUE, FALSE), NA)

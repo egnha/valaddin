@@ -57,7 +57,9 @@ as_call <- function(x) {
 }
 is_bare_head <- function(x) {
   !is.call(x) ||
-    is_block(x) || is_fn_declaration(x) || is_ns_public(x) || is_ns_private(x)
+    is_block(x) || is_fn_declaration(x) ||
+    is_ns_public(x) || is_ns_private(x) ||
+    is_dollar(x) || is_subsetter(x)
 }
 check_is_symb <- function(nm) {
   symb <- as.symbol(nm)
@@ -68,6 +70,8 @@ is_block          <- check_is_symb("{")
 is_fn_declaration <- check_is_symb("function")
 is_ns_public      <- check_is_symb("::")
 is_ns_private     <- check_is_symb(":::")
+is_dollar         <- check_is_symb("$")
+is_subsetter      <- check_is_symb("[[")
 
 #' Specify validation checks
 #'
