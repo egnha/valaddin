@@ -9,34 +9,38 @@
 checker <- function(pred, msg = empty_msg) {
   pred <- as_predicate(pred)
   msg <- prioritize_err_msg(msg, pred$fn)
-  text <- get_text(msg)
-  env <- f_env(msg)
-  `__bind_to_msg` <- function(args) {
-    env_msg <- bind_expr_value(args, parent.frame(), env)
-    new_quosure(text, env_msg)
-  }
-  `__get_env` <- f_env
-  `__pred_partial` <- function(args) partial(pred$fn, args)
-  `__get_exprs` <- vld_exprs
-  `__pred_expr` <- function(args) as.call(c(pred$expr, args))
   fmls <- rearrange_formals(pred$fn)
-  if (is_empty(names_nondot(fmls)))
+  nms_pred_params <- names_nondot(fmls)
+  if (is_empty(nms_pred_params)) {
+    `__bind_to_msg` <- function(args) msg
     `__eval_nondot_args` <- list
-  else
+  } else {
+    `__bind_to_msg` <- function(args) {
+      fmls <- fmls[nms_pred_params]
+      fmls[names(args)] <- args
+      env_msg <- bind_expr_value(fmls, parent.frame(), f_env(msg))
+      new_quosure(get_text(msg), env_msg)
+    }
     `__eval_nondot_args` <- eval_nondot_args
-  chkr <- function(...) {
-    args <- `__eval_nondot_args`()
-    msg <- `__bind_to_msg`(args)
-    list(
-      msg       = msg,
-      env_msg   = `__get_env`(msg),
-      fn        = `__pred_partial`(args),
-      chk_items = `__get_exprs`(...),
-      expr      = `__pred_expr`(args)
-    )
   }
-  formals(chkr) <- fmls
-  chkr
+  `__get_env`      <- f_env
+  `__get_exprs`    <- vld_exprs
+  `__pred_partial` <- function(args) partial(pred$fn, args)
+  `__pred_expr`    <- function(args) as.call(c(pred$expr, args))
+  `formals<-`(
+    function(...) {
+      args <- `__eval_nondot_args`()
+      msg <- `__bind_to_msg`(args)
+      list(
+        msg       = msg,
+        env_msg   = `__get_env`(msg),
+        fn        = `__pred_partial`(args),
+        expr      = `__pred_expr`(args),
+        chk_items = `__get_exprs`(...)
+      )
+    },
+    value = fmls
+  )
 }
 
 as_predicate <- function(q) {
