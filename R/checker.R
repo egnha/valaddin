@@ -60,7 +60,6 @@ as_lambda_fn <- function(x, env) {
 new_fn_expr <- function(body, args = alist(. = )) {
   call("function", as.pairlist(args), body)
 }
-
 match_fn <- function(q) {
   fn <- try_eval_tidy(q)
   if (!is.function(fn))
@@ -81,6 +80,55 @@ prioritize_err_msg <- function(first, second) {
     error_msg(second)
   else
     first
+}
+
+rearrange_formals <- function(f) {
+  fmls <- segregate_args(formals(f)[-1])
+  as.pairlist(c(fmls$wo_value, alist(... = ), fmls$with_value))
+}
+segregate_args <- function(fmls) {
+  fmls <- fmls[names(fmls) != "..."]
+  wo_value <- vapply(fmls, identical, logical(1), y = quote(expr = ))
+  list(wo_value = fmls[wo_value], with_value = fmls[!wo_value])
+}
+
+bind_expr_value <- function(xs, env, parent) {
+  env_bind <- new.env(parent = parent)
+  env_bind$.expr <- bind_expr_text(nomen(xs), env)
+  env_bind$.value <- lapply(xs, deparse_str)
+  env_bind
+}
+bind_expr_text <- function(syms, env) {
+  lapply(syms, function(sym)
+    deparse_str(eval(substitute(substitute(., env), list(. = sym))))
+  )
+}
+
+get_text <- function(q) {
+  text <- f_rhs(q)
+  if (!is_string(text))
+    abort(paste("Not a string:", deparse_str(text)))
+  text
+}
+
+partial <- function(f, arg_fill) {
+  if (is_empty(arg_fill))
+    return(f)
+  f <- as_closure(f)
+  fill_args <- function() {
+    arg_call <- node_cdr(sys.call(-1))
+    as.call(c(f, arg_fill, arg_call))
+  }
+  function(...) {
+    call <- fill_args()
+    eval(call, parent.frame())
+  }
+}
+
+eval_nondot_args <- function() {
+  mc <- match.call(sys.function(-1), call = sys.call(-1), expand.dots = FALSE)
+  args <- nomen(mc[-1])
+  lapply(args, eval, envir = parent.frame())
 }
 
 #' Get or set a validation error message
@@ -155,53 +203,4 @@ new_error_msg <- function(msg, env = parent.frame()) {
   if (!is.environment(env))
     abort("'env' must be an environment")
   new_quosure(msg, env)
-}
-
-get_text <- function(q) {
-  text <- f_rhs(q)
-  if (!is_string(text))
-    abort(paste("Not a string:", deparse_str(text)))
-  text
-}
-
-bind_expr_value <- function(xs, env, parent) {
-  env_bind <- new.env(parent = parent)
-  env_bind$.expr <- bind_expr_text(nomen(xs), env)
-  env_bind$.value <- lapply(xs, deparse_str)
-  env_bind
-}
-bind_expr_text <- function(syms, env) {
-  lapply(syms, function(sym)
-    deparse_str(eval(substitute(substitute(., env), list(. = sym))))
-  )
-}
-
-partial <- function(f, arg_fill) {
-  if (is_empty(arg_fill))
-    return(f)
-  f <- as_closure(f)
-  fill_args <- function() {
-    arg_call <- node_cdr(sys.call(-1))
-    as.call(c(f, arg_fill, arg_call))
-  }
-  function(...) {
-    call <- fill_args()
-    eval(call, parent.frame())
-  }
-}
-
-rearrange_formals <- function(f) {
-  fmls <- segregate_args(formals(f)[-1])
-  as.pairlist(c(fmls$wo_value, alist(... = ), fmls$with_value))
-}
-segregate_args <- function(fmls) {
-  fmls <- fmls[names(fmls) != "..."]
-  wo_value <- vapply(fmls, identical, logical(1), y = quote(expr = ))
-  list(wo_value = fmls[wo_value], with_value = fmls[!wo_value])
-}
-
-eval_nondot_args <- function() {
-  mc <- match.call(sys.function(-1), call = sys.call(-1), expand.dots = FALSE)
-  args <- nomen(mc[-1])
-  lapply(args, eval, envir = parent.frame())
 }
