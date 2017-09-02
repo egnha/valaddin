@@ -168,8 +168,12 @@ test_that("error raised if interpolation can't produce string", {
     'Error interpolating message "\\{\\.\\}": not a string \\(has length 2\\)'
   )
   expect_error(
-    firmly(identity, "{X}" := isTRUE)(0),
+    firmly(identity, "{X}" := isTRUE)(FALSE),
     "Error interpolating message \"\\{X\\}\": object 'X' not found"
+  )
+  expect_error(
+    firmly(identity, "{{NULL}}" := isTRUE)(FALSE),
+    "Failed to interpolate as string: '\\{\\{NULL\\}\\}' \\(length 0\\)"
   )
 })
 

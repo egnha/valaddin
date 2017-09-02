@@ -56,7 +56,7 @@ deparse_check <- function(expr, chk_items, msg_default, env_msg) {
   msgs <- vapply(chk_items, function(.) f_rhs(.$msg), character(1))
   is_gbl <- !nzchar(msgs)
   msgs[is_gbl] <-
-    make_message(msg_default, env_msg, chk_items[is_gbl], calls[is_gbl])
+    make_messages(msg_default, env_msg, chk_items[is_gbl], calls[is_gbl])
   envs <- vector("list", length(chk_items))
   envs[ is_gbl] <- list(env_msg)
   envs[!is_gbl] <- lapply(chk_items[!is_gbl], function(.) f_env(.$msg))
@@ -72,30 +72,27 @@ deparse_call <- function(expr, arg) {
   call <- as.call(c(node_car(expr), expr_arg, node_cdr(expr)))
   deparse_str(call)
 }
-make_message <- function(msg, env_msg, chk_items, calls) {
+make_messages <- function(msg, env_msg, chk_items, calls) {
   if (nzchar(msg))
-    vapply(chk_items, function(.) glue_opp(.$chk, msg, env_msg), character(1))
+    vapply(chk_items, interp_with_dot, character(1), text = msg, env = env_msg)
   else
     protect_braces_from_glue(message_false(calls))
+}
+interp_with_dot <- function(item, text, env) {
+  dot <- quo_text(item$chk)
+  interp <- glue_text(text, env, list(. = dot), .open = "{{", .close = "}}")
+  len <- length(interp)
+  if (len != 1) {
+    text <- encodeString(text, quote = "'")
+    abort(sprintf("Failed to interpolate as string: %s (length %d)", text, len))
+  }
+  interp
 }
 protect_braces_from_glue <- function(x) {
   gsub("\\}", "\\}\\}", gsub("\\{", "\\{\\{", x))
 }
 message_false <- function(call) {
   paste("FALSE:", call)
-}
-# glue strings, "oppositely," e.g., with `qdot` as `quo(x)`,
-#   "length of {{sQuote(.)}}: {length(.)}"
-# is turned into
-#   "length of ‘x’: {length(.)}"
-glue_opp <- function(qdot, text, env) {
-  glue_text(
-    text,
-    env,
-    list(. = quo_text(qdot)),
-    .open = "{{",
-    .close = "}}"
-  )
 }
 
 as_check_tbl <- function(pred, items, text) {
