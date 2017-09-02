@@ -1,5 +1,9 @@
 context("Error messages")
 
+# Using names as error messages -------------------------------------------
+
+context("Using names as error messages")
+
 test_that("unnamed global check uses auto-generated error messages", {
   f <- firmly(function(x, y) NULL, isTRUE)
   expect_error(f(x = FALSE), errmsg_false("isTRUE(x)"))
@@ -49,7 +53,6 @@ test_that("auto-message is used if error message fails to be created", {
   expect_error(f(FALSE), "Error interpolating message")
 })
 
-
 # Quasi-predicates --------------------------------------------------------
 
 context("Quasi-predicates")
@@ -61,9 +64,9 @@ test_that("quasi-predicate returning string reports string as error message", {
   expect_error(f(FALSE), "Not true")
 })
 
-# String-interpolation of error messages ----------------------------------
+# String interpolation ----------------------------------------------------
 
-context("String-interpolation of error messages")
+context("String interpolation")
 
 test_that("error messages of named global check interpolate dot", {
   f <- local({
@@ -141,6 +144,24 @@ test_that("message of local expression is interpolated in messages's scope", {
   expect_error(f(FALSE, "y"), "local message")
 })
 
+test_that(".expr pronoun captures predicate parameter expression as text", {
+  zero <- 0
+  false <- function(x, a, b = default) FALSE
+  expect_error(firmly(identity, "{{.expr$a}}" := false(zero))(), "zero")
+  expect_error(firmly(identity, "{{.expr$a}}" := false(NULL))(), "NULL")
+  expect_error(firmly(identity, "{{.expr$b}}" := false(NA))(), "default")
+  expect_error(firmly(identity, "{{.expr$b}}" := false(NA, b = zero))(), "zero")
+})
+
+test_that(".value pronoun captures predicate parameter value as text", {
+  zero <- 0
+  false <- function(x, a, b = zero) FALSE
+  expect_error(firmly(identity, "{{.value$a}}" := false(zero))(), "0")
+  expect_error(firmly(identity, "{{.value$a}}" := false(NULL))(), "NULL")
+  expect_error(firmly(identity, "{{.value$b}}" := false(NA))(), "zero")
+  expect_error(firmly(identity, "{{.value$b}}" := false(NA, b = zero))(), "0")
+})
+
 test_that("error raised if interpolation can't produce string", {
   expect_error(
     firmly(identity, "{.}" := isTRUE)(1:2),
@@ -152,7 +173,7 @@ test_that("error raised if interpolation can't produce string", {
   )
 })
 
-# Get and set error messages ----------------------------------------------
+# Get and set -------------------------------------------------------------
 
 context("Get and set")
 
