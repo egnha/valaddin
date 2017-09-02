@@ -160,17 +160,15 @@ get_text <- function(q) {
   text
 }
 
-bind_expr_value <- function(args, env, parent) {
+bind_expr_value <- function(xs, env, parent) {
   env_bind <- new.env(parent = parent)
-  env_bind$.expr <- bind_expr_text(nomen(args), env)
-  env_bind$.value <- lapply(args, deparse_str)
+  env_bind$.expr <- bind_expr_text(nomen(xs), env)
+  env_bind$.value <- lapply(xs, deparse_str)
   env_bind
 }
 bind_expr_text <- function(syms, env) {
   lapply(syms, function(sym)
-    deparse_str(
-      eval(substitute(substitute(., env), list(. = sym)))
-    )
+    deparse_str(eval(substitute(substitute(., env), list(. = sym))))
   )
 }
 
