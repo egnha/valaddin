@@ -257,3 +257,27 @@ test_that("error subclass of input validation error is error_class", {
   expect_identical(tryCatch(f2("0"), error = class), err_class("myNewError"))
   expect_identical(tryCatch(f3(0), error = class), err_class("myNewestError"))
 })
+
+test_that("vld_error_cls() gets error subclass for firmly applied functions", {
+  expect_identical(
+    vld_error_cls(firmly(log, is.numeric)),
+    "inputValidationError"
+  )
+  expect_identical(
+    vld_error_cls(firmly(log, is.numeric, error_class = NULL)),
+    "inputValidationError"
+  )
+  expect_identical(
+    vld_error_cls(firmly(log, is.numeric, error_class = "myError")),
+    "myError"
+  )
+  expect_identical(
+    vld_error_cls(firmly(log, is.numeric, error_class = c("myError", "myClass"))),
+    c("myError", "myClass")
+  )
+})
+
+test_that("vld_error_cls() returns NULL for non-firmly applied functions", {
+  expect_null(vld_error_cls(firmly(log)))
+  expect_null(vld_error_cls(unclass(firmly(log, is.numeric))))
+})
