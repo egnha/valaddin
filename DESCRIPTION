@@ -30,7 +30,7 @@ Collate:
     'parser.R'
     'message.R'
     'checker.R'
-    'validator.R'
+    'validation.R'
     'components.R'
     'operators.R'
     'predicates.R'
