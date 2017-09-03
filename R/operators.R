@@ -158,9 +158,9 @@ print.validator <- function(x, ...) {
 #'
 #'   - `firmly()` transforms a function into a function with input validation
 #'     checks
-#'   - `fasten()` is a [currying](https://en.wikipedia.org/wiki/Currying) of
-#'     `firmly()`: that is, given a set of input validations, it returns a
-#'     _operator_ that applies the input validations to functions
+#'   - `fasten()` takes a set of input validations and returns an _operator_
+#'     that applies the input validations to functions (i.e., it
+#'     [curries](https://en.wikipedia.org/wiki/Currying) `firmly()`)
 #'   - `loosely()` undoes the application of `firmly()`, by returning the
 #'     original function (without checks)
 #'

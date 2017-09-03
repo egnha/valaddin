@@ -24,9 +24,9 @@ validation checks to functions:
 \itemize{
 \item \code{firmly()} transforms a function into a function with input validation
 checks
-\item \code{fasten()} is a \href{https://en.wikipedia.org/wiki/Currying}{currying} of
-\code{firmly()}: that is, given a set of input validations, it returns a
-\emph{operator} that applies the input validations to functions
+\item \code{fasten()} takes a set of input validations and returns an \emph{operator}
+that applies the input validations to functions (i.e., it
+\href{https://en.wikipedia.org/wiki/Currying}{curries} \code{firmly()})
 \item \code{loosely()} undoes the application of \code{firmly()}, by returning the
 original function (without checks)
 }
