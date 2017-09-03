@@ -213,7 +213,7 @@ test_that("messages, predicate, check expressions are independently scoped", {
   msg <- local({
     f <- toupper
     message <- "x-message"
-    new_error_msg("{message} {{f(.)}}")
+    new_vld_error_msg("{message} {{f(.)}}")
   })
   is_positive <- local({
     f <- isTRUE

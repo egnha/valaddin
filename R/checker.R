@@ -77,7 +77,7 @@ err_not_fn <- function(q, fault) {
 
 prioritize_err_msg <- function(first, second) {
   if (is_empty_msg(first))
-    error_msg(second)
+    vld_error_msg(second)
   else
     first
 }

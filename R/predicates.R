@@ -422,7 +422,7 @@ predicates$type <- c(
 for (x in unlist(predicates, recursive = FALSE)) {
   nm <- paste0("chk_", x[[1]])
   pred <- as_closure(x[[3]])
-  error_msg(pred) <- new_quosure(x[[2]], x$env %||% baseenv())
+  vld_error_msg(pred) <- new_quosure(x[[2]], x$env %||% baseenv())
   assign(nm, pred)
 }
 

@@ -22,7 +22,7 @@ test_that("named global check uses name as error message", {
   expect_n_errors(2, f, list(x = FALSE, y = FALSE), "Not true")
 
   is_true <- isTRUE
-  error_msg(is_true) <- "Don't use this error message"
+  vld_error_msg(is_true) <- "Don't use this error message"
   g <- firmly(function(x, y) NULL, "Not true" := is_true)
   expect_n_errors(1, g, list(x = FALSE, y = TRUE), "Not true")
   expect_n_errors(2, g, list(x = FALSE, y = FALSE), "Not true")
@@ -187,26 +187,26 @@ test_that("can set error message", {
   is_true <- isTRUE
   env <- new.env()
 
-  error_msg(is_true) <- "new message"
+  vld_error_msg(is_true) <- "new message"
   expect_error(firmly(f, is_true)(FALSE), "new message")
 
   env$local <- "newer message"
-  error_msg(is_true) <- new_error_msg("{local}", env)
+  vld_error_msg(is_true) <- new_vld_error_msg("{local}", env)
   expect_error(firmly(f, is_true)(FALSE), "newer message")
 
   env$local <- "newest message"
-  error_msg(is_true, env) <- "{local}"
+  vld_error_msg(is_true, env) <- "{local}"
   expect_error(firmly(f, is_true)(FALSE), "newest message")
 })
 
 test_that("can get error message", {
   is_true <- isTRUE
-  error_msg(is_true) <- "message"
-  expect_identical(rlang::eval_tidy(error_msg(is_true)), "message")
-  expect_identical(rlang::f_env(error_msg(is_true)), environment())
+  vld_error_msg(is_true) <- "message"
+  expect_identical(rlang::eval_tidy(vld_error_msg(is_true)), "message")
+  expect_identical(rlang::f_env(vld_error_msg(is_true)), environment())
 })
 
 test_that("get empty string error message when none set", {
-  expect_identical(rlang::eval_tidy(error_msg(isTRUE)), "")
-  expect_identical(rlang::f_env(error_msg(isTRUE)), emptyenv())
+  expect_identical(rlang::eval_tidy(vld_error_msg(isTRUE)), "")
+  expect_identical(rlang::f_env(vld_error_msg(isTRUE)), emptyenv())
 })
