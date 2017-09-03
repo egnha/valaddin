@@ -1,8 +1,8 @@
-#' Parse input validation checks
+#' Parse validation checks
 #'
-#' @param ... Input-validation checks.
+#' @param ... Validation checks.
 #'
-#' @return List of parsed input validation checks, separated by scope: global vs
+#' @return List of parsed validation checks, separated by scope: global vs
 #'   local. Complete parsing of global checks is deferred until the formal
 #'   arguments of the function are known.
 #'

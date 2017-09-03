@@ -1,9 +1,9 @@
-#' Generate input validation checks
+#' Generate validation checks
 #'
 #' @param pred Quosure of a predicate function.
 #' @param msg Quosure of an error message.
 #'
-#' @return Function that generates input validation checks.
+#' @return Function that generates partially parsed validation checks.
 #'
 #' @noRd
 checker <- function(pred, msg = empty_msg) {
