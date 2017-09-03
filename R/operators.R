@@ -74,7 +74,7 @@ validate <- fasten(
   UQS(error_class_chk)
 )(
   function(., ..., error_class = NULL) {
-    validate <- loosely(validator)(..., error_class = error_class)
+    validate <- firm_core(validator)(..., error_class = error_class)
     eval(bquote(validate(.(substitute(.)))))
   }
 )
