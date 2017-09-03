@@ -22,7 +22,7 @@ collect_unnamed_with <- function(f) {
     if (is.list(expr))
       expr
     else
-      set_empty_msg(f(unpack_quosure(x)))
+      set_empty_msg(f(unnest_quosure(x)))
   }
 }
 set_empty_msg <- function(x) {
@@ -37,14 +37,14 @@ collect_named_with <- function(f) {
   force(f)
   nms_check <- c(lhs = "msg", rhs = "chk")
   function(x) {
-    x <- lapply(x, unpack_quosure)
+    x <- lapply(x, unnest_quosure)
     x$rhs <- f(x$rhs)
     names(x) <- nms_check[names(x)]
     x
   }
 }
 
-unpack_quosure <- function(x) {
+unnest_quosure <- function(x) {
   rhs <- f_rhs(x)
   if (is_quosure(rhs)) rhs else x
 }
