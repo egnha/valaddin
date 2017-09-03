@@ -51,7 +51,7 @@ tabulate_check <- function(x) {
 }
 
 deparse_check <- function(expr, chk_items, msg_default, env_msg) {
-  msg <- eval_tidy(msg_default)
+  msg <- f_rhs(msg_default)
   calls <- vapply(chk_items, function(.) deparse_call(expr, .$chk), character(1))
   msgs <- vapply(chk_items, function(.) f_rhs(.$msg), character(1))
   is_gbl <- !nzchar(msgs)
