@@ -192,14 +192,14 @@ print.validator <- function(x, ...) {
 #'
 #'   **Example** — To transform the function
 #'   ````
-#'   add <- function(x, y, z) x + y + z
+#'       add <- function(x, y, z) x + y + z
 #'   ````
 #'   so that every argument is checked to be numeric, use the predicate
 #'   `is.numeric()`:
 #'   ```
-#'   add_num <- firmly(add, is.numeric)
-#'   add_num(1, 2, 3)        # 6
-#'   add_num(1, 2, "three")  # Error: 'FALSE: is.numeric(z)'
+#'       add_num <- firmly(add, is.numeric)
+#'       add_num(1, 2, 3)        # 6
+#'       add_num(1, 2, "three")  # Error: 'FALSE: is.numeric(z)'
 #'   ```
 #'   }
 #'
@@ -211,9 +211,9 @@ print.validator <- function(x, ...) {
 #'   necessarily), specify them as arguments of `is.numeric()` (this works even
 #'   though `is.numeric()`, as a function, only takes a single argument):
 #'   ```
-#'   add_num_yz <- firmly(add, is.numeric(y, z))
-#'   add_num_yz(TRUE, 2, 3)     # 6
-#'   add_num_yz(TRUE, TRUE, 3)  # Error: 'FALSE: is.numeric(y)'
+#'       add_num_yz <- firmly(add, is.numeric(y, z))
+#'       add_num_yz(TRUE, 2, 3)     # 6
+#'       add_num_yz(TRUE, TRUE, 3)  # Error: 'FALSE: is.numeric(y)'
 #'   ```
 #'   }
 #'
@@ -222,7 +222,7 @@ print.validator <- function(x, ...) {
 #'   check. The format for setting the parameters of a predicate, as a
 #'   validation check, is
 #'   ```
-#'   predicate(<params_wo_default_value>, ..., <params_w_default_value>)
+#'       predicate(<params_wo_default_value>, ..., <params_w_default_value>)
 #'   ```
 #'   where `...` is filled by the expressions to check, which you may omit when
 #'   you intend to check all arguments. The order of predicate arguments is
@@ -235,24 +235,24 @@ print.validator <- function(x, ...) {
 #'   **Example** — You can match a regular expression with the following wrapper
 #'   around `grepl()`:
 #'   ```
-#'   matches_regex <- function(x, regex, case_sensitive = TRUE) {
-#'     isTRUE(grepl(regex, x, ignore.case = !case_sensitive))
-#'   }
+#'       matches_regex <- function(x, regex, case_sensitive = TRUE) {
+#'         isTRUE(grepl(regex, x, ignore.case = !case_sensitive))
+#'       }
 #'   ```
 #'   As a validation check, the format for setting the parameters of this
 #'   predicate is
 #'   ```
-#'   matches_regex(regex, ..., case_sensitive = TRUE)
+#'       matches_regex(regex, ..., case_sensitive = TRUE)
 #'   ```
 #'   Thus the value of `regex` must be set, and may be matched by position.
 #'   Setting `case_sensitive` is optional, and must be done by name.
 #'   ```
-#'   scot <- function(me, you) {
-#'     paste0("A'm ", me, ", whaur ye fae, ", you, "?")
-#'   }
-#'   scot <- firmly(scot, matches_regex("^mc.*$", case_sensitive = FALSE, me))
-#'   scot("McDonald", "George")  # "A'm McDonald, whaur ye fae, George?"
-#'   scot("o'neill", "George")   # Error
+#'       scot <- function(me, you) {
+#'         paste0("A'm ", me, ", whaur ye fae, ", you, "?")
+#'       }
+#'       scot <- firmly(scot, matches_regex("^mc.*$", case_sensitive = FALSE, me))
+#'       scot("McDonald", "George")  # "A'm McDonald, whaur ye fae, George?"
+#'       scot("o'neill", "George")   # Error
 #'   ```
 #'   }
 #'
@@ -263,15 +263,15 @@ print.validator <- function(x, ...) {
 #'   **Example** — Monotonicity of arguments can be expressed using an ordinary
 #'   (anonymous) function declaration
 #'   ```
-#'   add_inc <- firmly(add, (function(.) isTRUE(. > 0))(y - x, z - y))
-#'   add_inc(1, 2, 3)  # 6
-#'   add_inc(1, 2, 2)  # Error: 'FALSE: (function(.) isTRUE(. > 0))(z - y)'
+#'       add_inc <- firmly(add, (function(.) isTRUE(. > 0))(y - x, z - y))
+#'       add_inc(1, 2, 3)  # 6
+#'       add_inc(1, 2, 2)  # Error: 'FALSE: (function(.) isTRUE(. > 0))(z - y)'
 #'   ```
 #'   or more succinctly like so
 #'   ```
-#'   add_inc <- firmly(add, {isTRUE(. > 0)}(y - x, z - y))
-#'   add_inc(1, 2, 3)  # 6
-#'   add_inc(1, 2, 2)  # Error: 'FALSE: (function (.) {isTRUE(. > 0)})(z - y)'
+#'       add_inc <- firmly(add, {isTRUE(. > 0)}(y - x, z - y))
+#'       add_inc(1, 2, 3)  # 6
+#'       add_inc(1, 2, 2)  # Error: 'FALSE: (function (.) {isTRUE(. > 0)})(z - y)'
 #'   ```
 #'   }
 #'

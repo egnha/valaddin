@@ -49,13 +49,13 @@ first argument is the object to be checked.
 Simply write the predicate when you want to apply it to all (named)
 arguments.
 
-\strong{Example} — To transform the function\preformatted{add <- function(x, y, z) x + y + z
+\strong{Example} — To transform the function\preformatted{    add <- function(x, y, z) x + y + z
 }
 
 so that every argument is checked to be numeric, use the predicate
-\code{is.numeric()}:\preformatted{add_num <- firmly(add, is.numeric)
-add_num(1, 2, 3)        # 6
-add_num(1, 2, "three")  # Error: 'FALSE: is.numeric(z)'
+\code{is.numeric()}:\preformatted{    add_num <- firmly(add, is.numeric)
+    add_num(1, 2, 3)        # 6
+    add_num(1, 2, "three")  # Error: 'FALSE: is.numeric(z)'
 }
 
 }
@@ -66,9 +66,9 @@ a check.
 
 \strong{Example} — To require that \code{y} and \code{z} are numeric (but not \code{x}
 necessarily), specify them as arguments of \code{is.numeric()} (this works even
-though \code{is.numeric()}, as a function, only takes a single argument):\preformatted{add_num_yz <- firmly(add, is.numeric(y, z))
-add_num_yz(TRUE, 2, 3)     # 6
-add_num_yz(TRUE, TRUE, 3)  # Error: 'FALSE: is.numeric(y)'
+though \code{is.numeric()}, as a function, only takes a single argument):\preformatted{    add_num_yz <- firmly(add, is.numeric(y, z))
+    add_num_yz(TRUE, 2, 3)     # 6
+    add_num_yz(TRUE, TRUE, 3)  # Error: 'FALSE: is.numeric(y)'
 }
 
 }
@@ -76,7 +76,7 @@ add_num_yz(TRUE, TRUE, 3)  # Error: 'FALSE: is.numeric(y)'
 \subsection{Set predicate parameters}{
 If a predicate has (named) parameters, you can set them as part of the
 check. The format for setting the parameters of a predicate, as a
-validation check, is\preformatted{predicate(<params_wo_default_value>, ..., <params_w_default_value>)
+validation check, is\preformatted{    predicate(<params_wo_default_value>, ..., <params_w_default_value>)
 }
 
 where \code{...} is filled by the expressions to check, which you may omit when
@@ -88,22 +88,22 @@ Thus the rule for setting the parameters of \code{predicate()} as a \emph{valida
 check} is the same as that of \code{predicate()} as a \emph{function}.
 
 \strong{Example} — You can match a regular expression with the following wrapper
-around \code{grepl()}:\preformatted{matches_regex <- function(x, regex, case_sensitive = TRUE) {
-  isTRUE(grepl(regex, x, ignore.case = !case_sensitive))
-}
+around \code{grepl()}:\preformatted{    matches_regex <- function(x, regex, case_sensitive = TRUE) {
+      isTRUE(grepl(regex, x, ignore.case = !case_sensitive))
+    }
 }
 
 As a validation check, the format for setting the parameters of this
-predicate is\preformatted{matches_regex(regex, ..., case_sensitive = TRUE)
+predicate is\preformatted{    matches_regex(regex, ..., case_sensitive = TRUE)
 }
 
 Thus the value of \code{regex} must be set, and may be matched by position.
-Setting \code{case_sensitive} is optional, and must be done by name.\preformatted{scot <- function(me, you) {
-  paste0("A'm ", me, ", whaur ye fae, ", you, "?")
-}
-scot <- firmly(scot, matches_regex("^mc.*$", case_sensitive = FALSE, me))
-scot("McDonald", "George")  # "A'm McDonald, whaur ye fae, George?"
-scot("o'neill", "George")   # Error
+Setting \code{case_sensitive} is optional, and must be done by name.\preformatted{    scot <- function(me, you) {
+      paste0("A'm ", me, ", whaur ye fae, ", you, "?")
+    }
+    scot <- firmly(scot, matches_regex("^mc.*$", case_sensitive = FALSE, me))
+    scot("McDonald", "George")  # "A'm McDonald, whaur ye fae, George?"
+    scot("o'neill", "George")   # Error
 }
 
 }
@@ -113,14 +113,14 @@ Short predicates of a single argument can be succinct expressed by their
 body alone (enclosed in curly braces). Use \code{.} to indicate the argument.
 
 \strong{Example} — Monotonicity of arguments can be expressed using an ordinary
-(anonymous) function declaration\preformatted{add_inc <- firmly(add, (function(.) isTRUE(. > 0))(y - x, z - y))
-add_inc(1, 2, 3)  # 6
-add_inc(1, 2, 2)  # Error: 'FALSE: (function(.) isTRUE(. > 0))(z - y)'
+(anonymous) function declaration\preformatted{    add_inc <- firmly(add, (function(.) isTRUE(. > 0))(y - x, z - y))
+    add_inc(1, 2, 3)  # 6
+    add_inc(1, 2, 2)  # Error: 'FALSE: (function(.) isTRUE(. > 0))(z - y)'
 }
 
-or more succinctly like so\preformatted{add_inc <- firmly(add, {isTRUE(. > 0)}(y - x, z - y))
-add_inc(1, 2, 3)  # 6
-add_inc(1, 2, 2)  # Error: 'FALSE: (function (.) {isTRUE(. > 0)})(z - y)'
+or more succinctly like so\preformatted{    add_inc <- firmly(add, {isTRUE(. > 0)}(y - x, z - y))
+    add_inc(1, 2, 3)  # 6
+    add_inc(1, 2, 2)  # Error: 'FALSE: (function (.) {isTRUE(. > 0)})(z - y)'
 }
 
 }
