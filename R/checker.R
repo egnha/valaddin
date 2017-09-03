@@ -23,7 +23,6 @@ checker <- function(pred, msg = empty_msg) {
     }
     `__eval_nondot_args` <- eval_nondot_args
   }
-  `__get_env`      <- f_env
   `__get_exprs`    <- vld_exprs
   `__pred_partial` <- function(args) partial(pred$fn, args)
   `__pred_expr`    <- function(args) as.call(c(pred$expr, args))
@@ -33,7 +32,6 @@ checker <- function(pred, msg = empty_msg) {
       msg <- `__bind_to_msg`(args)
       list(
         msg       = msg,
-        env_msg   = `__get_env`(msg),
         fn        = `__pred_partial`(args),
         expr      = `__pred_expr`(args),
         chk_items = `__get_exprs`(...)
