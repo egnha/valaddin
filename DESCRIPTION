@@ -31,7 +31,6 @@ Collate:
     'message.R'
     'checker.R'
     'validation.R'
-    'components.R'
     'operators.R'
     'predicates.R'
     'valaddin.R'

@@ -4,6 +4,7 @@
 \alias{firmly}
 \alias{fasten}
 \alias{loosely}
+\alias{vld_error_cls}
 \alias{is_firm}
 \title{Apply a function firmly}
 \arguments{
@@ -18,19 +19,24 @@ subclass is \code{inputValidationError}.}
 \item{x}{Object to test.}
 }
 \description{
-The main functions of \pkg{valaddin} apply or undo input validation checks to
-functions:
+The main functions of \pkg{valaddin} apply or undo input
+validation checks to functions:
 \itemize{
 \item \code{firmly()} transforms a function into a function with input validation
 checks
-\item \code{loosely()} undoes the application of \code{firmly()}, by returning the
-original function (without checks)
 \item \code{fasten()} is a \href{https://en.wikipedia.org/wiki/Currying}{currying} of
 \code{firmly()}: that is, given a set of input validations, it returns a
 \emph{operator} that applies the input validations to functions
-\item \code{is_firm()} is a predicate function that checks whether an object is a
-firmly applied function, i.e., a function created by \code{fasten()} or
-\code{firmly()}
+\item \code{loosely()} undoes the application of \code{firmly()}, by returning the
+original function (without checks)
+}
+
+These are supplemented by:
+\itemize{
+\item \code{vld_error_cls()}, which extracts the subclass of the error condition
+that is signaled when an input validation error occurs
+\item \code{is_firm()}, which checks whether an object is a firmly applied function,
+i.e., a function created by \code{firmly()}
 }
 }
 \section{How to specify validation checks}{
@@ -165,8 +171,8 @@ loosely(bc_clean)
 
 }
 \seealso{
-\code{\link[=vld_spec]{vld_spec()}}, \code{\link[=vld_exprs]{vld_exprs()}}, \link{validate},
-\code{\link[=firm_core]{firm_core()}}, \code{\link[=firm_error]{firm_error()}}, \link{predicates}
+\code{\link[=vld_spec]{vld_spec()}}, \code{\link[=vld_exprs]{vld_exprs()}}, \link{validate}, \link{predicates},
+\code{\link[=new_vld_error_msg]{new_vld_error_msg()}}
 }
 \usage{
 fasten(..., error_class = NULL)
@@ -174,6 +180,8 @@ fasten(..., error_class = NULL)
 firmly(f, ..., error_class = NULL)
 
 loosely(f)
+
+vld_error_cls(f)
 
 is_firm(x)
 }

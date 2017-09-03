@@ -21,7 +21,7 @@ fasten_ <- function(..., error_class = NULL) {
     if (is_empty(args) || is_empty(checks) && is_errcls_irrelevant)
       return(f)
     chks <- assemble_checks(firm_checks(f), args)
-    error_class <- error_class %||% firm_error(f) %||% "inputValidationError"
+    error_class <- error_class %||% vld_error_cls(f) %||% "inputValidationError"
     fasten_checks(f, chks, sig, args, error_class)
   }
 }
@@ -32,6 +32,21 @@ fasten_checks <- function(f, chks, sig, args, error_class) {
   fn_fastened <- validation_closure(loosely(f), chks, sig, args, error_class)
   as_firm_closure(with_sig(fn_fastened, sig, attributes(f)))
 }
+
+firm_closure_extractor <- function(this) {
+  force(this)
+  function(f) {
+    if (is_firm(f))
+      .subset2(environment(f), this)
+    else
+      NULL
+  }
+}
+#' @export
+vld_error_cls <- firm_closure_extractor("error_class")
+firm_checks   <- firm_closure_extractor("chks")
+firm_core     <- firm_closure_extractor("f")
+
 #' @export
 loosely <- function(f) {
   if (!is.function(f))
@@ -106,7 +121,7 @@ print.firm_closure <- function(x, ...) {
     cat("None\n")
   }
   cat("\n* Error subclass for check errors:\n")
-  subclass <- firm_error(x)
+  subclass <- vld_error_cls(x)
   if (!is.null(subclass))
     cat(paste(subclass, collapse = ", "), "\n")
   else
@@ -126,7 +141,7 @@ print.validator <- function(x, ...) {
     cat("None\n")
   }
   cat("\n* Error subclass for validation errors:\n")
-  subclass <- firm_error(x)
+  subclass <- vld_error_cls(x)
   if (!is.null(subclass))
     cat(paste(subclass, collapse = ", "), "\n")
   else
@@ -138,21 +153,26 @@ print.validator <- function(x, ...) {
 
 #' Apply a function firmly
 #'
-#' The main functions of \pkg{valaddin} apply or undo input validation checks to
-#' functions:
+#' @description The main functions of \pkg{valaddin} apply or undo input
+#'   validation checks to functions:
+#'
 #'   - `firmly()` transforms a function into a function with input validation
-#'      checks
-#'   - `loosely()` undoes the application of `firmly()`, by returning the
-#'      original function (without checks)
+#'     checks
 #'   - `fasten()` is a [currying](https://en.wikipedia.org/wiki/Currying) of
 #'     `firmly()`: that is, given a set of input validations, it returns a
 #'     _operator_ that applies the input validations to functions
-#'   - `is_firm()` is a predicate function that checks whether an object is a
-#'     firmly applied function, i.e., a function created by `fasten()` or
-#'     `firmly()`
+#'   - `loosely()` undoes the application of `firmly()`, by returning the
+#'     original function (without checks)
 #'
-#' @aliases fasten firmly loosely is_firm
-#' @evalRd rd_usage(c("fasten", "firmly", "loosely", "is_firm"))
+#'   These are supplemented by:
+#'
+#'   - `vld_error_cls()`, which extracts the subclass of the error condition
+#'     that is signaled when an input validation error occurs
+#'   - `is_firm()`, which checks whether an object is a firmly applied function,
+#'     i.e., a function created by `firmly()`
+#'
+#' @aliases fasten firmly loosely vld_error_cls is_firm
+#' @evalRd rd_usage(c("fasten", "firmly", "loosely", "vld_error_cls", "is_firm"))
 #'
 #' @param f Function.
 #' @param ... Input validation checks (with support for quasiquotation).
@@ -257,8 +277,8 @@ print.validator <- function(x, ...) {
 #'
 #' @section How to specify error messages: TODO
 #'
-#' @seealso [vld_spec()], [vld_exprs()], [validate],
-#'   [firm_core()], [firm_error()], [predicates]
+#' @seealso [vld_spec()], [vld_exprs()], [validate], [predicates],
+#'   [new_vld_error_msg()]
 #'
 #' @examples
 #' bc <- function(x, y) c(x, y, 1 - x - y)

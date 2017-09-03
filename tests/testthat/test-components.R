@@ -27,26 +27,26 @@ test_that("firm_checks returns NULL for non-firmly applied functions", {
   expect_null(firm_checks(unclass(firmly(log, is.numeric))))
 })
 
-test_that("firm_error gets error subclass for firmly applied functions", {
+test_that("vld_error_cls gets error subclass for firmly applied functions", {
   expect_identical(
-    firm_error(firmly(log, is.numeric)),
+    vld_error_cls(firmly(log, is.numeric)),
     "inputValidationError"
   )
   expect_identical(
-    firm_error(firmly(log, is.numeric, error_class = NULL)),
+    vld_error_cls(firmly(log, is.numeric, error_class = NULL)),
     "inputValidationError"
   )
   expect_identical(
-    firm_error(firmly(log, is.numeric, error_class = "myError")),
+    vld_error_cls(firmly(log, is.numeric, error_class = "myError")),
     "myError"
   )
   expect_identical(
-    firm_error(firmly(log, is.numeric, error_class = c("myError", "myClass"))),
+    vld_error_cls(firmly(log, is.numeric, error_class = c("myError", "myClass"))),
     c("myError", "myClass")
   )
 })
 
-test_that("firm_error returns NULL for non-firmly applied functions", {
-  expect_null(firm_error(firmly(log)))
-  expect_null(firm_error(unclass(firmly(log, is.numeric))))
+test_that("vld_error_cls returns NULL for non-firmly applied functions", {
+  expect_null(vld_error_cls(firmly(log)))
+  expect_null(vld_error_cls(unclass(firmly(log, is.numeric))))
 })
