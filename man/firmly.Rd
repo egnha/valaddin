@@ -169,9 +169,9 @@ loosely(bc_clean)
 \code{\link[=firm_core]{firm_core()}}, \code{\link[=firm_error]{firm_error()}}, \link{predicates}
 }
 \usage{
-firmly(f, ..., error_class = NULL)
-
 fasten(..., error_class = NULL)
+
+firmly(f, ..., error_class = NULL)
 
 loosely(f)
 

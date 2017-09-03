@@ -151,8 +151,8 @@ print.validator <- function(x, ...) {
 #'     firmly applied function, i.e., a function created by `fasten()` or
 #'     `firmly()`
 #'
-#' @aliases firmly fasten loosely is_firm
-#' @evalRd rd_usage(c("firmly", "fasten", "loosely", "is_firm"))
+#' @aliases fasten firmly loosely is_firm
+#' @evalRd rd_usage(c("fasten", "firmly", "loosely", "is_firm"))
 #'
 #' @param f Function.
 #' @param ... Input validation checks (with support for quasiquotation).
