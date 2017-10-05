@@ -12,6 +12,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+> **Development has moved to [rong](https://github.com/egnha/rong)**
+
 # valaddin
 
 [![Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=0.1.2)](https://travis-ci.org/egnha/valaddin)

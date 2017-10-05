@@ -1,5 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+> **Development has moved to [rong](https://github.com/egnha/rong)**
+
 valaddin
 ========
 
