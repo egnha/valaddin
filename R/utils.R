@@ -3,9 +3,6 @@
   if (is.null(x) || length(x) == 0L) y else x
 }
 
-# Pipe operator
-`%>%` <- purrr::`%>%`
-
 # Hush `R CMD check` note (confused by `.` in pipes)
 . <- NULL
 
