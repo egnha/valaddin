@@ -2,7 +2,7 @@
 
 # Make a list of check items
 unfurl <- function(.symb, .nm, .msg, .env) {
-  chk_items <- lapply(.symb, ff_new, env = .env)
+  chk_items <- lapply(.symb, lazyeval::f_new, env = .env)
   if (is.null(.msg)) {
     names(chk_items) <- character(length(chk_items))
   } else {

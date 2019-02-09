@@ -1,9 +1,7 @@
 localize_nm <- function(nm, what_is, ns, env) {
   msg <- paste("Not", what_is(nm))
   p <- getExportedValue(ns, nm)
-
-  # Cannot use lazyeval::f_new (<= 0.2.0) because p is not a language object
-  localize(ff_new(p, msg, env = env))
+  localize(lazyeval::f_new(p, msg, env = env))
 }
 
 replace <- function(x, pattern, with, ...) gsub(pattern, with, x, ...)
@@ -64,20 +62,20 @@ for (nm in names(pkg)) {
 chkrs <- do.call("c", unname(chkrs_))
 
 # "numeric" has conflicting interpretations in base R, so treat it differently
-chkrs$vld_numeric <- localize(ff_new(is.numeric, "Not double/integer"))
-chkrs$vld_scalar_numeric <- localize(ff_new(
+chkrs$vld_numeric <- localize(lazyeval::f_new(is.numeric, "Not double/integer"))
+chkrs$vld_scalar_numeric <- localize(lazyeval::f_new(
   quote({is.numeric(.) && length(.) == 1L}), "Not scalar double/integer"))
-chkrs$vld_closure <- localize(ff_new(
+chkrs$vld_closure <- localize(lazyeval::f_new(
   quote({typeof(.) == "closure"}), "Not closure"))
-chkrs$vld_true  <- localize(ff_new(is_true, "Not TRUE"))
-chkrs$vld_false <- localize(ff_new(is_false, "Not FALSE"))
-chkrs$vld_all <- localize(ff_new(all, "Not all TRUE"))
-chkrs$vld_any <- localize(ff_new(any, "None TRUE"))
+chkrs$vld_true  <- localize(lazyeval::f_new(is_true, "Not TRUE"))
+chkrs$vld_false <- localize(lazyeval::f_new(is_false, "Not FALSE"))
+chkrs$vld_all <- localize(lazyeval::f_new(all, "Not all TRUE"))
+chkrs$vld_any <- localize(lazyeval::f_new(any, "None TRUE"))
 
 # Aliases
 replace_msg <- function(chkr, msg) {
   f <- globalize(chkr)
-  ff_lhs(f) <- msg
+  lazyeval::f_lhs(f) <- msg
   localize(f)
 }
 chkrs_alias <- list(
