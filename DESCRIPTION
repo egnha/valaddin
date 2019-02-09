@@ -1,6 +1,6 @@
 Package: valaddin
 Title: Functional Input Validation
-Version: 0.1.2
+Version: 0.1.2.9000
 Authors@R: person("Eugene", "Ha", email = "eha@posteo.de", role = c("aut", "cre"))
 Description: A set of basic tools to transform functions into functions with
     input validation checks, in a manner suitable for both programmatic and
@@ -33,4 +33,4 @@ Collate:
     'scope.R'
     'checkers.R'
     'valaddin.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
