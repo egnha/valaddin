@@ -9,9 +9,9 @@
 #'   Formulae} section of \link{firmly}.
 #'
 #'   Ready-made checkers for \link[=type-checkers]{types},
-#'   \link[=bare-type-checkers]{bare types}, \link[=scalar-type-checkers]{scalar
-#'   types}, and \link[=misc-checkers]{miscellaneous predicates} are provided as
-#'   a convenience, and as a model for creating families of check makers.
+#'   \link[=scalar-checkers]{scalar objects}, and
+#'   \link[=misc-checkers]{miscellaneous predicates} are provided as a
+#'   convenience, and as a model for creating families of check makers.
 #' @examples
 #' chk_pos_gbl <- "Not positive" ~ {. > 0}
 #' chk_pos_lcl <- localize(chk_pos_gbl)

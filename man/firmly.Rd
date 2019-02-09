@@ -42,140 +42,140 @@ use \code{firmly} in scripts and packages.
 }
 \section{Check Formulae}{
 
-  An \strong{input validation check} is specified by a \strong{check
-  formula}, a special \link[stats]{formula} of the form
-  \preformatted{<scope> ~ <predicate>}
-  where the right-hand side expresses \emph{what} to check, and the left-hand
-  side expresses \emph{where} to check it.
+An \strong{input validation check} is specified by a \strong{check
+formula}, a special \link[stats]{formula} of the form
+\preformatted{<scope> ~ <predicate>}
+where the right-hand side expresses \emph{what} to check, and the left-hand
+side expresses \emph{where} to check it.
 
-  The right-hand side \code{<predicate>} is a \strong{predicate} function,
-  i.e, a one-argument function that returns either \code{TRUE} or
-  \code{FALSE}. It is the condition to check/enforce. The left-hand side
-  \code{<scope>} is an expression specifying what the condition is to be
-  applied to: whether the condition is to be applied to all
-  (non-\code{\dots}) arguments of \code{.f} (the case of \dQuote{global
-  scope}), or whether the condition is to be selectively applied to certain
-  expressions of the arguments (the case of \dQuote{local scope}).
+The right-hand side \code{<predicate>} is a \strong{predicate} function,
+i.e, a one-argument function that returns either \code{TRUE} or
+\code{FALSE}. It is the condition to check/enforce. The left-hand side
+\code{<scope>} is an expression specifying what the condition is to be
+applied to: whether the condition is to be applied to all
+(non-\code{\dots}) arguments of \code{.f} (the case of \dQuote{global
+scope}), or whether the condition is to be selectively applied to certain
+expressions of the arguments (the case of \dQuote{local scope}).
 
-  According to \strong{scope}, there are two classes of check formulae:
-  \itemize{
-    \item \strong{Check formulae of global scope}
-      \preformatted{<string> ~ <predicate>}
-      \preformatted{~<predicate>}
+According to \strong{scope}, there are two classes of check formulae:
+\itemize{
+\item \strong{Check formulae of global scope}
+\preformatted{<string> ~ <predicate>}
+\preformatted{~<predicate>}\preformatted{\item \strong{Check formulae of local scope}
+  \preformatted{list(<check_item>, <check_item>, ...) ~ <predicate>}
+}
 
-    \item \strong{Check formulae of local scope}
-      \preformatted{list(<check_item>, <check_item>, ...) ~ <predicate>}
-  }
+}
 
-  \subsection{Check Formulae of Global Scope}{
-    A \strong{global check formula} is a succinct way of asserting that the
-    function \code{<predicate>} returns \code{TRUE} when called on each
-    (non-\code{\dots}) argument of \code{.f}. Each argument for which
-    \code{<predicate>} \emph{fails}—returns \code{FALSE} or is itself not
-    evaluable—produces an error message, which is auto-generated unless a
-    custom error message is supplied by specifying the string
-    \code{<string>}.
+\subsection{Check Formulae of Global Scope}{
+A \strong{global check formula} is a succinct way of asserting that the
+function \code{<predicate>} returns \code{TRUE} when called on each
+(non-\code{\dots}) argument of \code{.f}. Each argument for which
+\code{<predicate>} \emph{fails}—returns \code{FALSE} or is itself not
+evaluable—produces an error message, which is auto-generated unless a
+custom error message is supplied by specifying the string
+\code{<string>}.\preformatted{\subsection{Example}{
+  The condition that all (non-\code{\dots}) arguments of a function must
+  be numerical can be enforced by the check formula
+  \preformatted{~is.numeric}
+  or
+  \preformatted{"Not numeric" ~ is.numeric}
+  if the custom error message \code{"Not numeric"} is to be used (in lieu
+  of an auto-generated error message).
+}
+}
 
-    \subsection{Example}{
-      The condition that all (non-\code{\dots}) arguments of a function must
-      be numerical can be enforced by the check formula
-      \preformatted{~is.numeric}
-      or
-      \preformatted{"Not numeric" ~ is.numeric}
-      if the custom error message \code{"Not numeric"} is to be used (in lieu
-      of an auto-generated error message).
-    }
-  }
+}
 
-  \subsection{Check Formulae of Local Scope}{
-    A \strong{local check formula} imposes argument-specific conditions. Each
-    \strong{check item} \code{<check_item>} is a formula of the form \code{~
+\subsection{Check Formulae of Local Scope}{
+A \strong{local check formula} imposes argument-specific conditions. Each
+\strong{check item} \code{<check_item>} is a formula of the form \code{~
     <expression>} (one-sided) or \code{<string> ~ <expression>}; it imposes
-    the condition that the function \code{<predicate>} is \code{TRUE} for the
-    expression \code{<expression>}. As for global check formulae, each check
-    item for which \code{<predicate>} fails produces an error message, which
-    is auto-generated unless a custom error message is supplied by a string
-    as part of the left-hand side of the check item (formula).
+the condition that the function \code{<predicate>} is \code{TRUE} for the
+expression \code{<expression>}. As for global check formulae, each check
+item for which \code{<predicate>} fails produces an error message, which
+is auto-generated unless a custom error message is supplied by a string
+as part of the left-hand side of the check item (formula).\preformatted{\subsection{Example}{
+  The condition that \code{x} and \code{y} must differ for the function
+  \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
+  check formula
+  \preformatted{list(~x - y) ~ function(.) abs(.) > 0}
+  or
+  \preformatted{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
+  if the custom error message \code{"x, y must differ"} is to be used (in
+  lieu of an auto-generated error message).
+}
+}
 
-    \subsection{Example}{
-      The condition that \code{x} and \code{y} must differ for the function
-      \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
-      check formula
-      \preformatted{list(~x - y) ~ function(.) abs(.) > 0}
-      or
-      \preformatted{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
-      if the custom error message \code{"x, y must differ"} is to be used (in
-      lieu of an auto-generated error message).
-    }
-  }
+}
 
-  \subsection{Anonymous Predicate Functions}{
-    Following the
-    \href{https://cran.r-project.org/package=magrittr}{\pkg{magrittr}}
-    package, an anonymous (predicate) function of a single argument \code{.}
-    can be concisely expressed by enclosing the body of such a function
-    within curly braces \code{\{ \}}.
+\subsection{Anonymous Predicate Functions}{
+Following the
+\href{https://cran.r-project.org/package=magrittr}{\pkg{magrittr}}
+package, an anonymous (predicate) function of a single argument \code{.}
+can be concisely expressed by enclosing the body of such a function
+within curly braces \code{\{ \}}.\preformatted{\subsection{Example}{
+  The (onsided, global) check formula
+  \preformatted{~{. > 0}}
+  is equivalent to the check formula \code{~function(.) {. > 0}}
+}
+}
 
-    \subsection{Example}{
-      The (onsided, global) check formula
-      \preformatted{~{. > 0}}
-      is equivalent to the check formula \code{~function(.) {. > 0}}
-    }
-  }
+}
 }
 
 \section{Value}{
 
-  \subsection{\code{firmly}}{
-    \code{firmly} does nothing when there is nothing to do: \code{.f} is
-    returned, unaltered, when both \code{.checklist} and \code{.warn_missing}
-    are empty, or when \code{.f} has no named argument and
-    \code{.warn_missing} is empty.
+\subsection{\code{firmly}}{
+\code{firmly} does nothing when there is nothing to do: \code{.f} is
+returned, unaltered, when both \code{.checklist} and \code{.warn_missing}
+are empty, or when \code{.f} has no named argument and
+\code{.warn_missing} is empty.\preformatted{Otherwise, \code{firmly} again returns a function that behaves
+\emph{identically} to \code{.f}, but also performs input validation:
+before a call to \code{.f} is attempted, its inputs are checked, and if
+any check fails, an error halts further execution with a message
+tabulating every failing check. (If all checks pass, the call to
+\code{.f} respects lazy evaluation, as usual.)
 
-    Otherwise, \code{firmly} again returns a function that behaves
-    \emph{identically} to \code{.f}, but also performs input validation:
-    before a call to \code{.f} is attempted, its inputs are checked, and if
-    any check fails, an error halts further execution with a message
-    tabulating every failing check. (If all checks pass, the call to
-    \code{.f} respects lazy evaluation, as usual.)
+\subsection{Subclass of the input-validation error object}{
+  The subclass of the error object is \code{.error_class}, unless
+  \code{.error_class} is \code{character()}. In the latter case, the
+  subclass of the error object is that of the existing error object, if
+  \code{.f} is itself a firmly applied function, or it is
+  \code{"simpleError"}, otherwise.
+}
 
-    \subsection{Subclass of the input-validation error object}{
-      The subclass of the error object is \code{.error_class}, unless
-      \code{.error_class} is \code{character()}. In the latter case, the
-      subclass of the error object is that of the existing error object, if
-      \code{.f} is itself a firmly applied function, or it is
-      \code{"simpleError"}, otherwise.
-    }
+\subsection{Formal Arguments and Attributes}{
+  \code{firmly} preserves the attributes and formal arguments of
+  \code{.f} (except that the \code{"class"} attribute gains the component
+  \code{"firm_closure"}, unless it already contains it).
+}
+}
 
-    \subsection{Formal Arguments and Attributes}{
-      \code{firmly} preserves the attributes and formal arguments of
-      \code{.f} (except that the \code{"class"} attribute gains the component
-      \code{"firm_closure"}, unless it already contains it).
-    }
-  }
-  \subsection{\code{\%checkin\%}}{
-    \code{\%checkin\%} applies the check formula(e) in the list \code{.checks}
-    to \code{.f}, using \code{firmly}. The \code{.warn_missing} and
-    \code{.error_class} arguments of \code{firmly} may be specified as named
-    components of \code{.checks}.
-  }
-  \subsection{\code{loosely}}{
-    \code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
-    firmly applied function, or both \code{.keep_check} and
-    \code{.keep_warning} are \code{TRUE}.
+}
+\subsection{\code{\%checkin\%}}{
+\code{\%checkin\%} applies the check formula(e) in the list \code{.checks}
+to \code{.f}, using \code{firmly}. The \code{.warn_missing} and
+\code{.error_class} arguments of \code{firmly} may be specified as named
+components of \code{.checks}.
+}
+\subsection{\code{loosely}}{
+\code{loosely} returns \code{.f}, unaltered, when \code{.f} is not a
+firmly applied function, or both \code{.keep_check} and
+\code{.keep_warning} are \code{TRUE}.\preformatted{Otherwise, \code{loosely} returns the underlying (original) function,
+stripped of any input validation checks imposed by \code{firmly}, unless
+one of the flags \code{.keep_check}, \code{.keep_warning} is switched on:
+if \code{.keep_check}, resp. \code{.keep_warning}, is \code{TRUE},
+\code{loosely} retains any existing checks, resp. missing-argument
+warnings, of \code{.f}.
+}
 
-    Otherwise, \code{loosely} returns the underlying (original) function,
-    stripped of any input validation checks imposed by \code{firmly}, unless
-    one of the flags \code{.keep_check}, \code{.keep_warning} is switched on:
-    if \code{.keep_check}, resp. \code{.keep_warning}, is \code{TRUE},
-    \code{loosely} retains any existing checks, resp. missing-argument
-    warnings, of \code{.f}.
-  }
-  \subsection{\code{is_firm}}{
-    \code{is_firm} returns \code{TRUE} if \code{x} is a firmly applied
-    function (i.e., has class \code{"firm_closure"}), and \code{FALSE},
-    otherwise.
-  }
+}
+\subsection{\code{is_firm}}{
+\code{is_firm} returns \code{TRUE} if \code{x} is a firmly applied
+function (i.e., has class \code{"firm_closure"}), and \code{FALSE},
+otherwise.
+}
 }
 
 \examples{
@@ -290,24 +290,23 @@ all.equal(vec_add, vec_add2)  # [1] TRUE
 }
 \seealso{
 \code{firmly} is enhanced by a number of helper functions:
-  \itemize{
-    \item To verify that a check formula is syntactically correct, use the
-      predicates \code{\link{is_check_formula}}, \code{\link{is_checklist}}.
-    \item To make custom check-formula generators, use
-      \code{\link{localize}}.
-    \item Pre-made check-formula generators are provided to facilitate
-      argument checks for \link[=type-checkers]{types},
-      \link[=bare-type-checkers]{bare types},
-      \link[=scalar-type-checkers]{scalar types}, and
-      \link[=misc-checkers]{other} common data structures and input
-      assumptions. These functions are prefixed by \code{vld_}, for
-      convenient browsing and look-up in editors and IDE's that support name
-      completion.
-    \item To access the components of a firmly applied function, use
-      \code{\link{firm_core}}, \code{\link{firm_checks}},
-      \code{\link{firm_error}}, \code{\link{firm_args}}, (or simply
-      \code{\link[base]{print}} the function to display its components).
-  }
+\itemize{
+\item To verify that a check formula is syntactically correct, use the
+predicates \code{\link{is_check_formula}}, \code{\link{is_checklist}}.
+\item To make custom check-formula generators, use
+\code{\link{localize}}.
+\item Pre-made check-formula generators are provided to facilitate
+argument checks for \link[=type-checkers]{types},
+\link[=scalar-checkers]{scalar objects}, and
+\link[=misc-checkers]{other} common data structures and input
+assumptions. These functions are prefixed by \code{vld_}, for
+convenient browsing and look-up in editors and IDE's that support name
+completion.
+\item To access the components of a firmly applied function, use
+\code{\link{firm_core}}, \code{\link{firm_checks}},
+\code{\link{firm_error}}, \code{\link{firm_args}}, (or simply
+\code{\link[base]{print}} the function to display its components).
+}
 }
 \usage{
 firmly(.f, ..., .checklist = list(), .warn_missing = character(),

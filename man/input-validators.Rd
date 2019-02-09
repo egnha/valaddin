@@ -19,19 +19,19 @@ by \code{localize}.}
 }
 \value{
 \code{localize} returns a function of class \code{"check_maker"} and
-  call signature \code{function(...)}:
-  \itemize{
-    \item The \code{\dots} are \strong{check items} (see \emph{Check Formulae
-      of Local Scope} in the documentation page \link{firmly}).
-    \item The return value is the check formula of local scope whose scope is
-      comprised of these check items, and whose predicate function is that of
-      \code{chk} (i.e., the right-hand side of \code{chk}). Unless a check
-      item has its own error message, the error message is derived from that
-      of \code{chk} (i.e., the left-hand side of \code{chk}).
-  }
+call signature \code{function(...)}:
+\itemize{
+\item The \code{\dots} are \strong{check items} (see \emph{Check Formulae
+of Local Scope} in the documentation page \link{firmly}).
+\item The return value is the check formula of local scope whose scope is
+comprised of these check items, and whose predicate function is that of
+\code{chk} (i.e., the right-hand side of \code{chk}). Unless a check
+item has its own error message, the error message is derived from that
+of \code{chk} (i.e., the left-hand side of \code{chk}).
+}
 
 \code{globalize} returns the global-scope check formula from which
-  the function \code{chkr} is derived.
+the function \code{chkr} is derived.
 }
 \description{
 \code{localize} derives a function that \emph{generates} check formulae of
@@ -91,10 +91,10 @@ capped_fib(31)  # Error: "Not <= 30: ceiling(n)"
 }
 \seealso{
 The notion of \dQuote{scope} is explained in the \emph{Check
-  Formulae} section of \link{firmly}.
+Formulae} section of \link{firmly}.
 
-  Ready-made checkers for \link[=type-checkers]{types},
-  \link[=bare-type-checkers]{bare types}, \link[=scalar-type-checkers]{scalar
-  types}, and \link[=misc-checkers]{miscellaneous predicates} are provided as
-  a convenience, and as a model for creating families of check makers.
+Ready-made checkers for \link[=type-checkers]{types},
+\link[=scalar-checkers]{scalar objects}, and
+\link[=misc-checkers]{miscellaneous predicates} are provided as a
+convenience, and as a model for creating families of check makers.
 }

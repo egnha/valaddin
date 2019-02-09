@@ -497,8 +497,7 @@ print.firm_closure <- function(x, ...) {
 #'       \code{\link{localize}}.
 #'     \item Pre-made check-formula generators are provided to facilitate
 #'       argument checks for \link[=type-checkers]{types},
-#'       \link[=bare-type-checkers]{bare types},
-#'       \link[=scalar-type-checkers]{scalar types}, and
+#'       \link[=scalar-checkers]{scalar objects}, and
 #'       \link[=misc-checkers]{other} common data structures and input
 #'       assumptions. These functions are prefixed by \code{vld_}, for
 #'       convenient browsing and look-up in editors and IDE's that support name
