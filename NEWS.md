@@ -1,5 +1,15 @@
 # valaddin
 
+## 0.1.2.9000
+
+* Maintenance of the package has been substantially improved by dropping purrr
+  as a dependency (#57, #58). The sole dependency is lazyeval, whose features
+  are frozen at 0.2.1.
+  
+* "Bare" vector checkers (e.g., `vld_bare_logical()`) have been removed.
+
+* `vld_singleton()` now only checks whether an object is of length 1, atomic or not.
+
 ## 0.1.2
 
 ### Operator for input validation

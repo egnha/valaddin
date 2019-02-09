@@ -4,73 +4,93 @@ localize_nm <- function(nm, what_is, ns, env) {
   localize(lazyeval::f_new(p, msg, env = env))
 }
 
-replace <- function(x, pattern, with, ...) gsub(pattern, with, x, ...)
-delete  <- function(x, pattern, ...) replace(x, pattern, "", ...)
-scrub   <- function(pttn_rm, pttn_sep) {
-  force(pttn_rm)
-  force(pttn_sep)
-
-  function(x)
-    x %>% delete(pttn_rm) %>% replace(pttn_sep, with = " ")
+replace <- function(x, pattern, with, ...) {
+  gsub(pattern, with, x, ...)
+}
+delete <- function(x, pattern, ...) {
+  replace(x, pattern, "", ...)
+}
+scrub <- function(pattern_rm, pattern_sep) {
+  function(x) {
+    replace(delete(x, pattern_rm), pattern_sep, with = " ")
+  }
 }
 
 make_vld_chkrs <- function(nms, pattern, sep, ns, env = parent.frame()) {
-  what_is <- scrub(pttn_rm = pattern, pttn_sep = sep)
+  what_is <- scrub(pattern, sep)
   chkrs <- lapply(nms, localize_nm, ns = ns, what_is = what_is, env = env)
   names(chkrs) <- nms %>%
     delete(pattern) %>%
-    replace("\\.", with = "_") %>% {
-      paste("vld", ., sep = "_")
-    }
-
+    replace("\\.", with = "_") %>%
+    paste("vld", ., sep = "_")
   chkrs[sort(names(chkrs))]
 }
 
-# purrr::is_*numeric() are deprecated in purrr (>= 0.2.2.9000)
-# purrr::is_function detects closures not functions in general
-re_exclude <- "^is_(?!.*(numeric|function)).*$"
-
-pkg <- list(
-  base = list(
-    nms = c(
-      "is.array",       "is.call",        "is.complex",     "is.data.frame",
-      "is.environment", "is.expression",  "is.factor",      "is.language",
-      "is.matrix",      "is.na",          "is.name",        "is.nan",
-      "is.ordered",     "is.pairlist",    "is.primitive",   "is.raw",
-      "is.recursive",   "is.symbol",      "is.table",       "is.unsorted",
-      "is.function"
-    ),
-    pattern = "^is\\.",
-    sep = "\\.",
-    ns = "base"
+chkrs <- make_vld_chkrs(
+  nms = c(
+    "is.array",       "is.call",       "is.complex",   "is.data.frame",
+    "is.environment", "is.expression", "is.factor",    "is.language",
+    "is.matrix",      "is.na",         "is.name",      "is.nan",
+    "is.ordered",     "is.pairlist",   "is.primitive", "is.raw",
+    "is.recursive",   "is.symbol",     "is.table",     "is.unsorted",
+    "is.function",    "is.atomic",     "is.list",      "is.vector",
+    "is.double",      "is.character",  "is.integer",   "is.logical",
+    "is.null",        "is.numeric"
   ),
-  purrr = list(
-    nms = grep(re_exclude, getNamespaceExports("purrr"),
-               value = TRUE, perl = TRUE),
-    pattern = "^is_",
-    sep = "_",
-    ns = "purrr"
-  )
+  pattern = "^is\\.",
+  sep = "\\.",
+  ns = "base"
 )
 
-# Use for-loop so that local checkers pick up package namespace environment
-chkrs_ <- vector("list", length(pkg))
-for (nm in names(pkg)) {
-  p <- pkg[[nm]]
-  chkrs_[[nm]] <- make_vld_chkrs(p$nms, p$pattern, p$sep, p$ns)
-}
-chkrs <- do.call("c", unname(chkrs_))
+chkrs$vld_true <- localize(lazyeval::f_new(is_true, "Not TRUE"))
 
-# "numeric" has conflicting interpretations in base R, so treat it differently
-chkrs$vld_numeric <- localize(lazyeval::f_new(is.numeric, "Not double/integer"))
-chkrs$vld_scalar_numeric <- localize(lazyeval::f_new(
-  quote({is.numeric(.) && length(.) == 1L}), "Not scalar double/integer"))
+chkrs$vld_false <- localize(lazyeval::f_new(is_false, "Not FALSE"))
+
+chkrs$vld_all <- localize(lazyeval::f_new(all, "Not all TRUE"))
+
+chkrs$vld_any <- localize(lazyeval::f_new(any, "None TRUE"))
+
+chkrs$vld_empty <- localize(lazyeval::f_new(
+  quote({length(.) == 0L}), "Not empty"))
+
+chkrs$vld_singleton <- localize(lazyeval::f_new(
+  quote({length(.) == 1L}), "Not singleton"))
+
 chkrs$vld_closure <- localize(lazyeval::f_new(
   quote({typeof(.) == "closure"}), "Not closure"))
-chkrs$vld_true  <- localize(lazyeval::f_new(is_true, "Not TRUE"))
-chkrs$vld_false <- localize(lazyeval::f_new(is_false, "Not FALSE"))
-chkrs$vld_all <- localize(lazyeval::f_new(all, "Not all TRUE"))
-chkrs$vld_any <- localize(lazyeval::f_new(any, "None TRUE"))
+
+chkrs$vld_formula <- localize(lazyeval::f_new(
+  quote({typeof(.) == "language" && inherits(., "formula")}), "Not formula"))
+
+chkrs$vld_scalar_numeric <- localize(lazyeval::f_new(
+  quote({is.numeric(.) && length(.) == 1L}), "Not scalar numeric"))
+
+chkrs$vld_scalar_logical <- localize(lazyeval::f_new(
+  quote({is.logical(.) && length(.) == 1L}), "Not scalar logical"))
+
+chkrs$vld_scalar_integer <- localize(lazyeval::f_new(
+  quote({is.integer(.) && length(.) == 1L}), "Not scalar integer"))
+
+chkrs$vld_scalar_vector <- localize(lazyeval::f_new(
+  quote({is.vector(.) && length(.) == 1L}), "Not scalar vector"))
+
+chkrs$vld_scalar_atomic <- localize(lazyeval::f_new(
+  quote({is.atomic(.) && length(.) == 1L}), "Not scalar atomic"))
+
+chkrs$vld_scalar_list <- localize(lazyeval::f_new(
+  quote({is.list(.) && length(.) == 1L}), "Not scalar list"))
+
+chkrs$vld_scalar_double <- localize(lazyeval::f_new(
+  quote({is.double(.) && length(.) == 1L}), "Not scalar double"))
+
+chkrs$vld_scalar_complex <- localize(lazyeval::f_new(
+  quote({is.complex(.) && length(.) == 1L}), "Not scalar complex"))
+
+chkrs$vld_scalar_character <- localize(lazyeval::f_new(
+  quote({is.character(.) && length(.) == 1L}), "Not scalar character"))
+
+chkrs$vld_scalar_raw <- localize(lazyeval::f_new(
+  quote({is.raw(.) && length(.) == 1L}), "Not scalar raw"))
 
 # Aliases
 replace_msg <- function(chkr, msg) {
@@ -79,13 +99,12 @@ replace_msg <- function(chkr, msg) {
   localize(f)
 }
 chkrs_alias <- list(
-  "Not boolean"   = chkrs$vld_scalar_logical,
-  "Not number"    = chkrs$vld_scalar_numeric,
-  "Not string"    = chkrs$vld_scalar_character,
-  "Not singleton" = chkrs$vld_scalar_vector
+  "Not boolean" = chkrs$vld_scalar_logical,
+  "Not number"  = chkrs$vld_scalar_numeric,
+  "Not string"  = chkrs$vld_scalar_character
 ) %>%
   Map(replace_msg, ., names(.)) %>%
-  `names<-`(replace(names(.), "^Not ", "vld_"))
+  setNames(replace(names(.), "^Not ", "vld_"))
 
 chkrs <- c(chkrs, chkrs_alias)
 for (nm in names(chkrs))
@@ -98,78 +117,83 @@ NULL
 
 # Aliases, "Usage"
 
-nms <- lapply(c(bare = "^vld_bare", scalar = "^vld_scalar"),
-              grep, x = names(chkrs_$purrr), value = TRUE, perl = TRUE)
-nms$misc <- c(
-  names(chkrs_$base),
-  paste0("vld_", c("true", "false", "empty", "formula", "all", "any",
-                   "numeric", "scalar_numeric", "number"))
+nms <- list()
+nms$type <- paste0("vld_", c(
+  "logical", "integer", "double", "complex", "character", "raw"
+))
+nms$scalar <- c(
+  "vld_singleton", "vld_boolean", "vld_number", "vld_string",
+  paste0("vld_scalar_", c(
+    "logical", "integer", "double", "complex", "character", "raw",
+    "numeric", "atomic", "vector", "list"
+  ))
 )
-nms$type <- setdiff(c(names(chkrs_$purrr), "vld_closure"), unlist(nms))
-nms <- lapply(nms, function(.) .[order(tolower(.))])
-nms$scalar <- c(nms$scalar, setdiff(names(chkrs_alias), "vld_number"))
+nms$misc <- setdiff(names(chkrs), c(nms$type, nms$scalar))
+nms <- lapply(nms, sort)
+
+# Ensure that all checkers are accounted for
+stopifnot(setequal(names(chkrs), unlist(nms, use.names = FALSE)))
 
 # "See Also" (required because @family would overwrite our custom "See Also")
 
-gather <- function(x) gsub("\n([^\n])", " \\1", x)
-tidy <- function(x) gsub(" \n|\n ", "\n", gsub(" +", " ", x))
-trim <- function(x) trimws(tidy(gather(x)), which = "both")
-
-link_bare  <- "\\link{%s}"
-link_extfn <- "\\code{\\link[%s]{%s}}"
-link_purrr <- trim("
-  %s predicates
-  (\\href{https://cran.r-project.org/package=purrr}{\\pkg{purrr}})
-")
+trim <- local({
+  gather <- function(x) {
+    gsub("\n([^\n])", " \\1", x)
+  }
+  tidy <- function(x) {
+    gsub(" \n|\n ", "\n", gsub(" +", " ", x))
+  }
+  function(x) {
+    trimws(tidy(gather(x)), which = "both")
+  }
+})
 
 prefix_with <- function(x, text) {
-  stats::setNames(paste(text, x), names(x)) %>% as.list()
+  as.list(setNames(paste(text, x), names(x)))
 }
 
+base_predicate <- function(x, prefix = "^vld") {
+  sub(prefix, "is", gsub("_", ".", x))
+}
+
+join <- function(x) paste(x, collapse = ", ")
+
+link <- list(
+  bare = "\\link{%s}",
+  ext  = "\\code{\\link[%s]{%s}}"
+)
+
+misc_predicates <- nms$misc %>%
+  setdiff(c(
+    "vld_all", "vld_any", "vld_empty", "vld_formula", "vld_closure",
+    "vld_true", "vld_false"
+  )) %>%
+  base_predicate %>%
+  c("all", "any")
+scalar_predicates <- nms$scalar %>%
+  setdiff(c("vld_boolean", "vld_number", "vld_singleton", "vld_string")) %>%
+  base_predicate("^vld.scalar")
 predicates <- list(
-  misc = sprintf(link_extfn, "base", sort(c(pkg$base$nms, "is.numeric"))) %>%
-    c(sprintf(link_extfn, "purrr", c("is_empty", "is_formula"))) %>%
-    paste(collapse = ", "),
-  bare   = sprintf(link_purrr, "Bare type"),
-  scalar = sprintf(link_purrr, "Scalar type"),
-  type   = sprintf(link_purrr, "Type")
+  type = sprintf(link$ext, "base", base_predicate(nms$type)),
+  scalar = sprintf(link$ext, "base", sort(scalar_predicates)),
+  misc = sprintf(link$ext, "base", sort(misc_predicates))
 ) %>%
+  lapply(join) %>%
   prefix_with("Corresponding predicates:")
 
-other <- list(misc = NA, bare = NA, scalar = NA, type = NA)
-other[] <- trim("
+other <- trim("
   \\code{\\link{globalize}} recovers the underlying check formula of global
   scope.
   \n\n
   The notions of \\dQuote{scope} and \\dQuote{check item} are explained in the
   \\emph{Check Formulae} section of \\link{firmly}.
 ")
-tmpl <- trim("
-  \\code{\\link{vld_%s}} does not check according to type, and is not based on
-  \\code{purrr::%s} (deprecated since 0.2.2.9000); rather, it is based on the
-  predicate \\code{%s}, which checks whether an object is \\dQuote{numerical} in
-  the sense of \\code{\\link[base]{mode}} instead of
-  \\code{\\link[base]{typeof}}. In particular, factors are not regarded as
-  \\dQuote{numerical}.
-")
-other$type <- paste(
-  other$type,
-  sprintf(tmpl, "numeric", "is_numeric", "\\link[base]{is.numeric}"),
-  sep = "\n\n"
-)
-other$scalar <- paste(
-  other$scalar,
-  sprintf(tmpl, "scalar_numeric", "is_scalar_numeric",
-          "function(x) is.numeric(x) && length(x) == 1L"),
-  sep = "\n\n"
-)
 
-doc_nms <- c("misc", "bare-type", "scalar-type", "type")
-family <- doc_nms %>%
-  stats::setNames(paste(., "checkers", sep = "-"), .) %>%
+family <- c("type", "scalar", "misc") %>%
+  setNames(paste(., "checkers", sep = "-"), .) %>%
   lapply(function(nm) {
     other <- unname(.[. != nm])
-    paste(sprintf(link_bare, other), collapse = ", ")
+    join(sprintf(link$bare, other))
   }) %>%
   prefix_with("Other checkers:")
 
@@ -177,18 +201,23 @@ ref <- Map(c, predicates, other, family)
 
 #' Miscellaneous checkers
 #'
+#' @description
 #' These functions make check formulae of local scope based on the
 #' correspondingly named \pkg{base} R predicates \code{is.*} (e.g.,
 #' \code{vld_data_frame} corresponds to the predicate
 #' \code{\link[base]{is.data.frame}}), with the following exceptions:
-#' \code{vld_empty}, \code{vld_formula}, is based on the
-#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} predicate
-#' \code{\link[purrr]{is_empty}}, \code{\link[purrr]{is_formula}}, resp., and
-#' \code{vld_number} is an alias for \code{vld_scalar_numeric}, which is based
-#' on the predicate \code{function(x) is.numeric(x) && length(x) == 1L}.
-#' \cr\cr
-#' The checkers \code{vld_true} and \code{vld_false} assert that an expression
-#' is identically \code{TRUE} or \code{FALSE}. They are all-purpose checkers to
+#'
+#'   - `vld_empty` is based on the predicate `length(.) == 0`
+#'
+#'   - `vld_formula` is based on the predicate
+#'     `typeof(.) == "language" && inherits(., "formula")`
+#'
+#'   - `vld_closure` is based on the predicate `typeof(.) == "closure"`
+#'
+#'   - `vld_true` and `vld_false` are based on the predicates
+#'     `identical(., TRUE)` and `identical(., FALSE)`, resp.
+#'
+#' The checkers \code{vld_true} and \code{vld_false} are all-purpose checkers to
 #' specify \emph{arbitrary} input validation checks.
 #'
 #' @evalRd rd_alias(nms$misc)
@@ -233,12 +262,7 @@ NULL
 #' Type checkers
 #'
 #' These functions make check formulae of local scope based on the
-#' correspondingly named type predicate from the
-#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}} package, with
-#' the exception that \code{vld_closure} corresponds to the (inaptly named)
-#' \pkg{purrr} predicate \code{\link[purrr]{is_function}}. For example,
-#' \code{vld_atomic} creates check formulae (of local scope) for the \pkg{purrr}
-#' predicate function \code{\link[purrr]{is_atomic}}.
+#' correspondingly named (atomic) type predicate from \pkg{base} R.
 #'
 #' @evalRd rd_alias(nms$type)
 #' @evalRd rd_usage(nms$type)
@@ -270,59 +294,17 @@ NULL
 #' @name type-checkers
 NULL
 
-#' Bare type checkers
+#' Scalar checkers
 #'
-#' These functions make check formulae of local scope based on the
-#' correspondingly named bare type predicate from the
-#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
-#' package. For example, \code{vld_bare_atomic} creates check formulae (of
-#' local scope) for the \pkg{purrr} predicate function
-#' \code{\link[purrr]{is_bare_atomic}}.
+#' @description These functions make check formulae of local scope based on the
+#' correspondingly named scalar type predicate from \pkg{base} R. For example,
+#' `vld_scalar_logical` creates check formulae (of local scope) for the
+#' predicate `is.logical(.) && length(.) == 1`. The function `vld_singleton` is
+#' based on the predicate `length(.) == 1`.
 #'
-#' @evalRd rd_alias(nms$bare)
-#' @evalRd rd_usage(nms$bare)
-#' @param \dots Check items, i.e., formulae that are one-sided or have a string
-#'   as left-hand side (see \emph{Check Formulae of Local Scope} in the
-#'   documentation page \link{firmly}). These are the expressions to check.
-#' @inherit misc-checkers
-#' @evalRd rd_seealso(ref$bare)
-#' @examples
-#' \dontrun{
-#'
-#' f <- function(x, y) "Pass"
-#'
-#' # Impose a check on x: ensure it's a bare logical object (i.e., has no class)
-#' f_firm <- firmly(f, vld_bare_logical(~x))
-#' x <- structure(TRUE, class = "boolean")
-#' f_firm(TRUE, 0)  # [1] "Pass"
-#' f_firm(x, 0)     # Error: "Not bare logical: x"
-#'
-#' # Use a custom error message
-#' msg <- "x should be a logical vector without attributes"
-#' f_firm <- firmly(f, vld_bare_logical(msg ~ x))
-#' f_firm(x, 0)     # Error: "x should be a logical vector without attributes"
-#'
-#' # To impose the same check on all arguments, apply globalize()
-#' f_firmer <- firmly(f, globalize(vld_bare_logical))
-#' f_firmer(TRUE, FALSE)  # [1] "Pass"
-#' f_firmer(TRUE, 0)      # Error: "Not bare logical: `y`"
-#' f_firmer(x, 0)         # Errors: "Not bare logical: `x`", "Not bare logical: `y`"
-#' }
-#' @name bare-type-checkers
-NULL
-
-#' Scalar type checkers
-#'
-#' These functions make check formulae of local scope based on the
-#' correspondingly named scalar type predicate from the
-#' \href{https://cran.r-project.org/package=purrr}{\pkg{purrr}}
-#' package. For example, \code{vld_scalar_atomic} creates check formulae (of
-#' local scope) for the predicate function
-#' \code{\link[purrr]{is_scalar_atomic}}. \cr\cr The functions
-#' \code{vld_boolean}, \code{vld_number}, \code{vld_string},
-#' \code{vld_singleton} are aliases for \code{vld_scalar_logical},
-#' \code{vld_scalar_numeric}, \code{vld_scalar_character},
-#' \code{vld_scalar_vector}, resp. (with appropriately modified error messages).
+#' The functions `vld_boolean`, `vld_number`, `vld_string` are aliases for
+#' `vld_scalar_logical`, `vld_scalar_numeric`, `vld_scalar_character`, resp.
+#' (with appropriately modified error messages).
 #'
 #' @evalRd rd_alias(nms$scalar)
 #' @evalRd rd_usage(nms$scalar)
@@ -351,5 +333,5 @@ NULL
 #' f_firmer(TRUE, 0)        # Error: "Not boolean: `y`"
 #' f_firmer(logical(0), 0)  # Errors: "Not boolean: `x`", "Not boolean: `y`"
 #' }
-#' @name scalar-type-checkers
+#' @name scalar-checkers
 NULL

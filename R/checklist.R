@@ -37,7 +37,6 @@ is_checklist <- function(x) {
   is.list(x) && all(vapply(x, is_check_formula, logical(1)))
 }
 
-# Same as purrr::is_scalar_character() but with check against NA
 is_string <- function(x) {
   typeof(x) == "character" && length(x) == 1L && !is.na(x)
 }
