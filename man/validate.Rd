@@ -2,7 +2,6 @@
 % Please edit documentation in R/validate.R
 \name{validate}
 \alias{validate}
-\alias{validate}
 \alias{\%checkout\%}
 \title{Validate objects}
 \usage{
