@@ -63,7 +63,7 @@ test_that("one-sided formula produces global check", {
     }
     # No other errors
     expect_equal(purrr::lift(purrr::safely(f_pos))(arg_list[[i]]) %>% {
-      str_count(.$error, "FALSE")
+      str_count(as.character(.$error), "FALSE")
     }, i)
   }
 
