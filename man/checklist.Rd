@@ -15,8 +15,8 @@ is_checklist(x)
 }
 \value{
 \code{is_check_formula}, resp. \code{is_checklist}, returns
-  \code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
-  check formula, resp. checklist.
+\code{TRUE} or \code{FALSE}, according to whether \code{x} is or is not a
+check formula, resp. checklist.
 }
 \description{
 \code{is_check_formula(x)} checks whether \code{x} is a check formula, while
