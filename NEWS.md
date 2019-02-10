@@ -1,14 +1,20 @@
 # valaddin
 
-## 0.1.2.9000
+## 1.0.0
+
+With this release, valaddin is frozen. The next iteration of valaddin is the
+[rong](https://github.com/egnha/rong) package. Future releases of valaddin
+itself will only include bug fixes.
 
 * Maintenance of the package has been substantially improved by dropping purrr
-  as a dependency (#57, #58). The sole dependency is lazyeval, whose features
-  are frozen at 0.2.1.
-  
-* "Bare" vector checkers (e.g., `vld_bare_logical()`) have been removed.
+  as a dependency (#57, #58). The lazyeval package, whose features are frozen at
+  0.2.1, is now the only dependency.
 
-* `vld_singleton()` now only checks whether an object is of length 1, atomic or not.
+### Breaking changes
+
+* `vld_singleton()` now only checks whether an object has length 1, atomic or not.
+
+* Bare-vector checkers (e.g., `vld_bare_logical()`) have been removed.
 
 ## 0.1.2
 

@@ -12,14 +12,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-> **Development has moved to [rong](https://github.com/egnha/rong)**
+**Development has moved to [rong](https://github.com/egnha/rong)**
 
 # valaddin
 
 [![Build Status](https://travis-ci.org/egnha/valaddin.svg?branch=0.1.2)](https://travis-ci.org/egnha/valaddin)
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/0.1.2/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin/branch/0.1.2)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/valaddin)](https://cran.r-project.org/package=valaddin)
- [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![stability-frozen](https://img.shields.io/badge/stability-frozen-blue.svg)](https://github.com/emersion/stability-badges#frozen)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Dealing with invalid function inputs is a chronic pain for R users, given R's 
 weakly typed nature. _valaddin_ provides pain relief—a lightweight R package 

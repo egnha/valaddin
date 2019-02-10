@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-> **Development has moved to [rong](https://github.com/egnha/rong)**
+**Development has moved to [rong](https://github.com/egnha/rong)**
 
 # valaddin
 
@@ -9,6 +9,7 @@
 Status](https://travis-ci.org/egnha/valaddin.svg?branch=0.1.2)](https://travis-ci.org/egnha/valaddin)
 [![codecov](https://codecov.io/gh/egnha/valaddin/branch/0.1.2/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin/branch/0.1.2)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/valaddin)](https://cran.r-project.org/package=valaddin)
+[![stability-frozen](https://img.shields.io/badge/stability-frozen-blue.svg)](https://github.com/emersion/stability-badges#frozen)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
