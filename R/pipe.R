@@ -9,7 +9,9 @@
 
   lambda <- function(body, env) {
     expr_fn <- bquote(function(.) .(body))
-    eval(expr_fn, env)
+    f <- eval(expr_fn)
+    environment(f) <- env
+    f
   }
 
   no_dot_arg <- function(call) {
