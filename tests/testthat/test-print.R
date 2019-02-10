@@ -70,7 +70,7 @@ test_that("local checker predicate is displayed", {
   fmls <- list(
     "Not data frame" ~ is.data.frame,
     "Not unsorted" ~ is.unsorted,
-    "Not NaN" ~ is.nan,
+    "Not NaN" ~ function(x) isTRUE(is.nan(x)),
     "Not positive" ~ function(x) x > 0
   )
 
@@ -85,11 +85,11 @@ test_that("local checker predicate is displayed", {
 test_that("local checker error message is displayed", {
   header <- "* Error message:"
 
-  # vld_numeric, vld_scalar_numeric have exceptional error messages
+  # vld_numeric, vld_scalar_numeric, etc., have exceptional error messages
   nms_chkrs <- setdiff(
     grep("^vld_", getNamespaceExports("valaddin"), value = TRUE),
     c("vld_numeric", "vld_scalar_numeric", "vld_true", "vld_false", "vld_any",
-      "vld_all")
+      "vld_all", "vld_na", "vld_nan")
   )
   chkrs <- lapply(nms_chkrs, getExportedValue, ns = "valaddin")
   names(chkrs) <- sub("^vld_", "", nms_chkrs)

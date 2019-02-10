@@ -30,12 +30,11 @@ chkrs <- make_vld_chkrs(
   nms = c(
     "is.array",       "is.call",       "is.complex",   "is.data.frame",
     "is.environment", "is.expression", "is.factor",    "is.language",
-    "is.matrix",      "is.na",         "is.name",      "is.nan",
+    "is.matrix",      "is.name",       "is.null",      "is.numeric",
     "is.ordered",     "is.pairlist",   "is.primitive", "is.raw",
     "is.recursive",   "is.symbol",     "is.table",     "is.unsorted",
     "is.function",    "is.atomic",     "is.list",      "is.vector",
-    "is.double",      "is.character",  "is.integer",   "is.logical",
-    "is.null",        "is.numeric"
+    "is.double",      "is.character",  "is.integer",   "is.logical"
   ),
   pattern = "^is\\.",
   sep = "\\.",
@@ -61,6 +60,10 @@ chkrs$vld_closure <- localize(lazyeval::f_new(
 
 chkrs$vld_formula <- localize(lazyeval::f_new(
   quote({typeof(.) == "language" && inherits(., "formula")}), "Not formula"))
+
+chkrs$vld_na <- localize(lazyeval::f_new(quote({isTRUE(is.na(.))}), "Not NA"))
+
+chkrs$vld_nan <- localize(lazyeval::f_new(quote({isTRUE(is.nan(.))}), "Not NaN"))
 
 chkrs$vld_scalar_numeric <- localize(lazyeval::f_new(
   quote({is.numeric(.) && length(.) == 1L}), "Not scalar numeric"))

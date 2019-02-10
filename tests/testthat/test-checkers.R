@@ -207,7 +207,7 @@ test_that("miscellaneous checkers enforce corresponding predicate", {
 
   f <- firmly(identity, vld_na(~x))
   expect_true(is.na(f(NA)))
-  expect_error(f(0), "Not na: x")
+  expect_error(f(0), "Not NA: x")
 
   f <- firmly(identity, vld_name(~x))
   expect_equal(f(as.name("a")), as.name("a"))
@@ -215,7 +215,7 @@ test_that("miscellaneous checkers enforce corresponding predicate", {
 
   f <- firmly(identity, vld_nan(~x))
   expect_true(is.nan(f(NaN)))
-  expect_error(f(NA), "Not nan: x")
+  expect_error(f(NA), "Not NaN: x")
 
   f <- firmly(identity, vld_null(~x))
   expect_null(f(NULL))

@@ -38,7 +38,7 @@ is_checklist <- function(x) {
 }
 
 is_string <- function(x) {
-  typeof(x) == "character" && length(x) == 1L && !is.na(x)
+  typeof(x) == "character" && length(x) == 1L && !isTRUE(is.na(x))
 }
 
 is_gbl_check_formula <- function(x) {
