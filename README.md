@@ -32,7 +32,7 @@ or get the development version from GitHub using the
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("egnha/valaddin", ref = "1.0.0", build_vignettes = TRUE)
+devtools::install_github("egnha/valaddin", ref = "dev", build_vignettes = TRUE)
 ```
 
 ## Why use valaddin
