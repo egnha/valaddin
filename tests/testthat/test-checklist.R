@@ -24,7 +24,7 @@ test_that("is_check_formula() yields TRUE for valid check formulas", {
     list(~x, ~y) ~ is.numeric,
     list(~x, "`y` not numeric" ~ y) ~ is.numeric,
     list("`x` not numeric" ~ x, "`y` not numeric" ~ y) ~ is.numeric,
-    list(~list(x, y)) ~ purrr::lift(function(x, y) {x - y > 0})
+    list(~list(x, y)) ~ lift(function(x, y) {x - y > 0})
   )
 
   for (chk in good_checks) {

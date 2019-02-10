@@ -42,7 +42,7 @@ test_that("firm_checks gets checks for firmly applied function", {
     }
 
     is_positive <- function(x) x > 0
-    is_numeric <- purrr::is_scalar_numeric
+    is_numeric <- function(x) is.numeric(x) && length(x) == 1L
     chks <- list(
       ~ is_numeric,
       list(~ x, "y not greater than x" ~ y - x) ~ is_positive

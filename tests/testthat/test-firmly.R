@@ -1,7 +1,7 @@
 context("Firmly")
 
 fs <- lapply(args_list, pass_args)
-has_args <- purrr::map_lgl(args_list, ~ length(nomen(.)$nm) > 0L)
+has_args <- map_lgl(args_list, ~ length(nomen(.)$nm) > 0L)
 fs_with_args <- fs[has_args]
 
 sort_checks_df <- function(x) x[order(x[["string"]]), , drop = FALSE]
@@ -154,7 +154,7 @@ test_that("no warning raised when no validation specified", {
 
 test_that("argument signature is preserved", {
   for (args in args_list) {
-    f <- make_fnc(args)
+    f <- new_fn(args)
 
     sig <- formals(f)
     expect_identical(sig, as.pairlist(args))
@@ -203,7 +203,7 @@ test_that("original function body/environment/attributes are preserved", {
     attr <- setNames(as.list(sample(LETTERS)), letters)
     env <- new.env(parent = baseenv())
     f <- do.call("structure",
-      c(.Data = make_fnc(args_list[[i]], body, env), attr)
+      c(.Data = new_fn(args_list[[i]], body, env), attr)
     )
     f_firm1 <- suppressWarnings(firmly(f, list(~x) ~ is.numeric))
     f_firm2 <- suppressWarnings(firmly(f_firm1, .warn_missing = "x"))

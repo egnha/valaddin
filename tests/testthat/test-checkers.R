@@ -10,7 +10,7 @@ nms$base  <- nms$vld[!in_purrr] %>%
   sub("^vld_", "is.", .) %>%
   gsub("_", ".", .)
 
-chkrs <- purrr::transpose(
+chkrs <- transpose(
   list(
     chkr = nms$vld %>%
       {c(.[in_purrr], .[!in_purrr])} %>%
