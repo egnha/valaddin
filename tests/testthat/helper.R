@@ -36,11 +36,6 @@ new_fn <- function(args, body = quote(NULL), env = parent.frame()) {
   f
 }
 
-# Cf. purrr::transpose()
-transpose <- function(xs) {
-  do.call("Map", c(f = list, xs))
-}
-
 noneval_checks <- list(
   x ~ is.numeric,
   log(x) ~ is.numeric,

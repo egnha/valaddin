@@ -1,97 +1,266 @@
 context("Localized checkers")
 
-nms <- list()
-nms$vld <- grep("^vld_", getNamespaceExports("valaddin"), value = TRUE)
-nms_is <- sub("^vld_", "is_", nms$vld)
-purrr_pred <- grep("^is_", getNamespaceExports("purrr"), value = TRUE)
-in_purrr <- nms_is %in% purrr_pred
-nms$purrr <- nms_is[in_purrr]
-nms$base  <- nms$vld[!in_purrr] %>%
-  sub("^vld_", "is.", .) %>%
-  gsub("_", ".", .)
-
-chkrs <- transpose(
-  list(
-    chkr = nms$vld %>%
-      {c(.[in_purrr], .[!in_purrr])} %>%
-      lapply(getExportedValue, ns = "valaddin"),
-    nm = c(nms$purrr, nms$base),
-    ns = c("purrr", "base") %>%
-      lapply(function(.) rep(., length(nms[[.]]))) %>%
-      unlist()
-  )
+checkers <- (
+  getNamespaceExports("valaddin")
+  %>% .[startsWith(., "vld_")]
+  %>% lapply(getExportedValue, ns = "valaddin")
 )
 
-aliases <- paste0("vld_", c("boolean", "number", "string", "singleton"))
-chkrs_orig <- chkrs[!names(chkrs) %in% aliases]
-
 test_that("checker class is 'check_maker'", {
-  for (. in chkrs)
-    expect_true(is_check_maker(.$chkr))
-})
-
-test_that("checker predicate matches underlying predicate function", {
-  for (. in chkrs_orig) {
-    pred_chkr <- f_eval_rhs(globalize(.$chkr))
-    pred_orig <- getExportedValue(.$ns, .$nm)
-
-    expect_identical(pred_chkr, pred_orig)
-  }
-})
-
-test_that("checker error message is derived from predicate name", {
-  f <- function(x) NULL
-
-  for (. in chkrs_orig) {
-    msg_chkr <- f_eval_lhs(globalize(.$chkr))
-    msg <- sprintf("Not %s", gsub("[_\\.]", " ", substring(.$nm, 4L)))
-    expect_identical(msg_chkr, msg)
-
-    # Every purrr, resp. base, predicate returns FALSE for log, resp. 0L
-    bad_arg <- if (.$ns == "purrr") log else 0L
-    expect_error(firmly(f, .$chkr(~ x))(bad_arg), msg)
-  }
+  for (chkr in checkers)
+    expect_true(is_check_maker(chkr))
 })
 
 test_that("environment of check formula is package namespace environment", {
-  env <- getNamespace("valaddin")
-  for (. in chkrs) {
-    expect_identical(lazyeval::f_env(.$chkr(~x)), env)
-  }
+  pkg_ns_env <- getNamespace("valaddin")
+  for (chkr in checkers)
+    expect_identical(lazyeval::f_env(chkr(~x)), pkg_ns_env)
 })
 
-test_that("vld_closure only validates closures, not functions in general", {
-  f <- firmly(function(x) NULL, vld_closure(~x))
+test_that("type checkers enforce type", {
+  f <- firmly(identity, vld_character(~x))
+  expect_equal(f(letters), letters)
+  expect_error(f(0), "Not character: x")
 
-  # Closures
-  closures <- list(f, function(x) log(x))
-  for (x in closures) {
-    expect_true(typeof(x) == "closure")
-    expect_error(f(x), NA)
-  }
+  f <- firmly(identity, vld_complex(~x))
+  expect_equal(f(1:3 + 1i), 1:3 + 1i)
+  expect_error(f(1:3), "Not complex: x")
 
-  # Non-closures
-  non_closures <- list(log, 0L, 1, NULL, NA, letters)
-  for (x in non_closures) {
-    expect_false(typeof(x) == "closure")
-    expect_error(f(x), "Not closure")
-  }
+  f <- firmly(identity, vld_double(~x))
+  expect_equal(f(1:3 + 0), 1:3 + 0)
+  expect_error(f(1:3), "Not double: x")
+
+  f <- firmly(identity, vld_integer(~x))
+  expect_equal(f(1:3), 1:3)
+  expect_error(f(1:3 + 0), "Not integer: x")
+
+  f <- firmly(identity, vld_logical(~x))
+  expect_equal(f(1:3 %% 2 == 0), 1:3 %% 2 == 0)
+  expect_error(f(1:3 %% 2), "Not logical: x")
+
+  f <- firmly(identity, vld_raw(~x))
+  expect_equal(f(raw(3)), raw(3))
+  expect_error(f(1:3), "Not raw: x")
 })
 
-test_that("vld_function validates functions, both primitive and closures", {
-  f <- firmly(function(x) NULL, vld_function(~x))
+test_that("scalar checkers enforce type and length 1", {
+  f <- firmly(identity, vld_scalar_character(~x))
+  expect_equal(f("a"), "a")
+  expect_error(f(0), "Not scalar character: x")
+  expect_error(f(letters), "Not scalar character: x")
 
-  # Functions, both primitive and non-primitive
-  fns <- list(f, function(x) log(x), log)
-  for (x in fns) {
-    expect_true(is.function(x))
-    expect_error(f(x), NA)
-  }
+  f <- firmly(identity, vld_scalar_complex(~x))
+  expect_equal(f(1 + 1i), 1 + 1i)
+  expect_error(f(1), "Not scalar complex: x")
+  expect_error(f(1:3 + 1i), "Not scalar complex: x")
 
-  # Non-functions
-  non_fns <- list(0L, 1, NULL, NA, letters)
-  for (x in non_fns) {
-    expect_false(is.function(x))
-    expect_error(f(x), "Not function")
-  }
+  f <- firmly(identity, vld_scalar_double(~x))
+  expect_equal(f(0), 0)
+  expect_error(f(0L), "Not scalar double: x")
+  expect_error(f(0 + 1:3), "Not scalar double: x")
+
+  f <- firmly(identity, vld_scalar_integer(~x))
+  expect_equal(f(0L), 0L)
+  expect_error(f(0), "Not scalar integer: x")
+  expect_error(f(1:3), "Not scalar integer: x")
+
+  f <- firmly(identity, vld_scalar_logical(~x))
+  expect_equal(f(1 %% 2 == 0), 1 %% 2 == 0)
+  expect_error(f(1 %% 2), "Not scalar logical: x")
+  expect_error(f(1:3 %% 2 == 0), "Not scalar logical: x")
+
+  f <- firmly(identity, vld_scalar_raw(~x))
+  expect_equal(f(raw(1)), raw(1))
+  expect_error(f(1), "Not scalar raw: x")
+  expect_error(f(raw(32)), "Not scalar raw: x")
+
+  f <- firmly(identity, vld_boolean(~x))
+  expect_equal(f(1 %% 2 == 0), 1 %% 2 == 0)
+  expect_error(f(1 %% 2), "Not boolean: x")
+  expect_error(f(1:3 %% 2 == 0), "Not boolean: x")
+
+  f <- firmly(identity, vld_number(~x))
+  expect_equal(f(0), 0)
+  expect_equal(f(0L), 0L)
+  expect_error(f("a"), "Not number: x")
+  expect_error(f(1:3), "Not number: x")
+  expect_error(f(1:3 + 0), "Not number: x")
+
+  f <- firmly(identity, vld_string(~x))
+  expect_equal(f("a"), "a")
+  expect_error(f(0), "Not string: x")
+  expect_error(f(letters), "Not string: x")
+
+  f <- firmly(identity, vld_scalar_atomic(~x))
+  expect_equal(f(0), 0)
+  expect_equal(f(0L), 0L)
+  expect_equal(f(FALSE), FALSE)
+  expect_equal(f("a"), "a")
+  expect_equal(f(1 + 1i), 1 + 1i)
+  expect_equal(f(raw(1)), raw(1))
+  expect_error(f(NULL), "Not scalar atomic: x")
+  expect_error(f(list(NULL)), "Not scalar atomic: x")
+  expect_error(f(1:3), "Not scalar atomic: x")
+
+  f <- firmly(identity, vld_scalar_list(~x))
+  expect_equal(f(list(0)), list(0))
+  expect_error(f(0), "Not scalar list: x")
+  expect_error(f(list()), "Not scalar list: x")
+
+  f <- firmly(identity, vld_scalar_numeric(~x))
+  expect_equal(f(0), 0)
+  expect_equal(f(0L), 0L)
+  expect_error(f("a"), "Not scalar numeric: x")
+  expect_error(f(1:3), "Not scalar numeric: x")
+  expect_error(f(1:3 + 0), "Not scalar numeric: x")
+
+  f <- firmly(identity, vld_scalar_vector(~x))
+  expect_equal(f(0), 0)
+  expect_equal(f(0L), 0L)
+  expect_equal(f(FALSE), FALSE)
+  expect_equal(f("a"), "a")
+  expect_equal(f(1 + 1i), 1 + 1i)
+  expect_equal(f(raw(1)), raw(1))
+  expect_equal(f(list(NULL)), list(NULL))
+  expect_error(f(NULL), "Not scalar vector: x")
+  expect_error(f(1:3), "Not scalar vector: x")
+
+  f <- firmly(identity, vld_singleton(~x))
+  expect_equal(f(0), 0)
+  expect_equal(f(list(0)), list(0))
+  expect_error(f(1:3), "Not singleton: x")
+  expect_error(f(NULL), "Not singleton: x")
+  expect_error(f(as.list(1:3)), "Not singleton: x")
+})
+
+test_that("miscellaneous checkers enforce corresponding predicate", {
+  f <- firmly(identity, vld_all(~x))
+  expect_equal(f(1:3 > 0), 1:3 > 0)
+  expect_error(f(0:3 > 0), "Not all TRUE: x")
+
+  f <- firmly(identity, vld_any(~x))
+  expect_equal(f(1:3 == 1), 1:3 == 1)
+  expect_error(f(1:3 == 0), "None TRUE: x")
+
+  f <- firmly(identity, vld_array(~x))
+  expect_equal(f(array(1:3)), array(1:3))
+  expect_error(f(1:3), "Not array: x")
+
+  f <- firmly(identity, vld_atomic(~x))
+  expect_equal(f(NULL), NULL)
+  expect_error(f(list(NULL)), "Not atomic: x")
+
+  f <- firmly(identity, vld_call(~x))
+  expect_equal(f(quote(g())), quote(g()))
+  expect_error(f(quote(g)), "Not call: x")
+
+  f <- firmly(identity, vld_closure(~x))
+  expect_equal(f(f), f)
+  expect_error(f(log), "Not closure: x")  # special
+  expect_error(f(`+`), "Not closure: x")  # builtin
+
+  f <- firmly(identity, vld_data_frame(~x))
+  expect_equal(f(data.frame(a = 0)), data.frame(a = 0))
+  expect_error(f(list(a = 0)), "Not data frame: x")
+
+  f <- firmly(identity, vld_empty(~x))
+  expect_equal(f(list()), list())
+  expect_error(f(list(NULL)), "Not empty: x")
+
+  f <- firmly(identity, vld_environment(~x))
+  expect_equal(f(getNamespace("base")), getNamespace("base"))
+  expect_error(f(NULL), "Not environment: x")
+
+  f <- firmly(identity, vld_expression(~x))
+  expect_equal(f(expression(0)), expression(0))
+  expect_error(f(quote(0)), "Not expression: x")
+
+  f <- firmly(identity, vld_factor(~x))
+  expect_equal(f(as.factor(1:3)), as.factor(1:3))
+  expect_error(f(1:3), "Not factor: x")
+
+  f <- firmly(identity, vld_false(~x))
+  expect_false(f(FALSE))
+  expect_error(f(TRUE), "Not FALSE: x")
+
+  f <- firmly(identity, vld_formula(~x))
+  expect_equal(f(a ~ b), a ~ b)
+  expect_error(f(quote(a ~ b)), "Not formula: x")
+
+  f <- firmly(identity, vld_function(~x))
+  expect_equal(f(f), f)      # closure
+  expect_equal(f(log), log)  # special
+  expect_equal(f(`+`), `+`)  # builtin
+  expect_error(f(NULL), "Not function: x")
+
+  f <- firmly(identity, vld_language(~x))
+  expect_equal(f(quote(1 + 2)), quote(1 + 2))
+  expect_error(f(1 + 2), "Not language: x")
+
+  f <- firmly(identity, vld_list(~x))
+  expect_equal(f(list(NULL)), list(NULL))
+  expect_error(f(NULL), "Not list: x")
+
+  f <- firmly(identity, vld_matrix(~x))
+  expect_equal(f(matrix(1:3)), matrix(1:3))
+  expect_error(f(1:3), "Not matrix: x")
+
+  f <- firmly(identity, vld_na(~x))
+  expect_true(is.na(f(NA)))
+  expect_error(f(0), "Not na: x")
+
+  f <- firmly(identity, vld_name(~x))
+  expect_equal(f(as.name("a")), as.name("a"))
+  expect_error(f("a"), "Not name: x")
+
+  f <- firmly(identity, vld_nan(~x))
+  expect_true(is.nan(f(NaN)))
+  expect_error(f(NA), "Not nan: x")
+
+  f <- firmly(identity, vld_null(~x))
+  expect_null(f(NULL))
+  expect_error(f(NA), "Not null: x")
+
+  f <- firmly(identity, vld_numeric(~x))
+  expect_equal(f(0), 0)
+  expect_equal(f(0L), 0L)
+  expect_error(f(0 + 1i), "Not numeric: x")
+
+  f <- firmly(identity, vld_ordered(~x))
+  expect_equal(f(as.ordered(1:3)), as.ordered(1:3))
+  expect_error(f(as.factor(1:3)), "Not ordered: x")
+
+  f <- firmly(identity, vld_pairlist(~x))
+  expect_equal(f(pairlist(a = 0)), pairlist(a = 0))
+  expect_error(f(list(a = 0)), "Not pairlist: x")
+
+  f <- firmly(identity, vld_primitive(~x))
+  expect_equal(f(log), log)  # special
+  expect_equal(f(`+`), `+`)  # builtin
+  expect_error(f(f), "Not primitive: x")
+
+  f <- firmly(identity, vld_recursive(~x))
+  expect_equal(f(list(0)), list(0))
+  expect_error(f(0), "Not recursive: x")
+
+  f <- firmly(identity, vld_symbol(~x))
+  expect_equal(f(as.symbol("a")), as.symbol("a"))
+  expect_error(f("a"), "Not symbol: x")
+
+  f <- firmly(identity, vld_table(~x))
+  expect_equal(f(table(0)), table(0))
+  expect_error(f(0), "Not table: x")
+
+  f <- firmly(identity, vld_true(~x))
+  expect_true(f(TRUE))
+  expect_error(f(FALSE), "Not TRUE: x")
+
+  f <- firmly(identity, vld_unsorted(~x))
+  expect_equal(f(3:1), 3:1)
+  expect_error(f(1:3), "Not unsorted: x")
+
+  f <- firmly(identity, vld_vector(~x))
+  expect_equal(f(list(NULL)), list(NULL))
+  expect_equal(f(0), 0)
+  expect_error(f(NULL), "Not vector: x")
 })
