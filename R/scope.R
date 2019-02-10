@@ -88,7 +88,7 @@ localize <- list(
     is_gbl_check_formula
 ) %checkin%
   function(chk) {
-    .msg <- ff_eval_lhs(chk)
+    .msg <- f_eval_lhs(chk)
     .rhs <- lazyeval::f_rhs(chk)
     .env <- lazyeval::f_env(chk)
 

@@ -31,7 +31,7 @@ assemble <- function(.chk, .nm, .symb, .env = lazyeval::f_env(.chk)) {
   p_expr <- if (is_lambda(p)) express_lambda(p) else p
   predicate <- eval(p_expr, .env)
 
-  lhs <- ff_eval_lhs(.chk)
+  lhs <- f_eval_lhs(.chk)
   chk_items <- if (is.list(lhs)) {
     # .chk: local scope
     do.call(lazyeval::f_list, lhs)
