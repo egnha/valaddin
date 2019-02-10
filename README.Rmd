@@ -292,4 +292,4 @@ with type_.
 
 ## License
 
-MIT Copyright © 2017 [Eugene Ha](https://github.com/egnha)
+MIT Copyright © 2019 [Eugene Ha](https://github.com/egnha)
