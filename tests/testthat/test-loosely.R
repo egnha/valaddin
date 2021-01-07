@@ -50,7 +50,7 @@ test_that("checks kept only if .keep_check is TRUE", {
 
     # If .keep_check is TRUE, checks are kept
     f_firm_loose <- loosely(f_firm, .keep_check = TRUE)
-    expect_equal(f_firm_loose, f_firm)
+    expect_equal(f_firm_loose, f_firm, check.environment = FALSE)
 
     nm <- nomen(formals(f))$nm
     # Remainder of tests only apply to firmly applied functions
@@ -62,7 +62,7 @@ test_that("checks kept only if .keep_check is TRUE", {
     # Checks and warnings
     f_firm_warn <- firmly(f_firm, .warn_missing = nm)
     f_firm_warn_loose <- loosely(f_firm_warn, .keep_check = TRUE)
-    expect_equal(f_firm_warn_loose, f_firm)
+    expect_equal(f_firm_warn_loose, f_firm, check.environment = FALSE)
 
     # No missing-argument warnings
     expect_null(firm_args(f_firm_warn_loose))
@@ -119,7 +119,8 @@ test_that("missing-argument warnings kept only if .keep_warning is TRUE", {
       if (!is.null(firm_checks(ff))) {
         expect_equal(
           loosely(ff, .keep_check = TRUE, .keep_warning = FALSE),
-          f_firm
+          f_firm,
+          check.environment = FALSE
         )
       }
       expect_null(firm_args(loosely(ff)))
