@@ -12,54 +12,284 @@
 
 <meta name="author" content="Eugene Ha" />
 
-<meta name="date" content="2017-03-22" />
+<meta name="date" content="2017-08-10" />
 
 <title>Using valaddin</title>
 
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 </head>
 
@@ -70,7 +300,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Using valaddin</h1>
 <h4 class="author"><em>Eugene Ha</em></h4>
-<h4 class="date"><em>2017-03-22</em></h4>
+<h4 class="date"><em>2017-08-10</em></h4>
 
 
 
@@ -82,32 +312,32 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="enforce-types-for-arguments" class="section level3">
 <h3>Enforce types for arguments</h3>
 <p>For example, to require that all arguments of the function</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span><span class="cf">function</span>(x, h) (<span class="kw">sin</span>(x <span class="op">+</span><span class="st"> </span>h) <span class="op">-</span><span class="st"> </span><span class="kw">sin</span>(x)) <span class="op">/</span><span class="st"> </span>h</code></pre></div>
-<p>are numerical, apply <code>firmly</code> with the check formula <code>~is.numeric</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ff &lt;-<span class="st"> </span><span class="kw">firmly</span>(f, <span class="op">~</span>is.numeric)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">f &lt;-<span class="st"> </span><span class="cf">function</span>(x, h) (<span class="kw">sin</span>(x <span class="op">+</span><span class="st"> </span>h) <span class="op">-</span><span class="st"> </span><span class="kw">sin</span>(x)) <span class="op">/</span><span class="st"> </span>h</a></code></pre></div>
+<p>are numerical, apply <code>firmly</code> with the check formula <code>~is.numeric</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">ff &lt;-<span class="st"> </span><span class="kw">firmly</span>(f, <span class="op">~</span>is.numeric)</a></code></pre></div>
 <p><code>ff</code> behaves just like <code>f</code>, but with a constraint on the type of its arguments:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ff</span>(<span class="fl">0.0</span>, <span class="fl">0.1</span>)
-<span class="co">#&gt; [1] 0.9983342</span>
-
-<span class="kw">ff</span>(<span class="st">&quot;0.0&quot;</span>, <span class="fl">0.1</span>)
-<span class="co">#&gt; Error: ff(x = &quot;0.0&quot;, h = 0.1)</span>
-<span class="co">#&gt; FALSE: is.numeric(x)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">ff</span>(<span class="fl">0.0</span>, <span class="fl">0.1</span>)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt; [1] 0.9983342</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="kw">ff</span>(<span class="st">&quot;0.0&quot;</span>, <span class="fl">0.1</span>)</a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt; Error: ff(x = &quot;0.0&quot;, h = 0.1)</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt; FALSE: is.numeric(x)</span></a></code></pre></div>
 </div>
 <div id="enforce-constraints-on-argument-values" class="section level3">
 <h3>Enforce constraints on argument values</h3>
 <p>For example, use <code>firmly</code> to put a cap on potentially long-running computations:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fib &lt;-<span class="st"> </span><span class="cf">function</span>(n) {
-  <span class="cf">if</span> (n <span class="op">&lt;=</span><span class="st"> </span>1L) <span class="kw">return</span>(1L)
-  <span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span>1L) <span class="op">+</span><span class="st"> </span><span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span>2L)
-}
-
-capped_fib &lt;-<span class="st"> </span><span class="kw">firmly</span>(fib, <span class="kw">list</span>(<span class="st">&quot;n capped at 30&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">ceiling</span>(n)) <span class="op">~</span><span class="st"> </span>{. <span class="op">&lt;=</span><span class="st"> </span>30L})
-
-<span class="kw">capped_fib</span>(<span class="dv">10</span>)
-<span class="co">#&gt; [1] 89</span>
-<span class="kw">capped_fib</span>(<span class="dv">50</span>)
-<span class="co">#&gt; Error: capped_fib(n = 50)</span>
-<span class="co">#&gt; n capped at 30</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">fib &lt;-<span class="st"> </span><span class="cf">function</span>(n) {</a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="cf">if</span> (n <span class="op">&lt;=</span><span class="st"> </span>1L) <span class="kw">return</span>(1L)</a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span>1L) <span class="op">+</span><span class="st"> </span><span class="kw">Recall</span>(n <span class="op">-</span><span class="st"> </span>2L)</a>
+<a class="sourceLine" id="cb4-4" title="4">}</a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6">capped_fib &lt;-<span class="st"> </span><span class="kw">firmly</span>(fib, <span class="kw">list</span>(<span class="st">&quot;n capped at 30&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">ceiling</span>(n)) <span class="op">~</span><span class="st"> </span>{. <span class="op">&lt;=</span><span class="st"> </span>30L})</a>
+<a class="sourceLine" id="cb4-7" title="7"></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="kw">capped_fib</span>(<span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="co">#&gt; [1] 89</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="kw">capped_fib</span>(<span class="dv">50</span>)</a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="co">#&gt; Error: capped_fib(n = 50)</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="co">#&gt; n capped at 30</span></a></code></pre></div>
 <p>The role of each part of the value-constraining formula is evident:</p>
 <ul>
 <li><p>The right-hand side <code>{. &lt;= 30L}</code> is the constraint itself, expressed as a condition on <code>.</code>, a placeholder argument.</p></li>
@@ -117,30 +347,32 @@ capped_fib &lt;-<span class="st"> </span><span class="kw">firmly</span>(fib, <sp
 <div id="warn-about-pitfalls" class="section level3">
 <h3>Warn about pitfalls</h3>
 <p>If the default behavior of a function is problematic, or unexpected, you can use <code>firmly</code> to warn you. Consider the function <code>as.POSIXct</code>, which creates a date-time object:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Sys.setenv</span>(<span class="dt">TZ =</span> <span class="st">&quot;CET&quot;</span>)
-(d &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>))
-<span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">Sys.setenv</span>(<span class="dt">TZ =</span> <span class="st">&quot;CET&quot;</span>)</a>
+<a class="sourceLine" id="cb5-2" title="2">(d &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>))</a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></a></code></pre></div>
 <p>The problem is that <code>d</code> is a potentially <em>ambiguous</em> object (with hidden state), because it’s not assigned a time zone, explicitly. If you compute the local hour of <code>d</code> using <code>as.POSIXlt</code>, you get an answer that interprets <code>d</code> according to your current time zone; another user—or you, in another country, in the future—may get a different result.</p>
 <ul>
 <li><p>If you’re in CET time zone:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.POSIXlt</span>(d, <span class="dt">tz =</span> <span class="st">&quot;EST&quot;</span>)<span class="op">$</span>hour
-<span class="co">#&gt; [1] 3</span></code></pre></div></li>
-<li><p>If you were to change to EST time zone and rerun the code:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Sys.setenv</span>(<span class="dt">TZ =</span> <span class="st">&quot;EST&quot;</span>)
-d &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>)
-<span class="kw">as.POSIXlt</span>(d, <span class="dt">tz =</span> <span class="st">&quot;EST&quot;</span>)<span class="op">$</span>hour
-<span class="co">#&gt; [1] 9</span></code></pre></div></li>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">as.POSIXlt</span>(d, <span class="dt">tz =</span> <span class="st">&quot;EST&quot;</span>)<span class="op">$</span>hour</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="co">#&gt; [1] 3</span></a></code></pre></div></li>
+<li><p>If you were to change to EST time zone and rerun the code:</p></li>
 </ul>
+<pre><code>```r
+Sys.setenv(TZ = &quot;EST&quot;)
+d &lt;- as.POSIXct(&quot;2017-01-01 09:30:00&quot;)
+as.POSIXlt(d, tz = &quot;EST&quot;)$hour
+#&gt; [1] 9
+```</code></pre>
 <p>To warn yourself about this pitfall, you can modify <code>as.POSIXct</code> to complain when you’ve forgotten to specify a time zone:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">as.POSIXct &lt;-<span class="st"> </span><span class="kw">firmly</span>(as.POSIXct, <span class="dt">.warn_missing =</span> <span class="st">&quot;tz&quot;</span>)</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">as.POSIXct &lt;-<span class="st"> </span><span class="kw">firmly</span>(as.POSIXct, <span class="dt">.warn_missing =</span> <span class="st">&quot;tz&quot;</span>)</a></code></pre></div>
 <p>Now when you call <code>as.POSIXct</code>, you get a cautionary reminder:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>)
-<span class="co">#&gt; Warning: Argument(s) expected but not specified in call as.POSIXct(x =</span>
-<span class="co">#&gt; &quot;2017-01-01 09:30:00&quot;): `tz`</span>
-<span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span>
-
-<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>, <span class="dt">tz =</span> <span class="st">&quot;CET&quot;</span>)
-<span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">#&gt; Warning: Argument(s) expected but not specified in call as.POSIXct(x =</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co">#&gt; &quot;2017-01-01 09:30:00&quot;): `tz`</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>, <span class="dt">tz =</span> <span class="st">&quot;CET&quot;</span>)</a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></a></code></pre></div>
 <p><strong>NB</strong>: The missing-argument warning is implemented by wrapping functions. The underlying function <code>base::as.POSIXct</code> is called <em>unmodified</em>.</p>
 <div id="use-loosely-to-access-the-original-function" class="section level4">
 <h4>Use <code>loosely</code> to access the original function</h4>
@@ -149,158 +381,158 @@ d &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="
 <li>With a namespace prefix: <code>base::as.POSIXct</code></li>
 <li>By applying <code>loosely</code> to strip input validation: <code>loosely(as.POSIXct)</code></li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">loosely</span>(as.POSIXct)(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>)
-<span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span>
-
-<span class="kw">identical</span>(<span class="kw">loosely</span>(as.POSIXct), base<span class="op">::</span>as.POSIXct)
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">loosely</span>(as.POSIXct)(<span class="st">&quot;2017-01-01 09:30:00&quot;</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt; [1] &quot;2017-01-01 09:30:00 CET&quot;</span></a>
+<a class="sourceLine" id="cb10-3" title="3"></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="kw">identical</span>(<span class="kw">loosely</span>(as.POSIXct), base<span class="op">::</span>as.POSIXct)</a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
 </div>
 </div>
 <div id="decline-handouts" class="section level3">
 <h3>Decline handouts</h3>
 <p>R tries to help you express your ideas as concisely as possible. Suppose you want to truncate negative values of a vector <code>w</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">w &lt;-<span class="st"> </span>{<span class="kw">set.seed</span>(<span class="dv">1</span>); <span class="kw">rnorm</span>(<span class="dv">5</span>)}
-
-<span class="kw">ifelse</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="dv">0</span>)
-<span class="co">#&gt; [1] 0.0000000 0.1836433 0.0000000 1.5952808 0.3295078</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">w &lt;-<span class="st"> </span>{<span class="kw">set.seed</span>(<span class="dv">1</span>); <span class="kw">rnorm</span>(<span class="dv">5</span>)}</a>
+<a class="sourceLine" id="cb11-2" title="2"></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="kw">ifelse</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="co">#&gt; [1] 0.0000000 0.1836433 0.0000000 1.5952808 0.3295078</span></a></code></pre></div>
 <p><code>ifelse</code> assumes (correctly) that you intend the <code>0</code> to be repeated 5 times, and does that for you, automatically.</p>
 <p>Nonetheless, R’s good intentions have a darker side:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">z &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>)
-pos &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">5</span>
-neg &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">6</span><span class="op">:-</span><span class="dv">1</span>
-
-<span class="kw">ifelse</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, pos, neg)
-<span class="co">#&gt; [1] 1 2 3 4 5 1</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">z &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb12-2" title="2">pos &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">5</span></a>
+<a class="sourceLine" id="cb12-3" title="3">neg &lt;-<span class="st"> </span><span class="dv">-6</span><span class="op">:-</span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb12-4" title="4"></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="kw">ifelse</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, pos, neg)</a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="co">#&gt; [1] 1 2 3 4 5 1</span></a></code></pre></div>
 <p>This smells like a coding error. Instead of complaining that <code>pos</code> is too short, <code>ifelse</code> recycles it to line it up with <code>z</code>. The result is probably not what you wanted.</p>
 <p>In this case, you don’t need a helping hand, but rather a firm one:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chk_length_type &lt;-<span class="st"> </span><span class="kw">list</span>(
-  <span class="st">&quot;'yes', 'no' differ in length&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no),
-  <span class="st">&quot;'yes', 'no' differ in type&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">typeof</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">typeof</span>(no)
-) <span class="op">~</span><span class="st"> </span>isTRUE
-
-ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, chk_length_type)</code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">chk_length_type &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb13-2" title="2">  <span class="st">&quot;&#39;yes&#39;, &#39;no&#39; differ in length&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no),</a>
+<a class="sourceLine" id="cb13-3" title="3">  <span class="st">&quot;&#39;yes&#39;, &#39;no&#39; differ in type&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">typeof</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">typeof</span>(no)</a>
+<a class="sourceLine" id="cb13-4" title="4">) <span class="op">~</span><span class="st"> </span>isTRUE</a>
+<a class="sourceLine" id="cb13-5" title="5"></a>
+<a class="sourceLine" id="cb13-6" title="6">ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, chk_length_type)</a></code></pre></div>
 <p><code>ifelse_f</code> is more pedantic than <code>ifelse</code>. But it also spares you the consequences of invalid inputs:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="dv">0</span>)
-<span class="co">#&gt; Error: ifelse_f(test = w &gt; 0, yes = w, no = 0)</span>
-<span class="co">#&gt; 'yes', 'no' differ in length</span>
-<span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(w)))
-<span class="co">#&gt; [1] 0.0000000 0.1836433 0.0000000 1.5952808 0.3295078</span>
-
-<span class="kw">ifelse</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, pos, neg)
-<span class="co">#&gt; [1] 1 2 3 4 5 1</span>
-<span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, pos, neg)
-<span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = pos, no = neg)</span>
-<span class="co">#&gt; 'yes', 'no' differ in length</span>
-
-<span class="kw">ifelse</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">as.character</span>(pos), neg)
-<span class="co">#&gt; [1] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot;</span>
-<span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">as.character</span>(pos), neg)
-<span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = as.character(pos), no = neg)</span>
-<span class="co">#&gt; 1) 'yes', 'no' differ in length</span>
-<span class="co">#&gt; 2) 'yes', 'no' differ in type</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="co">#&gt; Error: ifelse_f(test = w &gt; 0, yes = w, no = 0)</span></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="co">#&gt; &#39;yes&#39;, &#39;no&#39; differ in length</span></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="kw">ifelse_f</span>(w <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, w, <span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(w)))</a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="co">#&gt; [1] 0.0000000 0.1836433 0.0000000 1.5952808 0.3295078</span></a>
+<a class="sourceLine" id="cb14-6" title="6"></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="kw">ifelse</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, pos, neg)</a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="co">#&gt; [1] 1 2 3 4 5 1</span></a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, pos, neg)</a>
+<a class="sourceLine" id="cb14-10" title="10"><span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = pos, no = neg)</span></a>
+<a class="sourceLine" id="cb14-11" title="11"><span class="co">#&gt; &#39;yes&#39;, &#39;no&#39; differ in length</span></a>
+<a class="sourceLine" id="cb14-12" title="12"></a>
+<a class="sourceLine" id="cb14-13" title="13"><span class="kw">ifelse</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">as.character</span>(pos), neg)</a>
+<a class="sourceLine" id="cb14-14" title="14"><span class="co">#&gt; [1] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot;</span></a>
+<a class="sourceLine" id="cb14-15" title="15"><span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">as.character</span>(pos), neg)</a>
+<a class="sourceLine" id="cb14-16" title="16"><span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = as.character(pos), no = neg)</span></a>
+<a class="sourceLine" id="cb14-17" title="17"><span class="co">#&gt; 1) &#39;yes&#39;, &#39;no&#39; differ in length</span></a>
+<a class="sourceLine" id="cb14-18" title="18"><span class="co">#&gt; 2) &#39;yes&#39;, &#39;no&#39; differ in type</span></a></code></pre></div>
 </div>
 <div id="reduce-the-risks-of-a-lazy-evaluation-style" class="section level3">
 <h3>Reduce the risks of a lazy evaluation-style</h3>
 <p>When R make a function call, say, <code>f(a)</code>, the <em>value</em> of the argument <code>a</code> is not materialized in the body of <code>f</code> until it is actually needed. Usually, you can safely ignore this as a technicality of R’s evaluation model; but in some situations, it can be problematic if you’re not mindful of it.</p>
-<p>Consider a bank that waives fees for students. A function to make deposits might look like this<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">deposit &lt;-<span class="st"> </span><span class="cf">function</span>(account, value) {
-  <span class="cf">if</span> (<span class="kw">is_student</span>(account)) {
-    account<span class="op">$</span>fees &lt;-<span class="st"> </span><span class="dv">0</span>
-  }
-  account<span class="op">$</span>balance &lt;-<span class="st"> </span>account<span class="op">$</span>balance <span class="op">+</span><span class="st"> </span>value
-  account
-}
-
-is_student &lt;-<span class="st"> </span><span class="cf">function</span>(account) {
-  <span class="cf">if</span> (<span class="kw">isTRUE</span>(account<span class="op">$</span>is_student)) <span class="ot">TRUE</span> <span class="cf">else</span> <span class="ot">FALSE</span>
-}</code></pre></div>
+<p>Consider a bank that waives fees for students. A function to make deposits might look like this<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">deposit &lt;-<span class="st"> </span><span class="cf">function</span>(account, value) {</a>
+<a class="sourceLine" id="cb15-2" title="2">  <span class="cf">if</span> (<span class="kw">is_student</span>(account)) {</a>
+<a class="sourceLine" id="cb15-3" title="3">    account<span class="op">$</span>fees &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb15-4" title="4">  }</a>
+<a class="sourceLine" id="cb15-5" title="5">  account<span class="op">$</span>balance &lt;-<span class="st"> </span>account<span class="op">$</span>balance <span class="op">+</span><span class="st"> </span>value</a>
+<a class="sourceLine" id="cb15-6" title="6">  account</a>
+<a class="sourceLine" id="cb15-7" title="7">}</a>
+<a class="sourceLine" id="cb15-8" title="8"></a>
+<a class="sourceLine" id="cb15-9" title="9">is_student &lt;-<span class="st"> </span><span class="cf">function</span>(account) {</a>
+<a class="sourceLine" id="cb15-10" title="10">  <span class="cf">if</span> (<span class="kw">isTRUE</span>(account<span class="op">$</span>is_student)) <span class="ot">TRUE</span> <span class="cf">else</span> <span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb15-11" title="11">}</a></code></pre></div>
 <p>Suppose Bob is an account holder, currently not in school:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bobs_acct &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">balance =</span> <span class="dv">10</span>, <span class="dt">fees =</span> <span class="dv">3</span>, <span class="dt">is_student =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">bobs_acct &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">balance =</span> <span class="dv">10</span>, <span class="dt">fees =</span> <span class="dv">3</span>, <span class="dt">is_student =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
 <p>If Bob were to deposit an amount to cover an future fee payment, his account balance would be updated to:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deposit</span>(bobs_acct, bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance
-<span class="co">#&gt; [1] 13</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">deposit</span>(bobs_acct, bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance</a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="co">#&gt; [1] 13</span></a></code></pre></div>
 <p>Bob goes back to school and informs the bank, so that his fees will be waived:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bobs_acct<span class="op">$</span>is_student &lt;-<span class="st"> </span><span class="ot">TRUE</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">bobs_acct<span class="op">$</span>is_student &lt;-<span class="st"> </span><span class="ot">TRUE</span></a></code></pre></div>
 <p>But now suppose that, somewhere in the bowels of the bank’s software, the type of Bob’s account object is converted from a list to an environment:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bobs_acct &lt;-<span class="st"> </span><span class="kw">list2env</span>(bobs_acct)</code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">bobs_acct &lt;-<span class="st"> </span><span class="kw">list2env</span>(bobs_acct)</a></code></pre></div>
 <p>If Bob were to deposit an amount to cover an future fee payment, his account balance would now be updated to:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deposit</span>(bobs_acct, bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance
-<span class="co">#&gt; [1] 10</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">deposit</span>(bobs_acct, bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance</a>
+<a class="sourceLine" id="cb20-2" title="2"><span class="co">#&gt; [1] 10</span></a></code></pre></div>
 <p>Becoming a student has cost Bob money. What happened to the amount deposited?</p>
 <p>The culprit is lazy evaluation and the modify-in-place semantics of environments. In the call <code>deposit(account = bobs_acct, value = bobs_acct$fee)</code>, the value of the argument <code>value</code> is only set when it’s used, which comes after the object <code>fee</code> in the environment <code>bobs_acct</code> has already been zeroed out.</p>
 <p>To minimize such risks, forbid <code>account</code> from being an environment:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">err_msg &lt;-<span class="st"> &quot;`acccount` should not be an environment&quot;</span>
-deposit &lt;-<span class="st"> </span><span class="kw">firmly</span>(deposit, <span class="kw">list</span>(err_msg <span class="op">~</span><span class="st"> </span>account) <span class="op">~</span><span class="st"> </span><span class="kw">Negate</span>(is.environment))</code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1">err_msg &lt;-<span class="st"> &quot;`acccount` should not be an environment&quot;</span></a>
+<a class="sourceLine" id="cb21-2" title="2">deposit &lt;-<span class="st"> </span><span class="kw">firmly</span>(deposit, <span class="kw">list</span>(err_msg <span class="op">~</span><span class="st"> </span>account) <span class="op">~</span><span class="st"> </span><span class="kw">Negate</span>(is.environment))</a></code></pre></div>
 <p>This makes Bob a happy customer, and reduces the bank’s liability:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bobs_acct &lt;-<span class="st"> </span><span class="kw">list2env</span>(<span class="kw">list</span>(<span class="dt">balance =</span> <span class="dv">10</span>, <span class="dt">fees =</span> <span class="dv">3</span>, <span class="dt">is_student =</span> <span class="ot">TRUE</span>))
-
-<span class="kw">deposit</span>(bobs_acct, bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance
-<span class="co">#&gt; Error: deposit(account = bobs_acct, value = bobs_acct$fees)</span>
-<span class="co">#&gt; `acccount` should not be an environment</span>
-
-<span class="kw">deposit</span>(<span class="kw">as.list</span>(bobs_acct), bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance
-<span class="co">#&gt; [1] 13</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">bobs_acct &lt;-<span class="st"> </span><span class="kw">list2env</span>(<span class="kw">list</span>(<span class="dt">balance =</span> <span class="dv">10</span>, <span class="dt">fees =</span> <span class="dv">3</span>, <span class="dt">is_student =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb22-2" title="2"></a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="kw">deposit</span>(bobs_acct, bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance</a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="co">#&gt; Error: deposit(account = bobs_acct, value = bobs_acct$fees)</span></a>
+<a class="sourceLine" id="cb22-5" title="5"><span class="co">#&gt; `acccount` should not be an environment</span></a>
+<a class="sourceLine" id="cb22-6" title="6"></a>
+<a class="sourceLine" id="cb22-7" title="7"><span class="kw">deposit</span>(<span class="kw">as.list</span>(bobs_acct), bobs_acct<span class="op">$</span>fees)<span class="op">$</span>balance</a>
+<a class="sourceLine" id="cb22-8" title="8"><span class="co">#&gt; [1] 13</span></a></code></pre></div>
 </div>
 <div id="prevent-self-inflicted-wounds" class="section level3">
 <h3>Prevent self-inflicted wounds</h3>
 <p>You don’t mean to shoot yourself, but sometimes it happens, nonetheless:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> &quot;An expensive object&quot;</span>
-<span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)
-
-x &lt;-<span class="st"> &quot;Oops! A bug or lapse has tarnished your expensive object&quot;</span>
-
-<span class="co"># Many computations later, you again save x, oblivious to the accident ...</span>
-<span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)</code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">x &lt;-<span class="st"> &quot;An expensive object&quot;</span></a>
+<a class="sourceLine" id="cb23-2" title="2"><span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)</a>
+<a class="sourceLine" id="cb23-3" title="3"></a>
+<a class="sourceLine" id="cb23-4" title="4">x &lt;-<span class="st"> &quot;Oops! A bug or lapse has tarnished your expensive object&quot;</span></a>
+<a class="sourceLine" id="cb23-5" title="5"></a>
+<a class="sourceLine" id="cb23-6" title="6"><span class="co"># Many computations later, you again save x, oblivious to the accident ...</span></a>
+<a class="sourceLine" id="cb23-7" title="7"><span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)</a></code></pre></div>
 <p><code>firmly</code> can safeguard you from such mishaps: implement a safety procedure</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Argument `gear` is a list with components:</span>
-<span class="co"># fun: Function name</span>
-<span class="co"># ns : Namespace of `fun`</span>
-<span class="co"># chk: Formula that specify input checks</span>
-
-hardhat &lt;-<span class="st"> </span><span class="cf">function</span>(gear, <span class="dt">env =</span> .GlobalEnv) {
-  <span class="cf">for</span> (. <span class="cf">in</span> gear) {
-    safe_fun &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="kw">getFromNamespace</span>(.<span class="op">$</span>fun, .<span class="op">$</span>ns), .<span class="op">$</span>chk)
-    <span class="kw">assign</span>(.<span class="op">$</span>fun, safe_fun, <span class="dt">envir =</span> env)
-  }
-}</code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="co"># Argument `gear` is a list with components:</span></a>
+<a class="sourceLine" id="cb24-2" title="2"><span class="co"># fun: Function name</span></a>
+<a class="sourceLine" id="cb24-3" title="3"><span class="co"># ns : Namespace of `fun`</span></a>
+<a class="sourceLine" id="cb24-4" title="4"><span class="co"># chk: Formula that specify input checks</span></a>
+<a class="sourceLine" id="cb24-5" title="5"></a>
+<a class="sourceLine" id="cb24-6" title="6">hardhat &lt;-<span class="st"> </span><span class="cf">function</span>(gear, <span class="dt">env =</span> .GlobalEnv) {</a>
+<a class="sourceLine" id="cb24-7" title="7">  <span class="cf">for</span> (. <span class="cf">in</span> gear) {</a>
+<a class="sourceLine" id="cb24-8" title="8">    safe_fun &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="kw">getFromNamespace</span>(.<span class="op">$</span>fun, .<span class="op">$</span>ns), .<span class="op">$</span>chk)</a>
+<a class="sourceLine" id="cb24-9" title="9">    <span class="kw">assign</span>(.<span class="op">$</span>fun, safe_fun, <span class="dt">envir =</span> env)</a>
+<a class="sourceLine" id="cb24-10" title="10">  }</a>
+<a class="sourceLine" id="cb24-11" title="11">}</a></code></pre></div>
 <p>gather your safety gear</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">protection &lt;-<span class="st"> </span><span class="kw">list</span>(
-  <span class="kw">list</span>(
-    <span class="dt">fun =</span> <span class="st">&quot;save&quot;</span>,
-    <span class="dt">ns  =</span> <span class="st">&quot;base&quot;</span>,
-    <span class="dt">chk =</span> <span class="kw">list</span>(<span class="st">&quot;Won't overwrite `file`&quot;</span> <span class="op">~</span><span class="st"> </span>file) <span class="op">~</span><span class="st"> </span><span class="kw">Negate</span>(file.exists)
-  ),
-  <span class="kw">list</span>(
-    <span class="dt">fun =</span> <span class="st">&quot;load&quot;</span>,
-    <span class="dt">ns  =</span> <span class="st">&quot;base&quot;</span>,
-    <span class="dt">chk =</span> <span class="kw">list</span>(<span class="st">&quot;Won't load objects into current environment&quot;</span> <span class="op">~</span><span class="st"> </span>envir) <span class="op">~</span>
-<span class="st">      </span>{<span class="op">!</span><span class="kw">identical</span>(., <span class="kw">parent.frame</span>(<span class="dv">2</span>))}
-  )
-)</code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1">protection &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb25-2" title="2">  <span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb25-3" title="3">    <span class="dt">fun =</span> <span class="st">&quot;save&quot;</span>,</a>
+<a class="sourceLine" id="cb25-4" title="4">    <span class="dt">ns  =</span> <span class="st">&quot;base&quot;</span>,</a>
+<a class="sourceLine" id="cb25-5" title="5">    <span class="dt">chk =</span> <span class="kw">list</span>(<span class="st">&quot;Won&#39;t overwrite `file`&quot;</span> <span class="op">~</span><span class="st"> </span>file) <span class="op">~</span><span class="st"> </span><span class="kw">Negate</span>(file.exists)</a>
+<a class="sourceLine" id="cb25-6" title="6">  ),</a>
+<a class="sourceLine" id="cb25-7" title="7">  <span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb25-8" title="8">    <span class="dt">fun =</span> <span class="st">&quot;load&quot;</span>,</a>
+<a class="sourceLine" id="cb25-9" title="9">    <span class="dt">ns  =</span> <span class="st">&quot;base&quot;</span>,</a>
+<a class="sourceLine" id="cb25-10" title="10">    <span class="dt">chk =</span> <span class="kw">list</span>(<span class="st">&quot;Won&#39;t load objects into current environment&quot;</span> <span class="op">~</span><span class="st"> </span>envir) <span class="op">~</span></a>
+<a class="sourceLine" id="cb25-11" title="11"><span class="st">      </span>{<span class="op">!</span><span class="kw">identical</span>(., <span class="kw">parent.frame</span>(<span class="dv">2</span>))}</a>
+<a class="sourceLine" id="cb25-12" title="12">  )</a>
+<a class="sourceLine" id="cb25-13" title="13">)</a></code></pre></div>
 <p>then put it on</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hardhat</span>(protection)</code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">hardhat</span>(protection)</a></code></pre></div>
 <p>Now <code>save</code> and <code>load</code> engage safety features that prevent you from inadvertently destroying your data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> &quot;An expensive object&quot;</span>
-<span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)
-
-x &lt;-<span class="st"> &quot;Oops! A bug or lapse has tarnished your expensive object&quot;</span>
-<span class="co">#&gt; Error: save(x, file = &quot;my-precious.rda&quot;)</span>
-<span class="co">#&gt; Won't overwrite `file`</span>
-
-<span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)
-
-<span class="co"># Inspecting x, you notice it's changed, so you try to retrieve the original ...</span>
-x
-<span class="co">#&gt; [1] &quot;Oops! A bug or lapse has tarnished your expensive object&quot;</span>
-<span class="kw">load</span>(<span class="st">&quot;my-precious.rda&quot;</span>)
-<span class="co">#&gt; Error: load(file = &quot;my-precious.rda&quot;)</span>
-<span class="co">#&gt; Won't load objects into current environment</span>
-
-<span class="co"># Keep calm and carry on</span>
-<span class="kw">loosely</span>(load)(<span class="st">&quot;my-precious.rda&quot;</span>)
-
-x
-<span class="co">#&gt; [1] &quot;An expensive object&quot;</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">x &lt;-<span class="st"> &quot;An expensive object&quot;</span></a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)</a>
+<a class="sourceLine" id="cb27-3" title="3"></a>
+<a class="sourceLine" id="cb27-4" title="4">x &lt;-<span class="st"> &quot;Oops! A bug or lapse has tarnished your expensive object&quot;</span></a>
+<a class="sourceLine" id="cb27-5" title="5"><span class="co">#&gt; Error: save(x, file = &quot;my-precious.rda&quot;)</span></a>
+<a class="sourceLine" id="cb27-6" title="6"><span class="co">#&gt; Won&#39;t overwrite `file`</span></a>
+<a class="sourceLine" id="cb27-7" title="7"></a>
+<a class="sourceLine" id="cb27-8" title="8"><span class="kw">save</span>(x, <span class="dt">file =</span> <span class="st">&quot;my-precious.rda&quot;</span>)</a>
+<a class="sourceLine" id="cb27-9" title="9"></a>
+<a class="sourceLine" id="cb27-10" title="10"><span class="co"># Inspecting x, you notice it&#39;s changed, so you try to retrieve the original ...</span></a>
+<a class="sourceLine" id="cb27-11" title="11">x</a>
+<a class="sourceLine" id="cb27-12" title="12"><span class="co">#&gt; [1] &quot;Oops! A bug or lapse has tarnished your expensive object&quot;</span></a>
+<a class="sourceLine" id="cb27-13" title="13"><span class="kw">load</span>(<span class="st">&quot;my-precious.rda&quot;</span>)</a>
+<a class="sourceLine" id="cb27-14" title="14"><span class="co">#&gt; Error: load(file = &quot;my-precious.rda&quot;)</span></a>
+<a class="sourceLine" id="cb27-15" title="15"><span class="co">#&gt; Won&#39;t load objects into current environment</span></a>
+<a class="sourceLine" id="cb27-16" title="16"></a>
+<a class="sourceLine" id="cb27-17" title="17"><span class="co"># Keep calm and carry on</span></a>
+<a class="sourceLine" id="cb27-18" title="18"><span class="kw">loosely</span>(load)(<span class="st">&quot;my-precious.rda&quot;</span>)</a>
+<a class="sourceLine" id="cb27-19" title="19"></a>
+<a class="sourceLine" id="cb27-20" title="20">x</a>
+<a class="sourceLine" id="cb27-21" title="21"><span class="co">#&gt; [1] &quot;An expensive object&quot;</span></a></code></pre></div>
 <p><strong>NB</strong>: Input validation is implemented by wrapping functions; thus, if the arguments are valid, the underlying functions <code>base::save</code>, <code>base::load</code> are called <em>unmodified</em>.</p>
 </div>
 </div>
@@ -308,86 +540,86 @@ x
 <h2>Toolbox of input checkers</h2>
 <p><em>valaddin</em> provides a collection of over 50 pre-made input checkers to facilitate typical kinds of argument checks. These checkers are prefixed by <code>vld_</code>, for convenient browsing and look-up in editors and IDE’s that support name completion.</p>
 <p>For example, to create a type-checked version of the function <code>upper.tri</code>, which returns an upper-triangular logical matrix, apply the checkers <code>vld_matrix</code>, <code>vld_boolean</code> (here “boolean” is shorthand for “logical vector of length 1”):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">upper_tri &lt;-<span class="st"> </span><span class="kw">firmly</span>(upper.tri, <span class="kw">vld_matrix</span>(<span class="op">~</span>x), <span class="kw">vld_boolean</span>(<span class="op">~</span>diag))
-
-<span class="co"># upper.tri assumes you mean a vector to be a column matrix</span>
-<span class="kw">upper.tri</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)
-<span class="co">#&gt;       [,1]</span>
-<span class="co">#&gt; [1,] FALSE</span>
-<span class="co">#&gt; [2,] FALSE</span>
-
-<span class="kw">upper_tri</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)
-<span class="co">#&gt; Error: upper_tri(x = 1:2)</span>
-<span class="co">#&gt; Not matrix: x</span>
-
-<span class="co"># But say you actually meant (1, 2) to be a diagonal matrix</span>
-<span class="kw">upper_tri</span>(<span class="kw">diag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>))
-<span class="co">#&gt;       [,1]  [,2]</span>
-<span class="co">#&gt; [1,] FALSE  TRUE</span>
-<span class="co">#&gt; [2,] FALSE FALSE</span>
-
-<span class="kw">upper_tri</span>(<span class="kw">diag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>), <span class="dt">diag =</span> <span class="st">&quot;true&quot;</span>)
-<span class="co">#&gt; Error: upper_tri(x = diag(1:2), diag = &quot;true&quot;)</span>
-<span class="co">#&gt; Not boolean: diag</span>
-
-<span class="kw">upper_tri</span>(<span class="kw">diag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>), <span class="ot">TRUE</span>)
-<span class="co">#&gt;       [,1] [,2]</span>
-<span class="co">#&gt; [1,]  TRUE TRUE</span>
-<span class="co">#&gt; [2,] FALSE TRUE</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">upper_tri &lt;-<span class="st"> </span><span class="kw">firmly</span>(upper.tri, <span class="kw">vld_matrix</span>(<span class="op">~</span>x), <span class="kw">vld_boolean</span>(<span class="op">~</span>diag))</a>
+<a class="sourceLine" id="cb28-2" title="2"></a>
+<a class="sourceLine" id="cb28-3" title="3"><span class="co"># upper.tri assumes you mean a vector to be a column matrix</span></a>
+<a class="sourceLine" id="cb28-4" title="4"><span class="kw">upper.tri</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb28-5" title="5"><span class="co">#&gt;       [,1]</span></a>
+<a class="sourceLine" id="cb28-6" title="6"><span class="co">#&gt; [1,] FALSE</span></a>
+<a class="sourceLine" id="cb28-7" title="7"><span class="co">#&gt; [2,] FALSE</span></a>
+<a class="sourceLine" id="cb28-8" title="8"></a>
+<a class="sourceLine" id="cb28-9" title="9"><span class="kw">upper_tri</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb28-10" title="10"><span class="co">#&gt; Error: upper_tri(x = 1:2, diag = FALSE)</span></a>
+<a class="sourceLine" id="cb28-11" title="11"><span class="co">#&gt; Not matrix: x</span></a>
+<a class="sourceLine" id="cb28-12" title="12"></a>
+<a class="sourceLine" id="cb28-13" title="13"><span class="co"># But say you actually meant (1, 2) to be a diagonal matrix</span></a>
+<a class="sourceLine" id="cb28-14" title="14"><span class="kw">upper_tri</span>(<span class="kw">diag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb28-15" title="15"><span class="co">#&gt;       [,1]  [,2]</span></a>
+<a class="sourceLine" id="cb28-16" title="16"><span class="co">#&gt; [1,] FALSE  TRUE</span></a>
+<a class="sourceLine" id="cb28-17" title="17"><span class="co">#&gt; [2,] FALSE FALSE</span></a>
+<a class="sourceLine" id="cb28-18" title="18"></a>
+<a class="sourceLine" id="cb28-19" title="19"><span class="kw">upper_tri</span>(<span class="kw">diag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>), <span class="dt">diag =</span> <span class="st">&quot;true&quot;</span>)</a>
+<a class="sourceLine" id="cb28-20" title="20"><span class="co">#&gt; Error: upper_tri(x = diag(1:2), diag = &quot;true&quot;)</span></a>
+<a class="sourceLine" id="cb28-21" title="21"><span class="co">#&gt; Not boolean: diag</span></a>
+<a class="sourceLine" id="cb28-22" title="22"></a>
+<a class="sourceLine" id="cb28-23" title="23"><span class="kw">upper_tri</span>(<span class="kw">diag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>), <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb28-24" title="24"><span class="co">#&gt;       [,1] [,2]</span></a>
+<a class="sourceLine" id="cb28-25" title="25"><span class="co">#&gt; [1,]  TRUE TRUE</span></a>
+<a class="sourceLine" id="cb28-26" title="26"><span class="co">#&gt; [2,] FALSE TRUE</span></a></code></pre></div>
 <div id="check-anything-with-vld_true" class="section level3">
 <h3>Check anything with <code>vld_true</code></h3>
 <p>Any input validation can be expressed as an assertion that “such and such must be true”; to apply it as such, use <code>vld_true</code> (or its complement, <code>vld_false</code>).</p>
 <p>For example, the above hardening of <code>ifelse</code> can be redone as:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chk_length_type &lt;-<span class="st"> </span><span class="kw">vld_true</span>(
-  <span class="st">&quot;'yes', 'no' differ in length&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no),
-  <span class="st">&quot;'yes', 'no' differ in type&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">typeof</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">typeof</span>(no)
-)
-ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, chk_length_type)
-
-z &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>)
-pos &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">5</span>
-neg &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">6</span><span class="op">:-</span><span class="dv">1</span>
-
-<span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">as.character</span>(pos), neg)
-<span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = as.character(pos), no = neg)</span>
-<span class="co">#&gt; 1) 'yes', 'no' differ in length</span>
-<span class="co">#&gt; 2) 'yes', 'no' differ in type</span>
-<span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">c</span>(pos, <span class="dv">6</span>), neg)
-<span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = c(pos, 6), no = neg)</span>
-<span class="co">#&gt; 'yes', 'no' differ in type</span>
-<span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">c</span>(pos, 6L), neg)
-<span class="co">#&gt; [1] 1 2 3 4 5 6</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">chk_length_type &lt;-<span class="st"> </span><span class="kw">vld_true</span>(</a>
+<a class="sourceLine" id="cb29-2" title="2">  <span class="st">&quot;&#39;yes&#39;, &#39;no&#39; differ in length&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">length</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(no),</a>
+<a class="sourceLine" id="cb29-3" title="3">  <span class="st">&quot;&#39;yes&#39;, &#39;no&#39; differ in type&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">typeof</span>(yes) <span class="op">==</span><span class="st"> </span><span class="kw">typeof</span>(no)</a>
+<a class="sourceLine" id="cb29-4" title="4">)</a>
+<a class="sourceLine" id="cb29-5" title="5">ifelse_f &lt;-<span class="st"> </span><span class="kw">firmly</span>(ifelse, chk_length_type)</a>
+<a class="sourceLine" id="cb29-6" title="6"></a>
+<a class="sourceLine" id="cb29-7" title="7">z &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb29-8" title="8">pos &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">5</span></a>
+<a class="sourceLine" id="cb29-9" title="9">neg &lt;-<span class="st"> </span><span class="dv">-6</span><span class="op">:-</span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb29-10" title="10"></a>
+<a class="sourceLine" id="cb29-11" title="11"><span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">as.character</span>(pos), neg)</a>
+<a class="sourceLine" id="cb29-12" title="12"><span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = as.character(pos), no = neg)</span></a>
+<a class="sourceLine" id="cb29-13" title="13"><span class="co">#&gt; 1) &#39;yes&#39;, &#39;no&#39; differ in length</span></a>
+<a class="sourceLine" id="cb29-14" title="14"><span class="co">#&gt; 2) &#39;yes&#39;, &#39;no&#39; differ in type</span></a>
+<a class="sourceLine" id="cb29-15" title="15"><span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">c</span>(pos, <span class="dv">6</span>), neg)</a>
+<a class="sourceLine" id="cb29-16" title="16"><span class="co">#&gt; Error: ifelse_f(test = z &gt; 0, yes = c(pos, 6), no = neg)</span></a>
+<a class="sourceLine" id="cb29-17" title="17"><span class="co">#&gt; &#39;yes&#39;, &#39;no&#39; differ in type</span></a>
+<a class="sourceLine" id="cb29-18" title="18"><span class="kw">ifelse_f</span>(z <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="kw">c</span>(pos, 6L), neg)</a>
+<a class="sourceLine" id="cb29-19" title="19"><span class="co">#&gt; [1] 1 2 3 4 5 6</span></a></code></pre></div>
 </div>
 <div id="make-your-own-input-checker-with-localize" class="section level3">
 <h3>Make your own input checker with <code>localize</code></h3>
 <p>A check formula such as <code>~ is.numeric</code> (or <code>&quot;Not number&quot; ~ is.numeric</code>, if you want a custom error message) imposes its condition “globally”:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">difference &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="op">~</span><span class="st"> </span>is.numeric)
-
-<span class="kw">difference</span>(<span class="dv">3</span>, <span class="dv">1</span>)
-<span class="co">#&gt; [1] 2</span>
-<span class="kw">difference</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))
-<span class="co">#&gt; Error: difference(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;,&quot;UTC&quot;))</span>
-<span class="co">#&gt; 1) FALSE: is.numeric(x)</span>
-<span class="co">#&gt; 2) FALSE: is.numeric(y)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1">difference &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="op">~</span><span class="st"> </span>is.numeric)</a>
+<a class="sourceLine" id="cb30-2" title="2"></a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="kw">difference</span>(<span class="dv">3</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb30-4" title="4"><span class="co">#&gt; [1] 2</span></a>
+<a class="sourceLine" id="cb30-5" title="5"><span class="kw">difference</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))</a>
+<a class="sourceLine" id="cb30-6" title="6"><span class="co">#&gt; Error: difference(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;, &quot;UTC&quot;))</span></a>
+<a class="sourceLine" id="cb30-7" title="7"><span class="co">#&gt; 1) FALSE: is.numeric(x)</span></a>
+<a class="sourceLine" id="cb30-8" title="8"><span class="co">#&gt; 2) FALSE: is.numeric(y)</span></a></code></pre></div>
 <p>With <code>localize</code>, you can concentrate a globally applied check formula to specific expressions. The result is a <em>reusable</em> custom checker:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chk_numeric &lt;-<span class="st"> </span><span class="kw">localize</span>(<span class="st">&quot;Not numeric&quot;</span> <span class="op">~</span><span class="st"> </span>is.numeric)
-secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(f, x, h) (<span class="kw">f</span>(x <span class="op">+</span><span class="st"> </span>h) <span class="op">-</span><span class="st"> </span><span class="kw">f</span>(x)) <span class="op">/</span><span class="st"> </span>h, <span class="kw">chk_numeric</span>(<span class="op">~</span>x, <span class="op">~</span>h))
-
-<span class="kw">secant</span>(sin, <span class="dv">0</span>, .<span class="dv">1</span>)
-<span class="co">#&gt; [1] 0.9983342</span>
-<span class="kw">secant</span>(sin, <span class="st">&quot;0&quot;</span>, .<span class="dv">1</span>)
-<span class="co">#&gt; Error: secant(f = sin, x = &quot;0&quot;, h = 0.1)</span>
-<span class="co">#&gt; Not numeric: x</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">chk_numeric &lt;-<span class="st"> </span><span class="kw">localize</span>(<span class="st">&quot;Not numeric&quot;</span> <span class="op">~</span><span class="st"> </span>is.numeric)</a>
+<a class="sourceLine" id="cb31-2" title="2">secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(f, x, h) (<span class="kw">f</span>(x <span class="op">+</span><span class="st"> </span>h) <span class="op">-</span><span class="st"> </span><span class="kw">f</span>(x)) <span class="op">/</span><span class="st"> </span>h, <span class="kw">chk_numeric</span>(<span class="op">~</span>x, <span class="op">~</span>h))</a>
+<a class="sourceLine" id="cb31-3" title="3"></a>
+<a class="sourceLine" id="cb31-4" title="4"><span class="kw">secant</span>(sin, <span class="dv">0</span>, <span class="fl">.1</span>)</a>
+<a class="sourceLine" id="cb31-5" title="5"><span class="co">#&gt; [1] 0.9983342</span></a>
+<a class="sourceLine" id="cb31-6" title="6"><span class="kw">secant</span>(sin, <span class="st">&quot;0&quot;</span>, <span class="fl">.1</span>)</a>
+<a class="sourceLine" id="cb31-7" title="7"><span class="co">#&gt; Error: secant(f = sin, x = &quot;0&quot;, h = 0.1)</span></a>
+<a class="sourceLine" id="cb31-8" title="8"><span class="co">#&gt; Not numeric: x</span></a></code></pre></div>
 <p>(In fact, <code>chk_numeric</code> is equivalent to the pre-built checker <code>vld_numeric</code>.)</p>
 <p>Conversely, apply <code>globalize</code> to impose your localized checker globally:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">difference &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="kw">globalize</span>(chk_numeric))
-
-<span class="kw">difference</span>(<span class="dv">3</span>, <span class="dv">1</span>)
-<span class="co">#&gt; [1] 2</span>
-<span class="kw">difference</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))
-<span class="co">#&gt; Error: difference(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;,&quot;UTC&quot;))</span>
-<span class="co">#&gt; 1) Not numeric: `x`</span>
-<span class="co">#&gt; 2) Not numeric: `y`</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">difference &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class="cf">function</span>(x, y) x <span class="op">-</span><span class="st"> </span>y, <span class="kw">globalize</span>(chk_numeric))</a>
+<a class="sourceLine" id="cb32-2" title="2"></a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="kw">difference</span>(<span class="dv">3</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb32-4" title="4"><span class="co">#&gt; [1] 2</span></a>
+<a class="sourceLine" id="cb32-5" title="5"><span class="kw">difference</span>(<span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>), <span class="kw">as.POSIXct</span>(<span class="st">&quot;2016-01-01&quot;</span>, <span class="st">&quot;UTC&quot;</span>))</a>
+<a class="sourceLine" id="cb32-6" title="6"><span class="co">#&gt; Error: difference(x = as.POSIXct(&quot;2017-01-01&quot;, &quot;UTC&quot;), y = as.POSIXct(&quot;2016-01-01&quot;, &quot;UTC&quot;))</span></a>
+<a class="sourceLine" id="cb32-7" title="7"><span class="co">#&gt; 1) Not numeric: `x`</span></a>
+<a class="sourceLine" id="cb32-8" title="8"><span class="co">#&gt; 2) Not numeric: `y`</span></a></code></pre></div>
 </div>
 </div>
 <div id="related-packages" class="section level2">
@@ -411,8 +643,8 @@ secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class=
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>The inspiration to use <code>~</code> as a quoting operator came from the vignette <a href="https://cran.r-project.org/package=lazyeval/vignettes/lazyeval.html">Non-standard evaluation</a>, by Hadley Wickham.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Adapted from an example in Section 6.3 of Chambers, <em>Extending R</em>, CRC Press, 2016. For the sake of the example, ignore the fact that logic to handle fees does not belong in a function for deposits!<a href="#fnref2">↩</a></p></li>
+<li id="fn1"><p>The inspiration to use <code>~</code> as a quoting operator came from the vignette <a href="https://cran.r-project.org/package=lazyeval/vignettes/lazyeval.html">Non-standard evaluation</a>, by Hadley Wickham.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>Adapted from an example in Section 6.3 of Chambers, <em>Extending R</em>, CRC Press, 2016. For the sake of the example, ignore the fact that logic to handle fees does not belong in a function for deposits!<a href="#fnref2" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
 
@@ -423,7 +655,7 @@ secant &lt;-<span class="st"> </span><span class="kw">firmly</span>(<span class=
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
