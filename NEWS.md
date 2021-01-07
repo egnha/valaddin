@@ -1,5 +1,10 @@
 # valaddin
 
+## 1.0.1
+
+This release merely eliminates spurious test failures introduced by an upcoming
+change in `all.equal()`. There are no user-facing changes.
+
 ## 1.0.0
 
 With this release, valaddin is frozen. The next iteration of valaddin is the
