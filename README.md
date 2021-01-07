@@ -28,7 +28,7 @@ install.packages("valaddin")
 ```
 
 or get the development version from GitHub using the
-[devtools](https://github.com/hadley/devtools) package
+[devtools](https://github.com/r-lib/devtools) package
 
 ``` r
 # install.packages("devtools")
@@ -74,14 +74,14 @@ secant_numeric(log, "1", ".1")
 
 While this works, it’s not ideal, even in this simple situation, because
 
-  - it’s inconvenient for interactive use at the console: you have to
+-   it’s inconvenient for interactive use at the console: you have to
     declare a new function, and give it a new name (or copy-paste the
     original function body)
 
-  - it doesn’t catch all errors, only the first that occurs among the
+-   it doesn’t catch all errors, only the first that occurs among the
     checks
 
-  - you’re back to square one, if you later realize you need additional
+-   you’re back to square one, if you later realize you need additional
     checks, or want to skip them altogether.
 
 ### valaddin rectifies these shortcomings
@@ -135,10 +135,11 @@ secant(log, "1", c(.1, .01))
 ### Check anything using a simple, consistent syntax
 
 `firmly()` uses a simple formula syntax to specify arbitrary checks—not
-just type checks. Every check is a formula of the form `<where to check>
-~ <what to check>`. The “what” part on the right is a *function* that
-does a check, while the (form of the) “where” part on the left indicates
-where to apply the check—at which *arguments* or *expressions* thereof.
+just type checks. Every check is a formula of the form
+`<where to check> ~ <what to  check>`. The “what” part on the right is a
+*function* that does a check, while the (form of the) “where” part on
+the left indicates where to apply the check—at which *arguments* or
+*expressions* thereof.
 
 valaddin provides a number of conveniences to make checks for `firmly()`
 informative and easy to specify.
@@ -215,8 +216,7 @@ bc_tri(.5, .6)
 ```
 
 Alternatively, use the `lift()` function from the
-[purrr](https://github.com/hadley/purrr)
-package:
+[purrr](https://github.com/tidyverse/purrr) package:
 
 ``` r
 bc_tri <- firmly(bc, list(outside ~ list(x, y)) ~  purrr::lift(in_triangle))
@@ -228,9 +228,9 @@ To make your functions more intelligible, declare your input assumptions
 and move the core logic to the fore. You can do this using `firmly()`,
 in several ways:
 
-  - Precede the function header with input checks, by explicitly
+-   Precede the function header with input checks, by explicitly
     assigning the function to `firmly()`’s `.f` argument:
-    
+
     ``` r
     bc <- firmly(
       ~is.numeric,
@@ -240,27 +240,27 @@ in several ways:
         c(x, y, 1 - x - y)
       }
     )
-    
+
     bc(.5, .2)
     #> [1] 0.5 0.2 0.3
-    
+
     bc(.5, c(.2, .1))
     #> Error: bc(x = 0.5, y = c(0.2, 0.1))
     #> FALSE: (function(.) {length(.) == 1L})(y)
-    
+
     bc(".5", 1)
     #> Error: bc(x = ".5", y = 1)
     #> 1) FALSE: is.numeric(x)
     #> 2) (x, y) not in triangle
     ```
 
-  - Use the [magrittr](https://github.com/tidyverse/magrittr) `%>%`
+-   Use the [magrittr](https://github.com/tidyverse/magrittr) `%>%`
     operator to deliver input checks, by capturing them as a list with
     `firmly()`’s `.checklist` argument:
-    
+
     ``` r
     library(magrittr)
-    
+
     bc2 <- list(
       ~is.numeric,
       ~{length(.) == 1L},
@@ -270,13 +270,13 @@ in several ways:
         c(x, y, 1 - x - y)
       },
       .checklist = .)
-    
+
     all.equal(bc, bc2)
     #> [1] TRUE
     ```
 
-  - Better yet, use the `%checkin%` operator:
-    
+-   Better yet, use the `%checkin%` operator:
+
     ``` r
     bc3 <- list(
       ~is.numeric,
@@ -286,7 +286,7 @@ in several ways:
       function(x, y) {
         c(x, y, 1 - x - y)
       }
-    
+
     all.equal(bc, bc3)
     #> [1] TRUE
     ```
@@ -301,24 +301,24 @@ for an overview of use cases.
 
 ## Related packages
 
-  - [assertive](https://bitbucket.org/richierocks/assertive),
+-   [assertive](https://bitbucket.org/richierocks/assertive),
     [assertthat](https://github.com/hadley/assertthat), and
     [checkmate](https://github.com/mllg/checkmate) provide handy
     collections of predicate functions that you can use in conjunction
     with `firmly()`.
 
-  - [argufy](https://github.com/gaborcsardi/argufy) takes a different
+-   [argufy](https://github.com/gaborcsardi/argufy) takes a different
     approach to input validation, using
-    [roxygen](https://github.com/klutometis/roxygen) comments to specify
+    [roxygen](https://github.com/r-lib/roxygen2) comments to specify
     checks.
 
-  - [ensurer](https://github.com/smbache/ensurer) and
+-   [ensurer](https://github.com/smbache/ensurer) and
     [assertr](https://github.com/ropensci/assertr) provide a means of
     validating function values. Additionally, ensurer provides an
     experimental replacement for `function()` that builds functions with
     type-validated arguments.
 
-  - [typeCheck](https://github.com/jimhester/typeCheck), together with
+-   [typeCheck](https://github.com/jimhester/typeCheck), together with
     [Types for R](https://github.com/jimhester/types), enables the
     creation of functions with type-validated arguments by means of
     special type annotations. This approach is orthogonal to that of
@@ -328,4 +328,4 @@ for an overview of use cases.
 
 ## License
 
-MIT Copyright © 2019 [Eugene Ha](https://github.com/egnha)
+MIT Copyright © 2021 [Eugene Ha](https://github.com/egnha)

@@ -115,4 +115,4 @@ itself will only include bug fixes.
   0.2.2.9000 ([#12](https://github.com/egnha/valaddin/issues/12)).
 
 * Fulfills aim of purrr proposal 
-  [#275](https://github.com/hadley/purrr/issues/275) (closed).
+  [#275](https://github.com/tidyverse/purrr/issues/275) (closed).
