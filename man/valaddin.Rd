@@ -2,7 +2,6 @@
 % Please edit documentation in R/valaddin.R
 \docType{package}
 \name{valaddin}
-\alias{valaddin-package}
 \title{valaddin: Functional Input Validation}
 \description{
 \emph{valaddin} provides a functional operator, \code{\link{firmly}}, that

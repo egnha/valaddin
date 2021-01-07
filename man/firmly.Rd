@@ -61,7 +61,7 @@ According to \strong{scope}, there are two classes of check formulae:
 \itemize{
 \item \strong{Check formulae of global scope}
 \preformatted{<string> ~ <predicate>}
-\preformatted{~<predicate>}\preformatted{\item \strong{Check formulae of local scope}
+\preformatted{~<predicate>}\preformatted{\\item \\strong\{Check formulae of local scope\}
   \preformatted{list(<check_item>, <check_item>, ...) ~ <predicate>}
 }
 
@@ -74,7 +74,7 @@ function \code{<predicate>} returns \code{TRUE} when called on each
 \code{<predicate>} \emph{fails}—returns \code{FALSE} or is itself not
 evaluable—produces an error message, which is auto-generated unless a
 custom error message is supplied by specifying the string
-\code{<string>}.\preformatted{\subsection{Example}{
+\code{<string>}.\preformatted{\\subsection\{Example\}\{
   The condition that all (non-\code{\dots}) arguments of a function must
   be numerical can be enforced by the check formula
   \preformatted{~is.numeric}
@@ -82,7 +82,7 @@ custom error message is supplied by specifying the string
   \preformatted{"Not numeric" ~ is.numeric}
   if the custom error message \code{"Not numeric"} is to be used (in lieu
   of an auto-generated error message).
-}
+\}
 }
 
 }
@@ -95,7 +95,7 @@ the condition that the function \code{<predicate>} is \code{TRUE} for the
 expression \code{<expression>}. As for global check formulae, each check
 item for which \code{<predicate>} fails produces an error message, which
 is auto-generated unless a custom error message is supplied by a string
-as part of the left-hand side of the check item (formula).\preformatted{\subsection{Example}{
+as part of the left-hand side of the check item (formula).\preformatted{\\subsection\{Example\}\{
   The condition that \code{x} and \code{y} must differ for the function
   \code{function(x, y) \{1 / (x - y)\}} can be enforced by the local
   check formula
@@ -104,7 +104,7 @@ as part of the left-hand side of the check item (formula).\preformatted{\subsect
   \preformatted{list("x, y must differ" ~ x - y) ~ function(.) abs(.) > 0}
   if the custom error message \code{"x, y must differ"} is to be used (in
   lieu of an auto-generated error message).
-}
+\}
 }
 
 }
@@ -114,11 +114,11 @@ Following the
 \href{https://cran.r-project.org/package=magrittr}{\pkg{magrittr}}
 package, an anonymous (predicate) function of a single argument \code{.}
 can be concisely expressed by enclosing the body of such a function
-within curly braces \code{\{ \}}.\preformatted{\subsection{Example}{
+within curly braces \code{\{ \}}.\preformatted{\\subsection\{Example\}\{
   The (onsided, global) check formula
   \preformatted{~{. > 0}}
   is equivalent to the check formula \code{~function(.) {. > 0}}
-}
+\}
 }
 
 }
@@ -131,25 +131,25 @@ within curly braces \code{\{ \}}.\preformatted{\subsection{Example}{
 returned, unaltered, when both \code{.checklist} and \code{.warn_missing}
 are empty, or when \code{.f} has no named argument and
 \code{.warn_missing} is empty.\preformatted{Otherwise, \code{firmly} again returns a function that behaves
-\emph{identically} to \code{.f}, but also performs input validation:
+\\emph\{identically\} to \code{.f}, but also performs input validation:
 before a call to \code{.f} is attempted, its inputs are checked, and if
 any check fails, an error halts further execution with a message
 tabulating every failing check. (If all checks pass, the call to
 \code{.f} respects lazy evaluation, as usual.)
 
-\subsection{Subclass of the input-validation error object}{
+\\subsection\{Subclass of the input-validation error object\}\{
   The subclass of the error object is \code{.error_class}, unless
   \code{.error_class} is \code{character()}. In the latter case, the
   subclass of the error object is that of the existing error object, if
   \code{.f} is itself a firmly applied function, or it is
   \code{"simpleError"}, otherwise.
-}
+\}
 
-\subsection{Formal Arguments and Attributes}{
+\\subsection\{Formal Arguments and Attributes\}\{
   \code{firmly} preserves the attributes and formal arguments of
   \code{.f} (except that the \code{"class"} attribute gains the component
   \code{"firm_closure"}, unless it already contains it).
-}
+\}
 }
 
 }
