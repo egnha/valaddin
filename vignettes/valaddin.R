@@ -98,9 +98,9 @@ deposit <- firmly(deposit, list(err_msg ~ account) ~ Negate(is.environment))
 ## ---- eval = FALSE-------------------------------------------------------
 #  x <- "An expensive object"
 #  save(x, file = "my-precious.rda")
-#
+#  
 #  x <- "Oops! A bug or lapse has tarnished your expensive object"
-#
+#  
 #  # Many computations later, you again save x, oblivious to the accident ...
 #  save(x, file = "my-precious.rda")
 
@@ -138,23 +138,23 @@ hardhat(protection)
 ## ---- eval = FALSE-------------------------------------------------------
 #  x <- "An expensive object"
 #  save(x, file = "my-precious.rda")
-#
+#  
 #  x <- "Oops! A bug or lapse has tarnished your expensive object"
 #  #> Error: save(x, file = "my-precious.rda")
 #  #> Won't overwrite `file`
-#
+#  
 #  save(x, file = "my-precious.rda")
-#
+#  
 #  # Inspecting x, you notice it's changed, so you try to retrieve the original ...
 #  x
 #  #> [1] "Oops! A bug or lapse has tarnished your expensive object"
 #  load("my-precious.rda")
 #  #> Error: load(file = "my-precious.rda")
 #  #> Won't load objects into current environment
-#
+#  
 #  # Keep calm and carry on
 #  loosely(load)("my-precious.rda")
-#
+#  
 #  x
 #  #> [1] "An expensive object"
 
