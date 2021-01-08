@@ -43,9 +43,8 @@ You can be more confident your function works correctly, when you know
 its arguments are well-behaved. But when they aren’t, its better to stop
 immediately and bring them into line, than to let them pass and wreak
 havoc, exposing yourself to breakages or, worse, silently incorrect
-results. Validating the inputs of your functions is good [defensive
-programming](http://adv-r.had.co.nz/Exceptions-Debugging.html#defensive-programming)
-practice.
+results. Validating the inputs of your functions is good defensive
+programming practice.
 
 Suppose you have a function `secant()`
 
