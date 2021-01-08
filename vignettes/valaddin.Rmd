@@ -480,7 +480,7 @@ difference(as.POSIXct("2017-01-01", "UTC"), as.POSIXct("2016-01-01", "UTC"))
 ### Other approaches to input validation
 
 -   [argufy](https://github.com/gaborcsardi/argufy) takes a different approach
-    to input validation, using [roxygen](https://github.com/klutometis/roxygen) 
+    to input validation, using [roxygen](https://github.com/r-lib/roxygen2) 
     comments to specify checks.
     
 -   [ensurer](https://github.com/smbache/ensurer) provides an experimental
