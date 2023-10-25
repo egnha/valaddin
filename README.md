@@ -73,15 +73,15 @@ secant_numeric(log, "1", ".1")
 
 While this works, it’s not ideal, even in this simple situation, because
 
--   it’s inconvenient for interactive use at the console: you have to
-    declare a new function, and give it a new name (or copy-paste the
-    original function body)
+- it’s inconvenient for interactive use at the console: you have to
+  declare a new function, and give it a new name (or copy-paste the
+  original function body)
 
--   it doesn’t catch all errors, only the first that occurs among the
-    checks
+- it doesn’t catch all errors, only the first that occurs among the
+  checks
 
--   you’re back to square one, if you later realize you need additional
-    checks, or want to skip them altogether.
+- you’re back to square one, if you later realize you need additional
+  checks, or want to skip them altogether.
 
 ### valaddin rectifies these shortcomings
 
@@ -288,30 +288,30 @@ for an overview of use cases.
 
 ## Related packages
 
--   [assertive](https://bitbucket.org/richierocks/assertive),
-    [assertthat](https://github.com/hadley/assertthat), and
-    [checkmate](https://github.com/mllg/checkmate) provide handy
-    collections of predicate functions that you can use in conjunction
-    with `firmly()`.
+- [assertive](https://bitbucket.org/richierocks/assertive),
+  [assertthat](https://github.com/hadley/assertthat), and
+  [checkmate](https://github.com/mllg/checkmate) provide handy
+  collections of predicate functions that you can use in conjunction
+  with `firmly()`.
 
--   [argufy](https://github.com/gaborcsardi/argufy) takes a different
-    approach to input validation, using
-    [roxygen](https://github.com/r-lib/roxygen2) comments to specify
-    checks.
+- [argufy](https://github.com/gaborcsardi/argufy) takes a different
+  approach to input validation, using
+  [roxygen](https://github.com/r-lib/roxygen2) comments to specify
+  checks.
 
--   [ensurer](https://github.com/smbache/ensurer) and
-    [assertr](https://github.com/ropensci/assertr) provide a means of
-    validating function values. Additionally, ensurer provides an
-    experimental replacement for `function()` that builds functions with
-    type-validated arguments.
+- [ensurer](https://github.com/smbache/ensurer) and
+  [assertr](https://github.com/ropensci/assertr) provide a means of
+  validating function values. Additionally, ensurer provides an
+  experimental replacement for `function()` that builds functions with
+  type-validated arguments.
 
--   [typeCheck](https://github.com/jimhester/typeCheck), together with
-    [Types for R](https://github.com/jimhester/types), enables the
-    creation of functions with type-validated arguments by means of
-    special type annotations. This approach is orthogonal to that of
-    valaddin: whereas valaddin specifies input checks as *predicate
-    functions with scope*, typeCheck specifies input checks as
-    *arguments with type*.
+- [typeCheck](https://github.com/jimhester/typeCheck), together with
+  [Types for R](https://github.com/jimhester/types), enables the
+  creation of functions with type-validated arguments by means of
+  special type annotations. This approach is orthogonal to that of
+  valaddin: whereas valaddin specifies input checks as *predicate
+  functions with scope*, typeCheck specifies input checks as *arguments
+  with type*.
 
 ## License
 
