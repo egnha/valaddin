@@ -214,13 +214,6 @@ bc_tri(.5, .6)
 #> (x, y) not in triangle
 ```
 
-Alternatively, use the `lift()` function from the
-[purrr](https://github.com/tidyverse/purrr) package:
-
-``` r
-bc_tri <- firmly(bc, list(outside ~ list(x, y)) ~  purrr::lift(in_triangle))
-```
-
 ### Make your code more intelligible
 
 To make your functions more intelligible, declare your input assumptions
