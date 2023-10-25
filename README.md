@@ -5,13 +5,13 @@
 
 # valaddin
 
-[![Build
-Status](https://travis-ci.org/egnha/valaddin.svg?branch=1.0.0)](https://travis-ci.org/egnha/valaddin)
-[![codecov](https://codecov.io/gh/egnha/valaddin/branch/1.0.0/graph/badge.svg)](https://codecov.io/gh/egnha/valaddin/branch/1.0.0)
-[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/valaddin)](https://cran.r-project.org/package=valaddin)
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/egnha/valaddin/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/egnha/valaddin/actions/workflows/R-CMD-check.yaml)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/valaddin)](https://cran.r-project.org/package=valaddin)
 [![stability-frozen](https://img.shields.io/badge/stability-frozen-blue.svg)](https://github.com/emersion/stability-badges#frozen)
-[![License:
-MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<!-- badges: end -->
 
 Dealing with invalid function inputs is a chronic pain for R users,
 given R’s weakly typed nature. *valaddin* provides pain relief—a
