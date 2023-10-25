@@ -1,5 +1,11 @@
 # valaddin
 
+## 1.0.2
+
+This release eliminates a test failure introduced by an upcoming change to the
+value `is.atomic(NULL)` (from `TRUE` to `FALSE`). There are no user-facing
+changes.
+
 ## 1.0.1
 
 This release merely eliminates spurious test failures introduced by an upcoming
