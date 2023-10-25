@@ -233,8 +233,6 @@ ways:
         c(x, y, 1 - x - y)
       },
       .checklist = .)
-    
-    all.equal(bc, bc2)
     ```
 
 -   Better yet, use the `%checkin%` operator:
@@ -248,8 +246,6 @@ ways:
       function(x, y) {
         c(x, y, 1 - x - y)
       }
-    
-    all.equal(bc, bc3)
     ```
 
 ### Learn more
