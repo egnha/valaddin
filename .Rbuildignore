@@ -7,3 +7,6 @@
 ^cran-comments\.md$
 ^README\.Rmd$
 ^README-.*\.png$
+.DS_Store
+.git
+^\.github$
