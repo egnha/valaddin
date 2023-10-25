@@ -280,4 +280,4 @@ with type_.
 
 ## License
 
-MIT Copyright © 2021 [Eugene Ha](https://github.com/egnha)
+MIT Copyright © 2016--2023 [Eugene Ha](https://github.com/egnha)

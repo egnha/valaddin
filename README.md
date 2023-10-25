@@ -315,4 +315,4 @@ for an overview of use cases.
 
 ## License
 
-MIT Copyright © 2021 [Eugene Ha](https://github.com/egnha)
+MIT Copyright © 2016–2023 [Eugene Ha](https://github.com/egnha)
