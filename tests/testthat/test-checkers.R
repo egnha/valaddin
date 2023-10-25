@@ -147,8 +147,10 @@ test_that("miscellaneous checkers enforce corresponding predicate", {
   expect_error(f(1:3), "Not array: x")
 
   f <- firmly(identity, vld_atomic(~x))
-  expect_equal(f(NULL), NULL)
-  expect_error(f(list(NULL)), "Not atomic: x")
+  expect_equal(f(0), 0)
+  expect_error(f(list(0)), "Not atomic: x")
+  expect_equal(f(1:2), 1:2)
+  expect_error(f(list(1:2)), "Not atomic: x")
 
   f <- firmly(identity, vld_call(~x))
   expect_equal(f(quote(g())), quote(g()))
