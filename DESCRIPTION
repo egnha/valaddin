@@ -32,6 +32,6 @@ Collate:
     'validate.R'
     'scope.R'
     'checkers.R'
-    'valaddin.R'
+    'valaddin-package.R'
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
